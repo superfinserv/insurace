@@ -2,6 +2,14 @@
 *.log
 
 # ignore ALL files in ANY directory named temp
-public/assets/agents
+public/assets/agents/adhaar_card
+#public/assets/agents/doc
+public/assets/agents/education_certificate
+public/assets/agents/pan_card
+public/assets/agents/passbook_statement
+public/assets/agents/pdf/certificate
+public/assets/agents/pdf/taxinvoice
+public/assets/agents/profile
+public/assets/agents/tranning_certificates
 config/mediclaim.php
 config/motor.php
