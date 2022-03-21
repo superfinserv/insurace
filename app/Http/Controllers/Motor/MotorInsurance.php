@@ -56,12 +56,26 @@ class MotorInsurance extends Controller
                                           ->whereRaw('UPPER(fuel_type) LIKE ? ',[trim(strtoupper($fuel)).'%'])
                                           ->whereRaw('UPPER(cubic_capacity) LIKE ? ',$cc.'%')
                                           ->first();
+                        if(!isset($Varient->id)){
+                         //echo "Not found";
+                         $Varient = VarientTw::search($_searchStr,null, true)
+                                              //->whereRaw('UPPER(fuel_type) LIKE ? ',[trim(strtoupper($fuel)).'%'])
+                                             // ->whereRaw('UPPER(cubic_capacity) LIKE ? ',$cc.'%')
+                                              ->first();
+                          }
                  }else{
                  $Varient = VarientCar::search($_searchStr,null, true)
                                           ->whereRaw('UPPER(fuel_type) LIKE ? ',[trim(strtoupper($fuel)).'%'])
                                           ->whereRaw('UPPER(cubic_capacity) LIKE ? ',$cc.'%')
-                                          
-                 ->first();
+                                          ->first();
+                 
+                  if(!isset($Varient->id)){
+                   //   echo "Not found";
+                     $Varient = VarientCar::search($_searchStr,null, true)
+                                          //->whereRaw('UPPER(fuel_type) LIKE ? ',[trim(strtoupper($fuel)).'%'])
+                                         // ->whereRaw('UPPER(cubic_capacity) LIKE ? ',$cc.'%')
+                                          ->first();
+                 }
                  //print_r($Varient);die;
                  }
                  

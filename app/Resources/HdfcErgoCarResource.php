@@ -729,7 +729,8 @@ class HdfcErgoCarResource extends AppResource{
                 )]
             );
             $result = $clientResp->getBody()->getContents();
-           //print_r($result);die;
+            // print_r(json_encode($request));
+          // print_r($result);die;
             $response = json_decode($result);
            
            DB::table('app_temp_quote')->where(['type'=>'CAR','device'=>$deviceToken,'provider'=>'HDFCERGO'])->delete();

@@ -196,7 +196,10 @@ class HomeController extends Controller{
     }
     
     public function testany(){
-        
+        // $pinmasters  = DB::table("temp_vehicles_car_hdfcMap")->get();
+        //   foreach($pinmasters as $row){
+        //       DB::table("vehicle_variant_car")->where('digit_code',$row->digit_code)->update(['hdfcErgo_code'=>$row->hdfcErgo_code]);  
+        //   }
         //   $path =  public_path('/js/hdfc-car-model.json');
         //   $content = json_decode(file_get_contents($path), true);
         

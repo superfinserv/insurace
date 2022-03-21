@@ -211,6 +211,23 @@ label.control.control--checkbox{
 	 cursor: pointer;
 	 visibility: hidden;
 }
+.ui-menu .ui-menu-item {
+  padding: 5px 5px;
+  border-bottom: 1px solid #ccc;
+}
+	.ui-autocomplete {
+		max-height: 100px;
+		overflow-y: auto;
+		/* prevent horizontal scrollbar */
+		overflow-x: hidden;
+	}
+	/* IE 6 doesn't support max-height
+	 * we use height instead, but this forces the menu to always be this tall
+	 */
+	* html .ui-autocomplete {
+		height: 100px;
+	}
+	
 </style>
 <?php $SUM   = json_decode($data->sumInsured);
       $amts  = json_decode($data->amounts); ?>

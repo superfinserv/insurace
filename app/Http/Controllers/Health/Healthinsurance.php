@@ -165,7 +165,7 @@ class Healthinsurance extends Controller{
             
         // }
         
-         if($request->supp=="CARE" && $R[0]>2){
+         if($request->supp=="CARE" && $R[0]>2 && config('mediclaim.CARE.status')===true){
             $plans =[];
             
             $careplans = $this->Care->getQuickPlans($range,$request->params,$this->getToken(),$request->policytyp,$request->pln);
@@ -181,7 +181,7 @@ class Healthinsurance extends Controller{
         }
         
          if($range['start']>=4){
-          if($request->supp=="MANIPAL_CIGNA"){
+          if($request->supp=="MANIPAL_CIGNA" && config('mediclaim.MANIPAL.status')===true){
               $plans =[];
              $ManipalCignaPlans = $this->Manipal->getQuickPlans($range,$request->params,$this->getToken(),$request->policytyp);
              if($ManipalCignaPlans['status']=='success'){ 
@@ -196,7 +196,7 @@ class Healthinsurance extends Controller{
           }
          }
          
-         if($request->supp=="DIGIT"){
+         if($request->supp=="DIGIT" && config('mediclaim.DIGIT.status')===true){
               $plans =[];
              $DigitPlans = $this->DigitHealth->getQuickPlans($range,$request->params,$this->getToken(),$request->pln,$request->policytyp);
              if($DigitPlans['status']=='success'){ 
