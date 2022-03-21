@@ -1,0 +1,164 @@
+/* loader spin */
+.loader-default {
+        position:fixed;
+        width:100%;
+        left:0;right:0;top:0;bottom:0;
+        background-color: rgba(255,255,255,0.7);
+        z-index:9999;
+        display:none;
+    }
+    
+    @-webkit-keyframes spin {
+    	from {-webkit-transform:rotate(0deg);}
+    	to {-webkit-transform:rotate(360deg);}
+    }
+    
+    @keyframes spin {
+    	from {transform:rotate(0deg);}
+    	to {transform:rotate(360deg);}
+    }
+    
+    .loader-default::after {
+        content:'';
+           display: block;
+        position: absolute;
+        left: 48%;
+        top: 45%;
+        width: 85px;
+        height: 85px;
+        border-style: solid;
+        border-color: #AC0F0B;
+        border-top-color: #1a70c0;
+        border-width: 9px;
+        border-radius: 50%;
+        border-radius:50%;
+        -webkit-animation: spin .8s linear infinite;
+        animation: spin .8s linear infinite;
+    }
+
+
+/* loader -1 */
+.ch-preloader-sec {
+    position: fixed;
+    z-index: 99999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #00000061;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#ch-preloader {
+    width: 70px;
+    position: relative;
+    cursor: pointer;
+    height: 60px;
+}
+
+#ch-preloader .mask {
+    position: absolute;
+    border-radius: 2px;
+    overflow: hidden;
+    perspective: 1000;
+    backface-visibility: hidden;
+}
+#chp-top {
+    width: 53px;
+    height: 20px;
+    left: 20px;
+    transform: skew(
+-15deg
+, 0);
+    z-index: 100;
+}
+#chp-top .plane {
+    z-index: 2000;
+    animation: trans1 1.3s ease-in infinite 0s backwards;
+}
+
+#ch-preloader .plane {
+    background: #C52118;
+    width: 400%;
+    height: 100%;
+    position: absolute;
+    transform: translate3d(0px, 0, 0);
+    z-index: 100;
+    perspective: 1000;
+    backface-visibility: hidden;
+}
+
+#chp-middle {
+    width: 33px;
+    height: 20px;
+    left: 20px;
+    top: 15px;
+    transform: skew(-15deg, 40deg);
+}
+
+#chp-middle .plane {
+    transform: translate3d(0px, 0, 0);
+    background: #C52118;
+    animation: trans2 1.3s linear infinite 0.3s backwards;
+}
+
+#chp-bottom {
+    width: 53px;
+    height: 20px;
+    top: 30px;
+    transform: skew(
+-15deg
+, 0);
+}
+
+#chp-bottom .plane {
+    z-index: 2000;
+    animation: trans3 1.3s ease-out infinite 0.7s backwards;
+}
+
+#ch-preloader p {
+    color: #0E3679;
+    position: absolute;
+    left: -3px;
+    top: 100%;
+    font-family: Arial;
+    text-align: center;
+    font-size: 10px;
+}
+
+@keyframes trans2{ 
+    from { 
+      transform : translate3d(-160px,0,0)
+    }
+    to { 
+      transform : translate3d(53px,0,0)
+    }
+  }
+  
+@keyframes trans3{ 
+    from { 
+      transform : translate3d(53px,0,0)
+    }
+    to { 
+      transform : translate3d(-220px,0,0)
+    }
+}
+  
+@keyframes animColor{ 
+    from { 
+      background : red;
+    }
+    25%{
+      background : yellow;
+    }
+    50%{
+      background : green;
+    }
+    75%{
+      background : brown;
+    }
+    to { 
+      background : blue;
+    }
+}
