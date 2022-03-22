@@ -10,6 +10,44 @@ $(window).on('load', function(){
        }
     }
 });
+
+function RedirectToBrands(){
+    var bikenumber = $('#bikenumber').val();bikenumber= bikenumber.toUpperCase();
+                 
+                                             var regionCode = bikenumber.substring(0, 4);regionCode.toUpperCase();
+                                             var today = new Date();
+                                              
+                                             var regYear = today.getFullYear();regYear=regYear.toString();
+                                             var regMonth = ("0" + (today.getMonth() + 1)).slice(-2);
+                                             var regDate = ("0" + (today.getDate())).slice(-2);
+                                             var date   =  ("0" + (today.getDate())).slice(-2)+'-' +("0" + (today.getMonth() + 1)).slice(-2)+ '-' +  today.getFullYear();
+                                              twInfo= { 
+                                                         type:'TW',
+                                                         planType:'COM',
+                                                         vehicle:{ vehicleNumber:bikenumber,isBrandNew:"false",hasvehicleNumber:"true",rtoCode:regionCode,
+                                                                  regYear:regYear,regMonth:regMonth,regDate:regDate,regDMY:date,policyHolder:'IND'
+                                                                },
+                                                         subcovers : { isPA_OwnerDriverCover:"true",isPA_UNPassCover:"false",isPA_UNDriverCover:"false", 
+                                                                      isLL_PaidDriverCover:"false",isLL_UNPassCover:"false",
+                                                                      isLL_EmpCover:"false",isBreakDownAsCover:"false",
+                                                                      isPersonalBelongCover:"false",isKeyLockProCover:"false",isTyreProCover:"false",
+                                                                      isRetInvCover:"false",isRimProCover:"false",
+                                                                      isPartDepProCover:"false",isConsumableCover:"false",
+                                                                      isEng_GearBoxProCover:"false",isElecAccCover:"false",isCngKitCover:false,
+                                                                      isNonElecAccCover:"false" ,isCashAllowCover:"false"
+                                                                      },
+                                                        coverValues:{
+                                                            PA_UNPassCoverval:10000,partDepCoverval:'0', PA_OwnerDriverCoverval:1
+                                                        }
+                                                     }
+                                            if($('#mobileNumber').length > 0){ 
+                                                twInfo.customer ={ mobile:$('#mobileNumber').val()} 
+                                            }else{
+                                                twInfo.customer ={mobile:custInfo.mobile}   
+                                            }
+                                             localStorage.setItem("twInfo", JSON.stringify(twInfo));
+                                            window.location.href = base_url + "/twowheeler-insurance/brand";
+}
 //$('#bikenumber').mask('SS00SS0000');
 $(document).ready(function() {
    
@@ -90,42 +128,8 @@ $(document).ready(function() {
                                             //       window.location.href = base_url + "/car-insurance/expiry-detail";
                                             //   });
                                     }else{
-                                        
-                                            var bikenumber = $('#bikenumber').val();bikenumber= bikenumber.toUpperCase();
-                 
-                                             var regionCode = bikenumber.substring(0, 4);regionCode.toUpperCase();
-                                             var today = new Date();
-                                              
-                                             var regYear = today.getFullYear();regYear=regYear.toString();
-                                             var regMonth = ("0" + (today.getMonth() + 1)).slice(-2);
-                                             var regDate = ("0" + (today.getDate())).slice(-2);
-                                             var date   =  ("0" + (today.getDate())).slice(-2)+'-' +("0" + (today.getMonth() + 1)).slice(-2)+ '-' +  today.getFullYear();
-                                              twInfo= { 
-                                                         type:'TW',
-                                                         planType:'COM',
-                                                         vehicle:{ vehicleNumber:bikenumber,isBrandNew:"false",hasvehicleNumber:"true",rtoCode:regionCode,
-                                                                  regYear:regYear,regMonth:regMonth,regDate:regDate,regDMY:date,policyHolder:'IND'
-                                                                },
-                                                         subcovers : { isPA_OwnerDriverCover:"true",isPA_UNPassCover:"false",isPA_UNDriverCover:"false", 
-                                                                      isLL_PaidDriverCover:"false",isLL_UNPassCover:"false",
-                                                                      isLL_EmpCover:"false",isBreakDownAsCover:"false",
-                                                                      isPersonalBelongCover:"false",isKeyLockProCover:"false",isTyreProCover:"false",
-                                                                      isRetInvCover:"false",isRimProCover:"false",
-                                                                      isPartDepProCover:"false",isConsumableCover:"false",
-                                                                      isEng_GearBoxProCover:"false",isElecAccCover:"false",isCngKitCover:false,
-                                                                      isNonElecAccCover:"false" ,isCashAllowCover:"false"
-                                                                      },
-                                                        coverValues:{
-                                                            PA_UNPassCoverval:10000,partDepCoverval:'0', PA_OwnerDriverCoverval:1
-                                                        }
-                                                     }
-                                            if($('#mobileNumber').length > 0){ 
-                                                twInfo.customer ={ mobile:$('#mobileNumber').val()} 
-                                            }else{
-                                                twInfo.customer ={mobile:custInfo.mobile}   
-                                            }
-                                             localStorage.setItem("twInfo", JSON.stringify(twInfo));
-                                            window.location.href = base_url + "/twowheeler-insurance/brand";
+                                        RedirectToBrands();
+                                            
                                             //  setEventLog(twInfo).then(function(rs){ 
                                             //      window.location.href = base_url + "/car-insurance/brand";
                                             //   });                          
@@ -134,6 +138,7 @@ $(document).ready(function() {
                               }).fail(function(err) { 
                                     _thisBtn.html('Continue <i style="font-size: 14px;" class="right fa fa-chevron-right "></i>');
                                     _thisBtn.prop('disabled',false);_thisBtn.attr('disabled',false);
+                                    RedirectToBrands();
                                      return false;
                                 });
             }
