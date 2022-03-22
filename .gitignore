@@ -14,3 +14,5 @@ public/assets/agents/profile
 public/assets/agents/tranning_certificates
 config/mediclaim.php
 config/motor.php
+config/custom.php
+config/cred.php
