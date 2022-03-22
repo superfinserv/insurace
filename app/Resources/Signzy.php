@@ -19,14 +19,14 @@ class Signzy {
              $resp->id = "";
             try{ 
                  $_request = new \stdClass(); 
-                 $_request->username = "Superfinserv_Test";
-                 $_request->password = "P2LoVjhgOcOECVVjlbh";
+                 $_request->username = config('cred.username');
+                 $_request->password = config('cred.password');
                 
                $client = new Client([
                     'headers' => [ 'Content-Type' => 'application/json']
                 ]);
                 
-                $clientResp = $client->post('https://preproduction.signzy.tech/api/v2/patrons/login',
+                $clientResp = $client->post(config('cred.baseurl').'api/v2/patrons/login',
                     ['body' => json_encode($_request)]
                 );
                 $result = $clientResp->getBody()->getContents();
@@ -72,7 +72,7 @@ class Signzy {
                     'headers' => [ 'Content-Type' => 'application/json','Authorization'=>$auth->token]
                 ]);
                 
-                $clientResp = $client->post('https://preproduction.signzy.tech/api/v2/patrons/'.$auth->id.'/vehicleregistrations',
+                $clientResp = $client->post(config('cred.baseurl').'api/v2/patrons/'.$auth->id.'/vehicleregistrations',
                     ['body' => json_encode($_request)]
                 );
                 $result = $clientResp->getBody()->getContents();
@@ -106,7 +106,7 @@ class Signzy {
                     'headers' => [ 'Content-Type' => 'application/json','Authorization'=>"NXFDvNFtkGiXvxZIe5SLQiUeFG38rDf227O1XeHKfARFK68a5PWXTGg7EjsO0aav"]
                 ]);
                 
-                $clientResp = $client->post('https://preproduction.signzy.tech/api/v2/patrons/621f6be1dfc52fe36b9aac76/panv2',
+                $clientResp = $client->post(config('cred.baseurl').'api/v2/patrons/621f6be1dfc52fe36b9aac76/panv2',
                     ['body' => json_encode($_request)]
                 );
                 $result = $clientResp->getBody()->getContents();
@@ -144,7 +144,7 @@ class Signzy {
                     'headers' => [ 'Content-Type' => 'application/json','Authorization'=>"NXFDvNFtkGiXvxZIe5SLQiUeFG38rDf227O1XeHKfARFK68a5PWXTGg7EjsO0aav"]
                 ]);
                 
-                $clientResp = $client->post('https://preproduction.signzy.tech/api/v2/patrons/621f6be1dfc52fe36b9aac76/digilockers',
+                $clientResp = $client->post(config('cred.baseurl').'api/v2/patrons/621f6be1dfc52fe36b9aac76/digilockers',
                     ['body' => json_encode($_request)]
                 );
                 $result = $clientResp->getBody()->getContents();
@@ -178,7 +178,7 @@ class Signzy {
                     'headers' => [ 'Content-Type' => 'application/json','Authorization'=>"NXFDvNFtkGiXvxZIe5SLQiUeFG38rDf227O1XeHKfARFK68a5PWXTGg7EjsO0aav"]
                 ]);
                 
-                $clientResp = $client->post('https://preproduction.signzy.tech/api/v2/patrons/621f6be1dfc52fe36b9aac76/digilockers',
+                $clientResp = $client->post(config('cred.baseurl').'api/v2/patrons/621f6be1dfc52fe36b9aac76/digilockers',
                     ['body' => json_encode($_request)]
                 );
                 $result = $clientResp->getBody()->getContents();
@@ -212,7 +212,7 @@ class Signzy {
                     'headers' => [ 'Content-Type' => 'application/json','Authorization'=>"NXFDvNFtkGiXvxZIe5SLQiUeFG38rDf227O1XeHKfARFK68a5PWXTGg7EjsO0aav"]
                 ]);
                 
-                $clientResp = $client->post('https://preproduction.signzy.tech/api/v2/patrons/621f6be1dfc52fe36b9aac76/digilockers',
+                $clientResp = $client->post(config('cred.baseurl').'patrons/621f6be1dfc52fe36b9aac76/digilockers',
                     ['body' => json_encode($_request)]
                 );
                 $result = $clientResp->getBody()->getContents();
@@ -248,7 +248,7 @@ class Signzy {
                     'headers' => [ 'Content-Type' => 'application/json','Authorization'=>"NXFDvNFtkGiXvxZIe5SLQiUeFG38rDf227O1XeHKfARFK68a5PWXTGg7EjsO0aav"]
                 ]);
                 
-                $clientResp = $client->post('https://preproduction.signzy.tech/api/v2/patrons/621f6be1dfc52fe36b9aac76/digilockers',
+                $clientResp = $client->post(config('cred.baseurl').'api/v2/patrons/621f6be1dfc52fe36b9aac76/digilockers',
                     ['body' => json_encode($_request)]
                 );
                 $result = $clientResp->getBody()->getContents();
