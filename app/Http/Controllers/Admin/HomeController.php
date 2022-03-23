@@ -208,8 +208,8 @@ class HomeController extends Controller{
        //  }
         
         
-        // $pinmasters  = DB::table("temp_vehicles_car_hdfcMap")->get();
-        //   foreach($pinmasters as $row){
+        // $temp_vehicles_car_hdfcMap  = DB::table("temp_vehicles_car_hdfcMap")->get();
+        //   foreach($temp_vehicles_car_hdfcMap as $row){
         //       DB::table("vehicle_variant_car")->where('digit_code',$row->digit_code)->update(['hdfcErgo_code'=>$row->hdfcErgo_code]);  
         //   }
         //   $path =  public_path('/js/hdfc-car-model.json');
