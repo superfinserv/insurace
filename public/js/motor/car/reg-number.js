@@ -129,7 +129,7 @@ $(document).ready(function() {
                                             //   });
                                     }else{
                                         
-                                            RedirecttoBrands();
+                                            RedirectToBrands();
                                             //  setEventLog(carInfo).then(function(rs){ 
                                             //      window.location.href = base_url + "/car-insurance/brand";
                                             //   });                          
