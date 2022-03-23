@@ -46,7 +46,7 @@ function RedirectToBrands(){
                                                 carInfo.customer ={mobile:custInfo.mobile}   
                                             }
                                              localStorage.setItem("carInfo", JSON.stringify(carInfo));
-                                             window.location.href = base_url + "/car-insurance/brand";
+                                            window.location.href = base_url + "/car-insurance/brand";
 }
 //$('#carnumber').mask('SS00SS0000');
 $(document).ready(function() {
@@ -129,7 +129,7 @@ $(document).ready(function() {
                                             //   });
                                     }else{
                                         
-                                            RedirecttoBrands();
+                                            RedirectToBrands();
                                             //  setEventLog(carInfo).then(function(rs){ 
                                             //      window.location.href = base_url + "/car-insurance/brand";
                                             //   });                          

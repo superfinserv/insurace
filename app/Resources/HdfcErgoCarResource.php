@@ -1300,7 +1300,9 @@ class HdfcErgoCarResource extends AppResource{
            
            $model=DB::table('vehicle_variant_car')->where('id',$options['vehicle']['varient']['id'])->first();
            
+
             if((isset($subcovr->isPA_OwnerDriverCover) && $subcovr->isPA_OwnerDriverCover=='true')){    
+
                             if($params->planType=="TP" && $preInfo->businessType=="NEW"){
                                   $PA_OWNER =3;
                                 }else{ 

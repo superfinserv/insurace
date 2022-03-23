@@ -30,10 +30,10 @@ class MotorInsurance extends Controller
     }
     
      function GetVehicleRegistrationDetails(Request $request){
-             
            
             $isExist = DB::table('vehicles_rc')->where('regNo',$request->vehicleNumber)->count();
             if($isExist){
+               
                 $result =   DB::table('vehicles_rc')->where('regNo',$request->vehicleNumber)->first();
                 $response =  json_decode($result->json_result);
                 $cc = (int)$response->result->vehicleCubicCapacity;
@@ -64,19 +64,19 @@ class MotorInsurance extends Controller
                                               ->first();
                           }
                  }else{
-                 $Varient = VarientCar::search($_searchStr,null, true)
-                                          ->whereRaw('UPPER(fuel_type) LIKE ? ',[trim(strtoupper($fuel)).'%'])
-                                          ->whereRaw('UPPER(cubic_capacity) LIKE ? ',$cc.'%')
-                                          ->first();
-                 
-                  if(!isset($Varient->id)){
-                   //   echo "Not found";
                      $Varient = VarientCar::search($_searchStr,null, true)
-                                          //->whereRaw('UPPER(fuel_type) LIKE ? ',[trim(strtoupper($fuel)).'%'])
-                                         // ->whereRaw('UPPER(cubic_capacity) LIKE ? ',$cc.'%')
+                                              ->whereRaw('UPPER(fuel_type) LIKE ? ',[trim(strtoupper($fuel)).'%'])
+                                              ->whereRaw('UPPER(cubic_capacity) LIKE ? ',$cc.'%')
+                                              ->first();
+                     
+                      if(!isset($Varient->id)){
+                       //   echo "Not found";
+                         $Varient = VarientCar::search($_searchStr,null, true)
+                                              //->whereRaw('UPPER(fuel_type) LIKE ? ',[trim(strtoupper($fuel)).'%'])
+                                             // ->whereRaw('UPPER(cubic_capacity) LIKE ? ',$cc.'%')
                                           ->first();
-                 }
-                 //print_r($Varient);die;
+                      }
+                   // print_r($Varient);die;
                  }
                  
                  if(isset($Varient->id)){ // if model is found successfully
@@ -176,7 +176,7 @@ class MotorInsurance extends Controller
             }else{
                     
                  $response = $this->Signzy->GetVehicleDetails($request->vehicleNumber);
-                // print_r($response);die;
+               //  print_r($response);
                  if(isset($response->id)){
                       
                          $insert =  ['regNo'=>$response->result->regNo, 'class'=>$response->result->class, 'chassis'=>$response->result->chassis, 'engine'=>$response->result->engine, 'vehicleManufacturerName'=>$response->result->vehicleManufacturerName, 
