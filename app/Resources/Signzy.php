@@ -62,7 +62,7 @@ class Signzy {
             try{
                 
                 $auth = $this->GetSignzyAuth();
-                print_r($auth);
+           
                 $_request = new \stdClass(); 
                 $_request->task = "detailedSearch";
                 
