@@ -475,6 +475,7 @@ class DigitCarResource extends AppResource{
                         "isVehicleNew"=>$isVehicleNew,
                         "vehicleMaincode"=> $vehicleMain->digit_code,
                         "licensePlateNumber"=>$licensePlateNumber,
+                        "registrationAuthority"=>$regionCode,
                         "vehicleIdentificationNumber"=>null,
                         "engineNumber"=> null,
                         "manufactureDate"=> $registrationDate,

@@ -22,10 +22,6 @@ class VehiclesController extends Controller
 
     public function index(Request $request){
         $template = ['title' => 'Vehicles::List',"subtitle"=>"Vehicles List","prm"=>$request->param];
-<<<<<<< HEAD
-=======
-        //$this->dataDATACar();
->>>>>>> prod
        if($request->param=="2w"){
            $template['scripts'] = [asset('admin/js/page/2w-vehicles.js')];  
            $template['subtitle'] = "2w";
@@ -48,7 +44,7 @@ class VehiclesController extends Controller
             
             $clientResp = $client->post('https://chpa.heaggregator.com/CPMotorOnline/ChannelPartner/GetMasterData',
                 ['body' => '{ 
-                      "MasterKey": "FINANCIER",
+                      "MasterKey": "RTOCODE",
                       "AgentCode":"FWD22000",
                       "PolicyType":"All"
                     }']

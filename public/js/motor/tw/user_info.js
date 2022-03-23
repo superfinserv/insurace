@@ -93,7 +93,7 @@ $(window).on('load', function(){
 //     }
 // });
 
-$('#bike_number').mask('SS00SS0000');
+//$('#bike_number').mask('SS00SS0000');
 $('.dob-mask').mask('00-00-0000');
 $(document).ready(function() {
     $('#choosePolicyFile').bind('change', function () {

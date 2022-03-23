@@ -8,7 +8,7 @@ $(window).on('load', function(){
 });
 
 
-$('#car_number').mask('SS00SS0000');
+//$('#car_number').mask('SS00SS0000');
 $('.dob-mask').mask('00-00-0000');
 $(document).ready(function() {
     $('#choosePolicyFile').bind('change', function () {
