@@ -394,9 +394,6 @@ $(document).ready(function() {
                 bike_number: {
                     required: {
                         depends: function () { return $('#bike_number').length>0; }
-                    },
-                    rtono: {
-                        depends: function () { return $('#bike_number').length>0; }
                     }
                     
                 },
@@ -429,7 +426,6 @@ $(document).ready(function() {
                 },
                  bike_number: {
                     required: "Bike Registration number required!",
-                    rtono:"Enter valid RTO number."
                 },
                 policy_no: {
                     required: "Please enter policy number",
