@@ -1,7 +1,7 @@
 # ignore ALL .log files
 *.log
 *.env
-
+error_log
 # ignore ALL files in ANY directory named temp
 public/assets/agents/adhaar_card
 #public/assets/agents/doc

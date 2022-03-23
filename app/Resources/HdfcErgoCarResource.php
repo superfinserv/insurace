@@ -529,6 +529,8 @@ class HdfcErgoCarResource extends AppResource{
               $optionValues  = $params['coverValues'];
               $preInfo = $this->GetPreviousPolicyData($params,"Premium");
               
+              $model=DB::table('vehicle_variant_car')->where('id',$params['vehicle']['varient']['id'])->first();
+              //$seating_capacity = $model->seating_capacity;
                if((isset($options['isPA_OwnerDriverCover']) && $options['isPA_OwnerDriverCover']=='true')){ 
                   if($params['planType']=="TP" && $preInfo->businessType=="NEW"){
                           $PA_OWNER =3;
@@ -546,7 +548,7 @@ class HdfcErgoCarResource extends AppResource{
                   $paCoverVal = ($paCoverVal<40000)?40000:$paCoverVal;
                   $PA_UNPassSumInsured =$paCoverVal;
                   $PA_UNPass = "YES";
-                  $PAUnnamedPassengerNo =1;
+                  $PAUnnamedPassengerNo =$model->seating_capacity;
               }else{
                   $PA_UNPassSumInsured =0;
                   $PA_UNPass = "NO";
@@ -619,8 +621,8 @@ class HdfcErgoCarResource extends AppResource{
               
             //  $rto_master=DB::table('rto_master')->where('region_code',strtoupper($params['vehicle']['rtoMaster']))->first();
               $makeCode=DB::table('vehicle_make_car')->where('id',$params['vehicle']['brand']['id'])->value('hdfcErgo_makeCode');
-              $modelCode=DB::table('vehicle_variant_car')->where('id',$params['vehicle']['varient']['id'])->value('hdfcErgo_code');
-               $regDate = $params['vehicle']['regYear']."-".$params['vehicle']['regMonth']."-".$params['vehicle']['regDate'];
+              $modelCode=$model->hdfcErgo_code;//DB::table('vehicle_variant_car')->where('id',$params['vehicle']['varient']['id'])->value('hdfcErgo_code');
+              $regDate = $params['vehicle']['regYear']."-".$params['vehicle']['regMonth']."-".$params['vehicle']['regDate'];
           
               $rto_master=DB::table('rtoMaster')->select('rtoMaster.rtoCode as rtoCode','rtoMaster.hdfcErgoCodeCar as hdfcErgoCodeCar','cities.id as cityId',
                                                           'states.id as stateId','cities.hdfcErgoCode as cityCode','states.hdfcErgoCode as stateCode')
@@ -849,7 +851,9 @@ class HdfcErgoCarResource extends AppResource{
           $subcovr = $params->subcovers;
           $optionValues  = $params->coverValues;
           $idv = $enQ->idv;//isset($params->vehicle->idv->value)?$params->vehicle->idv->value:0;
-         
+            
+             $model=DB::table('vehicle_variant_car')->where('id',$options['vehicle']['varient']['id'])->first();
+            
                         if((isset($subcovr->isPA_OwnerDriverCover) && $subcovr->isPA_OwnerDriverCover=='true')){ 
                             if($params->planType=="TP" && $preInfo->businessType=="NEW"){
                                   $PA_OWNER =3;
@@ -866,7 +870,7 @@ class HdfcErgoCarResource extends AppResource{
                             $paCoverVal = isset($optionValues->PA_UNPassCoverval)?$optionValues->PA_UNPassCoverval:40000;
                             $PA_UNPassSumInsured =$paCoverVal;
                             $PA_UNPass = "YES";
-                            $PAUnnamedPassengerNo =1;
+                            $PAUnnamedPassengerNo =$model->seating_capacity;
                         }else{
                             $PA_UNPassSumInsured =0;
                             $PA_UNPass = "NO";
@@ -939,7 +943,7 @@ class HdfcErgoCarResource extends AppResource{
                                            ->where('rtoCode',strtoupper($options['vehicle']['rtoCode']))->first();
         //print_r($rto_master);die;
         $makeCode=DB::table('vehicle_make_car')->where('id',$options['vehicle']['brand']['id'])->value('hdfcErgo_makeCode');
-        $modelCode=DB::table('vehicle_variant_car')->where('id',$options['vehicle']['varient']['id'])->value('hdfcErgo_code');
+        $modelCode=$model->hdfcErgo_code;//DB::table('vehicle_variant_car')->where('id',$options['vehicle']['varient']['id'])->value('hdfcErgo_code');
         $regDate = $options['vehicle']['regYear']."-".$options['vehicle']['regMonth']."-".$options['vehicle']['regDate'];
         
         $cityID = explode('-',$options['address']['city'])[0];
@@ -1293,8 +1297,10 @@ class HdfcErgoCarResource extends AppResource{
           $subcovr = $params->subcovers;
           $optionValues  = $params->coverValues;
           $idv = $enQ->idv;//isset($params->vehicle->idv->value)?$params->vehicle->idv->value:0;
-         
-            if((isset($subcovr->isPA_OwnerDriverCover) && $subcovr->isPA_OwnerDriverCover=='true')){ 
+           
+           $model=DB::table('vehicle_variant_car')->where('id',$options['vehicle']['varient']['id'])->first();
+           
+            if((isset($subcovr->isPA_OwnerDriverCover) && $subcovr->isPA_OwnerDriverCover=='true')){    
                             if($params->planType=="TP" && $preInfo->businessType=="NEW"){
                                   $PA_OWNER =3;
                                 }else{ 
@@ -1310,7 +1316,7 @@ class HdfcErgoCarResource extends AppResource{
                             $paCoverVal = isset($optionValues->PA_UNPassCoverval)?$optionValues->PA_UNPassCoverval:10000;
                             $PA_UNPassSumInsured =$paCoverVal;
                             $PA_UNPass = "YES";
-                            $PAUnnamedPassengerNo =1;
+                            $PAUnnamedPassengerNo  =$model->seating_capacity;
                         }else{
                             $PA_UNPassSumInsured =0;
                             $PA_UNPass = "NO";
@@ -1382,7 +1388,7 @@ class HdfcErgoCarResource extends AppResource{
                                            ->where('rtoCode',strtoupper($options['vehicle']['rtoCode']))->first();
         //print_r($rto_master);die;
         $makeCode=DB::table('vehicle_make_car')->where('id',$options['vehicle']['brand']['id'])->value('hdfcErgo_makeCode');
-        $modelCode=DB::table('vehicle_variant_car')->where('id',$options['vehicle']['varient']['id'])->value('hdfcErgo_code');
+        $modelCode=$model->hdfcErgo_code;//DB::table('vehicle_variant_car')->where('id',$options['vehicle']['varient']['id'])->value('hdfcErgo_code');
         $regDate = $options['vehicle']['regYear']."-".$options['vehicle']['regMonth']."-".$options['vehicle']['regDate'];
         
         $cityID = explode('-',$options['address']['city'])[0];
