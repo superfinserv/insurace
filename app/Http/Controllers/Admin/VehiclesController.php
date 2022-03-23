@@ -22,7 +22,7 @@ class VehiclesController extends Controller
 
     public function index(Request $request){
         $template = ['title' => 'Vehicles::List',"subtitle"=>"Vehicles List","prm"=>$request->param];
-      
+        //$this->dataDATACar();
        if($request->param=="2w"){
            $template['scripts'] = [asset('admin/js/page/2w-vehicles.js')];  
            $template['subtitle'] = "2w";
@@ -45,7 +45,7 @@ class VehiclesController extends Controller
             
             $clientResp = $client->post('https://chpa.heaggregator.com/CPMotorOnline/ChannelPartner/GetMasterData',
                 ['body' => '{ 
-                      "MasterKey": "MODEL",
+                      "MasterKey": "FINANCIER",
                       "AgentCode":"FWD22000",
                       "PolicyType":"All"
                     }']
@@ -76,6 +76,7 @@ class VehiclesController extends Controller
     }
     
     public function GetvehicleDetailsInfo(Request $request){
+      
        $template = ['title' => 'HDFC ERGO Vehicles::List',"subtitle"=>"Model List", "prm"=>$request->param];
        $template['scripts'] = [asset('admin/js/page/hdfc-vehicles-model.js')];  
        return View::make('admin.vehicles.get-vehicle-info')->with($template);
