@@ -196,6 +196,18 @@ class HomeController extends Controller{
     }
     
     public function testany(){
+        
+         //   $path =  public_path('/site_assets/financers.json');
+        //   $content = json_decode(file_get_contents($path), true);
+        
+        // $results =  $content['Data'];
+         // foreach($results as $res){ 
+            // print_r($res);
+            // DB::table('financiers')->insertGetId(['name'=>$res['Name'],'hdfcErgoCode'=>$res['Value']]);
+             	 
+       //  }
+        
+        
         // $pinmasters  = DB::table("temp_vehicles_car_hdfcMap")->get();
         //   foreach($pinmasters as $row){
         //       DB::table("vehicle_variant_car")->where('digit_code',$row->digit_code)->update(['hdfcErgo_code'=>$row->hdfcErgo_code]);  
