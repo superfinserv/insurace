@@ -7,20 +7,20 @@ $(function(){
          }
     });
     
-    function format ( d ) {
-            // `d` is the original data object for the row
-             var item = d.fullInfo;
-             console.log(item);
-             var tbl= '<table class="table table-bordered" cellspacing="0" width="100%">';
-                tbl +='<thead><tr><th class="text-center">Fule</th><th class="text-center">Wheels</th><th class="text-center">Seating Capacity</th><th class="text-center">Power</th><th class="text-center">Cubic Capacity</th><th class="text-center">Weight</th><th class="text-center">Abs</th><th class="text-center">Air bags</th><th class="text-center">Length</th><tr/></thead><tbody>';
-                tbl +=  '<tr><td class="text-center">'+item.fuel_type+'</td><td class="text-center">'+item.wheels+'</td><td class="text-center">'+item.seating_capacity+'</td><td>'
-                           +item.power+'</td><td class="text-center">'+item.cubic_capacity+'</td><td class="text-center">'+item.grosss_weight+'</td><td>'
-                          +item.abs+'</td><td class="text-center">'+item.air_bags+'</td><td class="text-center">'+item._length+'</td></tr>';
+    // function format ( d ) {
+    //         // `d` is the original data object for the row
+    //          var item = d.fullInfo;
+    //          console.log(item);
+    //          var tbl= '<table class="table table-bordered" cellspacing="0" width="100%">';
+    //             tbl +='<thead><tr><th class="text-center">Fule</th><th class="text-center">Wheels</th><th class="text-center">Seating Capacity</th><th class="text-center">Power</th><th class="text-center">Cubic Capacity</th><th class="text-center">Weight</th><th class="text-center">Abs</th><th class="text-center">Air bags</th><th class="text-center">Length</th><tr/></thead><tbody>';
+    //             tbl +=  '<tr><td class="text-center">'+item.fuel_type+'</td><td class="text-center">'+item.wheels+'</td><td class="text-center">'+item.seating_capacity+'</td><td>'
+    //                       +item.power+'</td><td class="text-center">'+item.cubic_capacity+'</td><td class="text-center">'+item.grosss_weight+'</td><td>'
+    //                       +item.abs+'</td><td class="text-center">'+item.air_bags+'</td><td class="text-center">'+item._length+'</td></tr>';
 
-            tbl +='</tbody></table>';
+    //         tbl +='</tbody></table>';
              
-            return tbl;
-        }  
+    //         return tbl;
+    //     }  
     
     var vehiclestable = $('#vehicles-datatable').DataTable( {
         "scrollX": false,
@@ -51,8 +51,8 @@ $(function(){
                     {"data" : "variant","orderable":true,'className':'text-center'},
                     
                     {"data" : "body_type","orderable":true,'className':'text-center'},
-                    {"data" : "digit_code","orderable":false,'className':'vcode text-center'},
-                    {"data" : "fgi_code","orderable":false,'className':'vcode text-center'},
+                    {"data" : "digit_code","orderable":true,'className':'vcode text-center'},
+                    {"data" : "fgi_code","orderable":true,'className':'vcode text-center'},
                     {"data" : "hdfc_code","orderable":true,'className':'vcode text-center'},
                     // {
                     //     "class":          "details-control",

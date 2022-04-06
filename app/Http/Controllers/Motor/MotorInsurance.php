@@ -339,6 +339,7 @@ class MotorInsurance extends Controller
     function load_TP_details_Modal(Request $request){
         $temp['previous_insurer'] = DB::table('previous_insurer')->where(['status'=>'ACTIVE','type'=>'GENERAL'])->get();
         $temp['type'] = $request->type;
+        $temp['preCover'] =  isset($request->preCover)?$request->preCover:'COM';
         return View::make('motor.moter_tp_details')->with($temp);
     }
     

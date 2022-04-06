@@ -109,17 +109,31 @@ color: #454545;
                     <label for="name" style="width: 100%;font-weight: 600;">Prevoius Policy Type</label>    
                     <select style="margin-bottom:0px;" class="form-control " id="prePolicyType" name="prePolicyType">
                       <option value="">Select</option>
-                     <option value="1-OD_3-TP">1 Year OD and 1 Year TP</option>
-                     <option value="0-OD_1-TP">TP only </option>
+                          @if($preCover=="COM")
+                            <option value="1-OD_1-TP">1 Year OD and 1 Year TP</option>
+                         @endif
+                         @if($preCover=="TP")
+                            <option value="0-OD_1-TP">1 Year TP only </option>
+                         @endif
                      @if($type=='car')
-                     <option value="0-OD_3-TP">3 Year TP only </option>
-                     <option value="1-OD_3-TP">1 Year OD and 3 Year TP </option>
-                     <option value="3-OD_3-TP">3 Year OD and 3 Year TP </option>
+                          @if($preCover=="TP")
+                           <option value="0-OD_3-TP">3 Year TP only </option>
+                          @endif
+                          @if($preCover=="COM")
+                             <option value="1-OD_3-TP">1 Year OD and 3 Year TP </option>
+                             <option value="3-OD_3-TP">3 Year OD and 3 Year TP </option>
+                         @endif
                      @endif
                      @if($type=='bike')
-                     <option value="0-OD_3-TP">5 Year TP only </option>
-                     <option value="5-OD_5-TP">5 Year OD and 5 year TP</option>
-                     <option value="1-OD_5-TP">1 Year OD and 5 Year TP </option>
+                    
+                         @if(true)
+                            <option value="0-OD_5-TP">5 Year TP only </option>
+                         @endif
+                         @if($preCover=="COM")
+                           <option value="5-OD_5-TP">5 Year OD and 5 year TP</option>
+                            <option value="1-OD_5-TP">1 Year OD and 5 Year TP </option>
+                         @endif
+                     
                      @endif
                     </select>
                 </div>
@@ -127,7 +141,7 @@ color: #454545;
      
         <div class="col-md-6">
             <button class="btn btn-danger" style="" type="submit">Okay</button>
-            <!--<button id="TpDetailsFormClose" style="width: 48%;padding: 7px 0px;border: 1px solid #cccc;border-radius: 2px;font-size: 14px;" type="button">Cancel</button>-->
+            
         </div>
      </div>
 </form>

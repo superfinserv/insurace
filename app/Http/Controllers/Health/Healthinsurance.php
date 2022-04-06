@@ -249,7 +249,7 @@ class Healthinsurance extends Controller{
         if($sup->shortName=="DIGIT"){
             $json_data['zone'] = $this->DigitHealth->getZone($request->insurerInfo['address']['pincode']);
         }else if($sup->shortName=="MANIPAL_CIGNA"){
-            $json_data['zone'] = "ZONE1";//$this->ManipalResource->getZone($request->insurerInfo['address']['pincode']);
+            $json_data['zone'] = $this->Manipal->getZone($request->insurerInfo['address']['pincode']);//"ZONE1"
         }else if($sup->shortName=="HDFCERGO"){
             $json_data['zone'] = 3;
         }
@@ -288,11 +288,11 @@ class Healthinsurance extends Controller{
               //$this->CareResource->updateQuickQuote($enquiryId,1,$temp->short_sumInsured,"");
               $this->Care->recalculateQuickPlan($enquiryId,1,$temp->short_sumInsured,"");
             }else if($sup->shortName=="MANIPAL_CIGNA"){
-              //$this->ManipalResource->updateQuickQuote($enquiryId,1,$temp->short_sumInsured,$json_data['zone'],"");
+              $this->Manipal->recalculateQuickPlan($enquiryId,1,$temp->short_sumInsured,$json_data['zone'],"");
             }
             
         }
-        $this->sendMessage($request->insurerInfo['selfName'],$enquiryId);
+       // $this->sendMessage($request->insurerInfo['selfName'],$enquiryId);
         $result = ['status'=>'success','data'=>['enq'=>$enquiryId]];
         if($ad!=""){$result['data']['addon']=$ad;}
        return response()->json($result);
@@ -316,7 +316,7 @@ class Healthinsurance extends Controller{
              $enq = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$request->enqId)->first();
              $sum = json_decode($enq->sumInsured);
              $word = ($sum->shortAmt<=1)?'Lakh':'Lakhs';
-             $result=["partner"=>$enQ->code,'SI'=>$sum->shortAmt,'enq'=>$request->enqId,'amt'=>json_decode($enq->amounts),'extParam'=>$enq->mandatoryAddons,'termYear'=>$enq->termYear,'sumInsured'=>$sum->shortAmt." ".$word,'title'=>$enq->title];
+             $result=["partner"=>$enq->code,'SI'=>$sum->shortAmt,'enq'=>$request->enqId,'amt'=>json_decode($enq->amounts),'extParam'=>$enq->mandatoryAddons,'termYear'=>$enq->termYear,'sumInsured'=>$sum->shortAmt." ".$word,'title'=>$enq->title];
              return response()->json(['status'=>true,'data'=>$result]);
           
          }else{

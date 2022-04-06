@@ -44,13 +44,13 @@ class VehiclesController extends Controller
             
             $clientResp = $client->post('https://chpa.heaggregator.com/CPMotorOnline/ChannelPartner/GetMasterData',
                 ['body' => '{ 
-                      "MasterKey": "RTOCODE",
+                      "MasterKey": "MAKE",
                       "AgentCode":"FWD22000",
                       "PolicyType":"All"
                     }']
                                 );
                          $result = $clientResp->getBody()->getContents();
-                             print_r($result);die;
+                         print_r($result);die;
 
 
     }
@@ -99,7 +99,7 @@ class VehiclesController extends Controller
     
     public function getTwoVehiclesdatatable(Request $request){
        //$whr = array();$like=array();$or_like=array();$likeArr=array(); 
-        $columns = array(0 =>'vehicle_variant_tw.id', 1 =>'vehicle_make_tw.make', 2 =>'vehicle_modal_tw.modal',3=>'vehicle_variant_tw.variant',4=>'vehicle_make_tw.vehicle_type',5=>'vehicle_variant_tw.body_type'); 
+        $columns = array(0 =>'vehicle_make_tw.make', 1 =>'vehicle_make_tw.modal', 2 =>'vehicle_modal_tw.variant',3=>'vehicle_variant_tw.body_type',4=>'vehicle_make_tw.digit_code',5=>'vehicle_variant_tw.fgi_code',6=>'vehicle_variant_tw.hdfcErgo_code'); 
         $limit = $request->length;
         $start = $request->start;
         $order = $columns[$request->input('order.0.column')];
@@ -178,7 +178,7 @@ class VehiclesController extends Controller
    
     public function getPvtCarVehiclesdatatable(Request $request){
        //$whr = array();$like=array();$or_like=array();$likeArr=array(); 
-        $columns = array(0 =>'vehicle_variant_car.id', 1 =>'vehicle_make_car.make', 2 =>'vehicle_modal_car.modal',3=>'vehicle_variant_car.variant',4=>'vehicle_make_car.vehicle_type',5=>'vehicle_variant_car.body_type'); 
+        $columns = array(0 =>'vehicle_variant_car.make', 1 =>'vehicle_variant_car.modal', 2 =>'vehicle_variant_car.variant',3=>'vehicle_variant_car.body_type',4=>'vehicle_variant_car.digit_code',5=>'vehicle_variant_car.fgi_code',6=>'vehicle_variant_car.hdfcErgo_code'); 
         $limit = $request->length;
         $start = $request->start;
         $order = $columns[$request->input('order.0.column')];

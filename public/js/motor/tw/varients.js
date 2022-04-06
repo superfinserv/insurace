@@ -23,6 +23,7 @@ $(document).on('click', '.choose-varient', function(e) {
     var twInfo = JSON.parse(localStorage.getItem('twInfo'));
     twInfo.vehicle.varient = {id:id,name:name};
     twInfo.vehicle.fueltype = $(this).attr('data-fule');
+    twInfo.vehicle.cc = $(this).attr('data-cc');
     localStorage.setItem("twInfo", JSON.stringify(twInfo));
     if(twInfo.vehicle.isBrandNew===true && twInfo.vehicle.hasvehicleNumber===false){
          // Go to list plan

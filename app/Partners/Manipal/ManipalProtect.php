@@ -325,15 +325,19 @@ class ManipalProtect{
             $quoteData = ["params_request->addOn" =>$addOn,
                             'amounts'=>json_encode($jsonAmtArr),
                             "zone"=>$zoneCd,
+                            "code"=>$productPlanOptionCd,
                             "premiumAmount"=>number_format((float)$jsonAmtArr[$termYear]['Total_Premium'], 2, '.', ''),
                             "json_data->amount"=>number_format((float)$jsonAmtArr[$termYear]['Total_Premium'], 2, '.', ''),
                             "json_data->quotation"=>number_format((float)$jsonAmtArr[$termYear]['Total_Premium'], 2, '.', ''),
                             "json_data->sumInsured"=>$sum,
+                            "json_data->code"=>$productPlanOptionCd,
                             'termYear'=>$termYear,
                             'sumInsured->shortAmt'=>$sum,
                             'sumInsured->longAmt'=>($sum*100000),
                             'reqQuote'=>$reqQuote,
                             'respQuote'=>$respQuote,
+                            'reqRecalculate'=>$reqQuote,
+                            'respRecalculate'=>$respQuote,
                             'req'=>json_encode($REQARR),
                             'resp'=>json_encode($RESPARR)];
                DB::table('app_quote')->where('enquiry_id', $enqId)->update($quoteData);
@@ -421,7 +425,7 @@ class ManipalProtect{
                     $ProductInsuredDOList['height']=round($height*2.54);
                     $ProductInsuredDOList['zoneCd']= $zoneCd;
                     
-                    $ProductInsuredDOList['productPlanOptionCd']=$dataParam->code;
+                    $ProductInsuredDOList['productPlanOptionCd']=$Querydata->code;//$dataParam->code;
                     $ProductInsuredDOList['baseSumAssured']=floatval($sum*100000);
                     $ProductInsuredDOList['sumInsured']=($sum*100000);
                     
@@ -557,7 +561,7 @@ class ManipalProtect{
                 
                 $ProductDOList['policyProductAddOnsDOList'] = $policyProductAddOnsDOList;
             }
-            
+           // print_r($ProductDOList['policyProductAddOnsDOList']);
             $req['policySeq'] =null;//date('YmdHis');//$dataParam->applicationID;
             $req['policyNum'] =$dataParam->applicationID;
             $req['applicationID'] =$dataParam->applicationID;//$req['proposalNum'] =$dataParam->applicationID;
@@ -634,7 +638,7 @@ class ManipalProtect{
             $req['policyStatusCd'] ='';
             $req['leadGenerationCd'] ='';
             $req['statCd'] ='';
-            $req['productPlanOptionCd'] =$dataParam->code;//'IN-PRT5.5-HMB500';
+            $req['productPlanOptionCd'] =$Querydata->code;//$dataParam->code;//'IN-PRT5.5-HMB500';
             $req['leadGeneratorRemarks'] ='';
             $req['medicalStatusCd'] ='';
             $req['lastModifiedDt'] ='';
@@ -792,25 +796,51 @@ class ManipalProtect{
             $req['modalLoadingPremium'] =null;
             $listofPolicyTO[]  = $req;
             $REQUEST = ["listofPolicyTO"=>$listofPolicyTO];
+            try{
+                $client = new Client([
+                    'headers' => [ 'Action-Type'=>'VALIDATE','Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKey'),"app_id"=>config('mediclaim.MANIPAL.appIdValidate')]
+                ]);
+                
+                $clientResp = $client->post(config('mediclaim.MANIPAL.validateProposal'),
+                    ['body' => json_encode($REQUEST)]
+                );
+                
+              //print_r(json_encode($REQUEST));die;
+                $response = $clientResp->getBody()->getContents();   
+                $result=json_decode($response);
+               // print_r($response);
+                //$result=json_decode($response);
+                      
+               DB::table('app_quote')->where('enquiry_id', $enqID)->update(['reqCreate'=>json_encode($REQUEST),'respCreate'=>$response]);
+                if($result->errorList==null || $result->errorList==""){
+                    return ['status'=>true,'message'=>"Success",'data'=>[]]; 
+                }else{
+                   $errorList = $result->errorList;
+                   return ['status'=>false,'message'=>$errorList[0]->errDescription,'data'=>[]];  
+                }
             
-            $client = new Client([
-                'headers' => [ 'Action-Type'=>'VALIDATE','Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKey'),"app_id"=>config('mediclaim.MANIPAL.appIdValidate')]
-            ]);
-            
-            $clientResp = $client->post(config('mediclaim.MANIPAL.validateProposal'),
-                ['body' => json_encode($REQUEST)]
-            );
-            
-          //  print_r(json_encode($REQUEST));
-            $response = $clientResp->getBody()->getContents();   
-            $result=json_decode($response);
-           // print_r($response);
-            //$result=json_decode($response);
-            if($result->errorList==null || $result->errorList==""){
-                return ['status'=>true,'message'=>"Success",'data'=>[]]; 
-            }else{
-               $errorList = $result->errorList;
-               return ['status'=>false,'message'=>$errorList[0]->errDescription,'data'=>[]];  
+        }catch (ConnectException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                //DB::table('app_quote')->where('enquiry_id', $enqId)->update(['reqCreate'=>json_encode($REQUEST),'respCreate'=>$response]);
+                $resp = json_decode($responseBodyAsString);
+               // print_r($resp);
+                return ['status'=>false,'message'=>$resp->message,'data'=>[]];  
+               // return ['status'=>false,'plans'=>[],"message"=>"Sorry we are unable to process your request."];
+            }catch (RequestException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $resp = json_decode($responseBodyAsString);
+                //print_r($resp);
+                return ['status'=>false,'message'=>$resp->message,'data'=>[]];  
+               
+            }catch (ClientException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $resp = json_decode($responseBodyAsString);
+                //print_r($resp);
+                return ['status'=>false,'message'=>$resp->message,'data'=>[]];  
+                // return ['status'=>false,'plans'=>[],"message"=>"Internal server error"];
             }
             
            

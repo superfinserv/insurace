@@ -589,8 +589,8 @@ class DigitBikeResource extends AppResource{
                 $response = $e->getResponse();
                 $responseBodyAsString = $response->getBody()->getContents();
                 $jsonRes = json_decode($responseBodyAsString);
-                  print_r($responseBodyAsString);die;
-                return ['status' => false,'plans'=>[], 'message' => $jsonRes->error->message];
+               //   print_r($responseBodyAsString);die;
+                return ['status' => false,'plans'=>[], 'message' => 'Something went wrong'];
             }catch (ClientException $e) {
                 $response = $e->getResponse();
                 $responseBodyAsString = $response->getBody()->getContents();
@@ -1030,214 +1030,215 @@ class DigitBikeResource extends AppResource{
            
            
     }
-    
+     
     function createQuote($enquiry_id,$options){
       
-       if(isset($options['vehicle']['vehicleNumber'])){
-          $vehicleNo  = $options['vehicle']['vehicleNumber'];
+      if(isset($options->vehicle->vehicleNumber)){
+         $vehicleNo  = $options->vehicle->vehicleNumber;
+      }else{
+         $vehicleNo = $options->vehicle->rtoCode;
+      }
+      
+      $cityID = explode('-',$options->address->city)[0];
+       $stateID = explode('-',$options->address->state)[0];
+     
+     $state =  DB::table('states')->where('id',$stateID)->first();
+     $city  =  DB::table('cities')->where('id',$cityID)->first();
+     
+     $quoteData = DB::table('app_quote')->where('enquiry_id', $enquiry_id)->first();
+     $insuranceProductCode = $this->productCode($options->planType);
+     $REQUEST = json_decode($quoteData->respRecalculate);//$this->getAddonsSelection($insuranceProductCode,$options,json_decode($quoteData->json_recalculate));
+   //print_r($quoteData->json_recalculate);
+         $REQUEST->vehicle->licensePlateNumber = $vehicleNo;
+         $REQUEST->vehicle->vehicleIdentificationNumber = ($options->vehicle->chassisNumber)?$options->vehicle->chassisNumber:null;
+         $REQUEST->vehicle->engineNumber = ($options->vehicle->engineNumber)?$options->vehicle->engineNumber:null;
+         $REQUEST->pinCode= $options->address->pincode;
+         $REQUEST->vehicle->bodyType = null; 
+          $hypothecation = new \stdClass(); 
+       $motorQuestions = new \stdClass(); 
+       if(!empty($options->vehicle->hypothecationAgency)){
+       //   $hypothecation->isHypothecation = true; 
+       //   $hypothecation->hypothecationAgency=$options->vehicle->hypothecationAgency;
+       //   $hypothecation->hypothecationCIty=$addressCity[1];
+          
+          $motorQuestions->furtherAgreement="";
+          $motorQuestions->selfInspection=false;
+          $motorQuestions->financer=$options->vehicle->hypothecationAgency;
        }else{
-          $vehicleNo = $options['vehicle']['rtoCode'];
+           // $hypothecation->isHypothecation = false;
+           // $hypothecation->hypothecationAgency="";
+           // $hypothecation->hypothecationCIty="";
+           
+          $motorQuestions->furtherAgreement="";
+          $motorQuestions->selfInspection=false;
+          $motorQuestions->financer="";
+       }
+       $REQUEST->motorQuestions=$motorQuestions;
+       //$REQUEST->vehicle->hypothecation = $hypothecation;
+         
+         if($options->vehicle->policyHolder=='IND'){
+               $ownerDOB    =  explode("-",$options->customer->dob);
+               $personArr = [
+                    [
+                       "addresses"=> [
+                           [ "addressType"=> "PRIMARY_RESIDENCE","flatNumber"=> "", "streetNumber"=> "", "street"=> $options->address->addressLine,
+                             "district"=> "", "state"=> $state->stateCode, "city"=> $city->name, "country"=> "IN",  
+                             "pincode"=> $options->address->pincode
+                           ],
+                       ],
+                       "communications"=> [
+                           ["isPrefferedCommunication"=> true,"communicationType"=> "EMAIL","communicationId"=>$options->customer->email ],
+                           ["isPrefferedCommunication"=> true, "communicationType"=> "MOBILE","communicationId"=> $options->customer->mobile ]
+                       ],
+                       "identificationDocuments"=> [],
+                       "isPolicyHolder"=> true,
+                       "isPayer"=> true,
+                       "isVehicleOwner"=> true,
+                       "partyId"=> "",
+                       "personType"=>"INDIVIDUAL",
+                       "firstName"=> $options->customer->first_name,
+                       "middleName"=> "",
+                       "lastName"=> $options->customer->last_name,
+                       "dateOfBirth"=>$ownerDOB[2]."-".$ownerDOB[1]."-".$ownerDOB[0],
+                       "gender"=>strtoupper($options->customer->gender),
+                       "relation"=> "",
+                       "isDriver"=> true,
+                       "isInsuredPerson"=> true
+                  ]
+               ];
+               $nDOB = isset($options->nominee->dob)?explode('-',$options->nominee->dob):null;
+                if($nDOB!=""){
+               $nominee = ['personType'=>"INDIVIDUAL", 
+                               'partyId'=>"",
+                               'addresses'=>[],
+                               'communications'=>[],
+                               'identificationDocuments'=> [],
+                               'isPolicyHolder'=>true,
+                               'isPayer'=>false,
+                               'isVehicleOwner'=>true,
+                               'title'=>null,
+                               'firstName'=>explode(' ',$options->nominee->name)[0],
+                               'middleName'=> "",
+                               'lastName'=>explode(' ',$options->nominee->name)[1],
+                               'dateOfBirth'=>($nDOB!=null)?$nDOB[2].'-'.$nDOB[1].'-'.$nDOB[0]:null,
+                               'gender'=> null,
+                               'relation'=>$options->nominee->relation,
+                               'isDriver'=>true,
+                               'isInsuredPerson'=>true
+                           ];
+                }else{$nominee = null;}
+             }else{
+                 $personArr= [
+                   [
+                     "personType"=>"COMPANY",
+                     "partyId"=> "",
+                      "addresses"=> [
+                               [ "addressType"=> "PRIMARY_RESIDENCE","flatNumber"=> "", "streetNumber"=> "", "street"=> $options->address->addressLine,
+                                 "district"=> "", "state"=> $state->stateCode, "city"=> $city->name, "country"=> "IN",  
+                                 "pincode"=> $options->address->pincode
+                               ],
+                           ],
+                           "communications"=> [
+                               ["isPrefferedCommunication"=> true,"communicationType"=> "EMAIL","communicationId"=>$options->customer->email ],
+                               ["isPrefferedCommunication"=> true, "communicationType"=> "MOBILE","communicationId"=> $options->customer->mobile ]
+                           ],
+                          "identificationDocuments"=> [[
+                               "documentId"=>"",
+                               "documentType"=>"GST",
+                               "identificationDocumentId"=>$options->customer->gstin
+                           ]],
+                     "isPolicyHolder"=> true,
+                     "isPayer"=>null,
+                     "isVehicleOwner"=> true,
+                     "companyName"=> $options->customer->company
+                   ]
+                 ];   
+                  $nominee = null;
+             }
+       
+             if($options->vehicle->isBrandNew!='true'){
+               $prePolicyProvider = (isset($options->previousInsurance->insurer) && $options->previousInsurance->insurer!="0")
+                                    ?DB::table('previous_insurer')->where('id', $options->previousInsurance->insurer)->value('digit_code')
+                                    :null;
+                                    
+               
+               $policyExp = isset($options->previousInsurance->expDate)?explode('-',$options->previousInsurance->expDate):null;
+               $REQUEST->previousInsurer->previousInsurerCode = $prePolicyProvider;
+               $REQUEST->previousInsurer->previousPolicyNumber= $options->previousInsurance->policyNo;
+               $REQUEST->previousInsurer->previousPolicyExpiryDate=is_null($policyExp)?null:$policyExp[2].'-'.$policyExp[1].'-'.$policyExp[0];
+             }
+         $REQUEST->persons=$personArr;
+         $REQUEST->nominee=$nominee;
+         
+         if(isset(Auth::guard('agents')->user()->id)){
+          $pospInfo = new \stdClass();
+           $pospInfo->isPOSP =  true;
+           $pospInfo->pospName =  Auth::guard('agents')->user()->name;
+           $pospInfo->pospUniqueNumber =  Auth::guard('agents')->user()->posp_ID;
+           $pospInfo->pospLocation =  $city->name.", ".$state->name;
+           $pospInfo->pospPanNumber =  Auth::guard('agents')->user()->pan_card_number;
+           $pospInfo->pospAadhaarNumber =  "";
+           $pospInfo->pospContactNumber =  Auth::guard('agents')->user()->mobile;
+           $REQUEST->pospInfo = $pospInfo;
+          
        }
        
-       $cityID = explode('-',$options['address']['city'])[0];
-        $stateID = explode('-',$options['address']['state'])[0];
-      
-      $state =  DB::table('states')->where('id',$stateID)->first();
-      $city  =  DB::table('cities')->where('id',$cityID)->first();
-      
-      $quoteData = DB::table('app_quote')->where('enquiry_id', $enquiry_id)->first();
-      $insuranceProductCode = $this->productCode($options['planType']);
-      $REQUEST = json_decode($quoteData->respRecalculate);//$this->getAddonsSelection($insuranceProductCode,$options,json_decode($quoteData->json_recalculate));
-    //print_r($quoteData->json_recalculate);
-          $REQUEST->vehicle->licensePlateNumber = $vehicleNo;
-          $REQUEST->vehicle->vehicleIdentificationNumber = ($options['vehicle']['chassisNumber'])?$options['vehicle']['chassisNumber']:null;
-          $REQUEST->vehicle->engineNumber = ($options['vehicle']['engineNumber'])?$options['vehicle']['engineNumber']:null;
-          $REQUEST->pinCode= $options['address']['pincode'];
-          $REQUEST->vehicle->bodyType = null; 
-           $hypothecation = new \stdClass(); 
-        $motorQuestions = new \stdClass(); 
-        if(!empty($options['vehicle']['hypothecationAgency'])){
-        //   $hypothecation->isHypothecation = true; 
-        //   $hypothecation->hypothecationAgency=$options['vehicle']['hypothecationAgency'];
-        //   $hypothecation->hypothecationCIty=$addressCity[1];
+       try{  
+            $basicAuth = base64_encode(config('motor.DIGIT.tw.username').":".config('motor.DIGIT.tw.password'));
+            $client = new Client([
+               'headers' => ["accept"=> "*/*",  'Content-Type' => 'application/json','Authorization'=>"Basic ".$basicAuth,]
+           ]);
            
-           $motorQuestions->furtherAgreement="";
-           $motorQuestions->selfInspection=false;
-           $motorQuestions->financer=$options['vehicle']['hypothecationAgency'];
-        }else{
-            // $hypothecation->isHypothecation = false;
-            // $hypothecation->hypothecationAgency="";
-            // $hypothecation->hypothecationCIty="";
-            
-           $motorQuestions->furtherAgreement="";
-           $motorQuestions->selfInspection=false;
-           $motorQuestions->financer="";
-        }
-        $REQUEST->motorQuestions=$motorQuestions;
-        //$REQUEST->vehicle->hypothecation = $hypothecation;
-          
-          if($options['vehicle']['policyHolder']=='IND'){
-              $ownerDOB    =  explode("-",$options['customer']['dob']);
-                $personArr = [
-                     [
-                        "addresses"=> [
-                            [ "addressType"=> "PRIMARY_RESIDENCE","flatNumber"=> "", "streetNumber"=> "", "street"=> $options['address']['addressLine'],
-                              "district"=> "", "state"=> $state->stateCode, "city"=> $city->name, "country"=> "IN",  
-                              "pincode"=> $options['address']['pincode']
-                            ],
-                        ],
-                        "communications"=> [
-                            ["isPrefferedCommunication"=> true,"communicationType"=> "EMAIL","communicationId"=>$options['customer']['email'] ],
-                            ["isPrefferedCommunication"=> true, "communicationType"=> "MOBILE","communicationId"=> $options['customer']['mobile'] ]
-                        ],
-                        "identificationDocuments"=> [],
-                        "isPolicyHolder"=> true,
-                        "isPayer"=> true,
-                        "isVehicleOwner"=> true,
-                        "partyId"=> "",
-                        "personType"=>"INDIVIDUAL",
-                        "firstName"=> $options['customer']['first_name'],
-                        "middleName"=> "",
-                        "lastName"=> $options['customer']['last_name'],
-                        "dateOfBirth"=>$ownerDOB[2]."-".$ownerDOB[1]."-".$ownerDOB[0],
-                        "gender"=>strtoupper($options['customer']['gender']),
-                        "relation"=> "",
-                        "isDriver"=> true,
-                        "isInsuredPerson"=> true
-                   ]
-                ];
-                $nDOB = isset($options['nominee']['dob'])?explode('-',$options['nominee']['dob']):null;
-                
-                $nominee = ['personType'=>"INDIVIDUAL", 
-                                'partyId'=>"",
-                                'addresses'=>[],
-                                'communications'=>[],
-                                'identificationDocuments'=> [],
-                                'isPolicyHolder'=>true,
-                                'isPayer'=>false,
-                                'isVehicleOwner'=>true,
-                                'title'=>null,
-                                'firstName'=>explode(' ',$options['nominee']['name'])[0],
-                                'middleName'=> "",
-                                'lastName'=>explode(' ',$options['nominee']['name'])[1],
-                                'dateOfBirth'=>($nDOB!=null)?$nDOB[2].'-'.$nDOB['1'].'-'.$nDOB[0]:null,
-                                'gender'=> null,
-                                'relation'=>$options['nominee']['relation'],
-                                'isDriver'=>true,
-                                'isInsuredPerson'=>true
-                            ];
-              }else{
-                  $personArr= [
-                    [
-                      "personType"=>"COMPANY",
-                      "partyId"=> "",
-                       "addresses"=> [
-                                [ "addressType"=> "PRIMARY_RESIDENCE","flatNumber"=> "", "streetNumber"=> "", "street"=> $options['address']['addressLine'],
-                                  "district"=> "", "state"=> $state->stateCode, "city"=> $city->name, "country"=> "IN",  
-                                  "pincode"=> $options['address']['pincode']
-                                ],
-                            ],
-                            "communications"=> [
-                                ["isPrefferedCommunication"=> true,"communicationType"=> "EMAIL","communicationId"=>$options['customer']['email'] ],
-                                ["isPrefferedCommunication"=> true, "communicationType"=> "MOBILE","communicationId"=> $options['customer']['mobile'] ]
-                            ],
-                           "identificationDocuments"=> [[
-                                "documentId"=>"",
-                                "documentType"=>"GST",
-                                "identificationDocumentId"=>$options['customer']['gstin']
-                            ]],
-                      "isPolicyHolder"=> true,
-                      "isPayer"=>null,
-                      "isVehicleOwner"=> true,
-                      "companyName"=> $options['customer']['company']
-                    ]
-                  ];   
-                   $nominee = null;
-              }
+           $clientResp = $client->post(config('motor.DIGIT.tw.CreateQuote'),
+               ['body' => json_encode(
+                   $REQUEST
+               )]
+           );
+           $result = $clientResp->getBody()->getContents();
         
-              if($options['vehicle']['isBrandNew']!='true'){
-                $prePolicyProvider = (isset($options['previousInsurance']['insurer']) && $options['previousInsurance']['insurer']!="0")
-                                     ?DB::table('previous_insurer')->where('id', $options['previousInsurance']['insurer'])->value('digit_code')
-                                     :null;
-                                     
-                
-                $policyExp = isset($options['previousInsurance']['expDate'])?explode('-',$options['previousInsurance']['expDate']):null;
-                $REQUEST->previousInsurer->previousInsurerCode = $prePolicyProvider;
-                $REQUEST->previousInsurer->previousPolicyNumber= $options['previousInsurance']['policyNo'];
-                $REQUEST->previousInsurer->previousPolicyExpiryDate=is_null($policyExp)?null:$policyExp[2].'-'.$policyExp[1].'-'.$policyExp[0];
-              }
-          $REQUEST->persons=$personArr;
-          $REQUEST->nominee=$nominee;
-          
-          if(isset(Auth::guard('agents')->user()->id)){
-           $pospInfo = new \stdClass();
-            $pospInfo->isPOSP =  true;
-            $pospInfo->pospName =  Auth::guard('agents')->user()->name;
-            $pospInfo->pospUniqueNumber =  Auth::guard('agents')->user()->posp_ID;
-            $pospInfo->pospLocation =  $city->name.", ".$state->name;
-            $pospInfo->pospPanNumber =  Auth::guard('agents')->user()->pan_card_number;
-            $pospInfo->pospAadhaarNumber =  "";
-            $pospInfo->pospContactNumber =  Auth::guard('agents')->user()->mobile;
-            $REQUEST->pospInfo = $pospInfo;
-           
-        }
         
-        try{  
-             $basicAuth = base64_encode(config('motor.DIGIT.tw.username').":".config('motor.DIGIT.tw.password'));
-             $client = new Client([
-                'headers' => ["accept"=> "*/*",  'Content-Type' => 'application/json','Authorization'=>"Basic ".$basicAuth,]
-            ]);
-            
-            $clientResp = $client->post(config('motor.DIGIT.tw.CreateQuote'),
-                ['body' => json_encode(
-                    $REQUEST
-                )]
-            );
-            $result = $clientResp->getBody()->getContents();
-         
-         
-         //  print_r($result);
-           $response = json_decode($result);
-          if(isset($response->error->errorCode) && $response->error->errorCode==0 ){
-               $jsonData = $this->getJsonData($result);
-               $jsonData->enq = $enquiry_id;
-               $jsonData->policyNumber  = $response->contract->policyNumber;
-               $jsonData->applicationId = $response->applicationId;
-               //$jsonData->hypothecationAgency =$options['customer']['hypothecationAgency'];
-               $cust = isset($options['customer']['first_name'])?$options['customer']['first_name']." ".$options['customer']['last_name']:$options['customer']['company'];
-               $quoteData = ['customer_name'=>$cust,
-                             'proposalNumber'=>$response->contract->policyNumber,
-                             //'json_payment'=>json_encode($REQUEST),
-                             'reqCreate'=>json_encode($REQUEST),
-                             'respCreate'=>$result,
-                             'json_data'=>json_encode($jsonData),
-                            // 'json_create'=>$result
-                             'req'=>json_encode($REQUEST), 'resp'=>$result ];
-               DB::table('app_quote')->where('enquiry_id', $enquiry_id)->update($quoteData);
-               return ['status'=>true,'data'=>$enquiry_id];
-           }else{
-               return ['status'=>false,'data'=>$enquiry_id ,"message"=>current($response->error->validationMessages)];
-           }
-        }catch (ConnectException $e) {
-                $response = $e->getResponse();
-                $responseBodyAsString = $response->getBody()->getContents();
+        //  print_r($result);
+          $response = json_decode($result);
+         if(isset($response->error->errorCode) && $response->error->errorCode==0 ){
+              $jsonData = $this->getJsonData($result);
+              $jsonData->enq = $enquiry_id;
+              $jsonData->policyNumber  = $response->contract->policyNumber;
+              $jsonData->applicationId = $response->applicationId;
+              //$jsonData->hypothecationAgency =$options->customer->hypothecationAgency;
+              $cust = isset($options->customer->first_name)?$options->customer->first_name." ".$options->customer->last_name:$options->customer->company;
+              $quoteData = ['customer_name'=>$cust,
+                            'proposalNumber'=>$response->contract->policyNumber,
+                            //'json_payment'=>json_encode($REQUEST),
+                            'reqCreate'=>json_encode($REQUEST),
+                            'respCreate'=>$result,
+                            'json_data'=>json_encode($jsonData),
+                           // 'json_create'=>$result
+                            'req'=>json_encode($REQUEST), 'resp'=>$result ];
+              DB::table('app_quote')->where('enquiry_id', $enquiry_id)->update($quoteData);
+              return ['status'=>true,'data'=>$enquiry_id];
+          }else{
+              return ['status'=>false,'data'=>$enquiry_id ,"message"=>current($response->error->validationMessages)];
+          }
+       }catch (ConnectException $e) {
+               $response = $e->getResponse();
+               $responseBodyAsString = $response->getBody()->getContents();
+               return ['status'=>false,'plans'=>[],"message"=>"Internal server error"];
+           }catch (RequestException $e) {
+               $response = $e->getResponse();
+               $responseBodyAsString = $response->getBody()->getContents();
+               $resp = json_decode($responseBodyAsString);
+               if(isset($resp->error->validationMessages[0])){
+                    $msg = isset($resp->error->validationMessages[0])?($resp->error->validationMessages[0]):'Internal server error';
+                    return ['status'=>false,'plans'=>[],"message"=>$msg];
+               }else{
+                    return ['status'=>false,'plans'=>[],"message"=>"Internal server error"];
+               }
+           }catch (ClientException $e) {
+               $response = $e->getResponse();
+               $responseBodyAsString = $response->getBody()->getContents();
                 return ['status'=>false,'plans'=>[],"message"=>"Internal server error"];
-            }catch (RequestException $e) {
-                $response = $e->getResponse();
-                $responseBodyAsString = $response->getBody()->getContents();
-                $resp = json_decode($responseBodyAsString);
-                if(isset($resp->error->validationMessages[0])){
-                     $msg = isset($resp->error->validationMessages[0])?($resp->error->validationMessages[0]):'Internal server error';
-                     return ['status'=>false,'plans'=>[],"message"=>$msg];
-                }else{
-                     return ['status'=>false,'plans'=>[],"message"=>"Internal server error"];
-                }
-            }catch (ClientException $e) {
-                $response = $e->getResponse();
-                $responseBodyAsString = $response->getBody()->getContents();
-                 return ['status'=>false,'plans'=>[],"message"=>"Internal server error"];
-            }
-     }
+           }
+    }
      
     function getPaymentInfo($applicationID,$enq){
       

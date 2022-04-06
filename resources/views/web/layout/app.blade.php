@@ -60,8 +60,7 @@
         <link rel="stylesheet" href="{{asset('css/font-awesome.css')}}"/>
         <link href="https://fonts.googleapis.com/css?family=Nunito:300,400,800" rel="stylesheet"/> 
         
-        <script type="text/javascript" src="{{asset('js/device.min.js')}}"/></script>
-        <script src="{{asset('js/cdn/aos.js')}}"/></script>
+       
         <link href="{{asset('js/ion-rangeslider/css/ion.rangeSlider.css')}}" rel="stylesheet">
         <link href="{{asset('js/ion-rangeslider/css/ion.rangeSlider.skinFlat.css')}}" rel="stylesheet">
         <link href="{{asset('css/preloader.css')}}" rel="stylesheet">
@@ -307,7 +306,8 @@ document.write(unescape("%3Cscript src='" + tlJsHost + "trustlogo/javascript/tru
                 
             </a>
         </div>
-        
+         <script type="text/javascript" src="{{asset('js/device.min.js')}}"/></script>
+        <script src="{{asset('js/cdn/aos.js')}}"/></script>
         <script type="text/javascript"  src="{{asset('js/jquery-3.6.0.min.js')}}"></script>
         
         <script rel="stylesheet" href="{{asset('js/src/loading.js')}}" ></script>

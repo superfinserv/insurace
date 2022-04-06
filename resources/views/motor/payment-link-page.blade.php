@@ -127,8 +127,8 @@
         				          	         </tr>
         				          	       <tr>
         				          	           <th>Name</th><td><?=$params->customer->first_name." ".$params->customer->last_name;?></td>
-        				          	           <th>DOB</th><td><?=$params->customer->dob;?></td>
-        				          	           
+        				          	            <?php /*<th>DOB</th><td><?=$params->customer->dob;?></td> */?>
+        				          	            <th>Gender</th><td><?=$params->customer->gender;?></td> 
         				          	       </tr>
         				          	       <tr>
         				          	           
@@ -136,9 +136,7 @@
         				          	           <th>Mobile</th><td><?=$params->customer->mobile;?></td>
         				          	           
         				          	       </tr>
-        				          	       <tr>
-        				          	          <th>Gender</th><td><?=$params->customer->gender;?></td> 
-        				          	       </tr>
+        				          	      
         				          	       
         				          	       <tr>
         				          	             <th class="th-head" colspan="4">Vehicle Details (<?=$params->vehicle->vehicleNumber;?>)</th>

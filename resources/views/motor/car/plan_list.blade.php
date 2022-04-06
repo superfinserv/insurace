@@ -170,6 +170,19 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
       }
     
 }
+
+.error-span{
+    position: absolute;
+top: -16%;
+font-size: 12px;
+color: #7a0c16;
+background-color: #f8d7da;
+border-color: #f5c2c7;
+width: 96%;
+left: 2%;
+border-radius: 4px;
+padding: 4px 1px 4px 1px;
+}
 </style>
 
 <main role="main">
@@ -246,13 +259,14 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
                                        
                                         <div class="card plan-card plan-card-digit_m cart-empty">
                                             <div class="card-body">
+                                                <!--<span class="error-span">No addon cover selected</span>-->
                                                 <div class="row">
                                                     <div class="provider-logo col-md-4 col-lg-3 col-xs-12">
                                                         <img src="{{asset('assets/insurer-logo/DigitLogo.jpg')}}" style="width:100%;padding: 10px 30px 0px 0px;"/>
                                                     </div>
                                                     <div class="col-md-3 col-lg-3 col-xs-12">
                                                         <div class="column-2" style="display:none;">
-                                                            <h5 class="idv">IDV:337,092/-</h5>
+                                                            <h5 class="idv">IDV:-0.00/-</h5>
                                                             <h5 class="plan-deatil-link">
                                                                 <a href="#" class="Premium-Breakup" data-ref="#">Plan Break-down</a>
                                                             </h5>
@@ -273,14 +287,14 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="row digit_m_addon" style="padding: 10px 10px 0px 10px;border-top: 1px solid #ccc;">
-                                                    
-                                                </div>
+                                                
                                             </div>
+                                            <div class="card-footer digit_m_addon" style="font-size: 12px;text-shadow: 0px 1px 0px #ccc;">No addon cover selected</div>
                                         </div>
                                         
-                                        <div class="card plan-card plan-card-hdfcergo_m cart-empty" >
-                                            <div class="card-body">
+                                        <div class="card plan-card plan-card-hdfcergo_m cart-empty">
+                                             <div class="card-body">
+                                                  <!--<span class="error-span">No addon cover selected</span>-->
                                                 <div class="row">
                                                     <div class="provider-logo col-md-4 col-lg-3 col-xs-12">
                                                         <img class="cart-empty" src="https://www.hdfcergo.com/images/default-source/home/logo_hdfc.svg" style="width:80px;">
@@ -308,10 +322,9 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
                                                         </div>
                                                     </div>
                                                 </div>
-                                                 <div class="row hdfcergo_m_addon" style="padding: 10px 10px 0px 10px;border-top: 1px solid #ccc;">
-                                                    
-                                                </div>
+                                                
                                             </div>
+                                             <div class="card-footer hdfcergo_m_addon" style="font-size: 12px;text-shadow: 0px 1px 0px #ccc;">No addon cover selected</div>
                                         </div>
                                        
                                    </div> 
@@ -348,7 +361,7 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
 .plan-card{
         box-shadow: 0px 5px 8px #b1aeae;
         border: none;
-        margin-bottom: 15px;
+        margin-bottom: 30px;
     }
     .plan-card .provider-logo img{
         width: 120px;
@@ -380,7 +393,7 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
     .plan-card .column-4 .btn-netpremiumn i.fa{
         font-size:20px;
     }
-    
+   
 
 </style>
 

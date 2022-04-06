@@ -1,6 +1,13 @@
 <?php
 use Illuminate\Support\Facades\Route;
 
+
+//   Route::group(['domain' => '{account}.superfinserv.co.in'], function () {
+//     Route::get('/', function ($account) {
+//         return $account;
+//     });
+// });
+
  Route::get('/clear-cache', function() {
     Artisan::call('cache:clear');
     return "Cache is cleared";
@@ -87,7 +94,7 @@ use Illuminate\Support\Facades\Route;
     // Motor common data get
     Route::get('moter-insurance/load-idv-modal/{type}/{device?}', 'Motor\MotorInsurance@loadidvModal');
     Route::get('moter-insurance/load-moter-premium/breakup-modal/{typ}/{refId}', 'Motor\MotorInsurance@moterPremiumBreakupModal');
-    Route::get('moter-insurance/load-tp-details-modal/{type}', 'Motor\MotorInsurance@load_TP_details_Modal');
+    Route::get('moter-insurance/load-tp-details-modal/{type}/{preCover?}', 'Motor\MotorInsurance@load_TP_details_Modal');
     Route::get('moter-insurance/load-min-max-value/{type}/{device?}', 'Motor\MotorInsurance@getminMaxassValue');
     Route::post('moter-insurance/genrate-payment-link', 'Motor\MotorInsurance@sendPaymentLink');
     Route::get('/motor/{insType}/policy/payments/{enQId}', 'Motor\MotorInsurance@paymentLinkPage');

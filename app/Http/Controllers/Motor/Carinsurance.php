@@ -139,7 +139,7 @@ class Carinsurance extends Controller
               }
              }else{return response()->json(['status' => 'error','data' =>[],'message'=>$_result['message']]);}
          }
-         if($request->supp=="HDFCERGO"){
+         if($request->supp=="HDFCERGO" && $request->carInfo['planType']!="SAOD"){
              
                //echo "Hellow";
              $plans =[];
@@ -162,7 +162,7 @@ class Carinsurance extends Controller
                }
                
          }
-         else if($request->supp=="HDFCERGO"){
+         else if($request->supp=="HDFCERGO" && $request->carInfo['planType']!="SAOD"){
              $plans =[];
              $hdfc= $this->HdfcErgoCar->getRecalulateQuote($this->getToken(),$request->carInfo);
              if($hdfc['status']){
@@ -316,17 +316,17 @@ class Carinsurance extends Controller
       if($request->enc){
          $count = DB::table('app_quote')->where('enquiry_id',$request->enc)->count();
          if($count){
-              DB::table('app_quote')->where('enquiry_id', $request->enc)->update(["params_request"=>json_encode($request->carInfo)]);
+             //DB::table('app_quote')->where('enquiry_id', $request->enc)->update(["params_request"=>json_encode($request->carInfo)]);
              $data = DB::table('app_quote')->where('enquiry_id',$request->enc)->first();
              if($data->provider=='DIGIT'){
-                 $resp = $this->DigitCar->createQuote($request->enc,$request->carInfo);
+                 $resp = $this->DigitCar->createQuote($request->enc,json_decode($data->params_request));
                 if($resp['status']){
                      $result = ['status'=>'success','message'=>'Proposal Created successfully','data'=>['enc'=>$request->enc]];
                 }else{
                     $result = ['status'=>'error','message'=>$resp['message'],'data'=>[]];
                 }
              }else if($data->provider=='HDFCERGO'){
-                 $resp = $this->HdfcErgoCar->createProposal($request->enc,$request->carInfo);
+                 $resp = $this->HdfcErgoCar->createProposal($request->enc,json_decode($data->params_request));
                 if($resp['status']){
                     if($resp['isBreakIn']){
                         $result = ['status'=>'success','isBreakIn'=>'Yes','message'=>'Inspection case created successfully','data'=>['enc'=>$request->enc]];

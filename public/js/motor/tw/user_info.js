@@ -4,139 +4,28 @@ $(window).on('load', function(){
     enQId  = $('#enQId').val();
     $.get(base_url+'/get-enquiry-details/'+enQId,function(result){
         localStorage.setItem("twInfo", JSON.stringify(result.data));
-        // if($('.select2-hypothecationAgency').length){
-            //   $('.select2-hypothecationAgency').select2({
-            //         placeholder: 'Select',
-            //         selectOnClose: false,
-            //         tags: true,
-            //         minimumInputLength: 3,
-            //         tokenSeparators: [','],
-            //         ajax: {
-            //             dataType : "json",
-            //             url      : base_url+"/public/site_assets/hdfcFinancier.json",
-            //         },
-            //     });
-            
-            // $('.select2-hypothecationAgency').select2({
-            //     placeholder: 'Type any portion of a single product name...',
-            //     allowClear: true,
-            //     minimumInputLength: 0,
-            //     multiple: true,
-            //   // width: 300,
-            //     id: function(item) { return item.text; },
-            //     data: {
-            //           results: data, 
-            //           text: 'text'
-            //         }
-            // });
-            
-            
-        // }
     });
 });
-// $(window).on('load', function(){
-    
-//     if(localStorage.getItem("bikeInfo")){ 
-//       bikeInfo = JSON.parse(localStorage.getItem('bikeInfo'));
-//       addedItem = Object.keys(bikeInfo).length;
-//       if(addedItem){
-//           var userInfo = JSON.parse(localStorage.getItem('customersDetails'));
-//           bikeInfo = JSON.parse(localStorage.getItem('bikeInfo'));
-//           if(bikeInfo.customerInfo){
-//               $("#first_name").val(bikeInfo.customerInfo.fname);
-//               $("#last_name").val(bikeInfo.customerInfo.lname);
-//               $("#email").val(bikeInfo.customerInfo.email);
-//               $('#dob').val(bikeInfo.customerInfo.dob);
-//               $("#nominee_dob").val(bikeInfo.customerInfo.nominee_dob);
-//               $("#nominee_name").val(bikeInfo.customerInfo.nominee_name);
-//               $('#nominee_relation').val(bikeInfo.customerInfo.nominee_relation).trigger('change');
-//                 if(bikeInfo.customerInfo.mobile!=""){  $("#mobile").val(bikeInfo.customerInfo.mobile);}
-//               else{ var userInfo = JSON.parse(localStorage.getItem('customersDetails')); $("#mobile").val(userInfo.mobile);  }
-//           }else{
-//                 var userInfo = JSON.parse(localStorage.getItem('customersDetails')); $("#mobile").val(userInfo.mobile);
-//           }
-//           if(bikeInfo.addressInfo){
-//               $("#pincode").val(bikeInfo.addressInfo.pincode);
-//               $("#address").val(bikeInfo.addressInfo.address);
-//               if(bikeInfo.addressInfo.state){
-//                   var stateStr = bikeInfo.addressInfo.state;
-//                   $('#state_id').val(stateStr).trigger('change');
-//               }
-//               if(bikeInfo.addressInfo.city){ 
-//                   $('#city_id').val(bikeInfo.addressInfo.city).trigger('change');
-//               } 
-              
-//           }
-//           if(bikeInfo.vehicleInfo){
-//               $("#chassis_number").val(bikeInfo.vehicleInfo.chassis_number);
-//               $("#e_number").val(bikeInfo.vehicleInfo.engine_number);
-//               $("#reg_date").val(bikeInfo.vehicleInfo.reg_date);
-//               if(bikeInfo.newBike==0 && bikeInfo.withoutBikeNo==0){
-//                  $("#bike_number").val(bikeInfo.bikenumber);
-//                  console.log("b1",bikeInfo.bikenumber);
-//               }else{
-//                   $("#bike_number").val(bikeInfo.vehicleInfo.bike_number);
-//                   console.log("b2",bikeInfo.vehicleInfo.bike_number);
-//               }
-//                 if(bikeInfo.vehicleInfo.policyno!=undefined){
-//                   $('#policy_no').val(bikeInfo.vehicleInfo.policyno);
-//               }
-//               if(bikeInfo.vehicleInfo.policy_exp_date!=undefined){
-//                   $('#policy_exp_date').val(bikeInfo.vehicleInfo.policy_exp_date);
-//               }
-//           }else{
-//               $("#reg_date").val('01-'+bikeInfo.regMonth+'-'+bikeInfo.regYear);
-//           }
-//       }
-//     }else{
-//         alert("Something went wrong");
-//     }
-// });
+
 
 //$('#bike_number').mask('SS00SS0000');
 $('.dob-mask').mask('00-00-0000');
-$(document).ready(function() {
-    $('#choosePolicyFile').bind('change', function () {
-          var filename = $("#choosePolicyFile").val();
-          if (/^\s*$/.test(filename)) {
-            $(".file-upload").removeClass('active');
-            $("#noFile").text("No file chosen..."); 
-          }
-          else {
-            $(".file-upload").addClass('active');
-            $("#noFile").text(filename.replace("C:\\fakepath\\", "")); 
-          }
-        });
-        
-        
-        
-        
-});
-function uploadFile(ref,deviceToken){
-            if($('#choosePolicyFile').val()!==""){
-                var formData = new FormData();
-                formData.append('enc', ref);
-                formData.append('deviceToken', deviceToken);
-                // Attach file
-                formData.append('policy_doc', $('#choosePolicyFile')[0].files[0]);
-                    $.ajax({
-                        url: base_url + "/twowheeler-insurance/upload-files/"+ref,
-                        type: "POST",
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        success: function(response) {
-                            
-                        },
-                        error: function(response) {
+
+function createPolicy(enQId){
+    $.post(base_url + "/twowheeler-insurance/create-proposal/"+enQId,{enc:enQId}, 
+               function (resp){
+                   $('#btn-step-3').loadButton('off');
+                    var status = $.trim(resp.status);
+                    if(status=='success'){
+                        var enc = resp.data.enc;
+                        window.location.href=base_url+"/twowheeler-insurance/plan-summary/"+enc;
+                     }else{
                         
-                        }
-                    });
-                return true;
-            }else{
-               return false; 
-            }
-        }
+                         toastr.error(resp.message,'Error',);
+                         
+                     }
+              });
+}
 
 $(document).ready(function() {
     
@@ -166,15 +55,20 @@ $(document).ready(function() {
     
     
     
-    
-    
     $("body").on("click","#btn-step-1",function() {
         var form = $("#profile_form");
         form.validate({
             errorElement: 'span',
             errorClass: 'error',
-            errorPlacement: function(error, element) {
+             errorPlacement: function(error, element) {
+            
+             if(element.attr("name")=='gender'){
+                error.insertAfter(element.parent().parent('.form-group'));
+             }else if(element.attr("name")=='first_name'){
+                error.insertAfter(element.parent().parent('.form-group'));
+             }else { 
                 error.insertAfter(element.parent('.form-group'));
+             }
             },
             highlight: function(element, errorClass, validClass) {
                 $(element).closest('.form-group').addClass("has-error");
@@ -211,7 +105,7 @@ $(document).ready(function() {
                 },
                 gender: {
                     required: {
-                            depends: function () { return ($('#gender').length>0)?true:false; }
+                            depends: function () { return ($('.gender-input').length>0)?true:false; }
                         },
                 },
                 mobile: {
@@ -411,6 +305,32 @@ $(document).ready(function() {
                     required: {
                         depends: function () { return $('#previousInsurer').length>0; }
                     }
+                },
+                
+                 TP_policyno: {
+                    required: {
+                        depends: function () { return $('#TP_policyno').length>0; }
+                    }
+                },
+                 TPInsurer: {
+                    required: {
+                        depends: function () { return $('#TPInsurer').length>0; }
+                    }
+                },
+                TPprePolicyType: {
+                   required: {
+                        depends: function () { return $('#TPprePolicyType').length>0; }
+                    }
+                },
+                 TPpolicyStartDate: {
+                    required: {
+                        depends: function () { return $('#TPpolicyStartDate').length>0; }
+                    }
+                },
+                TPpolicyEndDate: {
+                   required: {
+                        depends: function () { return $('#TPpolicyEndDate').length>0; }
+                    }
                 }
                
             },
@@ -435,20 +355,29 @@ $(document).ready(function() {
                 },
                  previousInsurer: {
                     required: "Choose your prevoius insurer.",
+                },
+                
+                TP_policyno: {
+                    required: "ThirdParty Policy no is required",
+                },
+                 TPInsurer: {
+                    required: "ThirdParty Insurer is required",
+                },
+                TPprePolicyType: {
+                    required: "ThirdParty policy type is required",
+                },
+                 TPpolicyStartDate: {
+                    required: "Choose Start Date",
+                },
+                TPpolicyEndDate: {
+                    required: "Choose End Date",
                 }
             }
         });
 
  
         if (form.valid() === true ) {
-                //  if($('#choosePolicyFile').length>0){
-                     
-                //  var isValid = uploadFile(enQId,"twss");
-                // }else{
-                //   var isValid  = true;
-                // }
-                var isValid  = true;
-             if(isValid){
+              
                     $('#btn-step-3').loadButton('on',{faClass:'fa fa-sm',faIcon:'fa-spinner', doSpin:true,loadingText:'Submitting...', });
                     var twInfo = JSON.parse(localStorage.getItem('twInfo'));
                     if($('#bike_number').length>0){
@@ -479,32 +408,26 @@ $(document).ready(function() {
                         twInfo.vehicle.regYear = DT[2];
                         twInfo.vehicle.regMonth = DT[1];
                         twInfo.vehicle.regDMY = dmyreg;
-                        
+                        if($('#TPpolicyEndDate').length>0){
+                            
+                            twInfo.TP.TPInsurer = $('#TPInsurer').val();
+                            twInfo.TP.TP_policyno = $('#TP_policyno').val();
+                            twInfo.TP.prePolicyType = $('#TPprePolicyType').val();
+                            twInfo.TP.TPpolicyEndDate = $('#TPpolicyEndDate').val();
+                            twInfo.TP.TPpolicyStartDate = $('#TPpolicyStartDate').val();
+                        }
                       localStorage.setItem("twInfo", JSON.stringify(twInfo));
-                    $("#vehicle_data").addClass('active-step');
+                     $("#vehicle_data").addClass('active-step');
                      var twInfo = JSON.parse(localStorage.getItem('twInfo'));
-                     $.post(base_url + "/twowheeler-insurance/create-proposal/"+enQId,{enc:enQId,twInfo:twInfo}, 
-                       function (resp){
-                           $('#btn-step-3').loadButton('off');
-                            var status = $.trim(resp.status);
-                            if(status=='success'){
-                                var enc = resp.data.enc;
-                                window.location.href=base_url+"/twowheeler-insurance/plan-summary/"+enc;
-                             }else{
-                                
-                                 toastr.error(resp.message,'Error',);
-                                 
-                             }
-                      });
-             }else{
-                $.toast({
-                  text: 'Please your previous policy document.',
-                  showHideTransition: 'slide',
-                  position:'bottom-right',
-                  hideAfter:6000,
-                  allowToastClose:false
-                }); 
-           }
+                     $.post(base_url+"/twowheeler-insurance/update-info/"+enQId,{enqId:enQId,param:twInfo,step:'policy'},function(result){ 
+                         if($.trim(result.status)=='success'){
+                              createPolicy(enQId);
+                        }
+                      }).fail(function() {
+                            $('#btn-step-3').loadButton('off');
+                            toastr.error("Internal server error",'Error');
+                       });
+             
         }
     });
     

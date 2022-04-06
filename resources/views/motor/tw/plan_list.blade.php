@@ -159,6 +159,30 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
     border-radius: 4px;
     vertical-align: middle;
 }
+
+.right-info{
+    display: inline;float: right;
+}
+
+@media only screen and (max-width:480px) {
+     .right-info{ 
+         display: inline;float: unset;
+      }
+    
+}
+
+.error-span{
+    position: absolute;
+top: -16%;
+font-size: 12px;
+color: #7a0c16;
+background-color: #f8d7da;
+border-color: #f5c2c7;
+width: 96%;
+left: 2%;
+border-radius: 4px;
+padding: 4px 1px 4px 1px;
+}
 </style>
 
 <main role="main">
@@ -176,7 +200,7 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
             	     
             	     </div>
             	     
-            	     <div class="right-info" style="display: inline;float: right;">
+            	     <div class="right-info" >
                         <select class="form-control planType" id="planType" name="planType" style="border: 1px solid #AC0F0B;font-weight: 600;">
                             <option value="COM">Comprehensive (OD+Third Party)</option>
                             <option value="TP">Third Party Cover</option>
@@ -261,11 +285,8 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
                                                     </div>
                                                 </div>
                                                 
-                                                <div class="row digit_m_addon" style="margin-top:3px;padding:10px 10px 0px 10px;border-top: 1px solid #ccc;">
-                                                    
-                                                </div>
-                                                
                                             </div>
+                                            <div class="card-footer digit_m_addon" style="font-size: 12px;text-shadow: 0px 1px 0px #ccc;">No addon cover selected</div>
                                         </div>
                                         
                                         <div class="card plan-card plan-card-hdfcergo_m cart-empty" >
@@ -298,10 +319,8 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
                                                     </div>
                                                 </div>
                                                 
-                                                <div class="row hdfcergo_m_addon" style="margin-top:3px;padding:10px 10px 0px 10px;border-top: 1px solid #ccc;">
-                                                    
-                                                </div>
                                             </div>
+                                            <div class="card-footer hdfcergo_m_addon" style="font-size: 12px;text-shadow: 0px 1px 0px #ccc;">No addon cover selected</div>
                                         </div>
                                        
                                    </div> 
@@ -338,7 +357,7 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
 .plan-card{
         box-shadow: 0px 5px 8px #b1aeae;
         border: none;
-        margin-bottom: 15px;
+       margin-bottom: 35px;
     }
     .plan-card .provider-logo img{
         width: 120px;

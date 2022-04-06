@@ -1,14 +1,16 @@
 $(function(){
     'use strict';
      var loader = '<span class="inline-loader"><span class="inline-loader-box"></span><span class="inline-loader-box"></span><span class="inline-loader-box"></span></span>';
-   
+     var currentPlan = "COM";
+     var jcModal;
     const planLib = {
            twInfo: JSON.parse(localStorage.getItem('twInfo')),
           digit: function(callTyp){
               var digitCard = $('.plan-card-digit_m');
               $('.plan-card-digit_m').find('button.btn-netpremiumn').html(loader).attr('disabled',false);
              //if(callTyp=='recalculate'){$('.plan-card-digit_m').find('button.btn-netpremiumn').html(loader);}
-              $('.plan-card-digit_m').find('.card-footer').remove();
+              //$('.plan-card-digit_m').find('.card-footer').remove();
+              $('.plan-card-digit_m').find('.error-span').remove();
              var twInfo = JSON.parse(localStorage.getItem('twInfo'));
              var url =  (callTyp=='recalculate')?"/twowheeler-insurance/load-plans-recalculate/":"/twowheeler-insurance/load-plans/";
              $.ajax({
@@ -43,18 +45,18 @@ $(function(){
                     if( addon.length){
                         var addonHtm = "";
                         $.each(addon, function (adkey, ad) {
-                           //console.log(ad);
+                           
                            addonHtm +='<span class="addon-badge">'+ad.title+'</span>';
                         });
                         
                         $('.digit_m_addon').html(addonHtm);
                     }else{
-                       $('.digit_m_addon').empty();  
+                       $('.digit_m_addon').empty().text('No addon cover selected');   
                     }
                       
                       
                   }else{
-                       $('.plan-card-digit_m').append('<div class="card-footer" style="color:red;font-size: 13px;">'+data.message+'</div>');
+                       $('.plan-card-digit_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
                        $('.plan-card-digit_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
                        digitCard.addClass('cart-empty');
                       //$('.plan-card-digit_m').hide();
@@ -67,7 +69,7 @@ $(function(){
                     // console.log(status);
                     // console.log(err);
                   //  var digitCard = $('.plan-card-digit_m').hide();
-                     $('.plan-card-digit_m').append('<div class="card-footer" style="color:red;font-size: 13px;">'+err+' while fetch Quote</div>');
+                      $('.plan-card-digit_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
                      $('.plan-card-digit_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
                    //  toastr.error(+' while fetch Digit Quote', 'Error!')
               },
@@ -85,7 +87,7 @@ $(function(){
                var hdfcergoCard = $('.plan-card-hdfcergo_m');
                $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html(loader).attr('disabled',false);
                $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html(loader);
-               $('.plan-card-hdfcergo_m').find('.card-footer').remove();
+                  $('.plan-card-hdfcergo_m').find('.error-span').remove();
              //if(callTyp=='recalculate'){$('.plan-card-digit_m').find('button.btn-netpremiumn').html(loader);}
              var twInfo = JSON.parse(localStorage.getItem('twInfo'));
              var url =  (callTyp=='recalculate')?"/twowheeler-insurance/load-plans-recalculate/":"/twowheeler-insurance/load-plans/";
@@ -114,22 +116,21 @@ $(function(){
                     }
                     hdfcergoCard.find('button.btn-netpremiumn').html('<span class="fa fa-inr"></span> '+result.grossamount+' <i style="" class="fa fa-angle-double-right" aria-hidden="true"></i>');
                     var addon =  result.addons.covers.addons;
-                    if( addon.length){
+                     if( addon.length){
                         var addonHtm = "";
                         $.each(addon, function (adkey, ad) {
-                          // console.log(ad);
-                           addonHtm +='<span class="addon-badge">'+ad.title+'</span>';
                            
+                           addonHtm +='<span class="addon-badge">'+ad.title+'</span>';
                         });
                         
                         $('.hdfcergo_m_addon').html(addonHtm);
                     }else{
-                       $('.hdfcergo_m_addon').empty();  
+                       $('.hdfcergo_m_addon').empty().text('No addon cover selected');  
                     }
                 
                   }else{
                        hdfcergoCard.addClass('cart-empty');
-                         $('.plan-card-hdfcergo_m').append('<div class="card-footer" style="color:red;font-size: 13px;">'+data.message+'</div>');
+                       $('.plan-card-hdfcergo_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
                        $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
                       //$('.plan-card-digit_m').hide();
                      // toastr.error(data.message, 'HdfcErgo Error!') 
@@ -141,7 +142,7 @@ $(function(){
                     // console.log(status);
                     // console.log(err);
                    //$('.plan-card-hdfcergo_m').hide();
-                   $('.plan-card-hdfcergo_m').append('<div class="card-footer" style="color:red;font-size: 13px;">'+err+' while fetch Quote</div>');
+                   $('.plan-card-hdfcergo_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
                    $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
                     
                   //toastr.error(err+' while fetch HDFC ERGO Quote', 'Error!')
@@ -156,7 +157,7 @@ $(function(){
     const configSetting={
             coverSetup:function(cover){
                  var twInfo = JSON.parse(localStorage.getItem('twInfo'));
-                  
+                   currentPlan = cover;
                  if(cover=='TP'){
                         twInfo.vehicle.idv = "10000";
                         twInfo.subcovers.isBreakDownAsCover="false";
@@ -173,6 +174,15 @@ $(function(){
                         $('.moter-OD').prop("disabled", true); $(".moter-OD").attr("disabled", true);
                         $('.access-cover').prop("disabled", true); $(".access-cover").attr("disabled", true);
                         $('#zero-dep-elem').hide();
+                        
+                    }else if(cover=='SAOD'){
+                          $('.cardIdvSet').show();
+                          $('#ODdetails').show();
+                          $('#pa-unnamed-passanger-elem').hide();
+                           $('.com-cover').prop("checked", false); $(".com-cover").attr("checked", false);
+                           $('.moter-OD').prop("disabled", false); $(".moter-OD").attr("disabled", false);
+                          $('.com-cover').prop("disabled", true); $(".com-cover").attr("disabled", true);
+                          $('.access-cover').prop("disabled", false); $(".access-cover").attr("disabled", false);
                     }else{
                         $('.cardIdvSet').show();
                         $('.com-cover').prop("disabled", false); $(".com-cover").attr("disabled", false);
@@ -264,23 +274,96 @@ $(function(){
     }
     
     
+     function TPModal(){
+         var twInfo = JSON.parse(localStorage.getItem('twInfo'));
+         var preCover =  twInfo.previousInsurance.policyType;
+       jcModal = $.dialog({
+                    title: 'Just few details to go...',
+                    titleClass:'tp-title',
+                    content: 'url:'+base_url+"/moter-insurance/load-tp-details-modal/bike",
+                    animation: 'scale',
+                    columnClass: 'medium',
+                    closeAnimation: 'scale',
+                    backgroundDismiss: false,
+                    closeIcon:true,
+                    onContentReady: function(){
+                        //var twInfo = JSON.parse(localStorage.getItem('twInfo'));
+                        //console.log(carInfo.TP);
+                         if(twInfo.TP){
+                             if(twInfo.TP.TPstatus=='NO'){
+                                 $('#TPstatusNExp').prop('checked', true);$('#TPstatusNExp').attr('checked', true);
+                             }else{
+                                 $('#TPstatusExp').prop('checked', true);$('#TPstatusExp').attr('checked', true);
+                             }
+                             
+                             $('#TPInsurer').val(twInfo.TP.TPInsurer).trigger('change');
+                             $('#TP_policyno').val(twInfo.TP.TP_policyno);
+                             $('#TPpolicyStartDate').val(twInfo.TP.TPpolicyStartDate);
+                             $('#TPpolicyEndDate').val(twInfo.TP.TPpolicyEndDate);
+                             $('#prePolicyType').val(twInfo.TP.prePolicyType);
+                         }
+                        $('.jconfirm-content').css('overflow','hidden');
+                        $('.tp-title').css({'color':'#AC0F0B','border-bottom':'1px solid #ccc','margin-bottom':'6px','line-height': '10px',});
+                        //$("#TpDetailsForm").validate();
+                    },
+                     onClose: function () {
+                         //console.log('close - tp modal');
+                        //carInfo.TP  = formData;
+                       //carInfo.planType = "SAOD";
+                       // currentPlan = "SAOD";
+                        $('.planType').val(currentPlan); 
+                       // localStorage.setItem("carInfo", JSON.stringify(carInfo)); 
+                     },
+                });  
+    }
+    
+    
+     $('body').on('submit','#TpDetailsForm',function(e){
+      e.preventDefault();
+        $("#TpDetailsForm").validate();
+        $('#TPInsurer').rules("add",  {required: true });
+        $('#TPInsurer').rules("add",  {required: true });
+        $('#TP_policyno').rules("add", {required: true});
+        $('#TPpolicyStartDate').rules("add", {required: true,});
+        $('#TPpolicyEndDate').rules("add", {required: true});
+        $('#prePolicyType').rules("add", {required: true});
+        
+        if($('#TpDetailsForm').valid() === true) {
+            var formData = $('#TpDetailsForm').serializeObject();
+            var twInfo = JSON.parse(localStorage.getItem('twInfo'));
+            twInfo.TP  = formData;
+            twInfo.previousInsurance.insurer = formData.TPInsurer; 
+            twInfo.previousInsurance.policyNo = formData.TP_policyno;
+            twInfo.planType = "SAOD";
+            currentPlan = "SAOD";
+            localStorage.setItem("twInfo", JSON.stringify(twInfo));
+            jcModal.close();
+            $('#ODdetails').show();
+            
+             planLib.digit('firstCall');
+             planLib.hdfcErgo('firstCall');
+        }
+    });
+    
+    $('body').on('click','#ODdetails',function() {
+          TPModal();
+    })
+    
     $('body').on('change','.planType',function() {
         var cover = $(this).val(); 
         var twInfo = JSON.parse(localStorage.getItem('twInfo'));
-            twInfo.planType = cover;
-            localStorage.setItem("twInfo", JSON.stringify(twInfo));
-            if(cover=="SAOD"){
-                
+           if(cover=="SAOD"){
+                TPModal();
             }else{
+                 $('#ODdetails').hide();
+                currentPlan =  cover;// Manage Current plan in case SOAD.
+               twInfo.planType = cover;
+               localStorage.setItem("twInfo", JSON.stringify(twInfo));
               configSetting.coverSetup(cover);
               planLib.digit('firstCall');
               planLib.hdfcErgo('firstCall');
             }
-            // if(cover=='SAOD'){
-            //   // if(typeof(twInfo.TP)!= "undefined" && twInfo.TP!== null) { loadPlans('firstCall'); }else{TPModal();}
-            // }else{
-               
-            // }
+           
            
         
     });

@@ -8,7 +8,7 @@ $(function(){
           digit: function(callTyp){
               $('.plan-card-digit_m').find('button.btn-netpremiumn').html(loader);
              //if(callTyp=='recalculate'){$('.plan-card-digit_m').find('button.btn-netpremiumn').html(loader);}
-             $('.plan-card-digit_m').find('.card-footer').remove();
+             $('.plan-card-digit_m').find('.error-span').remove();
              var carInfo = JSON.parse(localStorage.getItem('carInfo'));
              var url =  (callTyp=='recalculate')?"/car-insurance/load-plans-recalculate/":"/car-insurance/load-plans/";
              $.ajax({
@@ -19,10 +19,12 @@ $(function(){
               success: function (data, status, jqXHR) {
                   
                   if($.trim(data.status)=="success"){
+                   
                     $('.idv-edit-th').attr('id','open-idv-modal');
                     $('.plan-card-digit_m').show();
                     var result = data.data;
                     var digitCard = $('.plan-card-digit_m');
+                     digitCard.find('.error-span').remove();   
                     digitCard.removeClass('cart-empty');
                     digitCard.find('a.Premium-Breakup').attr('data-ref',result.id);
                     if(carInfo.planType=="TP"){
@@ -48,13 +50,13 @@ $(function(){
                         
                         $('.digit_m_addon').html(addonHtm);
                     }else{
-                       $('.digit_m_addon').empty();  
+                       $('.digit_m_addon').empty().text('No addon cover selected');   
                     }
                    
                   }else{
                     //   $('.plan-card-digit_m').hide();
                     //   toastr.error(data.message, 'Error!') 
-                       $('.plan-card-digit_m').append('<div class="card-footer" style="color:red;font-size: 13px;">'+data.message+'</div>');
+                       $('.plan-card-digit_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
                        $('.plan-card-digit_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
                       //$('.plan-card-digit_m').hide();
                      // toastr.error(data.message, 'Digit Error!') 
@@ -67,7 +69,8 @@ $(function(){
                 //     console.log(err);
                 //   var digitCard = $('.plan-card-digit_m').hide();
                 //   toastr.error(err+' while fetch Digit Quote', 'Error!')
-                    $('.plan-card-digit_m').append('<div class="card-footer" style="color:red;font-size: 13px;">'+err+' while fetch Quote</div>');
+                     $('.plan-card-digit_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
+                   //  $('.plan-card-digit_m').append('<div class="card-footer" style="color:red;font-size: 13px;">'+err+' while fetch Quote</div>');
                      $('.plan-card-digit_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
                      //toastr.error(+' while fetch Digit Quote', 'Error!')
               },
@@ -84,7 +87,8 @@ $(function(){
           hdfcErgo: function(callTyp){
               //setTimeout(function(){  $('.plan-card-hdfcergo_m').hide(); }, 5000);
               $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html(loader);
-              $('.plan-card-hdfcergo_m').find('.card-footer').remove();
+             // $('.plan-card-hdfcergo_m').find('.card-footer').remove();
+               $('.plan-card-hdfcergo_m').find('.error-span').remove();
              //if(callTyp=='recalculate'){$('.plan-card-digit_m').find('button.btn-netpremiumn').html(loader);}
              var carInfo = JSON.parse(localStorage.getItem('carInfo'));
              var url =  (callTyp=='recalculate')?"/car-insurance/load-plans-recalculate/":"/car-insurance/load-plans/";
@@ -119,19 +123,19 @@ $(function(){
                         
                         $('.hdfcergo_m_addon').html(addonHtm);
                     }else{
-                       $('.hdfcergo_m_addon').empty();  
+                       $('.hdfcergo_m_addon').empty().text('No addon cover selected');  
                     }
                       
                   }else{
-                          console.log('hdfcergo_m');
-                       $('.plan-card-hdfcergo_m').append('<div class="card-footer" style="color:red;font-size: 13px;">'+data.message+'</div>');
+                         // console.log('hdfcergo_m');
+                       $('.plan-card-hdfcergo_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
                        $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
                       //$('.plan-card-digit_m').hide();
                      // toastr.error(data.message, 'HdfcErgo Error!');
                   }
                },
               error: function (jqXHR, status, err) {
-                     $('.plan-card-hdfcergo_m').append('<div class="card-footer" style="color:red;font-size: 13px;">'+err+' while fetch Quote</div>');
+                     $('.plan-card-hdfcergo_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
                      $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
                     // toastr.error(err+' while fetch HDFC ERGO Quote', 'Error!')
               },
@@ -164,7 +168,12 @@ $(function(){
                         $('#zero-dep-elem').hide();
                         $('#ODdetails').hide();
                     }else if(cover=='SAOD'){
-                        $('#ODdetails').show();
+                           $('.cardIdvSet').show();
+                           $('#ODdetails').show();
+                           $('.com-cover').prop("checked", false); $(".com-cover").attr("checked", false);
+                           $('.moter-OD').prop("disabled", false); $(".moter-OD").attr("disabled", false);
+                           $('.com-cover').prop("disabled", true); $(".com-cover").attr("disabled", true);
+                           $('.access-cover').prop("disabled", false); $(".access-cover").attr("disabled", false);
                     }else{
                         $('.cardIdvSet').show();
                         $('.com-cover').prop("disabled", false); $(".com-cover").attr("disabled", false);
@@ -234,8 +243,15 @@ $(function(){
     if(localStorage.getItem("carInfo")){ 
       carInfo = JSON.parse(localStorage.getItem('carInfo'));
         $('#span-make_name').text(carInfo.vehicle.brand.name);
+        $('#span-make_name').parent('a').attr('href',base_url+'/car-insurance/brand');
+        
         $('#span-model_name').text(carInfo.vehicle.model.name);
+        $('#span-model_name').parent('a').attr('href',base_url+'/car-insurance/model/'+carInfo.vehicle.model.name);
+         
         $('#span-varient_name').text(carInfo.vehicle.varient.name);
+        $('#span-model_name').parent('a').attr('href',base_url+'/car-insurance/variant/'+carInfo.vehicle.varient.name);
+        
+        
         $('#span-regYear').text(carInfo.vehicle.regYear);
         $('#span-FuleType').text(carInfo.vehicle.fueltype);
         $('#span-RTO').text(carInfo.vehicle.rtoCode);
@@ -257,18 +273,20 @@ $(function(){
     }
     
     
-    function TPModal(){
+    function TPModal(preCover){
+        var carInfo = JSON.parse(localStorage.getItem('carInfo'));
+        var preCover =  carInfo.previousInsurance.policyType;
        jcModal = $.dialog({
                     title: 'Just few details to go...',
                     titleClass:'tp-title',
-                    content: 'url:'+base_url+"/moter-insurance/load-tp-details-modal/car",
+                    content: 'url:'+base_url+"/moter-insurance/load-tp-details-modal/car/"+preCover,
                     animation: 'scale',
                     columnClass: 'medium',
                     closeAnimation: 'scale',
                     backgroundDismiss: false,
                     closeIcon:true,
                     onContentReady: function(){
-                        var carInfo = JSON.parse(localStorage.getItem('carInfo'));
+                        
                         //console.log(carInfo.TP);
                          if(carInfo.TP){
                              if(carInfo.TP.TPstatus=='NO'){
@@ -327,6 +345,7 @@ $(function(){
     });
     
     $('body').on('click','#ODdetails',function() {
+         
           TPModal();
     })
     $('body').on('change','.planType',function() {

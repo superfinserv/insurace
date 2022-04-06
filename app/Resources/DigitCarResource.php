@@ -537,7 +537,7 @@ class DigitCarResource extends AppResource{
              );
             $result = $clientResp->getBody()->getContents();
             $response = json_decode($result);
-        
+        //print_r($result);die;
          
             DB::table('app_temp_quote')->where(['type'=>'CAR','device'=>$deviceToken,'provider'=>'DIGIT'])->delete();
             if(isset($response->error->errorCode) && $response->error->errorCode==0 ){
@@ -581,14 +581,14 @@ class DigitCarResource extends AppResource{
          }catch (ConnectException $e) {
                 $response = $e->getResponse();
                 $responseBodyAsString = $response->getBody()->getContents();
-                return ['status'=>false,'plans'=>[],"message"=>"Internal server error"];
+                return ['status'=>false,'plans'=>[],"message"=>"Sorry we are unable to process your request."];
             }catch (RequestException $e) {
                 $response = $e->getResponse();
                 $responseBodyAsString = $response->getBody()->getContents();
                 $resp = json_decode($responseBodyAsString);
                 if(isset($resp->error->validationMessages[0])){
                      $msg = isset($resp->error->validationMessages[0])?($resp->error->validationMessages[0]):'Internal server error';
-                     return ['status'=>false,'plans'=>[],"message"=>$msg];
+                     return ['status'=>false,'plans'=>[],"message"=>'Sorry we are unable to process your request.'];
                 }else{
                      return ['status'=>false,'plans'=>[],"message"=>"Internal server error"];
                 }
@@ -1169,11 +1169,8 @@ class DigitCarResource extends AppResource{
         $_REQUEST = $this->getAddonsSelection($insuranceProductCode,$options,$REQUEST);
         $_REQUEST->contract->insuranceProductCode = $insuranceProductCode;
          if(isset($options['vehicle']['idv']['value'])){ $_REQUEST->vehicle->vehicleIDV->idv = $options['vehicle']['idv']['value'];}
-       // $header = ["accept: */*","Content-Type:application/json","Authorization:Basic ".base64_encode("$this->username:$this->password")];
-       // $auth = ['header'=> $header,'url' => $this->recalculateQuote];
-       // echo json_encode($_REQUEST);
-       // $result = $this->curlPost(json_encode($_REQUEST),$auth);
        
+       try{
             $basicAuth = base64_encode(config('motor.DIGIT.car.username').":".config('motor.DIGIT.car.password'));
              $client = new Client([
                 'headers' => ["accept"=> "*/*",  'Content-Type' => 'application/json','Authorization'=>"Basic ".$basicAuth,]
@@ -1185,34 +1182,53 @@ class DigitCarResource extends AppResource{
                 )]
             );
             $result = $clientResp->getBody()->getContents();
-        $response = json_decode($result);
-         //print_r($result);die;
+            $response = json_decode($result);
+          //print_r($result);die;
       
-        if(isset($response->error->errorCode) && $response->error->errorCode==0 ){
-          $json_data = $this->getJsonData($result);
-          $partner = DB::table('our_partners')->where('shortName','DIGIT')->value('name');
-          $plan['title'] = $partner;
-          $plan['grossamount'] = $json_data->gross;
-          $plan['netamount']   = $json_data->net;
-          $plan['discount']    = $json_data->discount->total;
-          $plan['addons'] =  $json_data;
-          $plan['id'] =$response->enquiryId;
-          $plan['idv'] = number_format(str_replace('INR','',$response->vehicle->vehicleIDV->idv));
-          $_quoteData = ['quote_id'=>$response->enquiryId,'type'=>'CAR','title'=>$partner,
-                        'device'=>$deviceToken,'provider'=>'DIGIT','policyType'=>$options['planType'],
-                        'min_idv'=>isset($response->vehicle->vehicleIDV->minimumIdv)?str_replace(',','',str_replace('INR','',$response->vehicle->vehicleIDV->minimumIdv)):0,
-                        'max_idv'=>isset($response->vehicle->vehicleIDV->maximumIdv)?str_replace(',','',str_replace('INR','',$response->vehicle->vehicleIDV->maximumIdv)):0,
-                        'idv'    =>str_replace(',','',str_replace('INR','',$response->vehicle->vehicleIDV->idv)),
-                        'call_type'=>"QUOTE",
-                        'reqRecalculate'=>json_encode($_REQUEST),
-                        'respRecalculate'=>$result,
-                       // 'response'=>($result),
-                       // 'json_recalculate'=>($result),
-                        'json_data'=>json_encode($json_data),
-                        'req'=>json_encode($_REQUEST),'resp'=>($result)];
-               $quoteID = DB::table('app_temp_quote')->where('quote_id',$quoteData->quote_id)->update($_quoteData);
-               return ['status'=>true,'plans'=>$plan];
-        }else{ return ['status'=>false,'plans'=>[],'message'=>""]; }
+            if(isset($response->error->errorCode) && $response->error->errorCode==0 ){
+                  $json_data = $this->getJsonData($result);
+                  $partner = DB::table('our_partners')->where('shortName','DIGIT')->value('name');
+                  $plan['title'] = $partner;
+                  $plan['grossamount'] = $json_data->gross;
+                  $plan['netamount']   = $json_data->net;
+                  $plan['discount']    = $json_data->discount->total;
+                  $plan['addons'] =  $json_data;
+                  $plan['id'] =$response->enquiryId;
+                  $plan['idv'] = number_format(str_replace('INR','',$response->vehicle->vehicleIDV->idv));
+                  $_quoteData = ['quote_id'=>$response->enquiryId,'type'=>'CAR','title'=>$partner,
+                                'device'=>$deviceToken,'provider'=>'DIGIT','policyType'=>$options['planType'],
+                                'min_idv'=>isset($response->vehicle->vehicleIDV->minimumIdv)?str_replace(',','',str_replace('INR','',$response->vehicle->vehicleIDV->minimumIdv)):0,
+                                'max_idv'=>isset($response->vehicle->vehicleIDV->maximumIdv)?str_replace(',','',str_replace('INR','',$response->vehicle->vehicleIDV->maximumIdv)):0,
+                                'idv'    =>str_replace(',','',str_replace('INR','',$response->vehicle->vehicleIDV->idv)),
+                                'call_type'=>"QUOTE",
+                                'reqRecalculate'=>json_encode($_REQUEST),
+                                'respRecalculate'=>$result,
+                               // 'response'=>($result),
+                               // 'json_recalculate'=>($result),
+                                'json_data'=>json_encode($json_data),
+                                'req'=>json_encode($_REQUEST),'resp'=>($result)];
+                       $quoteID = DB::table('app_temp_quote')->where('quote_id',$quoteData->quote_id)->update($_quoteData);
+                       return ['status'=>true,'plans'=>$plan];
+            }else{ return ['status'=>false,'plans'=>[],'message'=>"Internal server error"]; }
+        }catch (ConnectException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                return ['status'=>false,'plans'=>[],"message"=>"Internal server error"];
+        }catch (RequestException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $resp = json_decode($responseBodyAsString);
+                if(isset($resp->error->validationMessages[0])){
+                     $msg = isset($resp->error->validationMessages[0])?($resp->error->validationMessages[0]):'Internal server error';
+                     return ['status'=>false,'plans'=>[],"message"=>$msg];
+                }else{
+                     return ['status'=>false,'plans'=>[],"message"=>"Internal server error"];
+                }
+        }catch (ClientException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                 return ['status'=>false,'plans'=>[],"message"=>"Internal server error"];
+        }
            
            
     }
@@ -1271,44 +1287,38 @@ class DigitCarResource extends AppResource{
            
     }
     
-    function createQuote($enquiry_id,$options){
-      
-       if(isset($options['vehicle']['vehicleNumber'])){
-          $vehicleNo  = $options['vehicle']['vehicleNumber'];
+    function createQuote($enquiry_id,$options ){
+     
+       if(isset($options->vehicle->vehicleNumber)){
+          $vehicleNo  = $options->vehicle->vehicleNumber;
        }else{
-          $vehicleNo = $options['vehicle']['rtoCode'];
+          $vehicleNo = $options->vehicle->rtoCode;
        }
        
-        $cityID = explode('-',$options['address']['city'])[0];
-        $stateID = explode('-',$options['address']['state'])[0];
+        $cityID = explode('-',$options->address->city)[0];
+        $stateID = explode('-',$options->address->state)[0];
       
        $state =  DB::table('states')->where('id',$stateID)->first();
        $city  =  DB::table('cities')->where('id',$cityID)->first();
       
       $quoteData = DB::table('app_quote')->where('enquiry_id', $enquiry_id)->first();
-      $insuranceProductCode = $this->productCode($options['planType']);
+      $insuranceProductCode = $this->productCode($options->planType);
       $REQUEST = json_decode($quoteData->respRecalculate);//$this->getAddonsSelection($insuranceProductCode,$options,json_decode($quoteData->json_recalculate));
     //print_r($quoteData->json_recalculate);
           $REQUEST->vehicle->licensePlateNumber = $vehicleNo;
-          $REQUEST->vehicle->vehicleIdentificationNumber = ($options['vehicle']['chassisNumber'])?$options['vehicle']['chassisNumber']:null;
-          $REQUEST->vehicle->engineNumber = ($options['vehicle']['engineNumber'])?$options['vehicle']['engineNumber']:null;
-          $REQUEST->pinCode= $options['address']['pincode'];
+          $REQUEST->vehicle->vehicleIdentificationNumber = ($options->vehicle->chassisNumber)?$options->vehicle->chassisNumber:null;
+          $REQUEST->vehicle->engineNumber = ($options->vehicle->engineNumber)?$options->vehicle->engineNumber:null;
+          $REQUEST->pinCode= $options->address->pincode;
           $REQUEST->vehicle->bodyType = null; 
            $hypothecation = new \stdClass(); 
         $motorQuestions = new \stdClass(); 
-        if(!empty($options['vehicle']['hypothecationAgency'])){
-        //   $hypothecation->isHypothecation = true; 
-        //   $hypothecation->hypothecationAgency=$options['vehicle']['hypothecationAgency'];
-        //   $hypothecation->hypothecationCIty=$addressCity[1];
-           
+        if(!empty($options->vehicle->hypothecationAgency)){
+        
            $motorQuestions->furtherAgreement="";
            $motorQuestions->selfInspection=false;
-           $motorQuestions->financer=$options['vehicle']['hypothecationAgency'];
+           $motorQuestions->financer=$options->vehicle->hypothecationAgency;
         }else{
-            // $hypothecation->isHypothecation = false;
-            // $hypothecation->hypothecationAgency="";
-            // $hypothecation->hypothecationCIty="";
-            
+           
            $motorQuestions->furtherAgreement="";
            $motorQuestions->selfInspection=false;
            $motorQuestions->financer="";
@@ -1316,19 +1326,23 @@ class DigitCarResource extends AppResource{
         $REQUEST->motorQuestions=$motorQuestions;
         //$REQUEST->vehicle->hypothecation = $hypothecation;
           
-          if($options['vehicle']['policyHolder']=='IND'){
-              $ownerDOB    =  explode("-",$options['customer']['dob']);
+          if($options->vehicle->policyHolder=='IND'){
+              $dateOfBirth = "";
+              if($options->customer->dob!=""){
+                  $ownerDOB    =  explode("-",$options->customer->dob);
+                  $dateOfBirth= $ownerDOB[2]."-".$ownerDOB[1]."-".$ownerDOB[0];
+              }
                 $personArr = [
                      [
                         "addresses"=> [
-                            [ "addressType"=> "PRIMARY_RESIDENCE","flatNumber"=> "", "streetNumber"=> "", "street"=> $options['address']['addressLine'],
+                            [ "addressType"=> "PRIMARY_RESIDENCE","flatNumber"=> "", "streetNumber"=> "", "street"=> $options->address->addressLine,
                               "district"=> "", "state"=> $state->stateCode, "city"=> $city->name, "country"=> "IN",  
-                              "pincode"=> $options['address']['pincode']
+                              "pincode"=> $options->address->pincode
                             ],
                         ],
                         "communications"=> [
-                            ["isPrefferedCommunication"=> true,"communicationType"=> "EMAIL","communicationId"=>$options['customer']['email'] ],
-                            ["isPrefferedCommunication"=> true, "communicationType"=> "MOBILE","communicationId"=> $options['customer']['mobile'] ]
+                            ["isPrefferedCommunication"=> true,"communicationType"=> "EMAIL","communicationId"=>$options->customer->email ],
+                            ["isPrefferedCommunication"=> true, "communicationType"=> "MOBILE","communicationId"=> $options->customer->mobile ]
                         ],
                         "identificationDocuments"=> [],
                         "isPolicyHolder"=> true,
@@ -1336,19 +1350,19 @@ class DigitCarResource extends AppResource{
                         "isVehicleOwner"=> true,
                         "partyId"=> "",
                         "personType"=>"INDIVIDUAL",
-                        "firstName"=> $options['customer']['first_name'],
+                        "firstName"=> $options->customer->first_name,
                         "middleName"=> "",
-                        "lastName"=> $options['customer']['last_name'],
-                        "dateOfBirth"=>$ownerDOB[2]."-".$ownerDOB[1]."-".$ownerDOB[0],
-                        "gender"=>strtoupper($options['customer']['gender']),
+                        "lastName"=> $options->customer->last_name,
+                        "dateOfBirth"=>$dateOfBirth,
+                        "gender"=>strtoupper($options->customer->gender),
                         "relation"=> "",
                         "isDriver"=> true,
                         "isInsuredPerson"=> true
                    ]
                 ];
-                $nDOB = isset($options['nominee']['dob'])?explode('-',$options['nominee']['dob']):null;
-                
-                $nominee = ['personType'=>"INDIVIDUAL", 
+                $nDOB = isset($options->nominee->dob)?explode('-',$options->nominee->dob):null;
+                if($nDOB!=""){
+                  $nominee = ['personType'=>"INDIVIDUAL", 
                                 'partyId'=>"",
                                 'addresses'=>[],
                                 'communications'=>[],
@@ -1357,61 +1371,64 @@ class DigitCarResource extends AppResource{
                                 'isPayer'=>false,
                                 'isVehicleOwner'=>true,
                                 'title'=>null,
-                                'firstName'=>explode(' ',$options['nominee']['name'])[0],
+                                'firstName'=>explode(' ',$options->nominee->name)[0],
                                 'middleName'=> "",
-                                'lastName'=>explode(' ',$options['nominee']['name'])[1],
-                                'dateOfBirth'=>($nDOB!=null)?$nDOB[2].'-'.$nDOB['1'].'-'.$nDOB[0]:null,
+                                'lastName'=>explode(' ',$options->nominee->name)[1],
+                                'dateOfBirth'=>($nDOB!=null)?$nDOB[2].'-'.$nDOB[1].'-'.$nDOB[0]:null,
                                 'gender'=> null,
-                                'relation'=>$options['nominee']['relation'],
+                                'relation'=>$options->nominee->relation,
                                 'isDriver'=>true,
                                 'isInsuredPerson'=>true
                             ];
+                }else{
+                   $nominee = null; 
+                }
               }else{
                   $personArr= [
                     [
                       "personType"=>"COMPANY",
                       "partyId"=> "",
                        "addresses"=> [
-                                [ "addressType"=> "PRIMARY_RESIDENCE","flatNumber"=> "", "streetNumber"=> "", "street"=> $options['address']['addressLine'],
+                                [ "addressType"=> "PRIMARY_RESIDENCE","flatNumber"=> "", "streetNumber"=> "", "street"=> $options->address->addressLine,
                                   "district"=> "", "state"=> $state->state_code, "city"=> $city->name, "country"=> "IN",  
-                                  "pincode"=> $options['address']['pincode']
+                                  "pincode"=> $options->address->pincode
                                 ],
                             ],
                             "communications"=> [
-                                ["isPrefferedCommunication"=> true,"communicationType"=> "EMAIL","communicationId"=>$options['customer']['email'] ],
-                                ["isPrefferedCommunication"=> true, "communicationType"=> "MOBILE","communicationId"=> $options['customer']['mobile'] ]
+                                ["isPrefferedCommunication"=> true,"communicationType"=> "EMAIL","communicationId"=>$options->customer->email ],
+                                ["isPrefferedCommunication"=> true, "communicationType"=> "MOBILE","communicationId"=> $options->customer->mobile ]
                             ],
                            "identificationDocuments"=> [[
                                 "documentId"=>"",
                                 "documentType"=>"GST",
-                                "identificationDocumentId"=>$options['customer']['gstin']
+                                "identificationDocumentId"=>$options->customer->gstin
                             ]],
                       "isPolicyHolder"=> true,
                       "isPayer"=>null,
                       "isVehicleOwner"=> true,
-                      "companyName"=> $options['customer']['company']
+                      "companyName"=> $options->customer->company
                     ]
                   ];   
                    $nominee = null;
               }
         
-              if($options['vehicle']['isBrandNew']!='true'){
-                $prePolicyProvider = (isset($options['previousInsurance']['insurer']) && $options['previousInsurance']['insurer']!="0")
-                                     ?DB::table('previous_insurer')->where('id', $options['previousInsurance']['insurer'])->value('digit_code')
+              if($options->vehicle->isBrandNew!='true'){
+                $prePolicyProvider = (isset($options->previousInsurance->insurer) && $options->previousInsurance->insurer!="0")
+                                     ?DB::table('previous_insurer')->where('id', $options->previousInsurance->insurer)->value('digit_code')
                                      :null;
                                      
                 
-                $policyExp = isset($options['previousInsurance']['expDate'])?explode('-',$options['previousInsurance']['expDate']):null;
+                $policyExp = isset($options->previousInsurance->expDate)?explode('-',$options->previousInsurance->expDate):null;
                 $REQUEST->previousInsurer->previousInsurerCode = $prePolicyProvider;
-                $REQUEST->previousInsurer->previousPolicyNumber= $options['previousInsurance']['policyNo'];
+                $REQUEST->previousInsurer->previousPolicyNumber= $options->previousInsurance->policyNo;
                 $REQUEST->previousInsurer->previousPolicyExpiryDate=is_null($policyExp)?null:$policyExp[2].'-'.$policyExp[1].'-'.$policyExp[0];
                 
                  if($quoteData->policyType=="SAOD"){
-                      $policyTPStartDate= isset($options['TP']['TPpolicyStartDate'])?explode('-',$options['TP']['TPpolicyStartDate']):null;
-                      $policyTPEndDate= isset($options['TP']['TPpolicyEndDate'])?explode('-',$options['TP']['TPpolicyEndDate']):null;
+                      $policyTPStartDate= isset($options->TP->TPpolicyStartDate)?explode('-',$options->TP->TPpolicyStartDate):null;
+                      $policyTPEndDate= isset($options->TP->TPpolicyEndDate)?explode('-',$options->TP->TPpolicyEndDate):null;
                       $REQUEST->previousInsurer->currentThirdPartyPolicy->isCurrentThirdPartyPolicyActive = null;
                       $REQUEST->previousInsurer->currentThirdPartyPolicy->currentThirdPartyPolicyInsurerCode = $prePolicyProvider;
-                      $REQUEST->previousInsurer->currentThirdPartyPolicy->currentThirdPartyPolicyNumber =$options['previousInsurance']['policyNo'];
+                      $REQUEST->previousInsurer->currentThirdPartyPolicy->currentThirdPartyPolicyNumber =$options->previousInsurance->policyNo;
                       $REQUEST->previousInsurer->currentThirdPartyPolicy->currentThirdPartyPolicyStartDateTime  = $policyTPStartDate[2]."-".$policyTPStartDate[1]."-".$policyTPStartDate[0];
                       $REQUEST->previousInsurer->currentThirdPartyPolicy->currentThirdPartyPolicyExpiryDateTime =$policyTPEndDate[2]."-".$policyTPEndDate[1]."-".$policyTPEndDate[0];
                   }
@@ -1435,7 +1452,7 @@ class DigitCarResource extends AppResource{
             $REQUEST->pospInfo = $pospInfo;
            
         }
-        
+       
         try{  
             $basicAuth = base64_encode(config('motor.DIGIT.car.username').":".config('motor.DIGIT.car.password'));
              $client = new Client([
@@ -1457,8 +1474,8 @@ class DigitCarResource extends AppResource{
                $jsonData->enq = $enquiry_id;
                $jsonData->policyNumber  = $response->contract->policyNumber;
                $jsonData->applicationId = $response->applicationId;
-               //$jsonData->hypothecationAgency =$options['customer']['hypothecationAgency'];
-               $cust = isset($options['customer']['first_name'])?$options['customer']['first_name']." ".$options['customer']['last_name']:$options['customer']['company'];
+               //$jsonData->hypothecationAgency =$options->customer->hypothecationAgency;
+               $cust = isset($options->customer->first_name)?$options->customer->first_name." ".$options->customer->last_name:$options->customer->company;
                $quoteData = ['customer_name'=>$cust,
                               'proposalNumber'=>$response->contract->policyNumber,
                               'reqCreate'=>json_encode($REQUEST),
@@ -1472,7 +1489,7 @@ class DigitCarResource extends AppResource{
            }
            
            
-    }catch (ConnectException $e) {
+         }catch (ConnectException $e) {
                 $response = $e->getResponse();
                 $responseBodyAsString = $response->getBody()->getContents();
                 return ['status'=>false,'plans'=>[],"message"=>"Internal server error"];

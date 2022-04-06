@@ -166,6 +166,17 @@ class InsuredController extends Controller{
                   }else{
                       return Response::json(['status'=>'error','message'=>'Unable to get policy try again!']); 
                   }
+               }else if($policy->provider=='HDFCERGO' && ($policy->type=='BIKE' || $policy->type=='CAR') ){
+                   
+                        $resp = ($policy->type=="BIKE")?$this->HdfcErgoTwResource->GetPDF($policy->policy_no):$this->HdfcErgoCarResource->GetPDF($policy->policy_no);
+                         if($resp['status']){
+                             DB::table('policy_saled')->where('policy_no', $policy->policy_no)->update(['filename'=>$resp['filename']]);
+                             return Response::json(['status'=>'success','message'=>"Policy document get successfully!",'filePath'=>url('get/download/file/policy-file/'.$resp['filename'])]); 
+                         }else{
+                            return Response::json(['status'=>'error','fileName'=>"",'message'=>$resp['message']]);  
+                         }
+                   
+                  
                }else if($policy->provider=='MANIPAL_CIGNA'){
                    $res = $this->Manipal->GetPDF($policy->policy_no,$policy,true);
                    if($res['status']){

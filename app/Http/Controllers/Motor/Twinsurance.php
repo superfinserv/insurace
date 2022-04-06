@@ -30,8 +30,15 @@ class Twinsurance extends Controller
    
   
    public function index(){
-        $template = ['title' => 'Twowheeler-Insurance',"subtitle"=>"Twowheeler-Insurance",];  
-         return View::make('motor.tw.index')->with($template);
+       
+         
+         if(isset(Auth::guard('customers')->user()->id)){
+            $template = ['title' => 'Twowheeler number',"subtitle"=>"Twowheeler number",'scripts'=>[asset('js/motor/tw/reg-number.js')]];  
+            return View::make('motor.tw.reg_number')->with($template);
+        }else{
+           $template = ['title' => 'Twowheeler-Insurance',"subtitle"=>"Twowheeler-Insurance",];  
+           return View::make('motor.tw.index')->with($template);
+        }
     }
     
     public function insuranceDetails(){
@@ -129,7 +136,7 @@ class Twinsurance extends Controller
               }
              }else{return response()->json(['status' => 'error','data' =>[],'message'=>$_result['message']]);}
          }
-         if($request->supp=="HDFCERGO"){
+         if($request->supp=="HDFCERGO" && $request->twInfo['planType']!="SAOD"){
              $plans =[];
              $result= $this->HdfcErgo->getQuickQuote($this->getToken(),$request->twInfo);
              if($result['status']){ 
@@ -149,7 +156,7 @@ class Twinsurance extends Controller
                    return response()->json(['status'=>'error','message'=>'Something went wrong try again','data'=>[]]);
                }
                
-         }else if($request->supp=="HDFCERGO"){
+         }else if($request->supp=="HDFCERGO" && $request->twInfo['planType']!="SAOD"){
              $plans =[];
              $hdfc= $this->HdfcErgo->getRecalulateQuote($this->getToken(),$request->twInfo);
              if($hdfc['status']){
@@ -305,17 +312,17 @@ class Twinsurance extends Controller
       if($request->enc){
          $count = DB::table('app_quote')->where('enquiry_id',$request->enc)->count();
          if($count){
-              DB::table('app_quote')->where('enquiry_id', $request->enc)->update(["params_request"=>json_encode($request->twInfo)]);
+            //  DB::table('app_quote')->where('enquiry_id', $request->enc)->update(["params_request"=>json_encode($request->twInfo)]);
              $data = DB::table('app_quote')->where('enquiry_id',$request->enc)->first();
              if($data->provider=='DIGIT'){
-                 $resp = $this->DigitTw->createQuote($request->enc,$request->twInfo);
+                 $resp = $this->DigitTw->createQuote($request->enc,json_decode($data->params_request));
                 if($resp['status']){
                      $result = ['status'=>'success','message'=>'Proposal Created successfully','data'=>['enc'=>$request->enc]];
                 }else{
                     $result = ['status'=>'error','message'=>$resp['message'],'data'=>[]];
                 }
              }else if($data->provider=='HDFCERGO'){
-                 $resp = $this->HdfcErgo->createProposal($request->enc,$request->twInfo);
+                 $resp = $this->HdfcErgo->createProposal($request->enc,json_decode($data->params_request));
                 if($resp['status']){
                      $result = ['status'=>'success','message'=>'Proposal Created successfully','data'=>['enc'=>$request->enc]];
                 }else{
