@@ -51,8 +51,8 @@ $(function(){
                     {"data" : "variant","orderable":true,'className':'text-center'},
                     
                     {"data" : "body_type","orderable":true,'className':'text-center'},
-                    {"data" : "digit_code","orderable":false,'className':'vcode text-center'},
-                    {"data" : "fgi_code","orderable":false,'className':'vcode text-center'},
+                    {"data" : "digit_code","orderable":true,'className':'vcode text-center'},
+                    {"data" : "fgi_code","orderable":true,'className':'vcode text-center'},
                     {"data" : "hdfc_code","orderable":true,'className':'vcode text-center'},
                     // {
                     //     "class":          "details-control",

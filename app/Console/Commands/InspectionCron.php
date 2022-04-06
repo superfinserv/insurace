@@ -61,6 +61,6 @@ class InspectionCron extends Command
               DB::table('app_quote')->where('id',$each->id)->update(['breakInStatus'=>$res['BreakInStatus']]);
               Log::channel('cronlog')->info($each->enquiry_id.'- Inspection status is : '.$res['BreakInStatus']);
          }
-        $this->info('Inspection:Cron Cummand Run successfully!');
+        //$this->info('Inspection:Cron Cummand Run successfully!');
     }
 }

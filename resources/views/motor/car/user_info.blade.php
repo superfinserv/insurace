@@ -107,19 +107,6 @@ input[type="email"]::-ms-input-placeholder,input[type="text"]:-ms-input-placehol
     margin-bottom: 10px;
 }
     .progress-indicator{display:-webkit-box;display:-moz-box;display:-ms-flexbox;display:-webkit-flex;display:flex}.no-flexer,.progress-indicator.stacked{display:block}.no-flexer-element{-ms-flex:0;-webkit-flex:0;-moz-flex:0;flex:0}.flexer-element,.progress-indicator>li{-ms-flex:1;-webkit-flex:1;-moz-flex:1;flex:1}.progress-indicator{margin:0 0 1em;padding:0;font-size:80%;text-transform:uppercase}.progress-indicator>li{list-style:none;text-align:center;width:auto;padding:0;margin:0;position:relative;text-overflow:ellipsis;color:#bbb;display:block}.progress-indicator>li:hover{color:#6f6f6f}.progress-indicator>li.completed,.progress-indicator>li.completed .bubble{color:#3a8a47}.progress-indicator>li .bubble{border-radius:1000px;width:20px;height:20px;background-color:#bbb;display:block;margin:0 auto .5em;border-bottom:1px solid #888}.progress-indicator>li .bubble:after,.progress-indicator>li .bubble:before{display:block;position:absolute;top:9px;width:100%;height:3px;content:'';background-color:#bbb}.progress-indicator>li.completed .bubble,.progress-indicator>li.completed .bubble:after,.progress-indicator>li.completed .bubble:before{background-color:#3a8a47;border-color:#3a8a47}.progress-indicator>li .bubble:before{left:0}.progress-indicator>li .bubble:after{right:0}.progress-indicator>li:first-child .bubble:after,.progress-indicator>li:first-child .bubble:before{width:50%;margin-left:50%}.progress-indicator>li:last-child .bubble:after,.progress-indicator>li:last-child .bubble:before{width:50%;margin-right:50%}.progress-indicator>li.active,.progress-indicator>li.active .bubble{color:#AC0F0B}.progress-indicator>li.active .bubble,.progress-indicator>li.active .bubble:after,.progress-indicator>li.active .bubble:before{background-color:#AC0F0B;border-color:#122a3f}.progress-indicator>li a:hover .bubble,.progress-indicator>li a:hover .bubble:after,.progress-indicator>li a:hover .bubble:before{background-color:#5671d0;border-color:#1f306e}.progress-indicator>li a:hover .bubble{color:#5671d0}.progress-indicator>li.danger .bubble,.progress-indicator>li.danger .bubble:after,.progress-indicator>li.danger .bubble:before{background-color:#d3140f;border-color:#440605}.progress-indicator>li.danger .bubble{color:#d3140f}.progress-indicator>li.warning .bubble,.progress-indicator>li.warning .bubble:after,.progress-indicator>li.warning .bubble:before{background-color:#edb10a;border-color:#5a4304}.progress-indicator>li.warning .bubble{color:#edb10a}.progress-indicator>li.info .bubble,.progress-indicator>li.info .bubble:after,.progress-indicator>li.info .bubble:before{background-color:#5b32d6;border-color:#25135d}.progress-indicator>li.info .bubble{color:#5b32d6}.progress-indicator.stacked>li{text-indent:-10px;text-align:center;display:block}.progress-indicator.stacked>li .bubble:after,.progress-indicator.stacked>li .bubble:before{left:50%;margin-left:-1.5px;width:3px;height:100%}.progress-indicator.stacked .stacked-text{position:relative;z-index:10;top:0;margin-left:60%!important;width:45%!important;display:inline-block;text-align:left;line-height:1.2em}.progress-indicator.stacked>li a{border:none}.progress-indicator.stacked.nocenter>li .bubble{margin-left:0;margin-right:0}.progress-indicator.stacked.nocenter>li .bubble:after,.progress-indicator.stacked.nocenter>li .bubble:before{left:10px}.progress-indicator.stacked.nocenter .stacked-text{width:auto!important;display:block;margin-left:40px!important}@media handheld,screen and (max-width:400px){.progress-indicator{font-size:60%}}
-.file-upload{display:block;text-align:center;font-family: Helvetica, Arial, sans-serif;font-size: 12px;}
-.file-upload .file-select{display:block;border: 2px solid #dce4ec;color: #34495e;cursor:pointer;height:40px;line-height:40px;text-align:left;background:#FFFFFF;overflow:hidden;position:relative;}
-.file-upload .file-select .file-select-button{background:#dce4ec;padding:0 10px;display:inline-block;height:40px;line-height:40px;}
-.file-upload .file-select .file-select-name{line-height:40px;display:inline-block;padding:0 10px;}
-.file-upload .file-select:hover{border-color:#34495e;transition:all .2s ease-in-out;-moz-transition:all .2s ease-in-out;-webkit-transition:all .2s ease-in-out;-o-transition:all .2s ease-in-out;}
-.file-upload .file-select:hover .file-select-button{background:#34495e;color:#FFFFFF;transition:all .2s ease-in-out;-moz-transition:all .2s ease-in-out;-webkit-transition:all .2s ease-in-out;-o-transition:all .2s ease-in-out;}
-.file-upload.active .file-select{border-color:#3fa46a;transition:all .2s ease-in-out;-moz-transition:all .2s ease-in-out;-webkit-transition:all .2s ease-in-out;-o-transition:all .2s ease-in-out;}
-.file-upload.active .file-select .file-select-button{background:#3fa46a;color:#FFFFFF;transition:all .2s ease-in-out;-moz-transition:all .2s ease-in-out;-webkit-transition:all .2s ease-in-out;-o-transition:all .2s ease-in-out;}
-.file-upload .file-select input[type=file]{z-index:100;cursor:pointer;position:absolute;height:100%;width:100%;top:0;left:0;opacity:0;filter:alpha(opacity=0);}
-.file-upload .file-select.file-select-disabled{opacity:0.65;}
-.file-upload .file-select.file-select-disabled:hover{cursor:default;display:block;border: 2px solid #dce4ec;color: #34495e;cursor:pointer;height:40px;line-height:40px;margin-top:5px;text-align:left;background:#FFFFFF;overflow:hidden;position:relative;}
-.file-upload .file-select.file-select-disabled:hover .file-select-button{background:#dce4ec;color:#666666;padding:0 10px;display:inline-block;height:40px;line-height:40px;}
-.file-upload .file-select.file-select-disabled:hover .file-select-name{line-height:40px;display:inline-block;padding:0 10px;}
 .ui-menu .ui-menu-item {
   padding: 5px 5px;
   border-bottom: 1px solid #ccc;
@@ -140,6 +127,7 @@ input[type="email"]::-ms-input-placeholder,input[type="text"]:-ms-input-placehol
 	
 </style>
  <?php $params   =  json_decode($data->params_request);
+ //print_r($params);
        $json_data =  json_decode($data->json_data);
        $hasZeroDep = ($params->subcovers->isPartDepProCover=='true')?'Added':'N/A';
        //print_r($params);?>
@@ -282,34 +270,34 @@ input[type="email"]::-ms-input-placeholder,input[type="text"]:-ms-input-placehol
                                          @if($params->subcovers->isPA_OwnerDriverCover=="true")
                                         <hr/>
                                         <h4 style="margin-top: 10px;color: #AC0F0B;font-weight: 600;"><u>Nominee Details</u></h4>
-                                        <div class="row">
-                                            <div class="col-md-4">    
-                                                <div class="form-group">
-                                                    <label for="name" style="width: 100%">Nominee Name</label>    
-                                                    <input style="margin-bottom:0px;" type="text" name="nominee_name" id="nominee_name" class="form-control word-uppercase" value="<?=isset($params->nominee->name)?$params->nominee->name:'';?>" placeholder="Enter Nominee Name" autocomplete="off">
+                                                <div class="row">
+                                                    <div class="col-md-4">    
+                                                        <div class="form-group">
+                                                            <label for="name" style="width: 100%">Nominee Name</label>    
+                                                            <input style="margin-bottom:0px;" type="text" name="nominee_name" id="nominee_name" class="form-control word-uppercase" value="<?=isset($params->nominee->name)?$params->nominee->name:'';?>" placeholder="Enter Nominee Name" autocomplete="off">
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="col-md-4">    
+                                                        <div class="form-group">
+                                                            <label for="name" style="width: 100%">Nominee Relation</label>    
+                                                            <select style="margin-bottom:0px;" class="form-control select2" id="nominee_relation" name="nominee_relation">
+                                                              <option value="">Select</option>
+                                                              <?php foreach ($relations as  $value) { ?>
+                                                                <option value="{{$value->value}}" <?=(isset($params->nominee->relation) && $params->nominee->relation==$value->value)?'selected':'';?>>{{$value->label}}</option>
+                                                              <?php } ?>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">    
+                                                        <div class="form-group">
+                                                            <label for="name" style="width: 100%">Nominee DOB</label>    
+                                                            <input style="margin-bottom:0px;" type="text" name="nominee_dob" id="nominee_dob" class="form-control dob-mask" value="<?=isset($params->nominee->dob)?$params->nominee->dob:'';?>" placeholder="Enter Nominee DOB" autocomplete="off">
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    
                                                 </div>
-                                            </div>
-                                            
-                                            <div class="col-md-4">    
-                                                <div class="form-group">
-                                                    <label for="name" style="width: 100%">Nominee Relation</label>    
-                                                    <select style="margin-bottom:0px;" class="form-control select2" id="nominee_relation" name="nominee_relation">
-                                                      <option value="">Select</option>
-                                                      <?php foreach ($relations as  $value) { ?>
-                                                        <option value="{{$value->value}}" <?=(isset($params->nominee->relation) && $params->nominee->relation==$value->value)?'selected':'';?>>{{$value->label}}</option>
-                                                      <?php } ?>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4">    
-                                                <div class="form-group">
-                                                    <label for="name" style="width: 100%">Nominee DOB</label>    
-                                                    <input style="margin-bottom:0px;" type="text" name="nominee_dob" id="nominee_dob" class="form-control dob-mask" value="<?=isset($params->nominee->dob)?$params->nominee->dob:'';?>" placeholder="Enter Nominee DOB" autocomplete="off">
-                                                </div>
-                                            </div>
-                                            
-                                            
-                                        </div>
                                          @endif
                                          @endif
                                         <hr/>
@@ -450,13 +438,16 @@ input[type="email"]::-ms-input-placeholder,input[type="text"]:-ms-input-placehol
                                                             <label for="name" style="width: 100%;font-weight: 600;">Prevoius Policy Type</label>    
                                                             <select style="margin-bottom:0px;" class="form-control " id="TPprePolicyType" name="TPprePolicyType">
                                                               <option value="">Select</option>
-                                                             <option value="1-OD_1-TP" <?=($params->TP->prePolicyType=='1-OD_1-TP')?'selected':'';?>> 1 Year OD and 1 Year TP</option>
+                                                              @if($params->previousInsurance->policyType=="TP")
                                                              <option value="0-OD_1-TP" <?=($params->TP->prePolicyType=='0-OD_1-TP')?'selected':'';?>>TP only </option>
+                                                           <option value="0-OD_3-TP" <?=($params->TP->prePolicyType=='0-OD_3-TP')?'selected':'';?>>3 Year TP only </option>
+                                                             
+                                                            @else
+                                                             <option value="1-OD_1-TP" <?=($params->TP->prePolicyType=='1-OD_1-TP')?'selected':'';?>> 1 Year OD and 1 Year TP</option>
                                                             
-                                                             <option value="0-OD_3-TP" <?=($params->TP->prePolicyType=='0-OD_3-TP')?'selected':'';?>>3 Year TP only </option>
                                                              <option value="1-OD_3-TP" <?=($params->TP->prePolicyType=='1-OD_3-TP')?'selected':'';?>>1 Year OD and 3 Year TP </option>
                                                              <option value="3-OD_3-TP" <?=($params->TP->prePolicyType=='3-OD_3-TP')?'selected':'';?>>3 Year OD and 3 Year TP </option>
-                                                             
+                                                            @endif 
                                                             </select>
                                                         </div>
                                                 </div>

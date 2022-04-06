@@ -10,46 +10,33 @@ $(window).on('load', function(){
 
 //$('#car_number').mask('SS00SS0000');
 $('.dob-mask').mask('00-00-0000');
-$(document).ready(function() {
-    $('#choosePolicyFile').bind('change', function () {
-          var filename = $("#choosePolicyFile").val();
-          if (/^\s*$/.test(filename)) {
-            $(".file-upload").removeClass('active');
-            $("#noFile").text("No file chosen..."); 
-          }
-          else {
-            $(".file-upload").addClass('active');
-            $("#noFile").text(filename.replace("C:\\fakepath\\", "")); 
-          }
-        });
-});
+
+ function createPolicy(enQId){
+                   $.post(base_url + "/car-insurance/create-proposal/"+enQId,{enc:enQId}, 
+                       function (resp){
+                           $('#btn-step-3').loadButton('off');
+                            var status = $.trim(resp.status);
+                            var breakInCase = $.trim(resp.isBreakIn);
+                            if(status=='success'){
+                                var enc = resp.data.enc;
+                                if(breakInCase=='Yes'){
+                                     window.location.href=base_url+"/car-insurance/inspection/"+enc;
+                                }else{
+                                     window.location.href=base_url+"/car-insurance/plan-summary/"+enc;
+                                }
+                                
+                             }else{
+                                 toastr.error(resp.message,'Error');
+                                 
+                             }
+                      },'json').fail(function() {
+                        $('#btn-step-3').loadButton('off');
+                        toastr.error("Internal server error",'Error');
+                      });
+    }
 
 
-function uploadFile(ref,deviceToken){  //upload policy copy
-            if($('#choosePolicyFile').val()!==""){
-                var formData = new FormData();
-                formData.append('enc', ref);
-                formData.append('deviceToken', deviceToken);
-                // Attach file
-                formData.append('policy_doc', $('#choosePolicyFile')[0].files[0]);
-                    $.ajax({
-                        url: base_url + "/car-insurance/upload-files/"+ref,
-                        type: "POST",
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        success: function(response) {
-                            
-                        },
-                        error: function(response) {
-                        
-                        }
-                    });
-                return true;
-            }else{
-               return false; 
-            }
-        }
+
 
 $(document).ready(function() {
     
@@ -86,6 +73,8 @@ $(document).ready(function() {
             errorPlacement: function(error, element) {
             console.log(element);
             if(element.attr("name")=='gender'){
+                error.insertAfter(element.parent().parent('.form-group'));
+            }else if(element.attr("name")=='first_name'){
                 error.insertAfter(element.parent().parent('.form-group'));
             }else{
                 error.insertAfter(element.parent('.form-group'));
@@ -255,7 +244,7 @@ $(document).ready(function() {
             
             localStorage.setItem("carInfo", JSON.stringify(carInfo));
             var postInfo = JSON.parse(localStorage.getItem('carInfo'));
-            $.post(base_url+"/car-insurance/update-info/"+enQId,{enqId:enQId,param:postInfo},function(result){ 
+            $.post(base_url+"/car-insurance/update-info/"+enQId,{enqId:enQId,param:postInfo,step:'address'},function(result){ 
                 if($.trim(result.status)=='success'){
                         $("#owner_data").removeClass('active-step');
                         $("#communication_address").removeClass('active-step');
@@ -400,20 +389,12 @@ $(document).ready(function() {
 
  
         if (form.valid() === true ) {
-                var isValid  = true;
-                // if($('#choosePolicyFile').length>0){
-                //  var isValid = uploadFile(enQId,"twss");
-                // }else{
-                //   var isValid  = true;
-                // }
-             if(isValid){
+              
                     $('#btn-step-3').loadButton('on',{faClass:'fa fa-sm',faIcon:'fa-spinner', doSpin:true,loadingText:'Submitting...', });
                     var carInfo = JSON.parse(localStorage.getItem('carInfo'));
                     if($('#car_number').length>0){
                         var vnumber = $('#car_number').val();
                         var rto = vnumber.substring(0, 4);
-                        
-                        
                         carInfo.vehicle.vehicleNumber = vnumber.toUpperCase();
                         carInfo.vehicle.rtoCode   = rto.toUpperCase();
                         carInfo.previousInsurance.policyNo = ($('#policy_no').length>0)?$('#policy_no').val():"";
@@ -450,39 +431,19 @@ $(document).ready(function() {
                       localStorage.setItem("carInfo", JSON.stringify(carInfo));
                     $("#vehicle_data").addClass('active-step');
                      var carInfo = JSON.parse(localStorage.getItem('carInfo'));
-                     $.post(base_url + "/car-insurance/create-proposal/"+enQId,{enc:enQId,carInfo:carInfo}, 
-                       function (resp){
-                           $('#btn-step-3').loadButton('off');
-                            var status = $.trim(resp.status);
-                            var breakInCase = $.trim(resp.isBreakIn);
-                            if(status=='success'){
-                                var enc = resp.data.enc;
-                                if(breakInCase=='Yes'){
-                                     window.location.href=base_url+"/car-insurance/inspection/"+enc;
-                                }else{
-                                     window.location.href=base_url+"/car-insurance/plan-summary/"+enc;
-                                }
-                                
-                               
-                             }else{
-                                 toastr.error(resp.message,'Error');
-                                 
-                             }
-                      },'json').fail(function() {
-                        $('#btn-step-3').loadButton('off');
-                        toastr.error("Internal server error",'Error');
-                      });
-             }else{
-                $.toast({
-                  text: 'Please your previous policy document.',
-                  showHideTransition: 'slide',
-                  position:'bottom-right',
-                  hideAfter:6000,
-                  allowToastClose:false
-                }); 
-           }
+                     $.post(base_url+"/car-insurance/update-info/"+enQId,{enqId:enQId,param:carInfo,step:'policy'},function(result){ 
+                         if($.trim(result.status)=='success'){
+                                   createPolicy(enQId);
+                        }
+                      }).fail(function() {
+                            $('#btn-step-3').loadButton('off');
+                            toastr.error("Internal server error",'Error');
+                       });
+             
         }
     });
+    
+   
     
     $("body").on("click","#btn-back-step-3",function() {
             $("#vehicle_data").removeClass('active-step');

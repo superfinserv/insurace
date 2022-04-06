@@ -3,6 +3,7 @@ namespace App\Resources;
 use Nathanmac\Utilities\Parser\Parser;
 use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Client;
 use Meng\AsyncSoap\Guzzle\Factory;
 use Carbon\Carbon;
@@ -13,7 +14,7 @@ class HdfcErgoTwResource extends AppResource{
     
     public function __construct(){ }
     
-    public function productCode($plan){
+     public function productCode($plan){
     
             switch ($plan) {
               case "COM":
@@ -503,7 +504,13 @@ class HdfcErgoTwResource extends AppResource{
                   $request->PreviousPolicyEndDate = $preInfo->expDate; 
                   $request->IsPreviousClaim = $preInfo->hasPreClaim;
                   $request->PreviousNCBDiscountPercentage = $preInfo->ncbPercent;
+                  
+                  
                }
+               if($params['planType']=="SAOD"){
+                     $TPEnd = explode('-',$params['TP']['TPpolicyEndDate']);
+                     $request->TPEndDate = $TPEnd[2]."-".$TPEnd[1]."-".$TPEnd[0];
+                   }
                 
                 $request->PurchaseRegistrationDate = $regDate;
                 $request->PospCode = "";
@@ -537,25 +544,16 @@ class HdfcErgoTwResource extends AppResource{
          try {
              
             $request = $this->fnQuoteRequest($params);
-           // echo  json_encode($request);
-          //  $header = ["accept: */*","Content-Type:application/json","MerchantKey:FINSERV","SecretToken:KxP8dEbeAWC+Ic7O7gFu9A=="];
-          //  $auth['header'] = $header;
-          //  $auth['url'] = "https://uatcp.hdfcergo.com/TWOnline/ChannelPartner/CalculatePremium";
-          //  $result = $this->curlPost(json_encode($request),$auth);
-           // print_r($result);die;
-           
+          
            
             $client = new Client([
                 'headers' => [ 'Content-Type' => 'application/json','MerchantKey'=>config('motor.HDFCERGO.tw.mKey'),'SecretToken'=>config('motor.HDFCERGO.tw.secretToken')]
             ]);
             
-            $clientResp = $client->post(config('motor.HDFCERGO.tw.calculatePremium'),
-                ['body' => json_encode(
-                    $request
-                )]
-            );
+            $clientResp = $client->post(config('motor.HDFCERGO.tw.calculatePremium'),['body' => json_encode( $request)] );
+        //  echo json_encode( $request);die;
             $result = $clientResp->getBody()->getContents();
-            print_r($result);die;
+         // print_r($result);die;
             $response = json_decode($result);
            
            DB::table('app_temp_quote')->where(['type'=>'BIKE','device'=>$deviceToken,'provider'=>'HDFCERGO'])->delete();
@@ -591,9 +589,24 @@ class HdfcErgoTwResource extends AppResource{
             }else{
               return ['status'=>false,'plans'=>[],'message'=>'Sorry we are unable to process your request.'];
             }
-           }catch(Exception $e) {
-                return ['status'=>false,'plans'=>[],'message'=>'Sorry we are unable to process your request.'];
-          }
+         }catch (ConnectException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $jsonRes = json_decode($responseBodyAsString);
+              
+                return ['status' => false,'plans'=>[], 'message' => 'Something went wrong'];
+            }catch (RequestException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $jsonRes = json_decode($responseBodyAsString);
+               //  print_r($responseBodyAsString);die;
+                return ['status' => false,'plans'=>[], 'message' => 'Something went wrong'];
+            }catch (ClientException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $jsonRes = json_decode($responseBodyAsString);
+                return ['status' =>false, 'plans'=>[],'message' => 'Something went wrong'];
+            }
 
     }
     
@@ -666,7 +679,8 @@ class HdfcErgoTwResource extends AppResource{
          $enQ = DB::table('app_quote')->where('enquiry_id', $enquiry_id)->first();
          $jData = json_decode($enQ->json_data);
          $params = json_decode($enQ->params_request);
-         $preInfo = $this->GetPreviousPolicyData($options,"Proposal");
+        // $preInfo = $this->GetPreviousPolicyData($options,"Proposal");
+         $preInfo = $this->GetPreviousPolicyData(json_decode(json_decode(json_encode($enQ->params_request)),true),"Proposal");
          $insuranceProductCode =  $this->productCode($enQ->policyType); 
         
           $subcovr = $params->subcovers;
@@ -674,7 +688,7 @@ class HdfcErgoTwResource extends AppResource{
           $idv = $enQ->idv;//isset($params->vehicle->idv->value)?$params->vehicle->idv->value:0;
          
             if((isset($subcovr->isPA_OwnerDriverCover) && $subcovr->isPA_OwnerDriverCover=='true')){
-                if($options['planType']=="TP" && $preInfo->businessType=="NEW"){
+                if($params->planType=="TP" && $preInfo->businessType=="NEW"){
                         $PA_OWNER =5;
                       }else{ 
                          $paCoverVal = isset($optionValues->PA_OwnerDriverCoverval)?$optionValues->PA_OwnerDriverCoverval:1;
@@ -704,11 +718,11 @@ class HdfcErgoTwResource extends AppResource{
         
         
        
-              if(isset($options['vehicle']['vehicleNumber'])){
-                  $vNo  = $options['vehicle']['vehicleNumber'];
+              if(isset($params->vehicle->vehicleNumber)){
+                  $vNo  = $params->vehicle->vehicleNumber;
                   $vehicleNo = substr($vNo, 0,2)."-".substr($vNo, 2,2)."-".substr($vNo, 4,2)."-".substr($vNo, 6,4);
                }else{
-                  $vNo = $options['vehicle']['rtoCode'];
+                  $vNo = $params->vehicle->rtoCode;
                   $vehicleNo = substr($vNo, 0,1)."-".substr($vNo, 2,3);
                }
             $vehicleNo = ($preInfo->businessType=="NEW")?"NEW":$vehicleNo;
@@ -716,23 +730,23 @@ class HdfcErgoTwResource extends AppResource{
          
         
         
-        $policyHolder =($options['vehicle']['policyHolder']=='IND')?"INDIVIDUAL":"Corporate";
-        //$rto_master=DB::table('rto_master')->where('region_code',strtoupper($options['vehicle']['rtoCode']))->first();
+        $policyHolder =($params->vehicle->policyHolder=='IND')?"INDIVIDUAL":"Corporate";
+        //$rto_master=DB::table('rto_master')->where('region_code',strtoupper($params->vehicle->rtoCode))->first();
         $rto_master=DB::table('rtoMaster')->select('rtoCode as rtoCode','hdfcErgoCodeTw')
-                                           ->where('rtoCode',strtoupper($options['vehicle']['rtoCode']))->first();
+                                           ->where('rtoCode',strtoupper($params->vehicle->rtoCode))->first();
         //print_r($rto_master);die;
-        $makeCode=DB::table('vehicle_make_tw')->where('id',$options['vehicle']['brand']['id'])->value('hdfcErgo_makeCode');
-        $modelCode=DB::table('vehicle_variant_tw')->where('id',$options['vehicle']['varient']['id'])->value('hdfcErgo_code');
-        $regDate = $options['vehicle']['regYear']."-".$options['vehicle']['regMonth']."-".$options['vehicle']['regDate'];
+        $makeCode=DB::table('vehicle_make_tw')->where('id',$params->vehicle->brand->id)->value('hdfcErgo_makeCode');
+        $modelCode=DB::table('vehicle_variant_tw')->where('id',$params->vehicle->varient->id)->value('hdfcErgo_code');
+        $regDate = $params->vehicle->regYear."-".$params->vehicle->regMonth."-".$params->vehicle->regDate;
         
-        $cityID = explode('-',$options['address']['city'])[0];
-        $stateID = explode('-',$options['address']['state'])[0];
+        $cityID = explode('-',$params->address->city)[0];
+        $stateID = explode('-',$params->address->state)[0];
         
         $state =  DB::table('states')->where('id',$stateID)->first();
         $city  =  DB::table('cities')->where('id',$cityID)->first();
         
         
-        $FinancierCode = isset($options['vehicle']['hypothecationAgency'])?DB::table('financiers')->where('id', $options['vehicle']['hypothecationAgency'])->value('hdfcErgoCode'):"";
+        $FinancierCode = isset($params->vehicle->hypothecationAgency)?DB::table('financiers')->where('id', $params->vehicle->hypothecationAgency)->value('hdfcErgoCode'):"";
         $request =  new \stdClass();
        
         $request->UniqueRequestID = $jData->enq;
@@ -741,7 +755,7 @@ class HdfcErgoTwResource extends AppResource{
        $configurationParam = new \stdClass();
        $configurationParam->AgentCode = config('motor.HDFCERGO.tw.agentCode');//"TWC17722";
        $proposalDetails->ConfigurationParam = $configurationParam;
-       if($options['planType']=="TP" && $preInfo->businessType=="NEW"){
+       if($params->planType=="TP" && $preInfo->businessType=="NEW"){
           $proposalDetails->PremiumYear =5;
        }else{
           $proposalDetails->PremiumYear =$enQ->termYear; 
@@ -753,7 +767,7 @@ class HdfcErgoTwResource extends AppResource{
        $proposalDetails->VehicleMakeCode = (int)$makeCode;
        $proposalDetails->RequiredIdv = (int)$idv;
        if($preInfo->isPreviousInsurerKnown===true){
-            $proposalDetails->PreviousPolicyEndDate =$preInfo->expDate;
+           $proposalDetails->PreviousPolicyEndDate =$preInfo->expDate;
            $proposalDetails->PreviousPolicyType = $preInfo->prePolicyType;
            $proposalDetails->IsPreviousClaim =strtoupper($preInfo->hasPreClaim);
            $proposalDetails->PreviousNCBDiscountPercentage =(int)$preInfo->ncbPercent;
@@ -762,24 +776,24 @@ class HdfcErgoTwResource extends AppResource{
        }
        $proposalDetails->PurchaseRegistrationDate = $regDate;
        
-       $proposalDetails->YearofManufacture = (int)$options['vehicle']['regYear'];
+       $proposalDetails->YearofManufacture = (int)$params->vehicle->regYear;
        
        $proposalDetails->FinancierCode = (int)$FinancierCode;
        $proposalDetails->RegistrationNo = $vehicleNo;
-       $proposalDetails->EngineNo =  ($options['vehicle']['engineNumber'])?$options['vehicle']['engineNumber']:null;
-       $proposalDetails->ChassisNo = ($options['vehicle']['chassisNumber'])?$options['vehicle']['chassisNumber']:null;
+       $proposalDetails->EngineNo =  ($params->vehicle->engineNumber)?$params->vehicle->engineNumber:null;
+       $proposalDetails->ChassisNo = ($params->vehicle->chassisNumber)?$params->vehicle->chassisNumber:null;
        $proposalDetails->NetPremiumAmount = (int)$jData->net;
        $proposalDetails->TotalPremiumAmount =(int)$jData->gross;
        $proposalDetails->TaxAmount = (int)$jData->tax;
        $isNom = (isset($subcovr->isPA_OwnerDriverCover) && $subcovr->isPA_OwnerDriverCover=='true')?true:false;
        $nomineeRelation = ['BROTHER'=>'Sibling','HUSBAND'=>'Spouse','GRAND_FATHER'=>'','GRAND_MOTHER'=>'','FATHER_IN_LAW'=>'','MOTHER_IN_LAW'=>'Mother','MOTHER'=>'Mother','SISTER'=>'Sibling','SON'=>'Son','DAUGHTER'=>'Daughter','FATHER'=>'Father','SPOUSE'=>'Spouse'];
-        if($options['vehicle']['policyHolder']=="IND" && $isNom){ 
-            $proposalDetails->PAOwnerDriverNomineeName = ($isNom)?$options['nominee']['name']:"";
+        if($params->vehicle->policyHolder=="IND" && $isNom){ 
+            $proposalDetails->PAOwnerDriverNomineeName = ($isNom)?$params->nominee->name:"";
             if($isNom){
-              $nDob = Carbon::createFromFormat('d-m-Y', $options['nominee']['dob'])->format('Y-m-d');
+              $nDob = Carbon::createFromFormat('d-m-Y', $params->nominee->dob)->format('Y-m-d');
            }
           $proposalDetails->PAOwnerDriverNomineeAge = ($isNom)?$this->calulateAge($nDob):"";
-          $proposalDetails->PAOwnerDriverNomineeRelationship = ($isNom)?$nomineeRelation[$options['nominee']['relation']]:"";
+          $proposalDetails->PAOwnerDriverNomineeRelationship = ($isNom)?$nomineeRelation[$params->nominee->relation]:"";
         }
        $proposalDetails->PolicyType = $insuranceProductCode;
        
@@ -809,29 +823,29 @@ class HdfcErgoTwResource extends AppResource{
         
         $customerDetails= new \stdClass();
         
-        if($options['vehicle']['policyHolder']=="IND"){ 
-            $Gender = isset($options['customer']['gender'])?strtoupper($options['customer']['gender']):"MALE";
-             $ownerDOB    =  explode("-",$options['customer']['dob']);
-            $customerDetails->Title=$options['customer']['salutation'];//($Gender=="MALE")?"Mr":"Ms";
+        if($params->vehicle->policyHolder=="IND"){ 
+            $Gender = isset($params->customer->gender)?strtoupper($params->customer->gender):"MALE";
+             $ownerDOB    =  explode("-",$params->customer->dob);
+            $customerDetails->Title=$params->customer->salutation;//($Gender=="MALE")?"Mr":"Ms";
             $customerDetails->Gender= $Gender;
-            $customerDetails->FirstName=$options['customer']['first_name'];
+            $customerDetails->FirstName=$params->customer->first_name;
             $customerDetails->MiddleName="";
-            $customerDetails->LastName= $options['customer']['last_name'];
+            $customerDetails->LastName= $params->customer->last_name;
             $customerDetails->DateOfBirth= $ownerDOB[2]."-".$ownerDOB[1]."-".$ownerDOB[0];  
             $customerDetails->GstInNo= "";
             
         }else{
               $customerDetails->Title="M/S";
-              $customerDetails->OrganizationName=$options['customer']['company'];
-              $customerDetails->OrganizationContactPersonName=$options['customer']['first_name']." ".$options['customer']['last_name'];
-              $customerDetails->GstInNo= $options['customer']['gstin'];
+              $customerDetails->OrganizationName=$params->customer->company;
+              $customerDetails->OrganizationContactPersonName=$params->customer->first_name." ".$params->customer->last_name;
+              $customerDetails->GstInNo= $params->customer->gstin;
         }
        
      
       
         
-        $customerDetails->EmailAddress=$options['customer']['email'];
-        $customerDetails->MobileNumber= (int)$options['customer']['mobile'];
+        $customerDetails->EmailAddress=$params->customer->email;
+        $customerDetails->MobileNumber= (int)$params->customer->mobile;
         $customerDetails->PanCard= "";
        
         $customerDetails->PospCode= "";
@@ -839,20 +853,29 @@ class HdfcErgoTwResource extends AppResource{
         $customerDetails->UidNo= "";
         $customerDetails->AuthentificationType= "";
         $customerDetails->LGCode= "";
-        $customerDetails->CorrespondenceAddress1= $options['address']['addressLine'];
-        $customerDetails->CorrespondenceAddress2= $options['address']['addressLine'];
+        $customerDetails->CorrespondenceAddress1= $params->address->addressLine;
+        $customerDetails->CorrespondenceAddress2= $params->address->addressLine;
         $customerDetails->CorrespondenceAddressCitycode= (int)$city->hdfcErgoCode;
         $customerDetails->CorrespondenceAddressCityName= strtoupper($city->name);
         $customerDetails->CorrespondenceAddressStateCode= (int)$state->hdfcErgoCode;
         $customerDetails->CorrespondenceAddressStateName=strtoupper($state->name);
-        $customerDetails->CorrespondenceAddressPincode= (int)$options['address']['pincode'];
+        $customerDetails->CorrespondenceAddressPincode= (int)$params->address->pincode;
         
+        if($insuranceProductCode=="OwnDamage"){
+            $policyStartDate= isset($params->TP->TPpolicyStartDate)?explode('-',$params->TP->TPpolicyStartDate):null;
+            $policyTPEndDate= isset($params->TP->TPpolicyEndDate)?explode('-',$params->TP->TPpolicyEndDate):null;
+            $preInsurerCode = DB::table('previous_insurer')->where('id', $params->TP->TPInsurer)->value('hdfcErgo');
+            $proposalDetails->ExistingInsurerId=$preInsurerCode;
+            $proposalDetails->ExistingPolicyNumber=$params->TP->TP_policyno;
+            $proposalDetails->ExistingPolicyStartDate=$policyStartDate[2]."-".$policyStartDate[1]."-".$policyStartDate[0];
+            $proposalDetails->ExistingPolicyEndDate=$policyTPEndDate[2]."-".$policyTPEndDate[1]."-".$policyTPEndDate[0];
+        }
         
        $request->ProposalDetails =$proposalDetails; 
        $request->CustomerDetails =$customerDetails; 
        // $header = ["accept: */*","Content-Type:application/json","MerchantKey:FINSERV","SecretToken:KxP8dEbeAWC+Ic7O7gFu9A=="];
-       //   $auth['header'] = $header;
-       //   $auth['url'] = "https://uatcp.hdfcergo.com/TWOnline/ChannelPartner/SaveTransaction";
+       //   $auth['header = $header;
+       //   $auth['url = "https://uatcp.hdfcergo.com/TWOnline/ChannelPartner/SaveTransaction";
           //  $result = $this->curlPost(json_encode($request),$auth);
           if($city->hdfcErgoCode!=""){
               
@@ -874,7 +897,7 @@ class HdfcErgoTwResource extends AppResource{
            $response = json_decode($result);
            if($response->Status==200){
                $txId = $response->Data->TransactionNo;
-                $cust = isset($options['customer']['first_name'])?$options['customer']['first_name']." ".$options['customer']['last_name']:$options['customer']['company'];
+                $cust = isset($params->customer->first_name)?$params->customer->first_name." ".$params->customer->last_name:$params->customer->company;
                 $QDATA = ['customer_name'=>$cust,'token'=>$txId,'reqCreate'=>json_encode($request),'respCreate'=>$result,'req'=>json_encode($request),'resp'=>($result)];
                 DB::table('app_quote')->where('enquiry_id',$enquiry_id)->update($QDATA);
                 return ['status'=>true,'message'=>'Proposal Created successfully'];
@@ -971,7 +994,7 @@ class HdfcErgoTwResource extends AppResource{
           }else if($response->status==500){
                 return ['status'=>false,'message'=>$response->ErrMsg];
           }else {
-                 return ['status'=>false,'message'=>'Internal error while create proposal'];
+                 return ['status'=>false,'message'=>'Internal error while get policy copy'];
           }
     } 
     
