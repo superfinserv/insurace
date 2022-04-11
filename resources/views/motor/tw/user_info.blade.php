@@ -312,10 +312,16 @@ input[type="email"]::-ms-input-placeholder,input[type="text"]:-ms-input-placehol
                                     <form class="form-group"  enctype="multipart/form-data"  id="address_form" method="post" >
                                         <input name="_token" type="hidden" value="{{ csrf_token() }}"  />
                                         <div class="row">
-                                            <div class="col-md-12">    
+                                            <div class="col-md-6">    
                                                <div class="form-group">
-                                                    <label for="address" style="width: 100%">Address</label>    
-                                                   <input style="margin-bottom:0px;" type="text" name="address" id="address" class="form-control" value="<?=isset($params->address->addressLine)?$params->address->addressLine:'';?>" placeholder="Postal Address (House, Building, Street)">
+                                                    <label for="addressLineOne" style="width: 100%">House No./Building Name </label>    
+                                                    <input style="margin-bottom:0px;" type="text" name="addressLineOne" id="addressLineOne" class="form-control" value="<?=isset($params->address->addressLineOne)?$params->address->addressLineOne:'';?>" placeholder="House No, Building Name">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">    
+                                               <div class="form-group">
+                                                    <label for="addressLineTwo" style="width: 100%">Street Name/Road Name</label>    
+                                                   <input style="margin-bottom:0px;" type="text" name="addressLineTwo" id="addressLineTwo" class="form-control" value="<?=isset($params->address->addressLineTwo)?$params->address->addressLineTwo:'';?>" placeholder="Street Name, Road Name">
                                                 </div>
                                             </div>
                                         </div>
@@ -431,23 +437,28 @@ input[type="email"]::-ms-input-placeholder,input[type="text"]:-ms-input-placehol
                                                 </div>
                                             </div>
                                             <?php } ?>
-                                                @if($data->policyType=="SAOD")
+                                                @if($data->policyType=="SAOD" && isset($params->TP->prePolicyType))
                                                <div class="col-md-6">
                                                     <div class="form-group">
                                                             <label for="name" style="width: 100%;font-weight: 600;">Prevoius Policy Type</label>    
                                                             <select style="margin-bottom:0px;" class="form-control " id="TPprePolicyType" name="TPprePolicyType">
                                                               <option value="">Select</option>
-                                                             @if($params->previousInsurance->policyType=="TP" || $params->planType=="SAOD")
-                                                             <option value="0-OD_1-TP" <?=($params->TP->prePolicyType=='0-OD_1-TP')?'selected':'';?>>TP only </option>
-                                                             
-                                                             <option value="0-OD_3-TP" <?=($params->TP->prePolicyType=='0-OD_5-TP')?'selected':'';?>>3 Year TP only </option>
+                                                             @if($params->vehicle->isBrandNew=="true")
+                                                                     <option value="0-OD_1-TP" <?=($params->TP->prePolicyType=='0-OD_1-TP')?'selected':'';?>>1 Year TP only </option>
+                                                                     
+                                                                     <option value="0-OD_5-TP" <?=($params->TP->prePolicyType=='0-OD_5-TP')?'selected':'';?>>5 Year TP only </option>
                                                              @else
-                                                              <option value="1-OD_1-TP" <?=($params->TP->prePolicyType=='1-OD_1-TP')?'selected':'';?>> 1 Year OD and 1 Year TP</option>
-                                                            
-                                                             <option value="1-OD_3-TP" <?=($params->TP->prePolicyType=='1-OD_5-TP')?'selected':'';?>>1 Year OD and 3 Year TP </option>
-                                                             <option value="3-OD_3-TP" <?=($params->TP->prePolicyType=='5-OD_5-TP')?'selected':'';?>>3 Year OD and 3 Year TP </option>
-                                                             @endif
-                                                             
+                                                                     @if($params->previousInsurance->policyType=="TP")
+                                                                     <option value="0-OD_1-TP" <?=($params->TP->prePolicyType=='0-OD_1-TP')?'selected':'';?>>1 Year TP only </option>
+                                                                     
+                                                                     <option value="0-OD_5-TP" <?=($params->TP->prePolicyType=='0-OD_5-TP')?'selected':'';?>>5 Year TP only </option>
+                                                                     @else
+                                                                      <option value="1-OD_1-TP" <?=($params->TP->prePolicyType=='1-OD_1-TP')?'selected':'';?>> 1 Year OD and 1 Year TP</option>
+                                                                    
+                                                                     <option value="1-OD_5-TP" <?=($params->TP->prePolicyType=='1-OD_5-TP')?'selected':'';?>>1 Year OD and 5 Year TP </option>
+                                                                     <option value="5-OD_5-TP" <?=($params->TP->prePolicyType=='5-OD_5-TP')?'selected':'';?>>5 Year OD and 5 Year TP </option>
+                                                                     @endif
+                                                               @endif
                                                             </select>
                                                         </div>
                                                 </div>

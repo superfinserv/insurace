@@ -12,7 +12,7 @@ $(window).on('load', function(){
 $('.dob-mask').mask('00-00-0000');
 
 function createPolicy(enQId){
-    $.post(base_url + "/twowheeler-insurance/create-proposal/"+enQId,{enc:enQId}, 
+           $.post(base_url + "/twowheeler-insurance/create-proposal/"+enQId,{enc:enQId}, 
                function (resp){
                    $('#btn-step-3').loadButton('off');
                     var status = $.trim(resp.status);
@@ -20,11 +20,14 @@ function createPolicy(enQId){
                         var enc = resp.data.enc;
                         window.location.href=base_url+"/twowheeler-insurance/plan-summary/"+enc;
                      }else{
-                        
+                         $('#btn-step-3').loadButton('off');
                          toastr.error(resp.message,'Error',);
                          
                      }
-              });
+              }).fail(function() {
+                    $('#btn-step-3').loadButton('off');
+                    toastr.error("Internal server error",'Error');
+               });
 }
 
 $(document).ready(function() {
@@ -194,7 +197,11 @@ $(document).ready(function() {
                     minlength: 6,
                     maxlength: 6,
                 },
-                address: {
+                 addressLineOne: {
+                    required: true,
+                    minlength: 2,
+                },
+                addressLineTwo: {
                     required: true,
                     minlength: 3,
                 },
@@ -212,8 +219,11 @@ $(document).ready(function() {
                     minlength:"Enter valid pincode number",
                     maxlength:"Enter valid pincode number",
                 },
-                address: {
-                    required: "Your address  is required!",
+               addressLineOne: {
+                    required: "Your House No/Building Name is required!",
+                },
+                addressLineTwo:{
+                    required: "Your Street/Road Name is required!",
                 },
                 city_id: {
                     required: "Your city is required!",
@@ -226,7 +236,8 @@ $(document).ready(function() {
         if (form.valid() === true) {
             var twInfo = JSON.parse(localStorage.getItem('twInfo'));
                var address = {}
-                address.addressLine= $('#address').val();
+               address.addressLineOne= $('#addressLineOne').val();
+               address.addressLineTwo= $('#addressLineTwo').val();
                 address.pincode = $('#pincode').val();
                 address.city = $('#city_id').val();
                 address.state = $('#state_id').val();

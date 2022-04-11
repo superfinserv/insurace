@@ -103,40 +103,55 @@ color: #454545;
         </div>
     </div>
     <hr/>
-     <div class="row">
+     <div class="row"> 
            <div class="col-md-6">
-            <div class="form-group">
+            @if($type=='car')
+                <div class="form-group">
                     <label for="name" style="width: 100%;font-weight: 600;">Prevoius Policy Type</label>    
                     <select style="margin-bottom:0px;" class="form-control " id="prePolicyType" name="prePolicyType">
                       <option value="">Select</option>
+                         
+                   
                           @if($preCover=="COM")
                             <option value="1-OD_1-TP">1 Year OD and 1 Year TP</option>
-                         @endif
-                         @if($preCover=="TP")
+                          @endif
+                          @if($preCover=="TP")
                             <option value="0-OD_1-TP">1 Year TP only </option>
-                         @endif
-                     @if($type=='car')
+                          @endif
                           @if($preCover=="TP")
                            <option value="0-OD_3-TP">3 Year TP only </option>
                           @endif
                           @if($preCover=="COM")
                              <option value="1-OD_3-TP">1 Year OD and 3 Year TP </option>
                              <option value="3-OD_3-TP">3 Year OD and 3 Year TP </option>
-                         @endif
-                     @endif
-                     @if($type=='bike')
-                    
-                         @if(true)
-                            <option value="0-OD_5-TP">5 Year TP only </option>
-                         @endif
-                         @if($preCover=="COM")
-                           <option value="5-OD_5-TP">5 Year OD and 5 year TP</option>
-                            <option value="1-OD_5-TP">1 Year OD and 5 Year TP </option>
-                         @endif
-                     
-                     @endif
+                           @endif
+                    </select>
+                 </div>
+                @endif
+                
+                @if($type=='bike' && $preCover!=="dontKnow")
+                       <div class="form-group">
+                    <label for="name" style="width: 100%;font-weight: 600;">Prevoius Policy Type</label>    
+                    <select style="margin-bottom:0px;" class="form-control " id="prePolicyType" name="prePolicyType">
+                      <option value="">Select</option>
+                            @if($vTyp=='new2w')
+                                 <option value="0-OD_1-TP">1 Year TP only </option>
+                                 <option value="0-OD_5-TP">5 Year TP only </option>
+                           @else
+                                @if($preCover=="TP")
+                                    <option value="0-OD_1-TP">1 Year TP only </option>
+                                    <option value="0-OD_5-TP">5 Year TP only </option>
+                                 @endif
+                                 @if($preCover=="COM")
+                                    <option value="1-OD_1-TP">1 Year OD and 1 Year TP</option>
+                                    <option value="5-OD_5-TP">5 Year OD and 5 year TP</option>
+                                    <option value="1-OD_5-TP">1 Year OD and 5 Year TP </option>
+                                 @endif
+                            @endif 
                     </select>
                 </div>
+                
+                @endif
             </div>
      
         <div class="col-md-6">

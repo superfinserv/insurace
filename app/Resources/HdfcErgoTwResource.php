@@ -553,7 +553,7 @@ class HdfcErgoTwResource extends AppResource{
             $clientResp = $client->post(config('motor.HDFCERGO.tw.calculatePremium'),['body' => json_encode( $request)] );
         //  echo json_encode( $request);die;
             $result = $clientResp->getBody()->getContents();
-         // print_r($result);die;
+       // print_r($result);die;
             $response = json_decode($result);
            
            DB::table('app_temp_quote')->where(['type'=>'BIKE','device'=>$deviceToken,'provider'=>'HDFCERGO'])->delete();
@@ -853,8 +853,8 @@ class HdfcErgoTwResource extends AppResource{
         $customerDetails->UidNo= "";
         $customerDetails->AuthentificationType= "";
         $customerDetails->LGCode= "";
-        $customerDetails->CorrespondenceAddress1= $params->address->addressLine;
-        $customerDetails->CorrespondenceAddress2= $params->address->addressLine;
+        $customerDetails->CorrespondenceAddress1= $params->address->addressLineOne;
+        $customerDetails->CorrespondenceAddress2= $params->address->addressLineTwo;
         $customerDetails->CorrespondenceAddressCitycode= (int)$city->hdfcErgoCode;
         $customerDetails->CorrespondenceAddressCityName= strtoupper($city->name);
         $customerDetails->CorrespondenceAddressStateCode= (int)$state->hdfcErgoCode;

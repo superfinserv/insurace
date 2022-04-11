@@ -204,7 +204,7 @@ padding: 4px 1px 4px 1px;
                         <select class="form-control planType" id="planType" name="planType" style="border: 1px solid #AC0F0B;font-weight: 600;">
                             <option value="COM">Comprehensive (OD+Third Party)</option>
                             <option value="TP">Third Party Cover</option>
-                            <option value="SAOD" disabled>Stand Alone OD Cover</option>
+                            <option value="SAOD">Stand Alone OD Cover</option>
                           </select>
             	    
             	 </div>
@@ -321,6 +321,40 @@ padding: 4px 1px 4px 1px;
                                                 
                                             </div>
                                             <div class="card-footer hdfcergo_m_addon" style="font-size: 12px;text-shadow: 0px 1px 0px #ccc;">No addon cover selected</div>
+                                        </div>
+                                        
+                                           <div class="card plan-card plan-card-fgi_m cart-empty">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="provider-logo col-md-4 col-lg-3 col-xs-12">
+                                                        <img src="{{asset('assets/partners/FutureGenerali_60a250f2bf870.png')}}" style="width:100%;padding: 10px 30px 0px 0px;"/>
+                                                    </div>
+                                                    <div class="col-md-3 col-lg-3 col-xs-12">
+                                                        <div class="column-2" style="display:none;">
+                                                            <h5 class="idv">IDV:337,092/-</h5>
+                                                            <h5 class="plan-deatil-link">
+                                                                <a href="#" class="Premium-Breakup" data-ref="#">Plan Break-down</a>
+                                                            </h5>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3 col-lg-3 col-xs-12">
+                                                        <div class="column-3" style="display:none;">
+                                                            <h3 class="Premium-PAcover" style="font-size: 13px;font-weight: bolder;color: #AC0F0B;margin-bottom: 5px;" data-toggle="tooltip" title="PA Owner Driver Cover (Personal Accident)">PA Cover</h3>
+                                                            <h5 class="Premium-PAcover"><span class="paCoverStatus-txt">Added</span></h5>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3 col-lg-3 col-xs-12">
+                                                        <div class="column-4">
+                                                            <!--<h5 style="" class="grosspremium"><span class="fa fa-inr"></span> ----</h5>-->
+                                                                <button disabled class="btn btn-netpremiumn selectPlan" style="height: 40px;" data-provider="fgi_m" data-ref="">
+                                                                   0.00<!--<span class="inline-loader"><span class="inline-loader-box"></span><span class="inline-loader-box"></span><span class="inline-loader-box"></span></span> -->
+                                                                </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                            <div class="card-footer fgi_m_addon" style="font-size: 12px;text-shadow: 0px 1px 0px #ccc;">No addon cover selected</div>
                                         </div>
                                        
                                    </div> 

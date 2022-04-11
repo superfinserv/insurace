@@ -149,8 +149,17 @@ class MotorInsurance extends Controller
                         $preInsure['isExp'] = ($isExp)?"Expired":"Not Expired";
                        // $preInsure['expDate'] =  Carbon::CreateFromFormat('d/m/Y',$response->result->vehicleInsuranceUpto)->format('d-m-Y');
                         $preInsure['policyNo'] = $response->result->vehicleInsurancePolicyNumber;
+                        $address['addressLineOne'] = "";
+                        $address['addressLineTwo'] = "";
+                        if(isset($response->result->splitPresentAddress->addressLine)){
+                            
+                            $adrsLine = explode(',', $response->result->splitPresentAddress->addressLine, 2);
+                            $address['addressLineOne'] = isset($adrsLine[0])?$adrsLine[0]:"";
+                            $address['addressLineTwo'] = isset($adrsLine[1])?$adrsLine[1]:"";
+                        }
+                            
                         
-                        $address['addressLine'] =$response->result->splitPresentAddress->addressLine;
+                        //$address['addressLine'] =$response->result->splitPresentAddress->addressLine;
                         $address['pincode']=$response->result->splitPresentAddress->pincode;
                         $customer =  explode(' ',$response->result->owner);
                         $data = ['vehicleNumber'=>$response->result->regNo,
@@ -340,6 +349,7 @@ class MotorInsurance extends Controller
         $temp['previous_insurer'] = DB::table('previous_insurer')->where(['status'=>'ACTIVE','type'=>'GENERAL'])->get();
         $temp['type'] = $request->type;
         $temp['preCover'] =  isset($request->preCover)?$request->preCover:'COM';
+        $temp['vTyp'] =  isset($request->vTyp)?$request->vTyp:'';
         return View::make('motor.moter_tp_details')->with($temp);
     }
     

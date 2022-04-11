@@ -77,7 +77,7 @@
                            </div>
                             <div class="col-md-12">
                                 <table class="table table-planInfo">
-					                <tr><th>Address</th><td>:<span id="ownerAddress">{{$params->address->addressLine}}</span></td> </tr>
+					                <tr><th>Address</th><td>:<span id="ownerAddress">{{$params->address->addressLineOne}},{{$params->address->addressLineTwo}}</span></td> </tr>
 					                <tr><th>City</th> <td>:<span id="ownerCity">{{explode('-',$params->address->city)[1]}}</span></td> </tr>
 					                <tr><th>State</th> <td>:<span id="ownerState">{{explode('-',$params->address->state)[1]}}</span></td> </tr>
 					                <tr><th>Pincode</th> <td>:<span id="ownerPincode">{{$params->address->pincode}}</span></td> </tr>

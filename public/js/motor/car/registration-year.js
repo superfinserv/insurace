@@ -105,7 +105,8 @@ $(document).ready(function() {
          var _adr = getStateCity();
          //console.log(_adr);
             var address = {}
-            address.addressLine= "";
+            address.addressLineOne= "";
+            address.addressLineTwo= "";
             address.pincode = $('#pincode').val();
             address.city = _adr.city;
             address.state = _adr.state;

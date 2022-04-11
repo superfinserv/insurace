@@ -122,7 +122,7 @@ class Carinsurance extends Controller
         //               ->select(DB::raw('MIN(min) as minval,MAX(max) as maxval'))
         //               ->where('type','BIKE')
         //               ->where('device',Auth::guard('customers')->user()->uniqueToken)->first();
-         $template = ['title' => 'Car',"subtitle"=>"Plan List",'scripts'=>[asset('js/motor/car/plan.js')]];  
+         $template = ['title' => 'Car',"subtitle"=>"Plan List",'scripts'=>[asset('js/motor/car/plan.js?v=0.0.2')]];  
          return View::make('motor.car.plan_list')->with($template);
     }
     
@@ -139,7 +139,7 @@ class Carinsurance extends Controller
               }
              }else{return response()->json(['status' => 'error','data' =>[],'message'=>$_result['message']]);}
          }
-         if($request->supp=="HDFCERGO" && $request->carInfo['planType']!="SAOD"){
+         if($request->supp=="HDFCERGO"){
              
                //echo "Hellow";
              $plans =[];
@@ -162,7 +162,7 @@ class Carinsurance extends Controller
                }
                
          }
-         else if($request->supp=="HDFCERGO" && $request->carInfo['planType']!="SAOD"){
+         else if($request->supp=="HDFCERGO"){
              $plans =[];
              $hdfc= $this->HdfcErgoCar->getRecalulateQuote($this->getToken(),$request->carInfo);
              if($hdfc['status']){

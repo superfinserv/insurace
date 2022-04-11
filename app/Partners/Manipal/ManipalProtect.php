@@ -816,7 +816,12 @@ class ManipalProtect{
                     return ['status'=>true,'message'=>"Success",'data'=>[]]; 
                 }else{
                    $errorList = $result->errorList;
-                   return ['status'=>false,'message'=>$errorList[0]->errDescription,'data'=>[]];  
+                   if($errorList[0]->errDescription!=null){
+                       return ['status'=>false,'message'=>$errorList[0]->errDescription,'data'=>[]];  
+                   }else{
+                      return ['status'=>false,'message'=>$errorList[0]->errActualMessage,'data'=>[]];   
+                   }
+                   
                 }
             
         }catch (ConnectException $e) {
