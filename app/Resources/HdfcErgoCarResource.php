@@ -741,7 +741,7 @@ class HdfcErgoCarResource extends AppResource{
             );
             $result = $clientResp->getBody()->getContents();
           // print_r(json_encode($request));
-         //  print_r($result);die;
+         // print_r($result);die;
             $response = json_decode($result);
            
            DB::table('app_temp_quote')->where(['type'=>'CAR','device'=>$deviceToken,'provider'=>'HDFCERGO'])->delete();
@@ -1108,8 +1108,8 @@ class HdfcErgoCarResource extends AppResource{
         $customerDetails->UidNo= "";
         $customerDetails->AuthentificationType= "OTP";
         $customerDetails->LGCode= "";
-        $customerDetails->CorrespondenceAddress1= $params->address->addressLine;
-        $customerDetails->CorrespondenceAddress2= $params->address->addressLine;
+        $customerDetails->CorrespondenceAddress1= $params->address->addressLineOne;
+        $customerDetails->CorrespondenceAddress2= $params->address->addressLineTwo;
          $customerDetails->CorrespondenceAddress3= "";
         $customerDetails->CorrespondenceAddressCitycode= (int)$city->hdfcErgoCode;
         $customerDetails->CorrespondenceAddressCityName= strtoupper($city->name);
@@ -1567,8 +1567,9 @@ class HdfcErgoCarResource extends AppResource{
         $customerDetails->UidNo= "";
         $customerDetails->AuthentificationType= "OTP";
         $customerDetails->LGCode= "";
-        $customerDetails->CorrespondenceAddress1= $options['address']['addressLine'];
-        $customerDetails->CorrespondenceAddress2= $options['address']['addressLine'];
+        $customerDetails->CorrespondenceAddress1= $options['address']['addressLineOne'];
+        $customerDetails->CorrespondenceAddress2= $options['address']['addressLineTwo'];
+        
          $customerDetails->CorrespondenceAddress3= "";
         $customerDetails->CorrespondenceAddressCitycode= (int)$city->hdfcErgoCode;
         $customerDetails->CorrespondenceAddressCityName= strtoupper($city->name);

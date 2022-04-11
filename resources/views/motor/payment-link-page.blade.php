@@ -160,7 +160,7 @@
         				          	         </tr>
         				          	       <tr>
         				          	           <th class="th-head">Address</th>
-        				          	           <td class="th-head" colspan="3"><?=$params->address->addressLine;?></td>
+        				          	           <td class="th-head" colspan="3"><?=$params->address->addressLineOne;?>,<?=$params->address->addressLineTwo;?></td>
         				          	       </tr>
         				          	       <tr>
         				          	           <th>City</th><td>{{explode('-',$params->address->city)[1]}}</td>

@@ -27,8 +27,9 @@
 
 <div class="filter-content checksbox ">
 	<div class="card-body">
+	    <div class="TPCovers">
 	    <h4 style="font-weight: 600;font-size: 14px;">PA Owner Driver</h4>
-		 <div class="custom-control custom-radio plan_check show-pop" data-toggle="tooltip" title="An accident cover which provides financial assistance to the car's owner in case of disablement or death due to an accident. Every individual vehicle owner must opt for this cover as per IRDAI guidelines, except for those without a driving license or having an existing Personal Accident cover of at least Rs. 15 lakhs." data-placement="top">
+		 <div class="custom-control custom-radio plan_check PACover-group show-pop" data-toggle="tooltip" title="An accident cover which provides financial assistance to the car's owner in case of disablement or death due to an accident. Every individual vehicle owner must opt for this cover as per IRDAI guidelines, except for those without a driving license or having an existing Personal Accident cover of at least Rs. 15 lakhs." data-placement="top">
 		  	<input type="radio" class="custom-control-input PACover com-cover" id="isPA_OwnerDriverCover" value="1" name="PA_OwnerDriverCover">
 		  	<label style="font-size: 13px;" class="custom-control-label" for="isPA_OwnerDriverCover">PA Owner Driver Cover (Personal Accident)</label>
 		    
@@ -49,7 +50,7 @@
 		  	
 		  	
 		 </div>
-		 <div class="custom-control custom-radio plan_check" style="margin-top: 10px;">
+		 <div class="custom-control custom-radio plan_check PACover-group" style="margin-top: 10px;">
 		  	<input type="radio" class="custom-control-input PACover com-cover" id="notPA_OwnerDriverCover" value="0" name="PA_OwnerDriverCover" >
 		  	<label style="margin-top: 1px;font-size: 10px;line-height: 16px;font-weight: 600;" class="custom-control-label" for="notPA_OwnerDriverCover">I hereby confirm that I don’t have effective driving licence / already have an alternate Personal Accident insurance cover of Rs. 15 lakhs on the date of commencement of this policy.</label>
 		 </div>
@@ -103,6 +104,7 @@
 		</div> 
 		
 		<hr/>
+		</div>
 		<h4 style="font-weight: 600;font-size: 14px;"><u>Motor Own Damage -  Add Ons</u></h4>
 		<div class="custom-control custom-checkbox plan_check"> 
 		  	<input type="checkbox" class="custom-control-input addonCover moter-OD" id="isBreakDownAsCover" value="1" name="isBreakDownAsCover" data-filter-by="9">

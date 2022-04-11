@@ -167,6 +167,7 @@ $(function(){
                         $('.access-cover').prop("disabled", true); $(".access-cover").attr("disabled", true);
                         $('#zero-dep-elem').hide();
                         $('#ODdetails').hide();
+                         $('.TPCovers').show();
                     }else if(cover=='SAOD'){
                            $('.cardIdvSet').show();
                            $('#ODdetails').show();
@@ -174,12 +175,27 @@ $(function(){
                            $('.moter-OD').prop("disabled", false); $(".moter-OD").attr("disabled", false);
                            $('.com-cover').prop("disabled", true); $(".com-cover").attr("disabled", true);
                            $('.access-cover').prop("disabled", false); $(".access-cover").attr("disabled", false);
+                          
+                            carInfo.subcovers.isPA_UNPassCover="false";
+                            carInfo.subcovers.isPA_UNDriverCover="false";
+                            carInfo.subcovers.isLL_PaidDriverCover="false";
+                            carInfo.subcovers.isLL_UNPassCover="false";
+                            carInfo.subcovers.isLL_EmpCover="false";
+                            carInfo.subcovers.isPA_OwnerDriverCover = "false";
+                            $("#isPA_OwnerDriverCover").prop("checked", false);$("#isPA_OwnerDriverCover").attr("checked", false);
+                            $("#notPA_OwnerDriverCover").prop("checked", true);$("#notPA_OwnerDriverCover").attr("checked", true);
+                            $('.PACover').prop("disabled", true); $(".PACover").attr("disabled", true);
+                            
+                            $('.TPCovers').hide();
                     }else{
-                        $('.cardIdvSet').show();
-                        $('.com-cover').prop("disabled", false); $(".com-cover").attr("disabled", false);
-                        $('.moter-OD').prop("disabled", false); $(".moter-OD").attr("disabled", false);
-                        $('.access-cover').prop("disabled", false); $(".access-cover").attr("disabled", false);
+                         $('.cardIdvSet').show();
+                         $('.com-cover').prop("disabled", false); $(".com-cover").attr("disabled", false);
+                         $('.moter-OD').prop("disabled", false); $(".moter-OD").attr("disabled", false);
+                         $('.access-cover').prop("disabled", false); $(".access-cover").attr("disabled", false);
                          $('#ODdetails').hide();
+                         $('#isPA_OwnerDriverCover').prop('checked',true);$('#isPA_OwnerDriverCover').attr('checked',true);
+                         $('.PACover').prop('disabled',false);$('.PACover').attr('disabled',false);
+                          $('.TPCovers').show();
                     }
                     
                     if(carInfo.vehicle.policyHolder=="COR"){
@@ -188,21 +204,15 @@ $(function(){
                         $("#notPA_OwnerDriverCover").prop("checked", true);$("#notPA_OwnerDriverCover").attr("checked", true);
                         $('.PACover').prop("disabled", true); $(".PACover").attr("disabled", true);
                     }else{
-                        carInfo.subcovers.isPA_OwnerDriverCover = "true";
-                        $("#isPA_OwnerDriverCover").prop("checked", true);$("#isPA_OwnerDriverCover").attr("checked", true);
-                        $("#notPA_OwnerDriverCover").prop("checked", false);$("#notPA_OwnerDriverCover").attr("checked", false);
-                        $('.PACover').prop("disabled", false); $(".PACover").attr("disabled", false);
+                        if(cover!='SAOD'){
+                            carInfo.subcovers.isPA_OwnerDriverCover = "true";
+                            $("#isPA_OwnerDriverCover").prop("checked", true);$("#isPA_OwnerDriverCover").attr("checked", true);
+                            $("#notPA_OwnerDriverCover").prop("checked", false);$("#notPA_OwnerDriverCover").attr("checked", false);
+                            $('.PACover').prop("disabled", false); $(".PACover").attr("disabled", false);
+                        }
                     }
                     localStorage.setItem("carInfo", JSON.stringify(carInfo));
-                    //// else if(cover=='SAOD'){
-                        
-                    //     $('.cardIdvSet').show();
-                    //     $('.com-cover').prop("disabled", true); $(".com-cover").attr("disabled", true);
-                    //     $('.moter-OD').prop("disabled", false); $(".moter-OD").attr("disabled", false);
-                    //     $('.access-cover').prop("disabled", false); $(".access-cover").attr("disabled", false);
-                    //     $('.com-cover').prop("checked", false); $(".com-cover").attr("checked", false);
-                        
-                    // }
+                   
         },
             addonsHandler:function(){
                  carInfo = JSON.parse(localStorage.getItem('carInfo'));
@@ -261,12 +271,12 @@ $(function(){
         //  $("#notPA_OwnerDriverCover").prop("checked", false);$("#notPA_OwnerDriverCover").attr("checked", false); 
         // if(carInfo.vehicle.policyHolder=="COR"){
         //     carInfo.subcovers.isPA_OwnerDriverCover ='false';
-        //     $("#isPA_OwnerDriverCover").prop("checked", false);$("#isPA_OwnerDriverCover").attr("checked", false);$("#isPA_OwnerDriverCover").attr("disabled", true);
-        //     $("#notPA_OwnerDriverCover").prop("checked", true);$("#notPA_OwnerDriverCover").attr("checked", true);$("#notPA_OwnerDriverCover").attr("disabled", true);
+            
         // }
         // localStorage.setItem("carInfo", JSON.stringify(carInfo));
         configSetting.coverSetup(carInfo.planType);
         configSetting.addonsHandler();
+        
         planLib.digit('first-call');
         planLib.hdfcErgo('first-call');
         
@@ -337,6 +347,8 @@ $(function(){
             carInfo.planType = "SAOD";
             currentPlan = "SAOD";
             localStorage.setItem("carInfo", JSON.stringify(carInfo));
+            configSetting.coverSetup(currentPlan);
+            
             jcModal.close();
             $('#ODdetails').show();
             planLib.digit('firstCall');

@@ -476,6 +476,9 @@ class DigitBikeResource extends AppResource{
                         "isVehicleNew"=>$isVehicleNew,
                         "vehicleMaincode"=> $vehicleMain->digit_code,
                         "licensePlateNumber"=>$licensePlateNumber,
+                          
+                         "registrationAuthority"=>$regionCode,
+                      
                         "vehicleIdentificationNumber"=>null,
                         "engineNumber"=> null,
                         "manufactureDate"=> $registrationDate,
@@ -506,16 +509,19 @@ class DigitBikeResource extends AppResource{
                      
                     ]
                 ];
-        //       if($insuranceProductCode=='20203'){
-        //             $pp = str_replace("-","",$params['TP']['prePolicyType']);
-        //             $request['previousInsurer']['originalPreviousPolicyType'] =$pp;   
-        //             $request['previousInsurer']['currentThirdPartyPolicy']    = ["isCurrentThirdPartyPolicyActive"=>null,
-        //                                                                           "currentThirdPartyPolicyInsurerCode"=>DB::table('previous_insurer')->where('id', $params['TP']['TPInsurer'])->value('digit_code'),
-        //                                                                           "currentThirdPartyPolicyNumber"=>$params['TP']['TP_policyno'],
-        //                                                                           "currentThirdPartyPolicyStartDateTime"=>$params['TP']['TPpolicyStartDate'],
-        //                                                                           "currentThirdPartyPolicyExpiryDateTime"=>$params['TP']['TPpolicyEndDate']
-        //                                                                          ];
-        //     }
+              if($insuranceProductCode=='20203'){
+                  
+                    $pp = isset($params['TP']['prePolicyType'])?str_replace("-","",$params['TP']['prePolicyType']):"";
+                    $policyStartDate= isset($params['TP']['TPpolicyStartDate'])?explode('-',$params['TP']['TPpolicyStartDate']):null;
+                    $policyTPEndDate= isset($params['TP']['TPpolicyEndDate'])?explode('-',$params['TP']['TPpolicyEndDate']):null;
+                    $request['previousInsurer']['originalPreviousPolicyType'] =null;//$pp;   
+                    $request['previousInsurer']['currentThirdPartyPolicy']    = ["isCurrentThirdPartyPolicyActive"=>null,
+                                                                                  "currentThirdPartyPolicyInsurerCode"=>DB::table('previous_insurer')->where('id', $params['previousInsurance']['insurer'])->value('digit_code'),
+                                                                                  "currentThirdPartyPolicyNumber"=>$params['previousInsurance']['policyNo'],
+                                                                                  "currentThirdPartyPolicyStartDateTime"=>$policyStartDate[2]."-".$policyStartDate[1]."-".$policyStartDate[0],
+                                                                                  "currentThirdPartyPolicyExpiryDateTime"=>$policyTPEndDate[2]."-".$policyTPEndDate[1]."-".$policyTPEndDate[0]
+                                                                                 ];
+            }
              $this->QuoteRequest = $request;
             // return $request;
     }
@@ -523,7 +529,7 @@ class DigitBikeResource extends AppResource{
     function getQuickQuote($deviceToken,$options){
          try {
            $req = $this->fnQuoteRequest($options);
-           //echo json_encode($this->QuoteRequest);
+           //echo json_encode($this->QuoteRequest);die;
           // $header = ["accept: */*","Content-Type:application/json","Authorization:Basic ".base64_encode("$this->username:$this->password")];
           // $auth['header'] = $header;
           // $auth['url'] = $this->QuickQuoteUrl;
@@ -538,10 +544,11 @@ class DigitBikeResource extends AppResource{
             );
             $result = $clientResp->getBody()->getContents();
            
+         // print_r($result);die;
            
            $response = json_decode($result);
            $returnData =[];
-          //  print_r($result); 
+           
             DB::table('app_temp_quote')->where(['type'=>'BIKE','device'=>$deviceToken,'provider'=>'DIGIT'])->delete();
           if(isset($response->error->errorCode) && $response->error->errorCode==0 ){
                   
@@ -588,9 +595,15 @@ class DigitBikeResource extends AppResource{
             }catch (RequestException $e) {
                 $response = $e->getResponse();
                 $responseBodyAsString = $response->getBody()->getContents();
-                $jsonRes = json_decode($responseBodyAsString);
-               //   print_r($responseBodyAsString);die;
-                return ['status' => false,'plans'=>[], 'message' => 'Something went wrong'];
+                $resp = json_decode($responseBodyAsString);
+                   if(isset($resp->error->validationMessages[0])){
+                        $msg = isset($resp->error->validationMessages[0])?($resp->error->validationMessages[0]):'Internal server error';
+                        return ['status'=>false,'plans'=>[],"message"=>$msg];
+                   }else{
+                        return ['status'=>false,'plans'=>[],"message"=>"Internal server error"];
+                   }
+               //  print_r($responseBodyAsString);die;
+              //  return ['status' => false,'plans'=>[], 'message' => 'Something went wrong'];
             }catch (ClientException $e) {
                 $response = $e->getResponse();
                 $responseBodyAsString = $response->getBody()->getContents();
@@ -613,7 +626,7 @@ class DigitBikeResource extends AppResource{
                     return ($var->coverType== $ODSEARCH);
                  });
                  $keyValOD = array_key_first($newOD);
-                 $REQUEST->contract->coverages[$keyValOD]->discount->userSpecialDiscountPercent=40;
+                 //$REQUEST->contract->coverages[$keyValOD]->discount->userSpecialDiscountPercent=40;
               }
              
                //PA OWNER DRIVER COVER
@@ -1081,7 +1094,7 @@ class DigitBikeResource extends AppResource{
                $personArr = [
                     [
                        "addresses"=> [
-                           [ "addressType"=> "PRIMARY_RESIDENCE","flatNumber"=> "", "streetNumber"=> "", "street"=> $options->address->addressLine,
+                           [ "addressType"=> "PRIMARY_RESIDENCE","flatNumber"=> "", "streetNumber"=>$options->address->addressLineOne, "street"=> $options->address->addressLineTwo,
                              "district"=> "", "state"=> $state->stateCode, "city"=> $city->name, "country"=> "IN",  
                              "pincode"=> $options->address->pincode
                            ],
@@ -1245,7 +1258,7 @@ class DigitBikeResource extends AppResource{
       if($applicationID!=""){
           $REQUEST=["applicationId"=>$applicationID,"cancelReturnUrl"=>url('policy/cancel/'.$enq),
                     "successReturnUrl"=>config('custom.site_url').'/moter-insurance/insured-success/bike/'.$enq];
-                    
+         try{           
            $client = new Client(['headers' => ["accept"=> "*/*",  'Content-Type' => 'application/json','Authorization'=>config('motor.DIGIT.tw.paymentKey')] ]);
             
             $clientResp = $client->post(config('motor.DIGIT.tw.payment'),
@@ -1259,6 +1272,35 @@ class DigitBikeResource extends AppResource{
                 return ['status'=>false,'message'=>$msg->responseBody->errorMessage];
             }else{
                 return ['status'=>true,'message'=>"Payment link generated successfully",'data'=>$result]; 
+            }
+            
+            
+      }catch (ConnectException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $jsonRes = json_decode($responseBodyAsString);
+              
+                return ['status' => false,'message' => $jsonRes->error->message];
+            }catch (RequestException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $resp = json_decode($responseBodyAsString);
+               //  print_r($responseBodyAsString);die;
+                  if(isset($resp->timestamp) || isset($resp->message)){ 
+                        $msg = json_decode(json_decode(json_encode($resp->message)));
+                        return ['status'=>false,'message'=>$resp->message];
+                    }else if(isset($resp->error->validationMessages[0])){
+                        $msg = isset($resp->error->validationMessages[0])?($resp->error->validationMessages[0]):'Internal server error';
+                        return ['status'=>false,"message"=>$msg];
+                   }else{
+                        return ['status'=>false,"message"=>"Internal server error"];
+                   }
+                
+            }catch (ClientException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $jsonRes = json_decode($responseBodyAsString);
+                return ['status' =>false, 'message' => $jsonRes->error->message];
             }
         }else{
           return ['status'=>false,'message'=>"Application ID is required to create policy."];

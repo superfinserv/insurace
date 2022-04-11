@@ -10,6 +10,7 @@ use Auth;
 use File;
 use App\Resources\DigitBikeResource;
 use App\Resources\HdfcErgoTwResource;
+use App\Resources\FgiTwResource;
 class Twinsurance extends Controller
 {
     public $uniqueToken;
@@ -17,6 +18,7 @@ class Twinsurance extends Controller
     public function __construct(DigitBikeResource $DigitBikeResource ,HdfcErgoTwResource $HdfcErgoTwResource) { 
            $this->DigitTw   = $DigitBikeResource; 
            $this->HdfcErgo  = $HdfcErgoTwResource; 
+           $this->FgiTw =  new FgiTwResource;
     }
     
     function getToken(){
@@ -136,7 +138,7 @@ class Twinsurance extends Controller
               }
              }else{return response()->json(['status' => 'error','data' =>[],'message'=>$_result['message']]);}
          }
-         if($request->supp=="HDFCERGO" && $request->twInfo['planType']!="SAOD"){
+         if($request->supp=="HDFCERGO"  && $request->twInfo['planType']!="SAOD"){
              $plans =[];
              $result= $this->HdfcErgo->getQuickQuote($this->getToken(),$request->twInfo);
              if($result['status']){ 
@@ -145,6 +147,17 @@ class Twinsurance extends Controller
                   return response()->json(['status' => 'error','message'=>$result['message'],'data' =>[]]);
               }
          }
+         
+        //  if($request->supp=="FGI" ){
+             
+        //       $plans =[];
+        //      $result= $this->FgiTw->getQuickQuote($this->getToken(),$request->twInfo);
+        //      if($result['status']){ 
+        //           return response()->json(['status' => 'success','data' => $result['plans']]);
+        //       }else{
+        //           return response()->json(['status' => 'error','message'=>$result['message'],'data' =>[]]);
+        //       }
+        //  }
     }
     
     public function loadPlansRecalculate(Request $request){

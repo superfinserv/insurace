@@ -32,61 +32,6 @@ $(window).on('load', function(){
                }
            }
        }
-        //   if(carInfo.vehicle.isBrandNew==='false'){
-        //       if(carInfo.previousInsurance!==undefined && carInfo.previousInsurance.isExp!==undefined && carInfo.previousInsurance.isExp!==""){
-        //           if(carInfo.previousInsurance.isExp=="Expired"){
-        //               $('.bike_policy_details__expitem').show();
-        //               $('#isExp').attr('checked',true);
-        //               $('#isExp').prop('checked',true);
-        //               if(carInfo.previousInsurance!==undefined && carInfo.previousInsurance.expDate!==undefined && carInfo.previousInsurance.expDate!==null ){
-        //                  if(carInfo.previousInsurance.expDate=="+90"){ 
-        //                      $('#defaultChecked').attr('checked',true);
-        //                      $('#defaultChecked').prop('checked',true); 
-        //                  }
-        //                  if(carInfo.previousInsurance.expDate=="-90"){ 
-        //                       $('#defaultChecked1').attr('checked',true);
-        //                      $('#defaultChecked1').prop('checked',true); 
-        //                  }
-        //                   if(carInfo.previousInsurance.expDate=="0"){
-        //                      $('#defaultChecked4').attr('checked',true);
-        //                      $('#defaultChecked4').prop('checked',true); }
-        //               }
-        //           }else{
-        //               $('#isNotExp').attr('checked',true);
-        //               $('#isNotExp').prop('checked',true)
-        //           }
-        //       }
-        //   } 
-           
-        // //   if(bikeInfo.previousInsurer!=null && bikeInfo.previousInsurer!=undefined){
-        // //       $('#previousinsurer').val(bikeInfo.previousInsurer).trigger('change');
-        // //   }
-           
-        //     if(carInfo.previousInsurance!==undefined && carInfo.previousInsurance.policyType!=="" && carInfo.previousInsurance.policyType!==undefined){
-        //         if(carInfo.previousInsurance.policyTyp=="COM"){
-        //           $('#comprehensive').attr('checked',true);
-        //           $('#comprehensive').prop('checked',true);
-        //         }else{
-        //           $('#third_party').attr('checked',true);
-        //           $('#third_party').prop('checked',true);  
-        //         }
-        //     }
-            
-        //     if(carInfo.previousInsurance!==undefined  && carInfo.previousInsurance.hasPreClaim!==undefined && carInfo.previousInsurance.hasPreClaim!==""){
-        //         if(carInfo.previousInsurance.hasPreClaim=="yes"){
-        //           $('#claims_yes').attr('checked',true);
-        //           $('#claims_yes').prop('checked',true);
-        //         }else{
-        //           // $('.NCB').show();
-        //           $('#claims_no').attr('checked',true);
-        //           $('#claims_no').prop('checked',true);
-        //           if(carInfo.previousInsurance!==undefined  && carInfo.previousInsurance.ncb!==null && carInfo.previousInsurance.ncb!==undefined){
-        //                 $('#claims_type').val(carInfo.previousInsurance.ncb).trigger('change');
-        //           }
-        //         }
-        //     }
-           
-           
            
        }
     }

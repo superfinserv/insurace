@@ -12,6 +12,8 @@ public/assets/agents/pdf/certificate
 public/assets/agents/pdf/taxinvoice
 public/assets/agents/profile
 public/assets/agents/tranning_certificates
+public/assets/customers/policy
+
 config/mediclaim.php
 config/motor.php
 config/custom.php

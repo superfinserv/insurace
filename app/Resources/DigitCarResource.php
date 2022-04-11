@@ -511,7 +511,7 @@ class DigitCarResource extends AppResource{
                     $pp = str_replace("-","",$params['TP']['prePolicyType']);
                     $policyStartDate= isset($params['TP']['TPpolicyStartDate'])?explode('-',$params['TP']['TPpolicyStartDate']):null;
                     $policyTPEndDate= isset($params['TP']['TPpolicyEndDate'])?explode('-',$params['TP']['TPpolicyEndDate']):null;
-                    $request['previousInsurer']['originalPreviousPolicyType'] =$pp;   
+                 $request['previousInsurer']['originalPreviousPolicyType'] =$pp;   
                     $request['previousInsurer']['currentThirdPartyPolicy']    = ["isCurrentThirdPartyPolicyActive"=>null,
                                                                                   "currentThirdPartyPolicyInsurerCode"=>DB::table('previous_insurer')->where('id', $params['previousInsurance']['insurer'])->value('digit_code'),
                                                                                   "currentThirdPartyPolicyNumber"=>$params['previousInsurance']['policyNo'],
@@ -1335,7 +1335,7 @@ class DigitCarResource extends AppResource{
                 $personArr = [
                      [
                         "addresses"=> [
-                            [ "addressType"=> "PRIMARY_RESIDENCE","flatNumber"=> "", "streetNumber"=> "", "street"=> $options->address->addressLine,
+                            [ "addressType"=> "PRIMARY_RESIDENCE","flatNumber"=> "", "streetNumber"=>$options->address->addressLineOne, "street"=> $options->address->addressLineTwo,
                               "district"=> "", "state"=> $state->stateCode, "city"=> $city->name, "country"=> "IN",  
                               "pincode"=> $options->address->pincode
                             ],
@@ -1389,7 +1389,7 @@ class DigitCarResource extends AppResource{
                       "personType"=>"COMPANY",
                       "partyId"=> "",
                        "addresses"=> [
-                                [ "addressType"=> "PRIMARY_RESIDENCE","flatNumber"=> "", "streetNumber"=> "", "street"=> $options->address->addressLine,
+                                [ "addressType"=> "PRIMARY_RESIDENCE","flatNumber"=>"", "streetNumber"=>$options->address->addressLineOne, "street"=> $options->address->addressLineTwo,
                                   "district"=> "", "state"=> $state->state_code, "city"=> $city->name, "country"=> "IN",  
                                   "pincode"=> $options->address->pincode
                                 ],
@@ -1465,7 +1465,7 @@ class DigitCarResource extends AppResource{
                 )]
             );
             $result = $clientResp->getBody()->getContents();
-          //  print_r($result);die;
+            //print_r($result);die;
            $response = json_decode($result);
            if(isset($response->message)){
                 return ['status'=>false,'data'=>$enquiry_id ,"message"=>$response->message];
@@ -1492,21 +1492,22 @@ class DigitCarResource extends AppResource{
          }catch (ConnectException $e) {
                 $response = $e->getResponse();
                 $responseBodyAsString = $response->getBody()->getContents();
-                return ['status'=>false,'plans'=>[],"message"=>"Internal server error"];
+                return ['status'=>false,'plans'=>[],"message"=>"ConnectException server error"];
             }catch (RequestException $e) {
                 $response = $e->getResponse();
                 $responseBodyAsString = $response->getBody()->getContents();
+               // print_r($responseBodyAsString);
                 $resp = json_decode($responseBodyAsString);
                 if(isset($resp->error->validationMessages[0])){
                      $msg = isset($resp->error->validationMessages[0])?($resp->error->validationMessages[0]):'Internal server error';
                      return ['status'=>false,'plans'=>[],"message"=>$msg];
                 }else{
-                     return ['status'=>false,'plans'=>[],"message"=>"Internal server error"];
+                     return ['status'=>false,'plans'=>[],"message"=>"RequestException server error"];
                 }
             }catch (ClientException $e) {
                 $response = $e->getResponse();
                 $responseBodyAsString = $response->getBody()->getContents();
-                 return ['status'=>false,'plans'=>[],"message"=>"Internal server error"];
+                 return ['status'=>false,'plans'=>[],"message"=>"ClientException server error"];
             }
      }
      

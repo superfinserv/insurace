@@ -67,7 +67,11 @@ $("body").on("click",".readTermsConditions",function() {
                    toastr.error(resp.message,"Error",{positionclass:'toast-bottom-right'});
                }
                
-        });
+        }).fail(function(err) {
+            console.log(err);
+                   _this.html(_html);_this.attr('disabled',false);_this.prop('disabled',false);
+                   toastr.error("Internal server error","Error",{positionclass:'toast-bottom-right'});
+         });
         }
      }else{
            $( "#effect" ).effect( 'shake', {}, 500, callbackEffect );  

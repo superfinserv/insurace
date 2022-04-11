@@ -204,7 +204,11 @@ $(document).ready(function() {
                     minlength: 6,
                     maxlength: 6,
                 },
-                address: {
+                addressLineOne: {
+                    required: true,
+                    minlength: 2,
+                },
+                addressLineTwo: {
                     required: true,
                     minlength: 3,
                 },
@@ -222,8 +226,11 @@ $(document).ready(function() {
                     minlength:"Enter valid pincode number",
                     maxlength:"Enter valid pincode number",
                 },
-                address: {
-                    required: "Your address  is required!",
+                addressLineOne: {
+                    required: "Your House No/Building Name is required!",
+                },
+                addressLineTwo:{
+                    required: "Your Street/Road Name is required!",
                 },
                 city_id: {
                     required: "Your city is required!",
@@ -236,7 +243,8 @@ $(document).ready(function() {
         if (form.valid() === true) {
             var carInfo = JSON.parse(localStorage.getItem('carInfo'));
             var address = {}
-            address.addressLine= $('#address').val();
+            address.addressLineOne= $('#addressLineOne').val();
+            address.addressLineTwo= $('#addressLineTwo').val();
             address.pincode = $('#pincode').val();
             address.city = $('#city_id').val();
             address.state = $('#state_id').val();

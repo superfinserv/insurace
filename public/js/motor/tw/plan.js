@@ -150,7 +150,73 @@ $(function(){
               complete: function (jqXHR, status) {}
             });
            
+          },
+          
+          fgi: function(callTyp){
+               var fgiCard = $('.plan-card-fgi_m');
+               $('.plan-card-fgi_m').find('button.btn-netpremiumn').html(loader).attr('disabled',false);
+               $('.plan-card-fgi_m').find('button.btn-netpremiumn').html(loader);
+                  $('.plan-card-fgi_m').find('.error-span').remove();
+            
+             var twInfo = JSON.parse(localStorage.getItem('twInfo'));
+             var url =  (callTyp=='recalculate')?"/twowheeler-insurance/load-plans-recalculate/":"/twowheeler-insurance/load-plans/";
+             $.ajax({
+              url: base_url + url,
+              type: "POST",
+              dataType: "json",
+              data:{supp:'FGI',twInfo:twInfo},
+              success: function (data, status, jqXHR) {
+                  var result = data.data;
+                  if($.trim(data.status)=="success"){
+                    $('.idv-edit-th').attr('id','open-idv-modal');
+                    $('.plan-card-fgi_m').show();
+                    
+                   
+                    fgiCard.removeClass('cart-empty');
+                    fgiCard.find('a.Premium-Breakup').attr('data-ref',result.id);
+                    if(twInfo.planType=="TP"){ fgiCard.find('h5.idv').hide();}else{ fgiCard.find('h5.idv').html('IDV:'+result.idv+'/-');}
+                    fgiCard.find('.column-2').attr('style',"");
+                    fgiCard.find('.column-3').attr('style',"");
+                    fgiCard.find('button.btn-netpremiumn').attr('data-ref',result.id);
+                    if(twInfo.subcovers.isPA_OwnerDriverCover=="true"){
+                       fgiCard.find('span.paCoverStatus-txt').text('Added');
+                    }else{
+                        fgiCard.find('span.paCoverStatus-txt').text('N/A');
+                    }
+                    fgiCard.find('button.btn-netpremiumn').html('<span class="fa fa-inr"></span> '+result.grossamount+' <i style="" class="fa fa-angle-double-right" aria-hidden="true"></i>');
+                    var addon =  result.addons.covers.addons;
+                     if( addon.length){
+                        var addonHtm = "";
+                        $.each(addon, function (adkey, ad) {
+                           
+                           addonHtm +='<span class="addon-badge">'+ad.title+'</span>';
+                        });
+                        
+                        $('.fgi_m_addon').html(addonHtm);
+                    }else{
+                       $('.fgi_m_addon').empty().text('No addon cover selected');  
+                    }
+                
+                  }else{
+                       fgiCard.addClass('cart-empty');
+                       $('.plan-card-fgi_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
+                       $('.plan-card-fgi_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                      
+                  }
+               },
+              error: function (jqXHR, status, err) {
+                    
+                   $('.plan-card-fgi_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
+                   $('.plan-card-fgi_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                    
+                  
+              },
+              complete: function (jqXHR, status) {}
+            });
+           
           }
+          
+          
         
         };
         
@@ -174,7 +240,7 @@ $(function(){
                         $('.moter-OD').prop("disabled", true); $(".moter-OD").attr("disabled", true);
                         $('.access-cover').prop("disabled", true); $(".access-cover").attr("disabled", true);
                         $('#zero-dep-elem').hide();
-                        
+                         $('.TPCovers').show();
                     }else if(cover=='SAOD'){
                           $('.cardIdvSet').show();
                           $('#ODdetails').show();
@@ -183,11 +249,23 @@ $(function(){
                            $('.moter-OD').prop("disabled", false); $(".moter-OD").attr("disabled", false);
                           $('.com-cover').prop("disabled", true); $(".com-cover").attr("disabled", true);
                           $('.access-cover').prop("disabled", false); $(".access-cover").attr("disabled", false);
+                            twInfo.subcovers.isPA_UNPassCover="false";
+                            twInfo.subcovers.isPA_UNDriverCover="false";
+                            twInfo.subcovers.isLL_PaidDriverCover="false";
+                            twInfo.subcovers.isLL_UNPassCover="false";
+                            twInfo.subcovers.isLL_EmpCover="false";
+                            twInfo.subcovers.isPA_OwnerDriverCover = "false";
+                            $("#isPA_OwnerDriverCover").prop("checked", false);$("#isPA_OwnerDriverCover").attr("checked", false);
+                            $("#notPA_OwnerDriverCover").prop("checked", true);$("#notPA_OwnerDriverCover").attr("checked", true);
+                            $('.PACover').prop("disabled", true); $(".PACover").attr("disabled", true);
+                            
+                            $('.TPCovers').hide();
                     }else{
                         $('.cardIdvSet').show();
                         $('.com-cover').prop("disabled", false); $(".com-cover").attr("disabled", false);
                         $('.moter-OD').prop("disabled", false); $(".moter-OD").attr("disabled", false);
                         $('.access-cover').prop("disabled", false); $(".access-cover").attr("disabled", false);
+                        $('.TPCovers').show();
                     }
                     
                     if(twInfo.vehicle.policyHolder=="COR"){
@@ -196,10 +274,12 @@ $(function(){
                         $("#notPA_OwnerDriverCover").prop("checked", true);$("#notPA_OwnerDriverCover").attr("checked", true);
                         $('.PACover').prop("disabled", true); $(".PACover").attr("disabled", true);
                     }else{
-                        twInfo.subcovers.isPA_OwnerDriverCover = "true";
-                        $("#isPA_OwnerDriverCover").prop("checked", true);$("#isPA_OwnerDriverCover").attr("checked", true);
-                        $("#notPA_OwnerDriverCover").prop("checked", false);$("#notPA_OwnerDriverCover").attr("checked", false);
-                        $('.PACover').prop("disabled", false); $(".PACover").attr("disabled", false);
+                        if(cover!='SAOD'){
+                            twInfo.subcovers.isPA_OwnerDriverCover = "true";
+                            $("#isPA_OwnerDriverCover").prop("checked", true);$("#isPA_OwnerDriverCover").attr("checked", true);
+                            $("#notPA_OwnerDriverCover").prop("checked", false);$("#notPA_OwnerDriverCover").attr("checked", false);
+                            $('.PACover').prop("disabled", false); $(".PACover").attr("disabled", false);
+                        }
                     }
                     localStorage.setItem("twInfo", JSON.stringify(twInfo));
                     //// else if(cover=='SAOD'){
@@ -270,17 +350,25 @@ $(function(){
         configSetting.addonsHandler();
         planLib.digit('first-call');
         planLib.hdfcErgo('first-call');
+      //   planLib.fgi('first-call');
         
     }
     
     
      function TPModal(){
          var twInfo = JSON.parse(localStorage.getItem('twInfo'));
+         //console.log("twInfo",twInfo.previousInsurance.policyType);
          var preCover =  twInfo.previousInsurance.policyType;
+         var isBrandNew =  (twInfo.vehicle.isBrandNew=="true")?'new2w':"old2w";
+         if(isBrandNew =="new2w"){
+             var preCover =  'new';
+         }else if( twInfo.previousInsurance.isExp==="Expired" &&  twInfo.previousInsurance.exp=="0"){
+            var preCover =  'dontKnow'; 
+         }
        jcModal = $.dialog({
                     title: 'Just few details to go...',
                     titleClass:'tp-title',
-                    content: 'url:'+base_url+"/moter-insurance/load-tp-details-modal/bike",
+                    content: 'url:'+base_url+"/moter-insurance/load-tp-details-modal/bike/"+preCover+"/"+isBrandNew,
                     animation: 'scale',
                     columnClass: 'medium',
                     closeAnimation: 'scale',
@@ -321,12 +409,17 @@ $(function(){
      $('body').on('submit','#TpDetailsForm',function(e){
       e.preventDefault();
         $("#TpDetailsForm").validate();
+        
         $('#TPInsurer').rules("add",  {required: true });
         $('#TPInsurer').rules("add",  {required: true });
         $('#TP_policyno').rules("add", {required: true});
         $('#TPpolicyStartDate').rules("add", {required: true,});
         $('#TPpolicyEndDate').rules("add", {required: true});
-        $('#prePolicyType').rules("add", {required: true});
+        if($('#prePolicyType').length){
+             $('#prePolicyType').rules("add", {required: true});
+         }else{ 
+               $('#prePolicyType').rules("add", {required: false});
+         }
         
         if($('#TpDetailsForm').valid() === true) {
             var formData = $('#TpDetailsForm').serializeObject();
@@ -339,7 +432,7 @@ $(function(){
             localStorage.setItem("twInfo", JSON.stringify(twInfo));
             jcModal.close();
             $('#ODdetails').show();
-            
+             configSetting.coverSetup(currentPlan);
              planLib.digit('firstCall');
              planLib.hdfcErgo('firstCall');
         }
