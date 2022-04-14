@@ -138,7 +138,7 @@ class Twinsurance extends Controller
               }
              }else{return response()->json(['status' => 'error','data' =>[],'message'=>$_result['message']]);}
          }
-         if($request->supp=="HDFCERGO"  && $request->twInfo['planType']!="SAOD"){
+         if($request->supp=="HDFCERGO"){
              $plans =[];
              $result= $this->HdfcErgo->getQuickQuote($this->getToken(),$request->twInfo);
              if($result['status']){ 
@@ -148,16 +148,16 @@ class Twinsurance extends Controller
               }
          }
          
-        //  if($request->supp=="FGI" ){
+         if($request->supp=="FGI" ){
              
-        //       $plans =[];
-        //      $result= $this->FgiTw->getQuickQuote($this->getToken(),$request->twInfo);
-        //      if($result['status']){ 
-        //           return response()->json(['status' => 'success','data' => $result['plans']]);
-        //       }else{
-        //           return response()->json(['status' => 'error','message'=>$result['message'],'data' =>[]]);
-        //       }
-        //  }
+              $plans =[];
+             $result= $this->FgiTw->getQuickQuote($this->getToken(),$request->twInfo);
+             if($result['status']){ 
+                  return response()->json(['status' => 'success','data' => $result['plans']]);
+              }else{
+                  return response()->json(['status' => 'error','message'=>$result['message'],'data' =>[]]);
+              }
+         }
     }
     
     public function loadPlansRecalculate(Request $request){
@@ -166,10 +166,10 @@ class Twinsurance extends Controller
                if($result['status']){ 
                    return response()->json(['status'=>'success','message'=>'Quote get successfully','data'=>$result['plans']]); 
                }else{
-                   return response()->json(['status'=>'error','message'=>'Something went wrong try again','data'=>[]]);
+                   return response()->json(['status'=>'error','message'=>'Something went wrong try again','data'=>[]]); 
                }
                
-         }else if($request->supp=="HDFCERGO" && $request->twInfo['planType']!="SAOD"){
+         }else if($request->supp=="HDFCERGO"){
              $plans =[];
              $hdfc= $this->HdfcErgo->getRecalulateQuote($this->getToken(),$request->twInfo);
              if($hdfc['status']){
@@ -177,6 +177,17 @@ class Twinsurance extends Controller
              }else{
                  return response()->json(['status' => 'error','message'=>'unable to connect with partner','data' => []]);
              }
+         }
+         
+          if($request->supp=="FGI" ){
+             
+              $plans =[];
+             $result= $this->FgiTw->getRecalulateQuote($this->getToken(),$request->twInfo);
+             if($result['status']){ 
+                  return response()->json(['status' => 'success','data' => $result['plans']]);
+              }else{
+                  return response()->json(['status' => 'error','message'=>$result['message'],'data' =>[]]);
+              }
          }
     }
     
@@ -229,11 +240,11 @@ class Twinsurance extends Controller
             }else{
                 return response()->json(['status'=>'error','message'=>"Error while recalculating premium.",'data'=>[]]);
             }
-        }else if($Q->provider=="HDFCERGO"){
+        }else if($Q->provider=="HDFCERGO" || $Q->provider=="FGI" ){
                 $enquiryId = md5(uniqid(rand(), true));
                 $temp =   DB::table('app_temp_quote')->where('quote_id',$request->id)->first();
                 $json_data = json_decode($temp->json_data);//$this->DigitTw->getJsonData($temp->response);
-                $json_data->enq = $enquiryId;
+                $json_data->enq = $temp->quote_id;
                 if(isset(Auth::guard('agents')->user()->id)){
                   $customerID = _createCustomer(['mobile'=>$request->customerData['mobile']]);
                   $custMobile = $request->customerData['mobile'];
@@ -262,8 +273,6 @@ class Twinsurance extends Controller
                                'respQuote'=>$temp->respQuote,
                                'reqRecalculate'=>$temp->reqRecalculate,
                                'respRecalculate'=>$temp->respRecalculate
-                              //'json_resp'=>$temp->json_quote,
-                              //'json_recalculate'=>$temp->json_recalculate,
                              ];
                  $quoteData['enquiry_id'] =  $enquiryId;
                  $refID = DB::table('app_quote')->insertGetId($quoteData);
@@ -341,6 +350,13 @@ class Twinsurance extends Controller
                 }else{
                     $result = ['status'=>'error','message'=>$resp['message'],'data'=>[]];
                 }
+             }else if($data->provider=='FGI'){
+                 $resp = $this->FgiTw->createQuote($request->enc,json_decode($data->params_request));
+                if($resp['status']){
+                     $result = ['status'=>'success','message'=>'Proposal Created successfully','data'=>['enc'=>$request->enc]];
+                }else{
+                    $result = ['status'=>'error','message'=>$resp['message'],'data'=>[]];
+                }
              }else{
                   $result  =['status'=>'error','message'=>'Unkonwn insurer found!','data'=>[]];
              }
@@ -362,6 +378,15 @@ class Twinsurance extends Controller
          $template['partner']  = DB::table('our_partners')->where('shortName',$template['info']->provider)->first();
          if($template['info']->provider=='HDFCERGO'){
               $txid = $template['info']->token;
+              $hashSequence = config('motor.HDFCERGO.tw.mKey')."|".$txid."|".config('motor.HDFCERGO.tw.secretToken')."|S001";
+              $template['checkSum'] = strtoupper(hash('sha512', $hashSequence));
+              $template['paymetAction'] = config('motor.HDFCERGO.tw.paymentGateway');
+         }else if($template['info']->provider=='FGI'){
+             
+              $template['TransactionID']= $template['info']->token;
+              $template['PaymentOption']= 3;
+              $template['ResponseURL'] = config('custom.site_url').'/moter-insurance/insured-success/bike/'.$enquiryID;
+              
               $hashSequence = config('motor.HDFCERGO.tw.mKey')."|".$txid."|".config('motor.HDFCERGO.tw.secretToken')."|S001";
               $template['checkSum'] = strtoupper(hash('sha512', $hashSequence));
               $template['paymetAction'] = config('motor.HDFCERGO.tw.paymentGateway');

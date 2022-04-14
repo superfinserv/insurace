@@ -54,7 +54,7 @@
                          <th style="text-transform: unset;">Policy</th>
                          <td>
                              @if($info->filename!="")
-                              <a href="{{url('/get/download/file/policy-file/'.$info->filename)}}"><div>Download <i class="fa fa-download"></i></div></a>
+                              <a  target="_blank"  href="{{url('/get/download/file/policy-file/'.$info->filename)}}"><div>Download <i class="fa fa-download"></i></div></a>
                              @else
                               <a data-id="{{$info->id}}"  href="#" class="get-policy-doc"><div>Get Policy <i class="fa fa-globe"></i></div></a>
                              @endif
@@ -65,7 +65,7 @@
                              <th style="text-transform: unset;">Proposal</th>
                              <td>
                                  @if($info->proposal!="")
-                                 <a  href="{{url('/get/download/file/policy-proposal/'.$info->proposal)}}"><div>Download <i class="fa fa-download"></i></div></a>
+                                 <a  target="_blank" href="{{url('/get/download/file/policy-proposal/'.$info->proposal)}}"><div>Download <i class="fa fa-download"></i></div></a>
                                  @else
                                   <a data-provider="{{$info->provider}}" data-id="{{$info->id}}"  href="#" class="get-policy-doc file-Proposal" href="#"><div>Get Policy <i class="fa fa-globe"></i></div></a>
                                  @endif
@@ -75,7 +75,7 @@
                              <th style="text-transform: unset;">eCard</th>
                              <td>
                                   @if($info->ecard!="")
-                                 <a href="{{url('/get/download/file/policy-receipt/'.$info->ecard)}}"><div>Download <i class="fa fa-download"></i></div></a>
+                                 <a target="_blank" href="{{url('/get/download/file/policy-receipt/'.$info->ecard)}}"><div>Download <i class="fa fa-download"></i></div></a>
                                 @else
                                   <a data-provider="{{$info->provider}}" data-id="{{$info->id}}"  href="#" class="get-policy-doc file-eCard"><div>Get Policy <i class="fa fa-globe"></i></div></a>
                                  @endif 
@@ -86,7 +86,7 @@
                              <th style="text-transform: unset;">Receipt</th>
                              <td>
                                  @if($info->receipt!="") 
-                                 <a href="{{url('/get/download/file/customer-uploaded-doc/'.$info->receipt)}}"><div>Download <i class="fa fa-download"></i></div></a>
+                                 <a target="_blank" href="{{url('/get/download/file/policy-receipt/'.$info->receipt)}}"><div>Download <i class="fa fa-download"></i></div></a>
                                 @else
                                   <a  data-provider="{{$info->provider}}" data-id="{{$info->id}}"  href="#" class="get-policy-doc receipt"><div>Get Receipt <i class="fa fa-globe"></i></div></a>
                                  @endif 
@@ -96,7 +96,7 @@
                       @if(($info->type=='CAR' || $info->type=='BIKE') && $info->uploaded_doc!="") 
                            <tr>
                              <th style="text-transform: unset;">Uploaded Document</th>
-                             <td><a href="{{url('/get/download/file/customer-uploaded-doc/'.$info->uploaded_doc)}}">Download <i class="fa fa-download"></i></a></td>
+                             <td><a target="_blank" href="{{url('/get/download/file/customer-uploaded-doc/'.$info->uploaded_doc)}}">Download <i class="fa fa-download"></i></a></td>
                            </tr>
                        @endif
                     </thead>

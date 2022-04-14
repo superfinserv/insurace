@@ -173,7 +173,7 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
 
 .error-span{
     position: absolute;
-top: -16%;
+top: -7%;
 font-size: 12px;
 color: #7a0c16;
 background-color: #f8d7da;
@@ -254,12 +254,12 @@ padding: 4px 1px 4px 1px;
                 				<div class="col-12 col-lg-8 col-xl-8 text-center" >
                 				   <div style="width: 100%;text-align: right;font-size: 12px;color: #AC0F0B;cursor: pointer;text-decoration: underline;display:none;" id="ODdetails" ><i style="font-size: 12px;" class="fa fa-pencil"></i> Change Current TP details</div>
                                    <div id="PlanListContainer">
-                                       
-                                        <div class="card plan-card plan-card-digit_m cart-empty">
+                                        @if(config('motor.DIGIT.tw.status'))
+                                         <div class="card plan-card plan-card-digit_m cart-empty">
                                             <div class="card-body">
                                                 <div class="row">
                                                     <div class="provider-logo col-md-4 col-lg-3 col-xs-12">
-                                                        <img src="{{asset('assets/insurer-logo/DigitLogo.jpg')}}" style="width:100%;padding: 10px 30px 0px 0px;"/>
+                                                        <img src="{{asset('assets/partners/digit-insurance.png')}}" />
                                                     </div>
                                                     <div class="col-md-3 col-lg-3 col-xs-12">
                                                         <div class="column-2" style="display:none;">
@@ -288,12 +288,13 @@ padding: 4px 1px 4px 1px;
                                             </div>
                                             <div class="card-footer digit_m_addon" style="font-size: 12px;text-shadow: 0px 1px 0px #ccc;">No addon cover selected</div>
                                         </div>
-                                        
-                                        <div class="card plan-card plan-card-hdfcergo_m cart-empty" >
+                                        @endif
+                                        @if(config('motor.HDFCERGO.tw.status'))
+                                         <div class="card plan-card plan-card-hdfcergo_m cart-empty" >
                                             <div class="card-body">
                                                 <div class="row">
                                                     <div class="provider-logo col-md-4 col-lg-3 col-xs-12">
-                                                        <img class="cart-empty" src="{{asset('assets/partners/HDFC-Ergo-logo.png')}}" style="width:80px;">
+                                                        <img class="cart-empty" src="{{asset('assets/partners/HDFC-Ergo-logo.png')}}" >
                                                     </div>
                                                     <div class="col-md-3 col-lg-3 col-xs-12">
                                                         <div class="column-2" style="display:none;">
@@ -322,12 +323,13 @@ padding: 4px 1px 4px 1px;
                                             </div>
                                             <div class="card-footer hdfcergo_m_addon" style="font-size: 12px;text-shadow: 0px 1px 0px #ccc;">No addon cover selected</div>
                                         </div>
-                                        
-                                           <div class="card plan-card plan-card-fgi_m cart-empty">
+                                        @endif
+                                        @if(config('motor.FGI.tw.status'))
+                                          <div class="card plan-card plan-card-fgi_m cart-empty">
                                             <div class="card-body">
                                                 <div class="row">
                                                     <div class="provider-logo col-md-4 col-lg-3 col-xs-12">
-                                                        <img src="{{asset('assets/partners/FutureGenerali_60a250f2bf870.png')}}" style="width:100%;padding: 10px 30px 0px 0px;"/>
+                                                        <img src="{{asset('assets/partners/FutureGenerali_60a250f2bf870.png')}}" />
                                                     </div>
                                                     <div class="col-md-3 col-lg-3 col-xs-12">
                                                         <div class="column-2" style="display:none;">
@@ -356,7 +358,7 @@ padding: 4px 1px 4px 1px;
                                             </div>
                                             <div class="card-footer fgi_m_addon" style="font-size: 12px;text-shadow: 0px 1px 0px #ccc;">No addon cover selected</div>
                                         </div>
-                                       
+                                        @endif
                                    </div> 
                                    
                 				</div>
@@ -394,10 +396,11 @@ padding: 4px 1px 4px 1px;
        margin-bottom: 35px;
     }
     .plan-card .provider-logo img{
-        width: 120px;
+        width: 65%;
     }
     .plan-card .column-2{
-        padding:8px;
+        padding:35px 8px 8px 8px;
+       
     }
     .plan-card .column-2 .idv{
        font-size:15px;font-weight:500
@@ -406,7 +409,10 @@ padding: 4px 1px 4px 1px;
         color:#AC0F0B;
     }
     .plan-card .column-3 {
-       padding: 8px;
+       padding:35px 8px 8px 8px;
+    }
+     .plan-card .column-4{
+        padding-top: 35px;
     }
     .plan-card .column-4 .grosspremium {
       font-size:15px;font-weight:500;text-decoration: line-through;

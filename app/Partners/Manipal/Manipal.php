@@ -175,7 +175,7 @@ class Manipal {
     
     function GetPDF($pno,$data,$f=false){
        $policy =  $this->GetPolicyInfo($pno);
-       
+       //print_r($policy);die;
        $json = json_decode($data->json_data);
        $params = ($f)?json_decode($data->params):json_decode($data->params_request);
        $policyno = base64_encode($pno);

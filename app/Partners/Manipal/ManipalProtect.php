@@ -2,6 +2,7 @@
 namespace App\Partners\Manipal;
 use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Client;
 use Meng\AsyncSoap\Guzzle\Factory;
 use Auth;
@@ -28,6 +29,42 @@ class ManipalProtect{
                 $quotationProductInsuredBenefitDOList[] = [ "benefitTypeCd"=>"","benefitId"=>"","amount"=>0,"productId"=>""];
                 
                 $quotationProductInsuredDOList=[];
+                
+                /*************** Proposer ***********************/
+        //          $quotationProductInsuredDOList[]=[
+        //                         "issueAge"=>isset($params['selfAge'])?$params['selfAge']:25,
+        //                         "genderCd"=> $params['gender'],
+        //                         "insuredTypeCd"=> "PROPOSER",
+        //                         "cityCd"=> $_city[1],
+        //                         "mobileNum"=> 9999999999,
+        //                         "emailAddress"=> "websupport@superfinserv.com",
+        //                         "dob"=> isset($params['selfDob'])?$params['selfdd']."/".$params['selfmm']."/".$params['selfyy']:"10/09/1992",
+        //                         "zoneCd"=> $zoneCd,
+        //                         "smokerStatusCd"=> "",
+        //                         "chewTobaccoCd"=> "",
+        //                         "consumeAlcoholCd"=> "",
+        //                         "relationCd"=> "SELF",
+        //                         "modalPremium"=> 0,
+        //                         "extraPremium"=> 0,
+        //                         "discount"=> 0,
+                               
+        //                         "productPlanOptionCd"=>$productPlanOptionCd,
+        //                         "height"=> 155,
+        //                         "weight"=> 55,
+        //                         "sumInsured"=>$sumInsured,
+        //                         "refGuid"=> "",
+        //                         "ppmcFl"=> "",
+        //                         "uwFl"=> "",
+        //                         "ppmcSetName"=> "",
+        //                         "customerId"=> "",
+        //                       // "annualIncome"=> "UPTO50K",
+    				// 			"astpLoadingPerc"=>0,
+    				// 			"quotationProductInsuredBenefitDOList"=>$quotationProductInsuredBenefitDOList];
+                /****************Proposer **********************/
+                
+                
+                
+                
                 foreach($params['members'] as $key=>$data){ 
                      if($data['type']=="self")     { $relationCd = "SELF";   $roleCd="PRIMARY"; $gender=$params['gender']; }
                      else if($data['type']=="daughter"){  $relationCd = "UDTR";   $roleCd ="PRIMARY";$gender="FEMALE";}
@@ -187,6 +224,41 @@ class ManipalProtect{
         $quotationProductInsuredBenefitDOList[] = [ "benefitTypeCd"=>"","benefitId"=>"","amount"=>0,"productId"=>""];
                 
         $quotationProductInsuredDOList=[];
+        
+        
+        
+        /*************** Proposer ***********************/
+        //          $quotationProductInsuredDOList[]=[
+        //                         "issueAge"=>isset($params['selfAge'])?$params['selfAge']:25,
+        //                         "genderCd"=> $params['gender'],
+        //                         "insuredTypeCd"=> "PROPOSER",
+        //                         "cityCd"=> $_city[1],
+        //                         "mobileNum"=> 9999999999,
+        //                         "emailAddress"=> "websupport@superfinserv.com",
+        //                         "dob"=> isset($params['selfDob'])?$params['selfdd']."/".$params['selfmm']."/".$params['selfyy']:"10/09/1992",
+        //                         "zoneCd"=> $zoneCd,
+        //                         "smokerStatusCd"=> "",
+        //                         "chewTobaccoCd"=> "",
+        //                         "consumeAlcoholCd"=> "",
+        //                         "relationCd"=> "SELF",
+        //                         "modalPremium"=> 0,
+        //                         "extraPremium"=> 0,
+        //                         "discount"=> 0,
+                               
+        //                         "productPlanOptionCd"=>$productPlanOptionCd,
+        //                         "height"=> 155,
+        //                         "weight"=> 55,
+        //                         "sumInsured"=>$sumInsured,
+        //                         "refGuid"=> "",
+        //                         "ppmcFl"=> "",
+        //                         "uwFl"=> "",
+        //                         "ppmcSetName"=> "",
+        //                         "customerId"=> "",
+        //                       // "annualIncome"=> "UPTO50K",
+    				// 			"astpLoadingPerc"=>0,
+    				// 			"quotationProductInsuredBenefitDOList"=>$quotationProductInsuredBenefitDOList];
+                /****************Proposer **********************/
+        
         foreach($params->members as $key=>$data){ 
              if($data->type=="self")     { $relationCd = "SELF";   $roleCd="PRIMARY"; $gender=$params->gender; }
              else if($data->type=="daughter"){  $relationCd = "UDTR";   $roleCd ="PRIMARY";$gender="FEMALE";}
@@ -387,7 +459,76 @@ class ManipalProtect{
             $Document = $this->policyDocumentDOList_obj();
            // print_r($QuestionSet);
             $ProductDOList =  $this->policyProductDOList_obj();
-            $_partyDOList =[];$_RoleDOList = [];$_ProductInsuredDOList =[];$_Document=[];$refGuid=1;$i=0;$WSPolicyAdditionalMedicalDtlsDOLst=[];
+            $_partyDOList =[];$_RoleDOList = [];$_ProductInsuredDOList =[];$_Document=[];$_refGuid=1;$i=0;$WSPolicyAdditionalMedicalDtlsDOLst=[];
+            
+            
+            // Proposer
+                    $refGuidProposer ="50";
+                    $SelftitleCd = ($params->gender=="MALE")?"MR":"MRS";
+                    $Selfheight  =(($params->selfFeet*12)+($params->selfInch));
+                    // $Document['partyId'] = $params->plan.$refGuid;
+                    // $_Document[] = $Document; 
+                
+                    // $ProProductInsuredDOList['refGuid']=$params->plan.$refGuidProposer;
+                    // $ProProductInsuredDOList['partyId']=$params->plan.$refGuidProposer;
+                    // $ProProductInsuredDOList['weight']=floatval($params->selfWeight);
+                    // $ProProductInsuredDOList['height']=round($Selfheight*2.54);
+                    // $ProProductInsuredDOList['zoneCd']= $zoneCd;
+                    
+                    // $ProProductInsuredDOList['productPlanOptionCd']=$Querydata->code;//$dataParam->code;
+                    // $ProProductInsuredDOList['baseSumAssured']=floatval($sum*100000);
+                    // $ProProductInsuredDOList['sumInsured']=($sum*100000);
+                    
+                   
+                    // $ProProductInsuredDOList['policyQuestionSetDOList']=[];
+                    // $_ProductInsuredDOList[] = $ProProductInsuredDOList;
+                    
+                   
+                   $PropartyDOList['partyId']  = $params->plan.$refGuidProposer;
+                   $PropartyDOList['partyGuid']  = $params->plan.$refGuidProposer;
+                   //$partyDOList['relationCd'] = "SELF";
+                   $PropartyDOList['firstName1'] = $params->selfFname;
+                   $PropartyDOList['lastName1'] = $params->selfLname;
+                   $PropartyDOList['birthDt'] = $params->selfdd."/".$params->selfmm."/".$params->selfyy;
+                   $PropartyDOList['genderCd'] = $params->gender;
+                   $PropartyDOList['maritalStatusCd'] = strtoupper($params->selfMstatus);
+                   $PropartyDOList['titleCd'] = $SelftitleCd;
+                   $PropartyDOList['roleCd'] = "PROPOSER";
+                   $PropartyDOList['nomineeTitleCd']   = $nomineeTitle;
+                   $PropartyDOList['nomineeFirstName'] = $nominee_name[0];
+                   $PropartyDOList['nomineeLastName'] = $nominee_name[1];
+                   $PropartyDOList['zoneCd'] = $zoneCd;
+                   
+                    $PropartyDOList['partyAddressDOList'][0]['addressLine1Lang1'] = $PropartyDOList['partyAddressDOList'][1]['addressLine1Lang1'] = $addressLine1;
+                    $PropartyDOList['partyAddressDOList'][0]['addressLine2Lang1'] = $PropartyDOList['partyAddressDOList'][1]['addressLine2Lang1']= $addressLine2;
+                   // $partyDOList['partyAddressDOList'][0]['districtCd'] = $partyDOList['partyAddressDOList'][1]['districtCd'] = $stateCd;//$districtCd;
+                    $PropartyDOList['partyAddressDOList'][0]['stateCd'] = $PropartyDOList['partyAddressDOList'][1]['stateCd'] = $stateCd;
+                    $PropartyDOList['partyAddressDOList'][0]['cityCd'] = $PropartyDOList['partyAddressDOList'][1]['cityCd'] = $cityCd;
+                    $PropartyDOList['partyAddressDOList'][0]['pinCode'] =$PropartyDOList['partyAddressDOList'][1]['pinCode'] = $pinCode;
+                    $PropartyDOList['partyAddressDOList'][0]['postalZone'] = $PropartyDOList['partyAddressDOList'][1]['postalZone'] = $zoneCd;
+                
+                    $PropartyDOList['partyIdentityDOList'][0]['identityTypeCd'] = $docTypeArr[$params->document->documentType];
+                    $PropartyDOList['partyIdentityDOList'][0]['identityNum'] = $params->document->documentId;
+                    
+                    $PropartyDOList['partyContactDOList'][0]['contactNum'] = intval($mobile);
+                    $PropartyDOList['partyEmailDOList'][0]['emailAddress'] = $email;
+                    $PropartyDOList['partyEducationDOList'][0]['educationLevelCd']='HSC'; 
+                    
+                    $PropartyDOList['partyRelationDOList'][0]['relatedToPartyId'] = $params->plan.$refGuidProposer;
+                    $PropartyDOList['partyRelationDOList'][0]['relationCd'] = "SELF";
+                    $_partyDOList[] = $PropartyDOList;
+                   
+                   $PropartyRoleDOList['refGuid']  =$params->plan.$refGuidProposer;//"00".$str.$refGuid;
+                   $PropartyRoleDOList['partyId']  =$params->plan.$refGuidProposer;//"00".$str.$refGuid;
+                   $PropartyRoleDOList['roleCd']   ="PROPOSER";
+                   $PropartyRoleDOList['age']  = intval($params->selfAge);
+                   $_RoleDOList[]=$PropartyRoleDOList;
+                   // $partyRoleDOList['roleCd']   ="PROPOSER";
+                   //$partyRoleDOList['age']  = intval($params->selfAge);
+            //proposer end
+            
+            
+            
             foreach($members as $member){ 
                    $_QuestionSet =[];
                    $chrList = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -400,7 +541,7 @@ class ManipalProtect{
                    $Lname   = ($member->type=="self")?$params->selfLname:$member->lname;
                    $birthDt = ($member->type=="self")?$params->selfdd."/".$params->selfmm."/".$params->selfyy:$member->dd."/".$member->mm."/".$member->yy;
                    $genderCd= ($member->type=="self")?$params->gender:$member->gender;
-                   $roleCd  = ($member->type=="self")?"PROPOSER":"PRIMARY";
+                   $roleCd  = "PRIMARY";//($member->type=="self")?"PROPOSER":"PRIMARY";
                    $marital = ($member->type=="self")?strtoupper($params->selfMstatus)
                                                      :((in_array($member->type,["wife","husband","father","mother"]))?"MARRIED":"SINGLE");
                    $titleCd = ($member->type=="self" && $params->gender=="MALE")?"MR"
@@ -415,7 +556,7 @@ class ManipalProtect{
                     else if($member->type=="husband") {  $relationCd = "HUSBAND";}
                     else if($member->type=="father")  {  $relationCd = "FATH";}
                     else if($member->type=="mother")  {  $relationCd = "MOTH";} 
-                    
+                    $refGuid = ($member->type=="self")?$refGuidProposer:$_refGuid;
                     $Document['partyId'] = $params->plan.$refGuid;
                     $_Document[] = $Document;
                 
@@ -533,15 +674,15 @@ class ManipalProtect{
                    $partyRoleDOList['roleCd']   =$roleCd;
                    $partyRoleDOList['age']  = intval($member->age);
                    $_RoleDOList[]=$partyRoleDOList;
-                   if($roleCd=='PROPOSER'){ 
-                     $partyRoleDOList['refGuid']  =$params->plan.$refGuid;//"00".$str.$refGuid;
-                     $partyRoleDOList['partyId']  =$params->plan.$refGuid;//"00".$str.$refGuid;
-                     $partyRoleDOList['roleCd']   ="PRIMARY";
-                     $partyRoleDOList['age']  = intval($member->age);
-                     $_RoleDOList[]=$partyRoleDOList;
-                   }
+                   //if($roleCd=='PROPOSER'){ 
+                    // $partyRoleDOList['refGuid']  =$params->plan.$refGuid;//"00".$str.$refGuid;
+                   //  $partyRoleDOList['partyId']  =$params->plan.$refGuid;//"00".$str.$refGuid;
+                   //  $partyRoleDOList['roleCd']   ="PRIMARY";
+                    // $partyRoleDOList['age']  = intval($member->age);
+                    // $_RoleDOList[]=$partyRoleDOList;
+                 //  }
                    
-                 $refGuid++; $i++;  
+                 $_refGuid++; $i++;  
              }//members foreach;
             //echo  $params->addOn;
             $ProductDOList['productPlanOptionCd'] = $dataParam->code; 
@@ -796,6 +937,7 @@ class ManipalProtect{
             $req['modalLoadingPremium'] =null;
             $listofPolicyTO[]  = $req;
             $REQUEST = ["listofPolicyTO"=>$listofPolicyTO];
+          print_r(json_encode($REQUEST));die;
             try{
                 $client = new Client([
                     'headers' => [ 'Action-Type'=>'VALIDATE','Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKey'),"app_id"=>config('mediclaim.MANIPAL.appIdValidate')]
@@ -829,22 +971,22 @@ class ManipalProtect{
                 $responseBodyAsString = $response->getBody()->getContents();
                 //DB::table('app_quote')->where('enquiry_id', $enqId)->update(['reqCreate'=>json_encode($REQUEST),'respCreate'=>$response]);
                 $resp = json_decode($responseBodyAsString);
-               // print_r($resp);
-                return ['status'=>false,'message'=>$resp->message,'data'=>[]];  
+               //print_r($resp);
+                return ['status'=>false,'message'=>"ConnectException",'data'=>[]];  
                // return ['status'=>false,'plans'=>[],"message"=>"Sorry we are unable to process your request."];
             }catch (RequestException $e) {
                 $response = $e->getResponse();
                 $responseBodyAsString = $response->getBody()->getContents();
                 $resp = json_decode($responseBodyAsString);
-                //print_r($resp);
-                return ['status'=>false,'message'=>$resp->message,'data'=>[]];  
+                //print_r($responseBodyAsString);die;
+                return ['status'=>false,'message'=>"Request Exception",'data'=>[]];  
                
             }catch (ClientException $e) {
                 $response = $e->getResponse();
                 $responseBodyAsString = $response->getBody()->getContents();
                 $resp = json_decode($responseBodyAsString);
                 //print_r($resp);
-                return ['status'=>false,'message'=>$resp->message,'data'=>[]];  
+                return ['status'=>false,'message'=>"ClientException error",'data'=>[]];  
                 // return ['status'=>false,'plans'=>[],"message"=>"Internal server error"];
             }
             

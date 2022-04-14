@@ -224,7 +224,7 @@ class Carinsurance extends Controller
                 $enquiryId = md5(uniqid(rand(), true));
                 $temp =   DB::table('app_temp_quote')->where('quote_id',$request->id)->first();
                 $json_data = json_decode($temp->json_data);//$this->DigitCar->getJsonData($temp->response);
-                $json_data->enq = $enquiryId;
+                $json_data->enq = $temp->quote_id;
                 if(isset(Auth::guard('agents')->user()->id)){
                   $customerID = _createCustomer(['mobile'=>$request->carInfo['customer']['mobile']]);
                   $custMobile = $request->carInfo['customer']['mobile'];

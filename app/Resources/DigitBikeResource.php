@@ -514,7 +514,7 @@ class DigitBikeResource extends AppResource{
                     $pp = isset($params['TP']['prePolicyType'])?str_replace("-","",$params['TP']['prePolicyType']):"";
                     $policyStartDate= isset($params['TP']['TPpolicyStartDate'])?explode('-',$params['TP']['TPpolicyStartDate']):null;
                     $policyTPEndDate= isset($params['TP']['TPpolicyEndDate'])?explode('-',$params['TP']['TPpolicyEndDate']):null;
-                    $request['previousInsurer']['originalPreviousPolicyType'] =null;//$pp;   
+                    $request['previousInsurer']['originalPreviousPolicyType'] =$pp;   
                     $request['previousInsurer']['currentThirdPartyPolicy']    = ["isCurrentThirdPartyPolicyActive"=>null,
                                                                                   "currentThirdPartyPolicyInsurerCode"=>DB::table('previous_insurer')->where('id', $params['previousInsurance']['insurer'])->value('digit_code'),
                                                                                   "currentThirdPartyPolicyNumber"=>$params['previousInsurance']['policyNo'],
