@@ -88,7 +88,7 @@ class InsuredController extends Controller{
         $result=[];$i=1;
          foreach($users as $each){
                  if($each->filename){
-                    $fileOpt =   '<a  href="'.url('/get/download/file/policy-file/'.$each->filename).'" class="btn btn-dark  btn-icon mg-r-5 mg-b-10"><div><i class="fa fa-download"></i></div></a>';
+                    $fileOpt =   '<a   target="_blank"   href="'.url('/get/download/file/policy-file/'.$each->filename).'" class="btn btn-dark  btn-icon mg-r-5 mg-b-10"><div><i class="fa fa-download"></i></div></a>';
                  }else{
                     $fileOpt =   '<a  data-id="'.$each->id.'"  href="#" class="get-policy-doc btn btn-dark  btn-icon mg-r-5 mg-b-10"><div><i class="fa fa-globe"></i></div></a>';
                  }

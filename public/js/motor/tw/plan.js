@@ -5,214 +5,209 @@ $(function(){
      var jcModal;
     const planLib = {
            twInfo: JSON.parse(localStorage.getItem('twInfo')),
-          digit: function(callTyp){
+           digit: function(callTyp){
               var digitCard = $('.plan-card-digit_m');
-              $('.plan-card-digit_m').find('button.btn-netpremiumn').html(loader).attr('disabled',false);
-             //if(callTyp=='recalculate'){$('.plan-card-digit_m').find('button.btn-netpremiumn').html(loader);}
-              //$('.plan-card-digit_m').find('.card-footer').remove();
-              $('.plan-card-digit_m').find('.error-span').remove();
-             var twInfo = JSON.parse(localStorage.getItem('twInfo'));
-             var url =  (callTyp=='recalculate')?"/twowheeler-insurance/load-plans-recalculate/":"/twowheeler-insurance/load-plans/";
-             $.ajax({
-              url: base_url + url,
-              type: "POST",
-              dataType: "json",
-              data:{supp:'DIGIT',twInfo:twInfo},
-              success: function (data, status, jqXHR) {
-                  console.log(data);
-                  if($.trim(data.status)=="success"){
-                    $('.idv-edit-th').attr('id','open-idv-modal');
-                    $('.plan-card-digit_m').show();
-                    var result = data.data;
-                    
-                    digitCard.removeClass('cart-empty');
-                    digitCard.find('a.Premium-Breakup').attr('data-ref',result.id);
-                    if(twInfo.planType=="TP"){
-                        digitCard.find('h5.idv').hide();
-                    }else{
-                        digitCard.find('h5.idv').show();
-                        digitCard.find('h5.idv').html('IDV:'+result.idv+'/-');
-                    }
-                    digitCard.find('.column-2').attr('style',"");
-                    digitCard.find('.column-3').attr('style',"");
-                    if(twInfo.subcovers.isPA_OwnerDriverCover==="true"){ digitCard.find('.paCoverStatus-txt').text('Added');}else{ digitCard.find('.paCoverStatus-txt').text('N/A');}
-                    if(twInfo.subcovers.isPartDepProCover==="true"){ digitCard.find('.zeroDepStatus-txt').text("Added");}else{ digitCard.find('.zeroDepStatus-txt').text('N/A');}
-                    digitCard.find('button.btn-netpremiumn').attr('data-ref',result.id);
-                    digitCard.find('button.btn-netpremiumn').html('<span class="fa fa-inr"></span> '+result.grossamount+' <i style="" class="fa fa-angle-double-right" aria-hidden="true"></i>');
-                    
-                    
-                    var addon =  result.addons.covers.addons;
-                    if( addon.length){
-                        var addonHtm = "";
-                        $.each(addon, function (adkey, ad) {
-                           
-                           addonHtm +='<span class="addon-badge">'+ad.title+'</span>';
-                        });
+              if(digitCard.length){
+                  $('.plan-card-digit_m').find('button.btn-netpremiumn').html(loader);//.attr('disabled',false);
+                  $('.plan-card-digit_m').find('.error-span').remove();
+                  var twInfo = JSON.parse(localStorage.getItem('twInfo'));
+                  var url =  (callTyp=='recalculate')?"/twowheeler-insurance/load-plans-recalculate/":"/twowheeler-insurance/load-plans/";
+                 $.ajax({
+                  url: base_url + url,
+                  type: "POST",
+                  dataType: "json",
+                  data:{supp:'DIGIT',twInfo:twInfo},
+                  success: function (data, status, jqXHR) {
+                      console.log(data);
+                      if($.trim(data.status)=="success"){
+                        $('.idv-edit-th').attr('id','open-idv-modal');
+                        $('.plan-card-digit_m').show();
+                        var result = data.data;
                         
-                        $('.digit_m_addon').html(addonHtm);
-                    }else{
-                       $('.digit_m_addon').empty().text('No addon cover selected');   
-                    }
-                      
-                      
-                  }else{
-                       $('.plan-card-digit_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
-                       $('.plan-card-digit_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
-                       digitCard.addClass('cart-empty');
-                      //$('.plan-card-digit_m').hide();
-                      //toastr.error(data.message, 'Digit Error!') 
+                        digitCard.removeClass('cart-empty');
+                        digitCard.find('a.Premium-Breakup').attr('data-ref',result.id);
+                        if(twInfo.planType=="TP"){
+                            digitCard.find('h5.idv').hide();
+                        }else{
+                            digitCard.find('h5.idv').show();
+                            digitCard.find('h5.idv').html('IDV:'+result.idv+'/-');
+                        }
+                        digitCard.find('.column-2').attr('style',"");
+                        digitCard.find('.column-3').attr('style',"");
+                        if(twInfo.subcovers.isPA_OwnerDriverCover==="true"){ digitCard.find('.paCoverStatus-txt').text('Added');}else{ digitCard.find('.paCoverStatus-txt').text('N/A');}
+                        if(twInfo.subcovers.isPartDepProCover==="true"){ digitCard.find('.zeroDepStatus-txt').text("Added");}else{ digitCard.find('.zeroDepStatus-txt').text('N/A');}
+                        digitCard.find('button.btn-netpremiumn').attr('data-ref',result.id);
+                        digitCard.find('button.btn-netpremiumn').html('<span class="fa fa-inr"></span> '+result.grossamount+' <i style="" class="fa fa-angle-double-right" aria-hidden="true"></i>');
+                        
+                        
+                        var addon =  result.addons.covers.addons;
+                        if( addon.length){
+                            var addonHtm = "";
+                            $.each(addon, function (adkey, ad) {
+                               addonHtm +='<span class="addon-badge">'+ad.title+'</span>';
+                            });
+                            
+                            $('.digit_m_addon').html(addonHtm);
+                        }else{
+                           $('.digit_m_addon').empty().text('No addon cover selected');   
+                        }
+                          
+                          
+                      }else{
+                           $('.plan-card-digit_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
+                           $('.plan-card-digit_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                           digitCard.addClass('cart-empty');
+                          
+                      }
+                   },
+                  error: function (jqXHR, status, err) {
+                        
+                          $('.plan-card-digit_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
+                          $('.plan-card-digit_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                
+                  },
+                  complete: function (data,jqXHR, status) {
+                    
                   }
-               },
-              error: function (jqXHR, status, err) {
-                    // console.log('Error');
-                    // console.log(jqXHR);
-                    // console.log(status);
-                    // console.log(err);
-                  //  var digitCard = $('.plan-card-digit_m').hide();
-                      $('.plan-card-digit_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
-                     $('.plan-card-digit_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
-                   //  toastr.error(+' while fetch Digit Quote', 'Error!')
-              },
-              complete: function (data,jqXHR, status) {
-                //   console.log('complete');
-                //     console.log(jqXHR);
-                //     console.log(status);
-                //     console.log(data);
+                });
               }
-            });
           },
         
           // divide(x,y) method
           hdfcErgo: function(callTyp){
                var hdfcergoCard = $('.plan-card-hdfcergo_m');
-               $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html(loader).attr('disabled',false);
-               $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html(loader);
-                  $('.plan-card-hdfcergo_m').find('.error-span').remove();
-             //if(callTyp=='recalculate'){$('.plan-card-digit_m').find('button.btn-netpremiumn').html(loader);}
-             var twInfo = JSON.parse(localStorage.getItem('twInfo'));
-             var url =  (callTyp=='recalculate')?"/twowheeler-insurance/load-plans-recalculate/":"/twowheeler-insurance/load-plans/";
-             $.ajax({
-              url: base_url + url,
-              type: "POST",
-              dataType: "json",
-              data:{supp:'HDFCERGO',twInfo:twInfo},
-              success: function (data, status, jqXHR) {
-                  var result = data.data;
-                  if($.trim(data.status)=="success"){
-                    $('.idv-edit-th').attr('id','open-idv-modal');
-                    $('.plan-card-hdfcergo_m').show();
-                    
-                   
-                    hdfcergoCard.removeClass('cart-empty');
-                    hdfcergoCard.find('a.Premium-Breakup').attr('data-ref',result.id);
-                    if(twInfo.planType=="TP"){ hdfcergoCard.find('h5.idv').hide();}else{ hdfcergoCard.find('h5.idv').html('IDV:'+result.idv+'/-');}
-                    hdfcergoCard.find('.column-2').attr('style',"");
-                    hdfcergoCard.find('.column-3').attr('style',"");
-                    hdfcergoCard.find('button.btn-netpremiumn').attr('data-ref',result.id);
-                    if(twInfo.subcovers.isPA_OwnerDriverCover=="true"){
-                       hdfcergoCard.find('span.paCoverStatus-txt').text('Added');
-                    }else{
-                        hdfcergoCard.find('span.paCoverStatus-txt').text('N/A');
-                    }
-                    hdfcergoCard.find('button.btn-netpremiumn').html('<span class="fa fa-inr"></span> '+result.grossamount+' <i style="" class="fa fa-angle-double-right" aria-hidden="true"></i>');
-                    var addon =  result.addons.covers.addons;
-                     if( addon.length){
-                        var addonHtm = "";
-                        $.each(addon, function (adkey, ad) {
+               if(hdfcergoCard.length){
+                       $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html(loader);//.attr('disabled',false);
+                       $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html(loader);
+                       $('.plan-card-hdfcergo_m').find('.error-span').remove();
+                     
+                     var twInfo = JSON.parse(localStorage.getItem('twInfo'));
+                     var url =  (callTyp=='recalculate')?"/twowheeler-insurance/load-plans-recalculate/":"/twowheeler-insurance/load-plans/";
+                     $.ajax({
+                      url: base_url + url,
+                      type: "POST",
+                      dataType: "json",
+                      data:{supp:'HDFCERGO',twInfo:twInfo},
+                      success: function (data, status, jqXHR) {
+                          var result = data.data;
+                          if($.trim(data.status)=="success"){
+                            $('.idv-edit-th').attr('id','open-idv-modal');
+                            $('.plan-card-hdfcergo_m').show();
+                            
                            
-                           addonHtm +='<span class="addon-badge">'+ad.title+'</span>';
-                        });
+                            hdfcergoCard.removeClass('cart-empty');
+                            hdfcergoCard.find('a.Premium-Breakup').attr('data-ref',result.id);
+                            if(twInfo.planType=="TP"){ hdfcergoCard.find('h5.idv').hide();}else{ hdfcergoCard.find('h5.idv').html('IDV:'+result.idv+'/-');}
+                            hdfcergoCard.find('.column-2').attr('style',"");
+                            hdfcergoCard.find('.column-3').attr('style',"");
+                            hdfcergoCard.find('button.btn-netpremiumn').attr('data-ref',result.id);
+                            if(twInfo.subcovers.isPA_OwnerDriverCover=="true"){
+                               hdfcergoCard.find('span.paCoverStatus-txt').text('Added');
+                            }else{
+                                hdfcergoCard.find('span.paCoverStatus-txt').text('N/A');
+                            }
+                            hdfcergoCard.find('button.btn-netpremiumn').html('<span class="fa fa-inr"></span> '+result.grossamount+' <i style="" class="fa fa-angle-double-right" aria-hidden="true"></i>');
+                            var addon =  result.addons.covers.addons;
+                             if( addon.length){
+                                var addonHtm = "";
+                                $.each(addon, function (adkey, ad) {
+                                   
+                                   addonHtm +='<span class="addon-badge">'+ad.title+'</span>';
+                                });
+                                
+                                $('.hdfcergo_m_addon').html(addonHtm);
+                            }else{
+                               $('.hdfcergo_m_addon').empty().text('No addon cover selected');  
+                            }
                         
-                        $('.hdfcergo_m_addon').html(addonHtm);
-                    }else{
-                       $('.hdfcergo_m_addon').empty().text('No addon cover selected');  
-                    }
-                
-                  }else{
-                       hdfcergoCard.addClass('cart-empty');
-                       $('.plan-card-hdfcergo_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
-                       $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
-                      //$('.plan-card-digit_m').hide();
-                     // toastr.error(data.message, 'HdfcErgo Error!') 
-                  }
-               },
-              error: function (jqXHR, status, err) {
-                    // console.log('Error');
-                    // console.log(jqXHR);
-                    // console.log(status);
-                    // console.log(err);
-                   //$('.plan-card-hdfcergo_m').hide();
-                   $('.plan-card-hdfcergo_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
-                   $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
-                    
-                  //toastr.error(err+' while fetch HDFC ERGO Quote', 'Error!')
-              },
-              complete: function (jqXHR, status) {}
-            });
+                          }else{
+                               hdfcergoCard.addClass('cart-empty');
+                               $('.plan-card-hdfcergo_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
+                               $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                              //$('.plan-card-digit_m').hide();
+                             // toastr.error(data.message, 'HdfcErgo Error!') 
+                          }
+                       },
+                      error: function (jqXHR, status, err) {
+                            // console.log('Error');
+                            // console.log(jqXHR);
+                            // console.log(status);
+                            // console.log(err);
+                           //$('.plan-card-hdfcergo_m').hide();
+                           $('.plan-card-hdfcergo_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
+                           $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                            
+                          //toastr.error(err+' while fetch HDFC ERGO Quote', 'Error!')
+                      },
+                      complete: function (jqXHR, status) {}
+                    });
+               }
            
           },
           
           fgi: function(callTyp){
                var fgiCard = $('.plan-card-fgi_m');
-               $('.plan-card-fgi_m').find('button.btn-netpremiumn').html(loader).attr('disabled',false);
-               $('.plan-card-fgi_m').find('button.btn-netpremiumn').html(loader);
-                  $('.plan-card-fgi_m').find('.error-span').remove();
+             if(fgiCard.length){
+                $('.plan-card-fgi_m').find('button.btn-netpremiumn').html(loader).attr('disabled',false);
+                $('.plan-card-fgi_m').find('button.btn-netpremiumn').html(loader);
+                $('.plan-card-fgi_m').find('.error-span').remove();
             
-             var twInfo = JSON.parse(localStorage.getItem('twInfo'));
-             var url =  (callTyp=='recalculate')?"/twowheeler-insurance/load-plans-recalculate/":"/twowheeler-insurance/load-plans/";
-             $.ajax({
-              url: base_url + url,
-              type: "POST",
-              dataType: "json",
-              data:{supp:'FGI',twInfo:twInfo},
-              success: function (data, status, jqXHR) {
-                  var result = data.data;
-                  if($.trim(data.status)=="success"){
-                    $('.idv-edit-th').attr('id','open-idv-modal');
-                    $('.plan-card-fgi_m').show();
-                    
-                   
-                    fgiCard.removeClass('cart-empty');
-                    fgiCard.find('a.Premium-Breakup').attr('data-ref',result.id);
-                    if(twInfo.planType=="TP"){ fgiCard.find('h5.idv').hide();}else{ fgiCard.find('h5.idv').html('IDV:'+result.idv+'/-');}
-                    fgiCard.find('.column-2').attr('style',"");
-                    fgiCard.find('.column-3').attr('style',"");
-                    fgiCard.find('button.btn-netpremiumn').attr('data-ref',result.id);
-                    if(twInfo.subcovers.isPA_OwnerDriverCover=="true"){
-                       fgiCard.find('span.paCoverStatus-txt').text('Added');
-                    }else{
-                        fgiCard.find('span.paCoverStatus-txt').text('N/A');
-                    }
-                    fgiCard.find('button.btn-netpremiumn').html('<span class="fa fa-inr"></span> '+result.grossamount+' <i style="" class="fa fa-angle-double-right" aria-hidden="true"></i>');
-                    var addon =  result.addons.covers.addons;
-                     if( addon.length){
-                        var addonHtm = "";
-                        $.each(addon, function (adkey, ad) {
-                           
-                           addonHtm +='<span class="addon-badge">'+ad.title+'</span>';
-                        });
+                 var twInfo = JSON.parse(localStorage.getItem('twInfo'));
+                 var url =  (callTyp=='recalculate')?"/twowheeler-insurance/load-plans-recalculate/":"/twowheeler-insurance/load-plans/";
+                 $.ajax({
+                  url: base_url + url,
+                  type: "POST",
+                  dataType: "json",
+                  data:{supp:'FGI',twInfo:twInfo},
+                  success: function (data, status, jqXHR) {
+                      var result = data.data;
+                      if($.trim(data.status)=="success"){
+                        $('.idv-edit-th').attr('id','open-idv-modal');
+                        $('.plan-card-fgi_m').show();
                         
-                        $('.fgi_m_addon').html(addonHtm);
-                    }else{
-                       $('.fgi_m_addon').empty().text('No addon cover selected');  
-                    }
-                
-                  }else{
-                       fgiCard.addClass('cart-empty');
-                       $('.plan-card-fgi_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
+                       
+                        fgiCard.removeClass('cart-empty');
+                        fgiCard.find('a.Premium-Breakup').attr('data-ref',result.id);
+                        if(twInfo.planType=="TP"){ fgiCard.find('h5.idv').hide();}else{ fgiCard.find('h5.idv').html('IDV:'+result.idv+'/-');}
+                        fgiCard.find('.column-2').attr('style',"");
+                        fgiCard.find('.column-3').attr('style',"");
+                        fgiCard.find('button.btn-netpremiumn').attr('data-ref',result.id);
+                        if(twInfo.subcovers.isPA_OwnerDriverCover=="true"){
+                           fgiCard.find('span.paCoverStatus-txt').text('Added');
+                        }else{
+                            fgiCard.find('span.paCoverStatus-txt').text('N/A');
+                        }
+                        fgiCard.find('button.btn-netpremiumn').html('<span class="fa fa-inr"></span> '+result.grossamount+' <i style="" class="fa fa-angle-double-right" aria-hidden="true"></i>');
+                        var addon =  result.addons.covers.addons;
+                         if( addon.length){
+                            var addonHtm = "";
+                            $.each(addon, function (adkey, ad) {
+                               
+                               addonHtm +='<span class="addon-badge">'+ad.title+'</span>';
+                            });
+                            
+                            $('.fgi_m_addon').html(addonHtm);
+                        }else{
+                           $('.fgi_m_addon').empty().text('No addon cover selected');  
+                        }
+                    
+                      }else{
+                           fgiCard.addClass('cart-empty');
+                           $('.plan-card-fgi_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
+                           $('.plan-card-fgi_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                          
+                      }
+                   },
+                  error: function (jqXHR, status, err) {
+                        
+                       $('.plan-card-fgi_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
                        $('.plan-card-fgi_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                        
                       
-                  }
-               },
-              error: function (jqXHR, status, err) {
-                    
-                   $('.plan-card-fgi_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
-                   $('.plan-card-fgi_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
-                    
-                  
-              },
-              complete: function (jqXHR, status) {}
-            });
+                  },
+                  complete: function (jqXHR, status) {}
+                });
+              }
            
           }
           
@@ -350,7 +345,7 @@ $(function(){
         configSetting.addonsHandler();
         planLib.digit('first-call');
         planLib.hdfcErgo('first-call');
-      //   planLib.fgi('first-call');
+        planLib.fgi('first-call');
         
     }
     
@@ -455,6 +450,7 @@ $(function(){
               configSetting.coverSetup(cover);
               planLib.digit('firstCall');
               planLib.hdfcErgo('firstCall');
+               planLib.fgi('firstCall');
             }
            
            
@@ -477,6 +473,7 @@ $(function(){
             localStorage.setItem("twInfo", JSON.stringify(twInfo));
              planLib.digit('recalculate');
              planLib.hdfcErgo('recalculate');
+             planLib.fgi('recalculate');
      });
      
      $('body').on('click','#btn-pa-owner-driver',function() {
@@ -503,6 +500,7 @@ $(function(){
              localStorage.setItem("twInfo", JSON.stringify(twInfo));
              planLib.digit('recalculate');
              planLib.hdfcErgo('recalculate');
+              planLib.fgi('recalculate');
         }
         
      });
@@ -516,6 +514,7 @@ $(function(){
         localStorage.setItem("twInfo", JSON.stringify(twInfo));
         planLib.digit('recalculate');
         planLib.hdfcErgo('recalculate');
+         planLib.fgi('recalculate');
     })
     
     //Zero Dep
@@ -542,6 +541,7 @@ $(function(){
                               localStorage.setItem("twInfo", JSON.stringify(twInfo));
                               planLib.digit('recalculate'); 
                               planLib.hdfcErgo('recalculate');
+                              planLib.fgi('recalculate');
                                 
                             }
                         },
@@ -562,6 +562,7 @@ $(function(){
                  $('#'+elemName+'-elem').hide();
                 planLib.digit('recalculate');
                 planLib.hdfcErgo('recalculate');
+                  planLib.fgi('recalculate');
              }
          }else{
             twInfo = JSON.parse(localStorage.getItem('twInfo'));
@@ -574,6 +575,7 @@ $(function(){
               localStorage.setItem("twInfo", JSON.stringify(twInfo));
               planLib.digit('recalculate'); 
               planLib.hdfcErgo('recalculate');
+                planLib.fgi('recalculate');
          }
          
      });
@@ -642,6 +644,7 @@ $(function(){
         localStorage.setItem("twInfo", JSON.stringify(twInfo));
        planLib.digit('recalculate');
        planLib.hdfcErgo('recalculate');
+         planLib.fgi('recalculate');
        
     });
     
@@ -737,6 +740,7 @@ $(function(){
            idvModal.close();
            planLib.digit('recalculate');
            planLib.hdfcErgo('recalculate');
+            planLib.fgi('recalculate');
                 
         }
     });

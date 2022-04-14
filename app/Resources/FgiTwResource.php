@@ -16,9 +16,46 @@ class FgiTwResource extends AppResource{
       
     }
     
+         public function productCode($plan){
+          $res =  new \stdClass();
+          
+            switch ($plan) {
+             case "COM":
+                $res->contract =  "FTW";
+                $res->risk =  "FTW";
+                $res->cover =  "CO";
+                return $res;
+                break;
+              case "TP":
+                $res->contract =  "FTW";
+                $res->risk =  "FTW";
+                $res->cover =  "LO";
+                return $res;
+                break;
+              case "OD":
+                $res->contract = "FTW";
+                $res->risk  =  "FTW";
+                $res->cover =  "OD";
+                return $res;
+                break;
+              default:
+                $res->contract =  "FTW";
+                $res->risk =  "FTW";
+                $res->cover =  "CO";
+                return $res;
+            }
+    }
+    
      public function getJsonData($options,$data){
             //$resp = $temp->response;
             //$data = json_decode($response);
+            
+            $ncb = isset($options['previousInsurance']['ncb'])?$options['previousInsurance']['ncb']:"ZERO";
+            $ncbArray = ['ZERO'=>0,'TWENTY'=>20,'TWENTY_FIVE'=>25,'THIRTY_FIVE'=>35,'FORTY_FIVE'=>45,'FIFTY'=>50];
+            $ncbArrayNew = ['ZERO'=>20,'TWENTY'=>25,'TWENTY_FIVE'=>35,'THIRTY_FIVE'=>45,'FORTY_FIVE'=>50,'FIFTY'=>50];
+            $hasMadePreClaim  = (isset($options['previousInsurance']['hasPreClaim']) && $options['previousInsurance']['hasPreClaim']=='yes')?'Y':'N';
+            $ncbPercent = $ncbArray[$ncb];
+            $ncbPercentNew = $ncbArrayNew[$ncb];
             
             $tp =  new \stdClass();
             $tp->title = "Third Party";
@@ -100,7 +137,8 @@ class FgiTwResource extends AppResource{
             $ll_paid_driver->discount = 0.00;
             $ll_paid_driver->tax = 0.00;
             
-           
+            $discount = new \stdClass();
+            $discounts = [];$totalDis =0;
              //print_r($data);
             $addons = []; $totalgrossAmt = 0;$totalnetAmt = 0;$totalTax=0;
             $contracts = $data->Policy->NewDataSet->Table1;
@@ -136,6 +174,15 @@ class FgiTwResource extends AppResource{
                     $pa_un_pass->insured = 1; 
                     $pa_un_pass->grossAmt =  trim($cover->BOValue);
                     $pa_un_pass->netAmt   =  trim($cover->BOValue);
+                }
+                
+                
+                
+                 if($cover->Code=="LLDE" && trim($cover->Type)=='TP'){
+                    $ll_paid_driver->selection =true;
+                    $ll_paid_driver->insured = 1; 
+                    $ll_paid_driver->grossAmt =  trim($cover->BOValue);
+                    $ll_paid_driver->netAmt   =  trim($cover->BOValue);
                 }
                 
                 if($cover->Code=="LLOE" && trim($cover->Type)=='TP'){
@@ -205,6 +252,15 @@ class FgiTwResource extends AppResource{
                    array_push($addons,$eachAddon);
                 }
                 
+                if($cover->Code=="NCB" && trim($cover->Type)=='OD'){ 
+                     $eachDis =   new \stdClass();
+                     $eachDis->type    = "NCB_DISCOUNT";
+                     $eachDis->amount  = trim($cover->BOValue);
+                     $eachDis->percent = $ncbPercentNew;
+                     array_push($discounts,$eachDis);
+                     $totalDis+= trim($cover->BOValue);
+                }
+                
                 
                 
             }
@@ -220,8 +276,11 @@ class FgiTwResource extends AppResource{
             $covers->ll_emp = $ll_emp;
             $covers->addons = $addons;
             
-            $discount = new \stdClass();
-            $discounts = [];$totalDis =0;
+            
+            
+            
+                
+             
             // if(isset($data->discounts->otherDiscounts)){
             //      foreach($data->discounts->otherDiscounts as $dis){
             //          $amt = trim(str_replace('INR', '',$dis->discountAmount));
@@ -259,37 +318,37 @@ class FgiTwResource extends AppResource{
             $obj->discount=  $discount;
             
             //customer
-            $customer = new \stdClass(); 
-            $customer->name ="";
-            $customer->mobile ="";
-            $customer->email ="";
-            $customer->dob ="";
+            // $customer = new \stdClass(); 
+            // $customer->name ="";
+            // $customer->mobile ="";
+            // $customer->email ="";
+            // $customer->dob ="";
             
-            $obj->customer = $customer;
+            // $obj->customer = $customer;
             
-            $supplier = new \stdClass(); 
-            $supplier->id =6;
-            $supplier->name ="Future Generali Insurance";
-            $supplier->short ="FGI_M";
-            $supplier->logo ="https://general.futuregenerali.in/img/logo.png";
-            $obj->supplier = $supplier;
+            // $supplier = new \stdClass(); 
+            // $supplier->id =6;
+            // $supplier->name ="Future Generali Insurance";
+            // $supplier->short ="FGI";
+            // $supplier->logo ="https://general.futuregenerali.in/img/logo.png";
+            // $obj->supplier = $supplier;
             
-            //vehicle
-            $RTO = substr($options['carnumber'],0,4);
-            $vehicle = new \stdClass(); 
-            $vehicle->make =$options['brand']['name'];
-            $vehicle->model =$options['model']['name'];
-            $vehicle->varient =$options['varient']['name'];
-            $vehicle->code = "";
-            $vehicle->rto =$RTO;
-            $vehicle->rto_no = $options['carnumber'];
-            $vehicle->reg_date = $options['regMonth']."-".$options['regYear'];
-            $vehicle->chassis_no = '';
-            $vehicle->engin_no = '';
-            $vehicle->idv =$data->Policy->VehicleIDV;
-            $vehicle->minIdv =$data->Policy->VehicleIDV;
-            $vehicle->maxIdv =$data->Policy->VehicleIDV;
-            $obj->vehicle = $vehicle;
+            // //vehicle
+            // $RTO = substr($options['carnumber'],0,4);
+            // $vehicle = new \stdClass(); 
+            // $vehicle->make =$options['vehicle']['brand']['name'];
+            // $vehicle->model =$options['vehicle']['model']['name'];
+            // $vehicle->varient =$options['vehicle']['varient']['name'];
+            // $vehicle->code = "";
+            // $vehicle->rto =$options['vehicle']['rtoCode'];
+            // $vehicle->rto_no = $options['vehicle']['rtoCode'];
+            // $vehicle->reg_date = date('d').'-'.$options['vehicle']['regMonth']."-".$options['regYear'];
+            // $vehicle->chassis_no = '';
+            // $vehicle->engin_no = '';
+            // $vehicle->idv =$data->Policy->VehicleIDV;
+            // $vehicle->minIdv =$data->Policy->VehicleIDV;
+            // $vehicle->maxIdv =$data->Policy->VehicleIDV;
+            // $obj->vehicle = $vehicle;
             
             return $obj;
     }
@@ -297,17 +356,14 @@ class FgiTwResource extends AppResource{
      function fnQuoteRequest($params){
          $chars = date('Ymd').time();
          $uid = str_shuffle(substr(str_shuffle($chars), 0, 10));
-         
+         $productCode = $this->productCode($params['planType']);
          $make=($params['vehicle']['brand']['name'])?trim($params['vehicle']['brand']['name']):null;
          $model = ($params['vehicle']['model']['name'])?$params['vehicle']['model']['name']:null;
          $varient = ($params['vehicle']['varient']['name'])?$params['vehicle']['varient']['name']:null;
          $regionCode = $params['vehicle']['rtoCode'];
-         
-        //  $rto_master=DB::table('rto_master')->select('pincode_masters.*','rto_master.registered_state_name as _state','rto_master.registered_city_name as _city')
-        // ->join('pincode_masters','pincode_masters.dist', '=','rto_master.registered_city_name')
-        // ->where('rto_master.region_code',strtoupper($regionCode))
-        // ->orWhere('rto_master.registered_city_name', 'like',"CONCAT(pincode_masters.dist, '%')")->first();
-        
+         $registrationDate=date('d').'/'.$params['vehicle']['regMonth'].'/'.$params['vehicle']['regYear'];
+         $expDate = createFormatDate($params['previousInsurance']['expDate'],'d-m-Y','d/m/Y');
+         $startDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->addDays()->format('Y-m-d');
          $rto_master=DB::table('rtoMaster')->select('rtoMaster.rtoCode as rtoCode','cities.name as cityName','cities.id as cityId','states.name as stateName',
                                                     'states.id as stateId')
                                                 ->where('rtoCode',strtoupper($params['vehicle']['rtoCode']))
@@ -326,340 +382,253 @@ class FgiTwResource extends AppResource{
             case "cng": $fuel =  "C";break;
             default:$fuel =  "P";
         }
-        $period = $this->timePeriod('d/m/Y',3);
+        $period = $this->timePeriod('d/m/Y',1 ,$startDate);
         $ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
-        $ncbArray = ['ZERO'=>0,'TWENTY'=>20,'TWENTY_FIVE'=>25,'THIRTY_FIVE'=>35,'FORTY_FIVE'=>45,'FIFTY'=>50,'FIFTY_FIVE'=>55,'SIXTY_FIVE'=>65];
+        $ncbArray = ['ZERO'=>0,'TWENTY'=>20,'TWENTY_FIVE'=>25,'THIRTY_FIVE'=>35,'FORTY_FIVE'=>45,'FIFTY'=>50];
+        $ncbArrayNew = ['ZERO'=>20,'TWENTY'=>25,'TWENTY_FIVE'=>35,'THIRTY_FIVE'=>45,'FORTY_FIVE'=>50,'FIFTY'=>50];
         $hasMadePreClaim  = (isset($params['previousInsurance']['hasPreClaim']) && $params['previousInsurance']['hasPreClaim']=='yes')?'Y':'N';
-       
+        $ncbPercent = $ncbArray[$ncb];
+        $ncbPercentNew = $ncbArrayNew[$ncb];
             $ROOT = "<Root>
-	<Uid>".$uid."</Uid>
-	<VendorCode>webagg</VendorCode>
-	<VendorUserId>webagg</VendorUserId>
-	<PolicyHeader>
-		<PolicyStartDate>".$period->startDate."</PolicyStartDate> <PolicyEndDate>".$period->endDate."</PolicyEndDate>
-		<AgentCode>60001464</AgentCode>
-		<BranchCode>10</BranchCode>
-		<MajorClass>MOT</MajorClass>
-		<ContractType>F13</ContractType>
-		<METHOD>ENQ</METHOD>
-		<PolicyIssueType>I</PolicyIssueType>
-		<PolicyNo>
-		</PolicyNo>
-		<ClientID>
-		</ClientID>
-		<ReceiptNo>
-		</ReceiptNo>
-	</PolicyHeader>
-	<POS_MISP>
-		<Type></Type>
-		<PanNo></PanNo>
-	</POS_MISP>
-	<Client>
-		<ClientType>I</ClientType>
-		<CreationType>C</CreationType>
-		<Salutation></Salutation>
-		<FirstName></FirstName>
-		<LastName></LastName>
-		<DOB></DOB>
-		<Gender></Gender>
-		<MaritalStatus></MaritalStatus>
-		<Occupation>SVCM</Occupation>
-		<PANNo>
-		</PANNo>
-		<GSTIN>
-		</GSTIN>
-		<AadharNo>
-		</AadharNo>
-		<CKYCNo>
-		</CKYCNo>
-		<EIANo>
-		</EIANo>
-		<Address1>
-			<AddrLine1></AddrLine1>
-			<AddrLine2></AddrLine2>
-			<AddrLine3></AddrLine3>
-			<Landmark>
-			</Landmark>
-			<Pincode>".$pincode."</Pincode>
-			<City>".$_city."</City>
-			<State>".$_state."</State>
-			<Country>IND</Country>
-			<AddressType>R</AddressType>
-			<HomeTelNo>
-			</HomeTelNo>
-			<OfficeTelNo>
-			</OfficeTelNo>
-			<FAXNO>
-			</FAXNO>
-			<MobileNo>7697735557</MobileNo>
-			<EmailAddr></EmailAddr>
-		</Address1>
-		<Address2>
-			<AddrLine1>
-			</AddrLine1>
-			<AddrLine2>
-			</AddrLine2>
-			<AddrLine3>
-			</AddrLine3>
-			<Landmark>
-			</Landmark>
-			<Pincode>".$pincode."</Pincode>
-			<City>".$_city."</City>
-			<State>".$_state."</State>
-			<Country>IND</Country>
-			<AddressType></AddressType>
-			<HomeTelNo>
-			</HomeTelNo>
-			<OfficeTelNo>
-			</OfficeTelNo>
-			<FAXNO>
-			</FAXNO>
-			<MobileNo>7697735557</MobileNo>
-			<EmailAddr>
-			</EmailAddr>
-		</Address2>
-	<VIPFlag>N</VIPFlag>
-	<VIPCategory>
-</VIPCategory>
-	</Client>
-	<Receipt>
-		<UniqueTranKey></UniqueTranKey>
-		<CheckType>
-		</CheckType>
-		<BSBCode>
-		</BSBCode>
-		<TransactionDate></TransactionDate>
-		<ReceiptType></ReceiptType>
-		<Amount></Amount>
-		<TCSAmount>
-		</TCSAmount>
-		<TranRefNo></TranRefNo>
-		<TranRefNoDate></TranRefNoDate>
-	</Receipt>
-	<Risk>
-		<RiskType>F13</RiskType>
-		<Zone>Zone A</Zone>
-		<Cover>CO</Cover>
-		<Vehicle>
-			<TypeOfVehicle>O</TypeOfVehicle>
-			<VehicleClass>FTW</VehicleClass>
-			<RTOCode>".$regionCode."</RTOCode>
-			<Make>".strtoupper($make)."</Make>
-			<ModelCode>".$var->fgi_code."</ModelCode>
-			<RegistrationNo>{{RegistrationNo}}</RegistrationNo>
-			<RegistrationDate>30/07/2020</RegistrationDate>
-			<ManufacturingYear>2019</ManufacturingYear>
-			<FuelType>".$fuel."</FuelType>
-			<CNGOrLPG>
-				<InbuiltKit></InbuiltKit>
-				<IVDOfCNGOrLPG></IVDOfCNGOrLPG>
-			</CNGOrLPG>
-			<BodyType>SOLO</BodyType>
-			<EngineNo>GAN111111</EngineNo>
-			<ChassiNo>000000000000GAN111111</ChassiNo>
-			<CubicCapacity>102</CubicCapacity>
-			<SeatingCapacity>".$var->seating_capacity."</SeatingCapacity>
-			<IDV>{{IDV}}</IDV>
-			<GrossWeigh></GrossWeigh>
-			<CarriageCapacityFlag></CarriageCapacityFlag>
-			<ValidPUC>Y</ValidPUC>
-			<TrailerTowedBy></TrailerTowedBy>
-			<TrailerRegNo></TrailerRegNo>
-			<NoOfTrailer></NoOfTrailer>
-			<TrailerValLimPaxIDVDays></TrailerValLimPaxIDVDays>
-		<TrailerChassisNo>
-</TrailerChassisNo>
-		<TrailerMfgYear>
-</TrailerMfgYear>
-		<SchoolBusFlag>
-</SchoolBusFlag>
-		</Vehicle>
-		<InterestParty>
-			<Code></Code>
-			<BankName></BankName>
-		</InterestParty>
-		<AdditionalBenefit>
-			<Discount>0.00000</Discount>
-			<ElectricalAccessoriesValues></ElectricalAccessoriesValues>
-			<NonElectricalAccessoriesValues></NonElectricalAccessoriesValues>
-			<FibreGlassTank>
-			</FibreGlassTank>
-			<GeographicalArea>
-			</GeographicalArea>
-			<PACoverForUnnamedPassengers>{{isPA_UNPassCover}}</PACoverForUnnamedPassengers>
-			<LegalLiabilitytoPaidDriver>{{isLL_PaidDriverCover}}</LegalLiabilitytoPaidDriver>
-			<LegalLiabilityForOtherEmployees>{{isLL_EmpCover}}</LegalLiabilityForOtherEmployees>
-			<LegalLiabilityForNonFarePayingPassengers>
-			</LegalLiabilityForNonFarePayingPassengers>
-			<UseForHandicap></UseForHandicap>
-			<AntiThiefDevice></AntiThiefDevice>
-			<NCB>0</NCB>
-			<RestrictedTPPD></RestrictedTPPD>
-			<PrivateCommercialUsage></PrivateCommercialUsage>
-			<CPAYear>3</CPAYear>
-			<CPADisc></CPADisc>
-			<IMT23></IMT23>
-			<CPAReq>N</CPAReq>
-			<CPA>
-				<CPANomName></CPANomName>
-				<CPANomAge></CPANomAge>
-				<CPANomAgeDet></CPANomAgeDet>
-				<CPANomPerc></CPANomPerc>
-				<CPARelation></CPARelation>
-				<CPAAppointeeName>
-				</CPAAppointeeName>
-				<CPAAppointeRel>
-				</CPAAppointeRel>
-			</CPA>
-			<NPAReq>N</NPAReq>
-			<NPA>
-				<NPAName>
-				</NPAName>
-				<NPALimit>
-				</NPALimit>
-				<NPANomName>
-				</NPANomName>
-				<NPANomAge>
-				</NPANomAge>
-				<NPANomAgeDet>
-				</NPANomAgeDet>
-				<NPARel>
-				</NPARel>
-				<NPAAppinteeName>
-				</NPAAppinteeName>
-				<NPAAppinteeRel>
-				</NPAAppinteeRel>
-			</NPA>
-		<ZNCBRSRCV>
-</ZNCBRSRCV>
-		<ZNOFEMPLY>
-</ZNOFEMPLY>
-		<ZLMTPERPD>
-</ZLMTPERPD>
-		<ZADDLPAPD>
-</ZADDLPAPD>
-		<ZTPPER>
-</ZTPPER>
-		<ZCMPTPPA>
-</ZCMPTPPA>
-		<ZLMTTPPD>
-</ZLMTTPPD>
-		<ZPREMISE>
-</ZPREMISE>
-		<ZVINTAGE>
-</ZVINTAGE>
-		<XCESSLAB>
-</XCESSLAB>
-		<XCESCDE>
-</XCESCDE>
-		<ZSCARSI>
-</ZSCARSI>
-		<ZSCARIND>
-</ZSCARIND>
-		<ZAANO>
-</ZAANO>
-		<ZEMBASSY>
-</ZEMBASSY>
-		<ZSPECRAL>
-</ZSPECRAL>
-		<ZRALTRAIL>
-</ZRALTRAIL>
-		<ZDRVTTN>
-</ZDRVTTN>
-		<EXPDTE>
-</EXPDTE>
-		<ZOVRTFLG>
-</ZOVRTFLG>
-		<ZIMT44ID>
-</ZIMT44ID>
-		<ZPAPDPRM>
-</ZPAPDPRM>
-		<ZNOPPM>
-</ZNOPPM>
-		<ZIMT34ID>
-</ZIMT34ID>
-		</AdditionalBenefit>
-		<AddonReq>{{HAS_ADDONS}}</AddonReq>
-		
-			{{ADDONS}}
-		
-		<PreviousTPInsDtls>
-			<PreviousInsurer>
-			</PreviousInsurer>
-			<TPPolicyNumber>
-			</TPPolicyNumber>
-			<TPPolicyEffdate>
-			</TPPolicyEffdate>
-			<TPPolicyExpiryDate>
-			</TPPolicyExpiryDate>
-		</PreviousTPInsDtls>
-		<PreviousInsDtls>
-			<UsedCar>N</UsedCar>
-			<UsedCarList>
-				<PurchaseDate>
-				</PurchaseDate>
-				<InspectionRptNo>
-				</InspectionRptNo>
-				<InspectionDt>
-				</InspectionDt>
-			</UsedCarList>
-			<RollOver>N</RollOver>
-			<RollOverList>
-				<PolicyNo></PolicyNo>
-				<InsuredName></InsuredName>
-				<PreviousPolExpDt></PreviousPolExpDt>
-				<ClientCode></ClientCode>
-				<Address1>".$_city."</Address1>
-				<Address2>".$_city."</Address2>
-				<Address3>".$_city."</Address3>
-				<Address4>".$_city."</Address4>
-				<Address5>".$_state."</Address5>
-				
-				<PinCode>".$pincode."</PinCode>
-		
-				<InspectionRptNo>
-				</InspectionRptNo>
-				<InspectionDt>
-				</InspectionDt>
-				<NCBDeclartion>".$hasMadePreClaim."</NCBDeclartion>  
-				<ClaimInExpiringPolicy>".$hasMadePreClaim."</ClaimInExpiringPolicy>
-				<NCBInExpiringPolicy>".$ncbArray[$ncb]."</NCBInExpiringPolicy>
-			<PreviousPolStartDt>
-</PreviousPolStartDt>
-			<TypeOfDoc>
-</TypeOfDoc>
-			<NoOfClaims>
-</NoOfClaims>
-			</RollOverList>
-			<NewVehicle>Y</NewVehicle>
-			<NewVehicleList>
-				<InspectionRptNo>
-				</InspectionRptNo>
-				<InspectionDt>
-				</InspectionDt>
-			</NewVehicleList>
-		</PreviousInsDtls>
-	<ZLLOTFLG>
-</ZLLOTFLG>
-	<GARAGE>
-</GARAGE>
-	<ZREFRA>
-</ZREFRA>
-	<ZREFRB>
-</ZREFRB>
-	<ZIDVBODY>
-</ZIDVBODY>
-	<COVERNT>
-</COVERNT>
-	<CNTISS>
-</CNTISS>
-	<ZCVNTIME>
-</ZCVNTIME>
-	<AddressSeqNo>
-</AddressSeqNo>
-	</Risk>
-</Root>
-";
+                    	<Uid>".$uid."</Uid>
+                    	<VendorCode>webagg</VendorCode>
+                    	<VendorUserId>webagg</VendorUserId>
+                    	<PolicyHeader>
+                    		<PolicyStartDate>".$period->startDate."</PolicyStartDate> 
+                            <PolicyEndDate>".$period->endDate."</PolicyEndDate>
+                    		<AgentCode>".config('motor.FGI.tw.AgentCode')."</AgentCode>
+                    		<BranchCode>".config('motor.FGI.tw.BranchCode')."</BranchCode>
+                    		<MajorClass>MOT</MajorClass>
+                    		<ContractType>".$productCode->contract."</ContractType>
+                    		<METHOD>ENQ</METHOD>
+                    		<PolicyIssueType>I</PolicyIssueType>
+                    		<PolicyNo></PolicyNo>
+                    		<ClientID></ClientID>
+                    		<ReceiptNo></ReceiptNo>
+                    	</PolicyHeader>
+                    	<POS_MISP>
+		                   <Type></Type>
+		                   <PanNo></PanNo>
+	                    </POS_MISP>
+                    	<Client>
+                    		<ClientType></ClientType>
+                    		<CreationType></CreationType>
+                    		<Salutation></Salutation>
+                    		<FirstName></FirstName>
+                    		<LastName></LastName>
+                    		<DOB></DOB>
+                    		<Gender></Gender>
+                    		<MaritalStatus></MaritalStatus>
+                    		<Occupation>SVCM</Occupation>
+                    		<PANNo></PANNo>
+                    		<GSTIN></GSTIN>
+                    		<AadharNo></AadharNo>
+                    		<CKYCNo></CKYCNo>
+                    		<EIANo></EIANo>
+                    		<Address1>
+                    			<AddrLine1></AddrLine1>
+                    			<AddrLine2></AddrLine2>
+                    			<AddrLine3></AddrLine3>
+                    			<Landmark></Landmark>
+                    			<Pincode></Pincode>
+                    			<City></City>
+                    			<State></State>
+                    			<Country>IND</Country>
+                    			<AddressType>R</AddressType>
+                    			<HomeTelNo></HomeTelNo>
+                    			<OfficeTelNo></OfficeTelNo>
+                    			<FAXNO></FAXNO>
+                    			<MobileNo></MobileNo>
+                    			<EmailAddr></EmailAddr>
+                    		</Address1>
+                    		<Address2>
+                    			<AddrLine1></AddrLine1>
+                    			<AddrLine2></AddrLine2>
+                    			<AddrLine3></AddrLine3>
+                    			<Landmark></Landmark>
+                    			<Pincode></Pincode>
+                    			<City></City>
+                    			<State></State>
+                    			<Country>IND</Country>
+                    			<AddressType></AddressType>
+                    			<HomeTelNo></HomeTelNo>
+                    			<OfficeTelNo></OfficeTelNo>
+                    			<FAXNO></FAXNO>
+                    			<MobileNo></MobileNo>
+                    			<EmailAddr></EmailAddr>
+                    		</Address2>
+                         	<VIPFlag>N</VIPFlag>
+                    	    <VIPCategory></VIPCategory>
+                    	</Client>
+                    	<Receipt>
+                    		<UniqueTranKey></UniqueTranKey>
+                    		<CheckType></CheckType>
+                    		<BSBCode></BSBCode>
+                    		<TransactionDate></TransactionDate>
+                    		<ReceiptType></ReceiptType>
+                    		<Amount></Amount>
+                    		<TCSAmount></TCSAmount>
+                    		<TranRefNo></TranRefNo>
+                    		<TranRefNoDate></TranRefNoDate>
+                    	</Receipt>
+	                    <Risk>
+                    		<RiskType>".$productCode->risk."</RiskType>
+                    		<Zone>A</Zone>
+                    		<Cover>".$productCode->cover."</Cover>
+                    		<Vehicle>
+                    			<TypeOfVehicle></TypeOfVehicle>
+                    			<VehicleClass></VehicleClass>
+                    			<RTOCode>".$regionCode."</RTOCode>
+                    			<Make>".strtoupper($make)."</Make>
+                    			<ModelCode>".$var->fgi_code."</ModelCode>
+                    			<RegistrationNo>{{RegistrationNo}}</RegistrationNo>
+                    			<RegistrationDate>".$registrationDate."</RegistrationDate>
+                    			<ManufacturingYear>".clean_str($var->price_year)."</ManufacturingYear>
+                    			<FuelType>".$fuel."</FuelType>
+                    			<CNGOrLPG>
+                    				<InbuiltKit>N</InbuiltKit>
+                    				<IVDOfCNGOrLPG></IVDOfCNGOrLPG>
+                    			</CNGOrLPG>
+                    			<BodyType>SOLO</BodyType>
+                    			<EngineNo>".getRandomStr(10)."</EngineNo>
+                    			<ChassiNo>".getRandomStr(17)."</ChassiNo>
+                    			<CubicCapacity>".$var->cubic_capacity."</CubicCapacity>
+                    			<SeatingCapacity>".$var->seating_capacity."</SeatingCapacity>
+                    			<IDV>{{IDV}}</IDV>
+                    			<GrossWeigh></GrossWeigh>
+                    			<CarriageCapacityFlag></CarriageCapacityFlag>
+                    			<ValidPUC>Y</ValidPUC>
+                    			<TrailerTowedBy></TrailerTowedBy>
+                    			<TrailerRegNo></TrailerRegNo>
+                    			<NoOfTrailer></NoOfTrailer>
+                    			<TrailerValLimPaxIDVDays></TrailerValLimPaxIDVDays>
+                    	     	<TrailerChassisNo></TrailerChassisNo>
+                    	    	<TrailerMfgYear></TrailerMfgYear>
+                    	    	<SchoolBusFlag></SchoolBusFlag>
+                    		</Vehicle>
+                    		<InterestParty>
+                    			<Code></Code>
+                    			<BankName></BankName>
+                    		</InterestParty>
+                    		<AdditionalBenefit>
+                    			<Discount>0.00000</Discount>
+                    			<ElectricalAccessoriesValues></ElectricalAccessoriesValues>
+                    			<NonElectricalAccessoriesValues></NonElectricalAccessoriesValues>
+                    			<FibreGlassTank></FibreGlassTank>
+                    			<GeographicalArea></GeographicalArea>
+                    			<PACoverForUnnamedPassengers>{{isPA_UNPassCover}}</PACoverForUnnamedPassengers>
+                    			<LegalLiabilitytoPaidDriver>{{isLL_PaidDriverCover}}</LegalLiabilitytoPaidDriver>
+                    			<LegalLiabilityForOtherEmployees>{{isLL_EmpCover}}</LegalLiabilityForOtherEmployees>
+                    			<LegalLiabilityForNonFarePayingPassengers></LegalLiabilityForNonFarePayingPassengers>
+                    			<UseForHandicap></UseForHandicap>
+                    			<AntiThiefDevice></AntiThiefDevice>
+                    			<NCB>".$ncbPercentNew."</NCB>
+                    			<RestrictedTPPD></RestrictedTPPD>
+                    			<PrivateCommercialUsage></PrivateCommercialUsage>
+                    			<CPAYear></CPAYear>
+                    			<CPADisc></CPADisc>
+                    			<IMT23></IMT23>
+                    			<CPAReq>{{CPAReq}}</CPAReq>
+                    			<CPA>
+                    				<CPANomName>{{CPANomName}}</CPANomName>
+                                    <CPANomAge>{{CPANomAge}}</CPANomAge>
+                                    <CPANomAgeDet>{{CPANomAgeDet}}</CPANomAgeDet>
+                                    <CPANomPerc>{{CPANomPerc}}</CPANomPerc>
+                                    <CPARelation>{{CPARelation}}</CPARelation>
+                    				<CPAAppointeeName></CPAAppointeeName>
+                    				<CPAAppointeRel></CPAAppointeRel>
+                    			</CPA>
+                    			<NPAReq>N</NPAReq>
+                    			<NPA>
+                    				<NPAName></NPAName>
+                    				<NPALimit></NPALimit>
+                    				<NPANomName></NPANomName>
+                    				<NPANomAge></NPANomAge>
+                    				<NPANomAgeDet></NPANomAgeDet>
+                    				<NPARel></NPARel>
+                    				<NPAAppinteeName></NPAAppinteeName>
+                    				<NPAAppinteeRel></NPAAppinteeRel>
+                    			</NPA>
+                        		<ZNCBRSRCV></ZNCBRSRCV>
+                        		<ZNOFEMPLY></ZNOFEMPLY>
+                        		<ZLMTPERPD></ZLMTPERPD>
+                        		<ZADDLPAPD></ZADDLPAPD>
+                        		<ZTPPER></ZTPPER>
+                        		<ZCMPTPPA></ZCMPTPPA>
+                        		<ZLMTTPPD></ZLMTTPPD>
+                        		<ZPREMISE></ZPREMISE>
+                        		<ZVINTAGE></ZVINTAGE>
+                        		<XCESSLAB></XCESSLAB>
+                        		<XCESCDE></XCESCDE>
+                        		<ZSCARSI></ZSCARSI>
+                        		<ZSCARIND></ZSCARIND>
+                        		<ZAANO></ZAANO>
+                        		<ZEMBASSY></ZEMBASSY>
+                        		<ZSPECRAL></ZSPECRAL>
+                        		<ZRALTRAIL></ZRALTRAIL>
+                        		<ZDRVTTN></ZDRVTTN>
+                        		<EXPDTE></EXPDTE>
+                        		<ZOVRTFLG></ZOVRTFLG>
+                        		<ZIMT44ID></ZIMT44ID>
+                        		<ZPAPDPRM></ZPAPDPRM>
+                        		<ZNOPPM></ZNOPPM>
+                        		<ZIMT34ID></ZIMT34ID>
+                        	</AdditionalBenefit>
+                    		<AddonReq>{{HAS_ADDONS}}</AddonReq>
+                    		{{ADDONS}}
+                    		<PreviousTPInsDtls>
+                    			<PreviousInsurer></PreviousInsurer>
+                    			<TPPolicyNumber></TPPolicyNumber>
+                    			<TPPolicyEffdate></TPPolicyEffdate>
+                    			<TPPolicyExpiryDate></TPPolicyExpiryDate>
+                    		</PreviousTPInsDtls>
+                    		<PreviousInsDtls>
+                    			<UsedCar>N</UsedCar>
+                    			<UsedCarList>
+                    				<PurchaseDate></PurchaseDate>
+                    				<InspectionRptNo></InspectionRptNo>
+                    				<InspectionDt></InspectionDt>
+                    			</UsedCarList>
+                    			<RollOver>Y</RollOver>
+                    			<RollOverList>
+                    			    <PolicyNo>OG-18-17-5412E548-00-000</PolicyNo>
+                                    <InsuredName>Bajaj Allianz General Insurance Co Ltd.</InsuredName>
+                    				<PreviousPolExpDt>".$expDate."</PreviousPolExpDt>
+                    				<ClientCode>40062645</ClientCode>
+                    				<Address1>".$_city."</Address1>
+                    				<Address2>".$_city."</Address2>
+                    				<Address3>".$_city."</Address3>
+                    				<Address4>".$_city."</Address4>
+                    				<Address5>".$_state."</Address5>
+                    				<PinCode>".$pincode."</PinCode>
+                    				<InspectionRptNo></InspectionRptNo>
+                    				<InspectionDt></InspectionDt>
+                    				<NCBDeclartion>".$hasMadePreClaim."</NCBDeclartion>  
+                    				<ClaimInExpiringPolicy>".$hasMadePreClaim."</ClaimInExpiringPolicy>
+                    				<NCBInExpiringPolicy>".$ncbPercent."</NCBInExpiringPolicy>
+                    		   	    <PreviousPolStartDt></PreviousPolStartDt>
+                    			    <TypeOfDoc></TypeOfDoc>
+                    			    <NoOfClaims></NoOfClaims>
+                    			</RollOverList>
+                    			<NewVehicle>N</NewVehicle>
+                    			<NewVehicleList>
+                    				<InspectionRptNo></InspectionRptNo>
+                    				<InspectionDt></InspectionDt>
+                    			</NewVehicleList>
+                    		</PreviousInsDtls>
+                        	<ZLLOTFLG></ZLLOTFLG>
+                        	<GARAGE></GARAGE>
+                        	<ZREFRA></ZREFRA>
+                        	<ZREFRB></ZREFRB>
+                        	<ZIDVBODY></ZIDVBODY>
+                        	<COVERNT></COVERNT>
+                        	<CNTISS></CNTISS>
+                        	<ZCVNTIME></ZCVNTIME>
+                        	<AddressSeqNo></AddressSeqNo>
+                    	</Risk>
+                   </Root>";
+
+
  return $ROOT;
               
     }
@@ -667,8 +636,21 @@ class FgiTwResource extends AppResource{
      function getQuickQuote($deviceToken,$options){
         $XML =  $this->fnQuoteRequest($options);
         
-        $RegNo = isset($params['carnumber'])?$params['carnumber']:"";
-        $XML = str_replace("{{RegistrationNo}}",$RegNo,$XML);
+        
+        $XML = str_replace("{{CPAReq}}","Y",$XML);
+        $XML = str_replace("{{CPANomName}}","Test",$XML);
+        $XML = str_replace("{{CPANomAge}}","25",$XML);
+        $XML = str_replace("{{CPANomAgeDet}}","Y",$XML);
+        $XML = str_replace("{{CPANomPerc}}","100",$XML);
+        $XML = str_replace("{{CPARelation}}","BROT",$XML);
+        
+       
+        $licensePlateNumber =$options['vehicle']['rtoCode']."JK7104";
+            if($options['vehicle']['hasvehicleNumber']=="true"){
+                $licensePlateNumber =$options['vehicle']['vehicleNumber'];
+             }
+        $XML = str_replace("{{RegistrationNo}}",$licensePlateNumber,$XML);
+        
         $idv = "0";$XML = str_replace("{{IDV}}",$idv,$XML);
         $isPA_UNPassCover = "";$XML = str_replace("{{isPA_UNPassCover}}",$isPA_UNPassCover,$XML);
         $isLL_PaidDriverCover = "";$XML = str_replace("{{isLL_PaidDriverCover}}",$isLL_PaidDriverCover,$XML);
@@ -679,150 +661,206 @@ class FgiTwResource extends AppResource{
        // $ADDONS = "";$XML = str_replace("{{ADDONS}}",$ADDONS,$XML);
         	
        		
-        $url = 'http://fglpg001.futuregenerali.in/BO/Service.svc?wsdl';
-        //echo $XML;die;
+      //  $url = 'http://fglpg001.futuregenerali.in/BO/Service.svc?wsdl';
+  // echo $XML;die;
         try {
             $factory = new Factory();
-            $client = $factory->create(new Client(), $url); 
+            $client = $factory->create(new Client(), config('motor.FGI.tw.QuickQuote')); 
             $result = $client->call('CreatePolicy', [["Product"=>"Motor","XML"=>$XML]]);
             $xml   = simplexml_load_string($result->CreatePolicyResult, 'SimpleXMLElement', LIBXML_NOCDATA);
             $array = json_decode(json_encode((array)$xml), TRUE);
-            print_r($array);die;
+            //print_r($result);die;
               
             if(isset($array['Policy'])){
                   $policy = $array['Policy'];
                   $response  = json_decode(json_encode($array));
                 if($policy['Status']=="Successful"){
+                    $partner = DB::table('our_partners')->where('shortName','FGI')->value('name');
                     $json_data = $this->getJsonData($options,$response);
-                    $enq = "QT-FW-".time().mt_rand();
-                    $plan['supplier_id'] = 6;
-                    $plan['supplier']    = "FGI_M";
-                    $plan['title']       = "Car Insurance";
-                    $plan['discount']    = 0;
-                    $plan['grossamount'] = $json_data->gross;
-                    $plan['netamount']   = $json_data->net;
-                    $plan['supp_name']   = "Future Generali Insurance";
-                    $plan['supp_logo']   = "https://general.futuregenerali.in/img/logo.png";
-                    $plan['id']          = $enq;
-                    $plan['idv']         = $policy['VehicleIDV'];
+                    $enq = "QT-TW-".time().mt_rand();
+                    
+                      $plan['title'] = $partner;
+                      $plan['grossamount'] = $json_data->gross;
+                      $plan['netamount']   = $json_data->net;
+                      $plan['discount']    = 0;
+                      $plan['id'] =$enq;
+                      $plan['addons'] =  $json_data;
+                      $plan['idv'] = $policy['VehicleIDV'];
                       
-                      $quoteData = ['quote_id'=>$enq,'type'=>'CAR','title'=>"Future Generali Insurance",
-                                    'device'=>$deviceToken,'provider'=>'FGI_M',
+                      $Inuptxml   = simplexml_load_string($XML, 'SimpleXMLElement', LIBXML_NOCDATA);
+                      $Inuptxml = json_decode(json_encode((array)$Inuptxml), TRUE);
+                      
+                      $quoteData = ['quote_id'=>$enq,'type'=>'BIKE','title'=>$partner,
+                                    'device'=>$deviceToken,'provider'=>'FGI',
+                                    'policyType'=>$options['planType'],
                                     'min_idv'=>$policy['VehicleIDV'],
                                     'max_idv'=>$policy['VehicleIDV'],
                                     'idv'    =>$policy['VehicleIDV'],
                                     'call_type'=>"QUOTE",
-                                    'response'=>json_encode($response),'json_quote'=>json_encode($result),'json_data'=>json_encode($json_data),
-                                    'req'=>$XML,'resp'=>json_encode($array)];
+                                    'reqQuote'=>json_encode($Inuptxml),
+                                    'respQuote'=>json_encode($policy),
+                                    'reqRecalculate'=>json_encode($Inuptxml),
+                                    'respRecalculate'=>json_encode($policy),
+                                    'json_data'=>json_encode($json_data),
+                                    'req'=>json_encode($Inuptxml),
+                                    'resp'=>json_encode($policy)];
+                        //  print_r($quoteData);die;          
                     $quoteID = DB::table('app_temp_quote')->insertGetId($quoteData);
                     if($quoteID){
                       return ['status'=>true,'plans'=>$plan];
                     }else{
-                         return ['status'=>false,'plans'=>[]];
+                         return ['status'=>false,'message' => "Internal error",'plans'=>[]];
                     }
                 }else{ //Fail
-                    return ['status'=>false,'plans'=>[]];
+                    return ['status'=>false,'message' => "Connection error",'plans'=>[]];
                 }
             }else{
-               return ['status'=>false,'plans'=>[]];
+               return ['status'=>false,'message' => "Connection Fail",'plans'=>[]];
             }
-        }catch(Exception $e) {
-              //echo $e->getMessage();
-             return ['status'=>false,'plans'=>[]];
-        }
+        }catch (ConnectException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $jsonRes = json_decode($responseBodyAsString);
+              
+                return ['status' => false,'plans'=>[], 'message' => "ConnectException"];
+            }catch (RequestException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                 return ['status' => false,'plans'=>[], 'message' => 'RequestException'];
+            }catch (ClientException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $jsonRes = json_decode($responseBodyAsString);
+                return ['status' =>false, 'plans'=>[],'message' => "ClientException"];
+            }
     }
     
-     function getRecalulateQuote($deviceToken,$customer,$params){
+     function getRecalulateQuote($deviceToken,$params){
         //print_r($params);
         $XML =  $this->fnQuoteRequest($params);
         $options = $params['subcovers'];
-        $_quoteData = DB::table('app_temp_quote')->where(['provider'=>"FGI_M",'type'=>'CAR','device'=>$deviceToken])->orderBy('id','desc')->first();
-        //print_r($_quoteData);
+        $_quoteData = DB::table('app_temp_quote')->where(['provider'=>"FGI",'type'=>'BIKE','device'=>$deviceToken])->orderBy('id','desc')->first();  
         
         
-        $RegNo = isset($params['carnumber'])?$params['carnumber']:"";
-        $XML = str_replace("{{RegistrationNo}}",$RegNo,$XML);
+        $CPAReq = (isset($options['isPA_OwnerDriverCover']) && $options['isPA_OwnerDriverCover']=='true')?'Y':'N';
+        $XML = str_replace("{{CPAReq}}",$CPAReq,$XML);
+        $XML = str_replace("{{CPANomName}}","Test",$XML);
+        $XML = str_replace("{{CPANomAge}}","25",$XML);
+        $XML = str_replace("{{CPANomAgeDet}}","Y",$XML);
+        $XML = str_replace("{{CPANomPerc}}","100",$XML);
+        $XML = str_replace("{{CPARelation}}","BROT",$XML);
         
-        $idv = isset($params['idv']['value'])?$params['idv']['value']:"876124";
+        $licensePlateNumber =$params['vehicle']['rtoCode']."JK7104";
+            if($params['vehicle']['hasvehicleNumber']=="true"){
+                $licensePlateNumber =$params['vehicle']['vehicleNumber'];
+             }
+        $XML = str_replace("{{RegistrationNo}}",$licensePlateNumber,$XML);
+        
+        $idv = isset($params['vehicle']['idv']['value'])?$params['vehicle']['idv']['value']:0;
         $XML = str_replace("{{IDV}}",$idv,$XML);
         
-        $PA_UNNAMED_PASS = (isset($options['isPA_UNPassCover']) && $options['isPA_UNPassCover']==1)?$options['PA_UNPassCoverval']:'';
+        $PA_UNNAMED_PASS = (isset($options['isPA_UNPassCover']) && $options['isPA_UNPassCover']=='true')?$params['coverValues']['PA_UNPassCoverval']:'';
         $XML = str_replace("{{isPA_UNPassCover}}",$PA_UNNAMED_PASS,$XML);
         
-        $LL_PaidDriver = (isset($options['isLL_PaidDriverCover']) && $options['isLL_PaidDriverCover']==1)?"Y":"";
+        $LL_PaidDriver = (isset($options['isLL_PaidDriverCover']) && $options['isLL_PaidDriverCover']=='true')?"1":"";
         $XML = str_replace("{{isLL_PaidDriverCover}}",$LL_PaidDriver,$XML);
         
-        $LL_Emp = (isset($options['isLL_EmpCover']) && $options['isLL_EmpCover']==1)?"Y":"";
+        $LL_Emp = (isset($options['isLL_EmpCover']) && $options['isLL_EmpCover']=='true')?"Y":"";
         $XML = str_replace("{{isLL_EmpCover}}",$LL_Emp,$XML);
         $ADDONS="";
-        $ADDONS .= (isset($options['isTyreProCover']) && $options['isTyreProCover']==1)?"<Addon><CoverCode>00001</CoverCode></Addon>":"";
-        $ADDONS .= (isset($options['isRetInvCover']) && $options['isRetInvCover']==1)?"<Addon><CoverCode>00006</CoverCode></Addon>":"";
-        $ADDONS .= (isset($options['isEng_GearBoxProCover']) && $options['isEng_GearBoxProCover']==1)?"<Addon><CoverCode>ENGPR</CoverCode></Addon>":"";
-        $ADDONS .= (isset($options['isPartDepProCover']) && $options['isPartDepProCover']==1)?"<Addon><CoverCode>PLAN1</CoverCode></Addon>":"";
+       // $ADDONS .= (isset($options['isTyreProCover']) && $options['isTyreProCover']=='true')?"<Addon><CoverCode>00001</CoverCode></Addon>":"";
+       // $ADDONS .= (isset($options['isRetInvCover']) && $options['isRetInvCover']=='true')?"<Addon><CoverCode>00006</CoverCode></Addon>":"";
+        $ADDONS .= (isset($options['isEng_GearBoxProCover']) && $options['isEng_GearBoxProCover']=='true')?"<Addon><CoverCode>ENGPR</CoverCode></Addon>":"";
+        $ADDONS .= (isset($options['isPartDepProCover']) && $options['isPartDepProCover']=='true')?"<Addon><CoverCode>PLAN1</CoverCode></Addon>":"";
         $hasAddons = ($ADDONS!="")?"Y":"N";
         $XML = str_replace("{{HAS_ADDONS}}",$hasAddons,$XML);
         if($hasAddons=="Y"){
              $XML = str_replace("{{ADDONS}}",$ADDONS,$XML);
         }else{
-          $XML = str_replace("{{ADDONS}}","<Addon><CoverCode></CoverCode></Addon>",$XML);	
+             $XML = str_replace("{{ADDONS}}","<Addon><CoverCode></CoverCode></Addon>",$XML);	
         }
          //echo $XML;
         
-        $url = 'http://fglpg001.futuregenerali.in/BO/Service.svc?wsdl';
+       // $url = 'http://fglpg001.futuregenerali.in/BO/Service.svc?wsdl';
         try {
             $factory = new Factory();
-            $client = $factory->create(new Client(), $url); 
+            $client = $factory->create(new Client(), config('motor.FGI.tw.QuickQuote')); 
             $result = $client->call('CreatePolicy', [["Product"=>"Motor","XML"=>$XML]]);
            
             $xml   = simplexml_load_string($result->CreatePolicyResult, 'SimpleXMLElement', LIBXML_NOCDATA);
             $array = json_decode(json_encode((array)$xml), TRUE);
-            //print_r($array);
+           // print_r($array);
             if(isset($array['Policy'])){
                   $policy = $array['Policy'];  
                   $response  = json_decode(json_encode($array));
                 if($policy['Status']=="Successful"){
-                    $json_data = $this->getJsonData($params,$response);
-                    //$enq = "QT-FW-".time().mt_rand();
-                    $plan['supplier_id'] = 6;
-                    $plan['supplier']    = "FGI_M";
-                    $plan['title']       = "Car Insurance";
-                    $plan['grossamount'] = $json_data->gross;
-                    $plan['netamount']   = $json_data->net;
-                     $plan['discount']    = 0;
-                    $plan['supp_name']   = "Future Generali Insurance";
-                    $plan['supp_logo']   = "https://general.futuregenerali.in/img/logo.png";
-                    $plan['id']          = $_quoteData->quote_id;
-                    $plan['idv']         = $policy['VehicleIDV'];
+                    $partner = DB::table('our_partners')->where('shortName','FGI')->value('name');
+                    $json_data = $this->getJsonData($options,$response);
+                    $enq = "QT-TW-".time().mt_rand();
+                    
+                      $plan['title'] = $partner;
+                      $plan['grossamount'] = $json_data->gross;
+                      $plan['netamount']   = $json_data->net;
+                      $plan['discount']    = 0;
+                      $plan['id'] =$enq;
+                      $plan['addons'] =  $json_data;
+                      $plan['idv'] = $policy['VehicleIDV'];
                       
-                      $quoteData = ['type'=>'CAR','title'=>"Future Generali Insurance",
-                                    'device'=>$deviceToken,'provider'=>'FGI_M',
+                      $Inuptxml   = simplexml_load_string($XML, 'SimpleXMLElement', LIBXML_NOCDATA);
+                      $Inuptxml = json_decode(json_encode((array)$Inuptxml), TRUE);
+                      
+                      $quoteData = ['quote_id'=>$enq,'type'=>'BIKE','title'=>$partner,
+                                    'device'=>$deviceToken,'provider'=>'FGI',
+                                    'policyType'=>$params['planType'],
                                     'min_idv'=>$policy['VehicleIDV'],
                                     'max_idv'=>$policy['VehicleIDV'],
                                     'idv'    =>$policy['VehicleIDV'],
                                     'call_type'=>"QUOTE",
-                                     'response'=>json_encode($response),'json_quote'=>json_encode($result),'json_data'=>json_encode($json_data),
-                                    'req'=>$XML,'resp'=>json_encode($array)];
-                    //$quoteID = DB::table('app_temp_quote')->insertGetId($quoteData);
-                    $quoteID = DB::table('app_temp_quote')->where('quote_id',$_quoteData->quote_id)->update($quoteData);
-                    return ['status'=>true,'plans'=>$plan];
+                                   // 'reqQuote'=>json_encode($Inuptxml),
+                                   // 'respQuote'=>json_encode($policy),
+                                    'reqRecalculate'=>json_encode($Inuptxml),
+                                    'respRecalculate'=>json_encode($policy),
+                                    'json_data'=>json_encode($json_data),
+                                    'req'=>json_encode($Inuptxml),
+                                    'resp'=>json_encode($policy)];
+                    $quoteID = DB::table('app_temp_quote')->where('id',$_quoteData->id)->update($quoteData);
+                    return ['status'=>true,'plans'=>$plan,'message' => "Success"];
                 }else{ //Fail
-                    return ['status'=>false,'plans'=>[]];
+                    return ['status'=>false,'plans'=>[],'message' => "Connection Fail"];
                 }
             }else{
                return ['status'=>false,'plans'=>[]];
             }
-        }catch(Exception $e) {
-              //echo $e->getMessage();
-             return ['status'=>false,'plans'=>[]];
-        }
+        }catch (ConnectException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $jsonRes = json_decode($responseBodyAsString);
+              
+                return ['status' => false,'plans'=>[], 'message' => "ConnectException"];
+            }catch (RequestException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                 return ['status' => false,'plans'=>[], 'message' => 'RequestException'];
+            }catch (ClientException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $jsonRes = json_decode($responseBodyAsString);
+                return ['status' =>false, 'plans'=>[],'message' => "ClientException"];
+            }
     }
     
-    function Generatehash256($message) {
+     function createQuote($enquiry_id,$options){
+               $token =  getRandomStr(10);
+               DB::table('app_quote')->where('enquiry_id', $enquiry_id)->update(['token'=>$token]);
+               return ['status'=>true,'data'=>$enquiry_id,'token'=>$token];
+     }
+    
+     function Generatehash256($message) {
          $hash = hash('sha256', mb_convert_encoding($message, 'UTF-8'), true);
         return $this->hexToStr($hash);
     }
     
-    function hexToStr($string){
+     function hexToStr($string){
                 $hex="";
                 for ($i=0; $i < strlen($string); $i++) {
                     if (ord($string[$i])<16)

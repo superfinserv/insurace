@@ -6,141 +6,127 @@ $(function(){
     const planLib = {
            carInfo: JSON.parse(localStorage.getItem('carInfo')),
           digit: function(callTyp){
-              $('.plan-card-digit_m').find('button.btn-netpremiumn').html(loader);
-             //if(callTyp=='recalculate'){$('.plan-card-digit_m').find('button.btn-netpremiumn').html(loader);}
-             $('.plan-card-digit_m').find('.error-span').remove();
-             var carInfo = JSON.parse(localStorage.getItem('carInfo'));
-             var url =  (callTyp=='recalculate')?"/car-insurance/load-plans-recalculate/":"/car-insurance/load-plans/";
-             $.ajax({
-              url: base_url + url,
-              type: "POST",
-              dataType: "json",
-              data:{supp:'DIGIT',carInfo:carInfo},
-              success: function (data, status, jqXHR) {
-                  
-                  if($.trim(data.status)=="success"){
-                   
-                    $('.idv-edit-th').attr('id','open-idv-modal');
-                    $('.plan-card-digit_m').show();
-                    var result = data.data;
-                    var digitCard = $('.plan-card-digit_m');
-                     digitCard.find('.error-span').remove();   
-                    digitCard.removeClass('cart-empty');
-                    digitCard.find('a.Premium-Breakup').attr('data-ref',result.id);
-                    if(carInfo.planType=="TP"){
-                        digitCard.find('h5.idv').hide();
-                    }else{
-                        digitCard.find('h5.idv').show();
-                        digitCard.find('h5.idv').html('IDV:'+result.idv+'/-');
-                    }
-                    digitCard.find('.column-2').attr('style',"");
-                    digitCard.find('.column-3').attr('style',"");
-                    if(carInfo.subcovers.isPA_OwnerDriverCover==="true"){ digitCard.find('.paCoverStatus-txt').text('Added');}else{ digitCard.find('.paCoverStatus-txt').text('N/A');}
-                    if(carInfo.subcovers.isPartDepProCover==="true"){ digitCard.find('.zeroDepStatus-txt').text("Added");}else{ digitCard.find('.zeroDepStatus-txt').text('N/A');}
-                    digitCard.find('button.btn-netpremiumn').attr('data-ref',result.id);
-                    digitCard.find('button.btn-netpremiumn').html('<span class="fa fa-inr"></span> '+result.grossamount+' <i style="" class="fa fa-angle-double-right" aria-hidden="true"></i>');
-                    digitCard.find('button.btn-netpremiumn').attr('disabled',false);
-                    var addon =  result.addons.covers.addons;
-                    if( addon.length){
-                        var addonHtm = "";
-                        $.each(addon, function (adkey, ad) {
-                           console.log(ad);
-                           addonHtm +='<span class="addon-badge">'+ad.title+'</span>';
-                        });
+              var digitCard = $('.plan-card-digit_m');
+               if(digitCard.length){
+                      digitCard.find('button.btn-netpremiumn').html(loader);
+                      digitCard.find('.error-span').remove();
+                     var carInfo = JSON.parse(localStorage.getItem('carInfo'));
+                     var url =  (callTyp=='recalculate')?"/car-insurance/load-plans-recalculate/":"/car-insurance/load-plans/";
+                     $.ajax({
+                      url: base_url + url,
+                      type: "POST",
+                      dataType: "json",
+                      data:{supp:'DIGIT',carInfo:carInfo},
+                      success: function (data, status, jqXHR) {
+                          
+                          if($.trim(data.status)=="success"){
+                           
+                            $('.idv-edit-th').attr('id','open-idv-modal');
+                            $('.plan-card-digit_m').show();
+                            var result = data.data;
+                            
+                             digitCard.find('.error-span').remove();   
+                            digitCard.removeClass('cart-empty');
+                            digitCard.find('a.Premium-Breakup').attr('data-ref',result.id);
+                            if(carInfo.planType=="TP"){
+                                digitCard.find('h5.idv').hide();
+                            }else{
+                                digitCard.find('h5.idv').show();
+                                digitCard.find('h5.idv').html('IDV:'+result.idv+'/-');
+                            }
+                            digitCard.find('.column-2').attr('style',"");
+                            digitCard.find('.column-3').attr('style',"");
+                            if(carInfo.subcovers.isPA_OwnerDriverCover==="true"){ digitCard.find('.paCoverStatus-txt').text('Added');}else{ digitCard.find('.paCoverStatus-txt').text('N/A');}
+                            if(carInfo.subcovers.isPartDepProCover==="true"){ digitCard.find('.zeroDepStatus-txt').text("Added");}else{ digitCard.find('.zeroDepStatus-txt').text('N/A');}
+                            digitCard.find('button.btn-netpremiumn').attr('data-ref',result.id);
+                            digitCard.find('button.btn-netpremiumn').html('<span class="fa fa-inr"></span> '+result.grossamount+' <i style="" class="fa fa-angle-double-right" aria-hidden="true"></i>');
+                            digitCard.find('button.btn-netpremiumn').attr('disabled',false);
+                            var addon =  result.addons.covers.addons;
+                            if( addon.length){
+                                var addonHtm = "";
+                                $.each(addon, function (adkey, ad) {
+                                   addonHtm +='<span class="addon-badge">'+ad.title+'</span>';
+                                });
+                                
+                                $('.digit_m_addon').html(addonHtm);
+                            }else{
+                               $('.digit_m_addon').empty().text('No addon cover selected');   
+                            }
+                           
+                          }else{
+                               $('.plan-card-digit_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
+                               $('.plan-card-digit_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                          }
+                       },
+                      error: function (jqXHR, status, err) {
+                             $('.plan-card-digit_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
+                             $('.plan-card-digit_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                      },
+                      complete: function (data,jqXHR, status) {
                         
-                        $('.digit_m_addon').html(addonHtm);
-                    }else{
-                       $('.digit_m_addon').empty().text('No addon cover selected');   
-                    }
-                   
-                  }else{
-                    //   $('.plan-card-digit_m').hide();
-                    //   toastr.error(data.message, 'Error!') 
-                       $('.plan-card-digit_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
-                       $('.plan-card-digit_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
-                      //$('.plan-card-digit_m').hide();
-                     // toastr.error(data.message, 'Digit Error!') 
-                  }
-               },
-              error: function (jqXHR, status, err) {
-                //     console.log('Error');
-                //     console.log(jqXHR);
-                //     console.log(status);
-                //     console.log(err);
-                //   var digitCard = $('.plan-card-digit_m').hide();
-                //   toastr.error(err+' while fetch Digit Quote', 'Error!')
-                     $('.plan-card-digit_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
-                   //  $('.plan-card-digit_m').append('<div class="card-footer" style="color:red;font-size: 13px;">'+err+' while fetch Quote</div>');
-                     $('.plan-card-digit_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
-                     //toastr.error(+' while fetch Digit Quote', 'Error!')
-              },
-              complete: function (data,jqXHR, status) {
-                //   console.log('complete');
-                //     console.log(jqXHR);
-                //     console.log(status);
-                //     console.log(data);
-              }
-            });
+                      }
+                    });
+               }
           },
         
           // divide(x,y) method
           hdfcErgo: function(callTyp){
-              //setTimeout(function(){  $('.plan-card-hdfcergo_m').hide(); }, 5000);
-              $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html(loader);
-             // $('.plan-card-hdfcergo_m').find('.card-footer').remove();
-               $('.plan-card-hdfcergo_m').find('.error-span').remove();
-             //if(callTyp=='recalculate'){$('.plan-card-digit_m').find('button.btn-netpremiumn').html(loader);}
-             var carInfo = JSON.parse(localStorage.getItem('carInfo'));
-             var url =  (callTyp=='recalculate')?"/car-insurance/load-plans-recalculate/":"/car-insurance/load-plans/";
-             $.ajax({
-              url: base_url + url,
-              type: "POST",
-              dataType: "json",
-              data:{supp:'HDFCERGO',carInfo:carInfo},
-              success: function (data, status, jqXHR) {
-                  if($.trim(data.status)=="success"){
-                    $('.idv-edit-th').attr('id','open-idv-modal');
-                    $('.plan-card-hdfcergo_m').show();
-                    var result = data.data;
-                    var hdfcergoCard = $('.plan-card-hdfcergo_m');
-                    hdfcergoCard.removeClass('cart-empty');
-                    hdfcergoCard.find('a.Premium-Breakup').attr('data-ref',result.id);
-                    hdfcergoCard.find('h5.idv').html('IDV:'+result.idv+'/-');
-                    hdfcergoCard.find('.column-2').attr('style',"");
-                    hdfcergoCard.find('.column-3').attr('style',"");
-                    if(carInfo.subcovers.isPA_OwnerDriverCover==="true"){ hdfcergoCard.find('.paCoverStatus-txt').text('Added');}else{ hdfcergoCard.find('.paCoverStatus-txt').text('N/A');}
-                    if(carInfo.subcovers.isPartDepProCover==="true"){ hdfcergoCard.find('.zeroDepStatus-txt').text("Added");}else{ hdfcergoCard.find('.zeroDepStatus-txt').text('N/A');}
-                    hdfcergoCard.find('button.btn-netpremiumn').attr('data-ref',result.id);
-                    hdfcergoCard.find('button.btn-netpremiumn').html('<span class="fa fa-inr"></span> '+result.grossamount+' <i style="" class="fa fa-angle-double-right" aria-hidden="true"></i>');
-                    hdfcergoCard.find('button.btn-netpremiumn').attr('disabled',false);
-                    var addon =  result.addons.covers.addons;
-                    if( addon.length){
-                        var addonHtm = "";
-                        $.each(addon, function (adkey, ad) {
-                           console.log(ad);
-                           addonHtm +='<span class="addon-badge">'+ad.title+'</span>';
-                        });
-                        
-                        $('.hdfcergo_m_addon').html(addonHtm);
-                    }else{
-                       $('.hdfcergo_m_addon').empty().text('No addon cover selected');  
-                    }
-                      
-                  }else{
-                         // console.log('hdfcergo_m');
-                       $('.plan-card-hdfcergo_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
-                       $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
-                      //$('.plan-card-digit_m').hide();
-                     // toastr.error(data.message, 'HdfcErgo Error!');
-                  }
-               },
-              error: function (jqXHR, status, err) {
-                     $('.plan-card-hdfcergo_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
-                     $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
-                    // toastr.error(err+' while fetch HDFC ERGO Quote', 'Error!')
-              },
-              complete: function (jqXHR, status) {}
-            });
+              var hdfcergoCard = $('.plan-card-hdfcergo_m');
+              if(hdfcergoCard.length){
+                     $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html(loader);
+                     $('.plan-card-hdfcergo_m').find('.error-span').remove();
+                     var carInfo = JSON.parse(localStorage.getItem('carInfo'));
+                     var url =  (callTyp=='recalculate')?"/car-insurance/load-plans-recalculate/":"/car-insurance/load-plans/";
+                     $.ajax({
+                      url: base_url + url,
+                      type: "POST",
+                      dataType: "json",
+                      data:{supp:'HDFCERGO',carInfo:carInfo},
+                      success: function (data, status, jqXHR) {
+                          if($.trim(data.status)=="success"){
+                            $('.idv-edit-th').attr('id','open-idv-modal');
+                            $('.plan-card-hdfcergo_m').show();
+                            var result = data.data;
+                            
+                            hdfcergoCard.removeClass('cart-empty');
+                            hdfcergoCard.find('a.Premium-Breakup').attr('data-ref',result.id);
+                            hdfcergoCard.find('h5.idv').html('IDV:'+result.idv+'/-');
+                            hdfcergoCard.find('.column-2').attr('style',"");
+                            hdfcergoCard.find('.column-3').attr('style',"");
+                            if(carInfo.subcovers.isPA_OwnerDriverCover==="true"){ hdfcergoCard.find('.paCoverStatus-txt').text('Added');}else{ hdfcergoCard.find('.paCoverStatus-txt').text('N/A');}
+                            if(carInfo.subcovers.isPartDepProCover==="true"){ hdfcergoCard.find('.zeroDepStatus-txt').text("Added");}else{ hdfcergoCard.find('.zeroDepStatus-txt').text('N/A');}
+                            hdfcergoCard.find('button.btn-netpremiumn').attr('data-ref',result.id);
+                            hdfcergoCard.find('button.btn-netpremiumn').html('<span class="fa fa-inr"></span> '+result.grossamount+' <i style="" class="fa fa-angle-double-right" aria-hidden="true"></i>');
+                            hdfcergoCard.find('button.btn-netpremiumn').attr('disabled',false);
+                            var addon =  result.addons.covers.addons;
+                            if( addon.length){
+                                var addonHtm = "";
+                                $.each(addon, function (adkey, ad) {
+                                   console.log(ad);
+                                   addonHtm +='<span class="addon-badge">'+ad.title+'</span>';
+                                });
+                                
+                                $('.hdfcergo_m_addon').html(addonHtm);
+                            }else{
+                               $('.hdfcergo_m_addon').empty().text('No addon cover selected');  
+                            }
+                              
+                          }else{
+                                 // console.log('hdfcergo_m');
+                               $('.plan-card-hdfcergo_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
+                               $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                              //$('.plan-card-digit_m').hide();
+                             // toastr.error(data.message, 'HdfcErgo Error!');
+                          }
+                       },
+                      error: function (jqXHR, status, err) {
+                             $('.plan-card-hdfcergo_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
+                             $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                            // toastr.error(err+' while fetch HDFC ERGO Quote', 'Error!')
+                      },
+                      complete: function (jqXHR, status) {}
+                    });
+              }
            
           }
         

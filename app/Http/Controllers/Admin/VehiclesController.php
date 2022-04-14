@@ -99,7 +99,7 @@ class VehiclesController extends Controller
     
     public function getTwoVehiclesdatatable(Request $request){
        //$whr = array();$like=array();$or_like=array();$likeArr=array(); 
-        $columns = array(0 =>'vehicle_make_tw.make', 1 =>'vehicle_make_tw.modal', 2 =>'vehicle_modal_tw.variant',3=>'vehicle_variant_tw.body_type',4=>'vehicle_make_tw.digit_code',5=>'vehicle_variant_tw.fgi_code',6=>'vehicle_variant_tw.hdfcErgo_code'); 
+        $columns = array(0 =>'vehicle_make_tw.make', 1 =>'vehicle_modal_tw.modal', 2 =>'vehicle_variant_tw.variant',3=>'vehicle_variant_tw.body_type',4=>'vehicle_make_tw.digit_code',5=>'vehicle_variant_tw.fgi_code',6=>'vehicle_variant_tw.hdfcErgo_code'); 
         $limit = $request->length;
         $start = $request->start;
         $order = $columns[$request->input('order.0.column')];

@@ -43,7 +43,7 @@ function RedirectToBrands(){
                                             if($('#mobileNumber').length > 0){ 
                                                 twInfo.customer ={ mobile:$('#mobileNumber').val()} 
                                             }else{
-                                                twInfo.customer ={mobile:custInfo.mobile}   
+                                                //twInfo.customer ={mobile:custInfo.mobile}   
                                             }
                                              localStorage.setItem("twInfo", JSON.stringify(twInfo));
                                             window.location.href = base_url + "/twowheeler-insurance/brand";
