@@ -32,6 +32,7 @@
             <a href="{{url('agent/register')}}" class="btn btn-dark  btn-sm tx-white mg-l-10"><i class="icon ion-plus-circled lh-0"></i> ADD NEW POSP</a>
             <a href="{{url('agent/payments')}}" class="btn btn-dark  btn-sm tx-white mg-l-10"> POSP Payments</a>
             <a href="{{url('agents/trash')}}" class="btn btn-warning  btn-sm tx-white mg-l-10"><i class="icon ion-trash-a lh-0"></i> View Trash</a>
+            <a href="{{url('agents/export')}}" class="btn btn-success  btn-sm tx-white mg-l-10">Export</a>
             
            </div><!-- card-option -->
       </div>

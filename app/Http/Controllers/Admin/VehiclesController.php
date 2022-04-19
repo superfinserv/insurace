@@ -13,13 +13,25 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 use Meng\AsyncSoap\Guzzle\Factory;
 
+use App\Exports\TwExport;  
+use App\Exports\CarExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 class VehiclesController extends Controller
 {
      public function __construct() { 
        // $this->appUtil = $appUtil; 
         $this->middleware('auth');
      }
-
+    
+       
+    public function exportTw()   {  
+        return Excel::download(new TwExport, 'Tw-Vehicles.xlsx');  
+    }
+    public function exportPvtCar()   {  
+        return Excel::download(new CarExport, 'Pvt-Car-Vehicles.xlsx');  
+    }
+    
     public function index(Request $request){
         $template = ['title' => 'Vehicles::List',"subtitle"=>"Vehicles List","prm"=>$request->param];
        if($request->param=="2w"){
@@ -97,6 +109,8 @@ class VehiclesController extends Controller
        return View::make('admin.vehicles.hdfcModels')->with($template);
     }
     
+   
+    
     public function getTwoVehiclesdatatable(Request $request){
        //$whr = array();$like=array();$or_like=array();$likeArr=array(); 
         $columns = array(0 =>'vehicle_make_tw.make', 1 =>'vehicle_modal_tw.modal', 2 =>'vehicle_variant_tw.variant',3=>'vehicle_variant_tw.body_type',4=>'vehicle_make_tw.digit_code',5=>'vehicle_variant_tw.fgi_code',6=>'vehicle_variant_tw.hdfcErgo_code'); 
@@ -114,7 +128,7 @@ class VehiclesController extends Controller
         $query = DB::query();
         $query = DB::table('vehicle_variant_tw')->join('vehicle_modal_tw', 'vehicle_modal_tw.id', '=', 'vehicle_variant_tw.modal_id')
                                              ->join('vehicle_make_tw', 'vehicle_make_tw.id', '=', 'vehicle_variant_tw.make_id');
-        $query->select('vehicle_variant_tw.*','vehicle_make_tw.make as make_name','vehicle_modal_tw.modal as modal_name')
+        $query->select('vehicle_variant_tw.*','vehicle_make_tw.make as make_name','vehicle_make_tw.hdfcErgo_makeCode as hdfcErgo_makeCode','vehicle_modal_tw.modal as modal_name')
                 ->when($vehicleCode, function ($query, $vehicleCode) {
                     return $query->where('vehicle_variant_tw.digit_code','like', '%'.$vehicleCode.'%')
                                  ->orwhere('vehicle_variant_tw.fgi_code','like', '%'.$vehicleCode.'%')
@@ -145,7 +159,7 @@ class VehiclesController extends Controller
                 
                 $eachData=array();
                 $eachData['sno']          = $i;
-                $eachData['make']         = '<a href="'.url('vehicle/view/'.$each->id).'">'.trim($each->make_name).'</a>';
+                $eachData['make']         = '<a href="'.url('vehicle/view/'.$each->id).'">'.trim($each->make_name).'</a><sapn style="font-size:12px;color:black;">('.$each->hdfcErgo_makeCode.')</span>';
                 $eachData['modal']        = trim($each->modal_name);
                 $eachData['variant']      = trim($each->variant).'<sapn style="font-size:12px;color:black;">('.$each->cubic_capacity.'cc)</span>';    
                

@@ -23,6 +23,7 @@
                   <div class="card-option tx-24">
                     
                     <a href="{{url('/hdfc-vehicles-models/'.$prm)}}" class="btn btn-dark  btn-sm tx-white mg-l-10">HDFC ERGO Models</a>
+                    <a href="{{url('/vehicles/'.$prm.'/export')}}" class="btn btn-success  btn-sm tx-white mg-l-10"><i style="color:#fff" class="fa fa-file-excel-o"></i> Export</a>
                      
                    </div><!-- card-option -->
               </div>

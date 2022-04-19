@@ -337,7 +337,7 @@ class DigitBikeResource extends AppResource{
             
             //vehicle
             // $RTO = substr($data->vehicle->licensePlateNumber,0,4);
-            // $vehicle = new \stdClass(); 
+             $vehicle = new \stdClass(); 
             // $vehicle->make =$data->vehicle->make;
             // $vehicle->model =$data->vehicle->model;
             // $vehicle->varient =$data->vehicle->varient;
@@ -347,10 +347,10 @@ class DigitBikeResource extends AppResource{
             // $vehicle->reg_date = $data->vehicle->registrationDate;
             // $vehicle->chassis_no = '';
             // $vehicle->engin_no = '';
-            // $vehicle->idv =$data->vehicle->vehicleIDV->idv;
+              $vehicle->idv =$data->vehicle->vehicleIDV->idv;
             // $vehicle->minIdv =$data->vehicle->vehicleIDV->minimumIdv;
             // $vehicle->maxIdv =$data->vehicle->vehicleIDV->maximumIdv;
-            // $obj->vehicle = $vehicle;
+             $obj->vehicle = $vehicle;
             //$obj->policyNumber  = "";
             //$obj->applicationId = "";
             //$obj->hypothecationAgency="";
@@ -529,11 +529,7 @@ class DigitBikeResource extends AppResource{
     function getQuickQuote($deviceToken,$options){
          try {
            $req = $this->fnQuoteRequest($options);
-           //echo json_encode($this->QuoteRequest);die;
-          // $header = ["accept: */*","Content-Type:application/json","Authorization:Basic ".base64_encode("$this->username:$this->password")];
-          // $auth['header'] = $header;
-          // $auth['url'] = $this->QuickQuoteUrl;
-           //$result = $this->curlPost(json_encode($this->QuoteRequest),$auth);
+           
              $basicAuth = base64_encode(config('motor.DIGIT.tw.username').":".config('motor.DIGIT.tw.password'));
              $client = new Client([
                 'headers' => ["accept"=> "*/*", 'Content-Type' => 'application/json','Authorization'=>"Basic ".$basicAuth]
@@ -575,8 +571,6 @@ class DigitBikeResource extends AppResource{
                                 'respQuote'=>$result,
                                 'reqRecalculate'=>$result,
                                 'respRecalculate'=>$result,
-                                //'response'=>($result),
-                                //'json_quote'=>($result),
                                 'json_data'=>json_encode($json_data),
                                 'req'=>json_encode($this->QuoteRequest),
                                 'resp'=>($result)];
@@ -1220,12 +1214,12 @@ class DigitBikeResource extends AppResource{
               //$jsonData->hypothecationAgency =$options->customer->hypothecationAgency;
               $cust = isset($options->customer->first_name)?$options->customer->first_name." ".$options->customer->last_name:$options->customer->company;
               $quoteData = ['customer_name'=>$cust,
+                             'startDate'=>isset($response->contract->startDate)?$response->contract->startDate:NULL,
+                             'endDate'=>isset($response->contract->endDate)?$response->contract->endDate:NULL,
                             'proposalNumber'=>$response->contract->policyNumber,
-                            //'json_payment'=>json_encode($REQUEST),
                             'reqCreate'=>json_encode($REQUEST),
                             'respCreate'=>$result,
                             'json_data'=>json_encode($jsonData),
-                           // 'json_create'=>$result
                             'req'=>json_encode($REQUEST), 'resp'=>$result ];
               DB::table('app_quote')->where('enquiry_id', $enquiry_id)->update($quoteData);
               return ['status'=>true,'data'=>$enquiry_id];

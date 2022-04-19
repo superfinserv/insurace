@@ -669,9 +669,24 @@ class HdfcErgoTwResource extends AppResource{
             }else{
               return ['status'=>false,'plans'=>[]];
             }
-         }catch(Exception $e) {
-                return ['status'=>false,'plans'=>[]];
-          }
+         }catch (ConnectException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $jsonRes = json_decode($responseBodyAsString);
+              
+                return ['status' => false,'plans'=>[], 'message' => 'Something went wrong'];
+            }catch (RequestException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $jsonRes = json_decode($responseBodyAsString);
+               //  print_r($responseBodyAsString);die;
+                return ['status' => false,'plans'=>[], 'message' => 'Something went wrong'];
+            }catch (ClientException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $jsonRes = json_decode($responseBodyAsString);
+                return ['status' =>false, 'plans'=>[],'message' => 'Something went wrong'];
+            }
 
     }
     
@@ -899,6 +914,8 @@ class HdfcErgoTwResource extends AppResource{
                $txId = $response->Data->TransactionNo;
                 $cust = isset($params->customer->first_name)?$params->customer->first_name." ".$params->customer->last_name:$params->customer->company;
                 $QDATA = ['customer_name'=>$cust,'token'=>$txId,'reqCreate'=>json_encode($request),'respCreate'=>$result,'req'=>json_encode($request),'resp'=>($result)];
+                $QDATA['startDate'] = isset($response->Data->NewPolicyStartDate)?$response->Data->NewPolicyStartDate:NULL;
+                $QDATA['endDate'] = isset($response->Data->NewPolicyEndDate)?$response->Data->NewPolicyEndDate:NULL;
                 DB::table('app_quote')->where('enquiry_id',$enquiry_id)->update($QDATA);
                 return ['status'=>true,'message'=>'Proposal Created successfully'];
            }else if($response->Status==500){
@@ -926,12 +943,8 @@ class HdfcErgoTwResource extends AppResource{
         $request =  new \stdClass(); 
         $request->UniqueRequestID = $jData->enq;
         $request->TransactionNo =$enQ->token; 
-        $request->AgentCode ="TWC17722"; 
+        $request->AgentCode =config('motor.HDFCERGO.tw.agentCode');//"TWC17722";
         
-           // $header = ["accept: */*","Content-Type:application/json","MerchantKey:FINSERV","SecretToken:KxP8dEbeAWC+Ic7O7gFu9A=="];
-           // $auth['header'] = $header;
-           // $auth['url'] = "https://uatcp.hdfcergo.com/TWOnline/ChannelPartner/PolicyGeneration";
-          //  $result = $this->curlPost(json_encode($request),$auth);
           
            $client = new Client([
                 'headers' => [ 'Content-Type' => 'application/json','MerchantKey'=>config('motor.HDFCERGO.tw.mKey'),'SecretToken'=>config('motor.HDFCERGO.tw.secretToken')]
@@ -946,10 +959,14 @@ class HdfcErgoTwResource extends AppResource{
           
           // print_r($result);
            $response = json_decode($result);
+           
+            DB::table('app_quote')->where('enquiry_id', $enquiry_id)->update(['reqSaveGenPolicy'=>json_encode($request),'respSaveGenPolicy'=>$result]);
            if($response->Status==200){
                 $PolicyNumber = $response->Data->PolicyNumber;
+                $status = ($response->Data->PaymentStatus=="UPD")?false:true;
+                $msg = ($response->Data->PaymentStatus=="UPD")?"Something went wrong while genrate policy":"Policy Generated successfully";
                 //DB::table('app_quote')->where('enquiry_id',$enquiry_id)->update(['token'=>$txId]);
-                return ['status'=>true,'message'=>'Policy Generated successfully','data'=>$PolicyNumber];
+                return ['status'=>$status,'message'=>$msg,'data'=>$PolicyNumber];
            }else if($response->Status==500){
                 return ['status'=>false,'message'=>$response->Message];
            }else {
@@ -997,6 +1014,29 @@ class HdfcErgoTwResource extends AppResource{
                  return ['status'=>false,'message'=>'Internal error while get policy copy'];
           }
     } 
+    
+    
+    
+   function bugReport(){
+        $request =  new \stdClass(); 
+        $request->MasterKey = "INSURER";
+        $request->PolicyType ="ALL"; 
+        $request->AgentCode ="TWD22020";
+        $client = new Client([
+                'headers' => [ 'Content-Type' => 'application/json','MerchantKey'=>"SUPER FINSERV PRIVATE LIMITED",'SecretToken'=>"7+aEy4DrMHumytddFoJbzg=="]
+            ]);
+            
+            $clientResp = $client->post("https://chpa.heaggregator.com/CPTWOnline/ChannelPartner/GetMasterData",
+                ['body' => json_encode(
+                    $request
+                )]
+            );
+            $result = $clientResp->getBody()->getContents();
+          
+           print_r($result);
+           $response = json_decode($result);
+           //print_r($response);
+    }
     
    
     

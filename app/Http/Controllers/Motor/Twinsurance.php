@@ -15,9 +15,9 @@ class Twinsurance extends Controller
 {
     public $uniqueToken;
     
-    public function __construct(DigitBikeResource $DigitBikeResource ,HdfcErgoTwResource $HdfcErgoTwResource) { 
-           $this->DigitTw   = $DigitBikeResource; 
-           $this->HdfcErgo  = $HdfcErgoTwResource; 
+    public function __construct() { 
+           $this->DigitTw   = new DigitBikeResource; 
+           $this->HdfcErgo  = new HdfcErgoTwResource; 
            $this->FgiTw =  new FgiTwResource;
     }
     
@@ -302,7 +302,7 @@ class Twinsurance extends Controller
          $enquiryID = $request->enquiryID;
          $states = DB::table('states')->get()->toArray();
        //  $city =   DB::table('cities_list')->get()->toArray();
-         $relations =   DB::table('relations')->get();
+         $relations =   DB::table('relations')->where('status','Active')->get();
          $info =   DB::table('app_quote')->where('enquiry_id',$enquiryID)->first();
          $provider =  $info->provider;
          $preQuery=DB::table('previous_insurer');
@@ -382,14 +382,26 @@ class Twinsurance extends Controller
               $template['checkSum'] = strtoupper(hash('sha512', $hashSequence));
               $template['paymetAction'] = config('motor.HDFCERGO.tw.paymentGateway');
          }else if($template['info']->provider=='FGI'){
-             
-              $template['TransactionID']= $template['info']->token;
-              $template['PaymentOption']= 3;
-              $template['ResponseURL'] = config('custom.site_url').'/moter-insurance/insured-success/bike/'.$enquiryID;
-              
-              $hashSequence = config('motor.HDFCERGO.tw.mKey')."|".$txid."|".config('motor.HDFCERGO.tw.secretToken')."|S001";
-              $template['checkSum'] = strtoupper(hash('sha512', $hashSequence));
-              $template['paymetAction'] = config('motor.HDFCERGO.tw.paymentGateway');
+               $jsonData = json_decode($template['info']->json_data);
+               $paramData = json_decode($template['info']->params_request);
+               $template['TransactionID']= $template['info']->token;
+               $template['PaymentOption']= 3;
+               $template['ResponseURL'] = config('custom.site_url').'/moter-insurance/insured-success/bike/'.$enquiryID;
+               $template['ProposalNumber'] =$enquiryID;
+               $template['PremiumAmount']  = $jsonData->gross;
+               $template['UserIdentifier'] = $paramData->customer->first_name." ".$paramData->customer->last_name;
+               $template['UserId'] = $paramData->customer->mobile;
+               $template['FirstName'] =$paramData->customer->first_name;
+               $template['LastName'] = $paramData->customer->last_name;
+               $template['Mobile'] =$paramData->customer->mobile;
+               $template['Email'] =$paramData->customer->email;
+               $template['Vendor'] =1;
+              //TransactionID|PaymentOption|ResponseURL|ProposalNumber|PremiumAmount|UserIdentifier|UserId|FirstName|LastName|Mobile|Email|
+              $hashSequence=$template['info']->token."|".$template['PaymentOption']."|".$template['ResponseURL']."|".$enquiryID."|".$jsonData->gross."|".$template['UserIdentifier']."|".$template['UserId']."|".$template['FirstName']."|".$template['LastName']."|".$template['Mobile']."|".$template['Email']."|";
+             // $hashSequence = config('motor.HDFCERGO.tw.mKey')."|".$txid."|".config('motor.HDFCERGO.tw.secretToken')."|S001";
+              $template['checkSum'] = $this->FgiTw->Generatehash256($hashSequence);
+              $template['paymetAction'] = config('motor.FGI.tw.payment');
+              //$template['paymetAction'] ="https://online.futuregenerali.in/ECOM_NL/WEBAPPLN/UI/Common/webaggpay.aspx";
          }
          return View::make('motor.tw.plan_summary')->with($template);
     }

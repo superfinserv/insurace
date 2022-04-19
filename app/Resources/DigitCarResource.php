@@ -353,7 +353,7 @@ class DigitCarResource extends AppResource{
             // $vehicle->reg_date = $data->vehicle->registrationDate;
             // $vehicle->chassis_no = '';
             // $vehicle->engin_no = '';
-            // $vehicle->idv =$data->vehicle->vehicleIDV->idv;
+             $vehicle->idv =$data->vehicle->vehicleIDV->idv;
             // $vehicle->minIdv =$data->vehicle->vehicleIDV->minimumIdv;
             // $vehicle->maxIdv =$data->vehicle->vehicleIDV->maximumIdv;
              $obj->vehicle = $vehicle;
@@ -1477,6 +1477,8 @@ class DigitCarResource extends AppResource{
                //$jsonData->hypothecationAgency =$options->customer->hypothecationAgency;
                $cust = isset($options->customer->first_name)?$options->customer->first_name." ".$options->customer->last_name:$options->customer->company;
                $quoteData = ['customer_name'=>$cust,
+                              'startDate'=>isset($response->contract->startDate)?$response->contract->startDate:NULL,
+                              'endDate'=>isset($response->contract->endDate)?$response->contract->endDate:NULL,
                               'proposalNumber'=>$response->contract->policyNumber,
                               'reqCreate'=>json_encode($REQUEST),
                               'respCreate'=>$result,

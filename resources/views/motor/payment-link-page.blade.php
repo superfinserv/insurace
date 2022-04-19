@@ -171,6 +171,7 @@
         				          	           <th>Pincode</th><td><?=$params->address->pincode;?></td>
         				          	           
         				          	       </tr>
+        				          	       @if($info->status!="SOLD")
         				          	       <tr>
         				          	           <td class="th-head" colspan="3">
         				          	               <div class="form-check" id="effect">
@@ -186,9 +187,27 @@
                                                            <input type="hidden" value="{{$checkSum}}"  id= "Checksum" name="Checksum"/>
                                                       </form>
                                                       @endif
+                                                      @if($info->provider=='FGI')
+                                                           <form id="payNowForm" method="POST" action="{{$paymetAction}}">
+                                                             <input type="hidden" name='TransactionID' value='{{$TransactionID}}'/>
+                                                             <input type="hidden" name='PaymentOption' value='{{$PaymentOption}}'/>
+                                                             <input type="hidden" name='ResponseURL' value='{{$ResponseURL}}'/>
+                                                             <input type="hidden" name='ProposalNumber' value='{{$ProposalNumber}}'/>
+                                                             <input type="hidden" name='PremiumAmount' value='{{$PremiumAmount}}'/>
+                                                             <input type="hidden" name='UserIdentifier' value='{{$UserIdentifier}}'/>
+                                                             <input type="hidden" name='UserId' value='{{$UserId}}'/>
+                                                             <input type="hidden" name='FirstName' value='{{$FirstName}}'/>
+                                                             <input type="hidden" name='LastName' value='{{$LastName}}'/>
+                                                             <input type="hidden" name='Mobile' value='{{$Mobile}}'/>
+                                                             <input type="hidden" name='Email' value='{{$Email}}'/>
+                                                             <input type="hidden" name='Vendor' value='{{$Vendor}}'/>
+                                                             <input type="hidden" name='CheckSum' value='{{$checkSum}}'/>
+                                                            </form>  
+                                                          @endif
         				          	                <button class="btn btn-success btn-lg mb30"  data-enc="<?=$info->enquiry_id;?>" id="paynow_amount" style="width:100%;padding:3px;">Pay Securely</button>
         				          	           </td>
         				          	       </tr>
+        				          	       @endif
         				          	  </tbody>
         							  </table>
                                 </div>

@@ -46,8 +46,8 @@ use Illuminate\Support\Facades\Route;
     });
     
     
-    
-    Route::get('/test-design-health/', 'Health\Healthinsurance@testJson');
+    Route::get('/test-bug', 'SuccessController@testIssue');
+    //Route::get('/test-design-health/', 'Health\Healthinsurance@testJson');
     Route::post('sendotp/', 'Web\LoginAuth@sendotp');
     Route::post('resendotp', 'Web\LoginAuth@resendotp');
     Route::post('verifyotp/{mobile}', 'Web\LoginAuth@verifyOtp');
