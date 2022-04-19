@@ -16,11 +16,19 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use App\Resources\Posp;
 
+use App\Exports\PospExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 class AgentsController extends Controller{
      public function __construct(Posp $posp) { 
           $this->Posp = $posp;
           $this->middleware('auth');
      }  
+
+
+public function exportExcel()   {  
+        return Excel::download(new PospExport, 'List-POSP-('.date('Y-m-d H:i:s A').').xlsx');  
+    }
      
      public function hdfc_data_link(Request $request){ 
         $curl = curl_init();

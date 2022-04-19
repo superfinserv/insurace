@@ -1157,6 +1157,8 @@ class HdfcErgoCarResource extends AppResource{
                 if($txId>0 && $preInfo->businessType!='USED'){
                     $cust = isset($params->customer->first_name)?$params->customer->first_name." ".$params->customer->last_name:$params->customer->company;
                     $QDATA = ['customer_name'=>$cust,'token'=>$txId,'reqCreate'=>json_encode($request),'respCreate'=>$result,'req'=>json_encode($request),'resp'=>($result)];
+                    $QDATA['startDate'] = $response->Data->NewPolicyStartDate;
+                    $QDATA['endDate'] = $response->Data->NewPolicyEndDate;
                     DB::table('app_quote')->where('enquiry_id',$enquiry_id)->update($QDATA);
                    // DB::table('app_quote')->where('enquiry_id',$enquiry_id)->update(['token'=>$txId,'reqCreate'=>json_encode($request),'respCreate'=>$result,'req'=>json_encode($request),'resp'=>($result)]);
                    return ['status'=>true,'isBreakIn'=>false,'message'=>'Proposal Created successfully'];
@@ -1629,7 +1631,10 @@ class HdfcErgoCarResource extends AppResource{
            $response = json_decode($result);
            if($response->Status==200){
                    $txId = $response->Data->TransactionNo;
-                   DB::table('app_quote')->where('enquiry_id',$enquiry_id)->update(['token'=>$txId,'req'=>json_encode($request),'resp'=>($result)]);
+                    $QDATA = ['token'=>$txId,'req'=>json_encode($request),'resp'=>($result)];
+                    $QDATA['startDate'] = isset($response->Data->NewPolicyStartDate)?$response->Data->NewPolicyStartDate:NULL;
+                    $QDATA['endDate'] = isset($response->Data->NewPolicyEndDate)?$response->Data->NewPolicyEndDate:NULL;
+                   DB::table('app_quote')->where('enquiry_id',$enquiry_id)->update($QDATA);
                    return ['status'=>true,'isBreakIn'=>false,'message'=>'Proposal Created successfully'];
 
            }else if($response->Status==500){
@@ -1659,13 +1664,7 @@ class HdfcErgoCarResource extends AppResource{
         $request->TransactionNo =$enQ->token; 
         $request->AgentCode =config('motor.HDFCERGO.car.agentCode');//"FWC17723"; 
         
-            // $header = ["accept: */*","Content-Type:application/json","MerchantKey:FINSERV","SecretToken:KxP8dEbeAWC+Ic7O7gFu9A=="];
-            // $auth['header'] = $header;
-            // $auth['url'] = "https://uatcp.hdfcergo.com/TWOnline/ChannelPartner/PolicyGeneration";
-            // $result = $this->curlPost(json_encode($request),$auth);
-            
-            
-            
+        
             $client = new Client([
                 'headers' => [ 'Content-Type' => 'application/json','MerchantKey'=>config('motor.HDFCERGO.car.mKey'),'SecretToken'=>config('motor.HDFCERGO.car.secretToken')]
             ]);
@@ -1678,12 +1677,13 @@ class HdfcErgoCarResource extends AppResource{
            
            $result = $clientResp->getBody()->getContents();
            $response = json_decode($result);
-           //print_r($result);
-           $response = json_decode($result);
+           
+           DB::table('app_quote')->where('enquiry_id', $enquiry_id)->update(['reqSaveGenPolicy'=>json_encode($request),'respSaveGenPolicy'=>$result]);
            if($response->Status==200){
                 $PolicyNumber = $response->Data->PolicyNumber;
-                //DB::table('app_quote')->where('enquiry_id',$enquiry_id)->update(['token'=>$txId]);
-                return ['status'=>true,'message'=>'Policy Generated successfully','data'=>$PolicyNumber];
+                $status = ($response->Data->PaymentStatus=="UPD")?false:true;
+                $msg = ($response->Data->PaymentStatus=="UPD")?"Something went wrong while genrate policy":"Policy Generated successfully";
+                return ['status'=>$status,'message'=>$msg,'data'=>$PolicyNumber];
            }else if($response->Status==500){
                 return ['status'=>false,'message'=>$response->Message];
            }else {
@@ -1699,11 +1699,6 @@ class HdfcErgoCarResource extends AppResource{
         $request->PolicyNo =$policyno; 
         $request->AgentCd =config('motor.HDFCERGO.car.agentCode');//"FWC17723"; 
         
-            // $header = ["accept: */*","Content-Type:application/json","MerchantKey:FINSERV","SecretToken:KxP8dEbeAWC+Ic7O7gFu9A=="];
-            // $auth['header'] = $header;
-            // $auth['url'] = "https://uatcp.hdfcergo.com/CPDownload/api/DownloadPolicy/PolicyDetails";
-            // $result = $this->curlPost(json_encode($request),$auth);
-          
             
             $client = new Client([
                 'headers' => [ 'Content-Type' => 'application/json','MerchantKey'=>config('motor.HDFCERGO.car.mKey'),'SecretToken'=>config('motor.HDFCERGO.car.secretToken')]

@@ -329,7 +329,7 @@ class CareClassic{
         $policy = new \stdClass();
         $policy->businessTypeCd="NEWBUSINESS";
         $policy->baseProductId='10001111';
-        $policy->baseAgentId="20008325";
+        $policy->baseAgentId=config('mediclaim.CARE.agentId');//"20008325";
        // $policy->coverType=$policyType;
         $policy->coverType="FAMILYFLOATER";// FAMILYFLOATER Fixed for care classic
         

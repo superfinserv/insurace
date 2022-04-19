@@ -16,7 +16,8 @@ Route::get('/clear-cache', function() {
     //Route::post('login', 'Admin\Login@getAuth');
      Route::post('login', [ 'as' => 'login', 'uses' => 'Admin\Login@getAuth']);
      Route::group(['middleware' => 'auth:admin'], function() {
-         
+        
+        
          
          //TEMP
         Route::post('agents/hdfc-route', 'Admin\AgentsController@hdfc_data_link');
@@ -187,7 +188,7 @@ Route::get('/clear-cache', function() {
         Route::get('/agent/payments', 'Admin\AgentsController@paymentsList');
         Route::post('/agent/payments-datatable', 'Admin\AgentsController@getPaymentsdatatable');
         Route::get('/agent/get-tax-invoice/{agentID}', 'Admin\AgentsController@taxInvoiceDownload');
-        
+        Route::get('/agents/export', 'Admin\AgentsController@exportExcel');//expor  Excel
         
         Route::get('customers', 'Admin\CustomersController@index');
         Route::post('customers/datatable', 'Admin\CustomersController@getCustomersdatatable');
@@ -198,6 +199,8 @@ Route::get('/clear-cache', function() {
         Route::post('/vehicles/update-vcode/{param}', 'Admin\VehiclesController@updateVcode');
         Route::get('/vehicles/search/details-info', 'Admin\VehiclesController@GetvehicleDetailsInfo');
         Route::get('/vehicles/search/details-info/{vNumber}', 'Admin\VehiclesController@PostvehicleDetailsInfo');
+        Route::get('/vehicles/2w/export','Admin\VehiclesController@exportTw'); //Excel export
+        Route::get('/vehicles/pvt-car/export','Admin\VehiclesController@exportPvtCar'); //Excel export
         
         Route::get('hdfc-vehicles-models/{param}', 'Admin\VehiclesController@hdfcModelData');
         
@@ -244,6 +247,8 @@ Route::get('/clear-cache', function() {
         Route::post('/sales/insured/getInsureddatatable', 'Admin\InsuredController@getInsureddatatable');
         Route::post('/sales/insured/getpdf', 'Admin\InsuredController@getPolicyPdf');
         Route::get('/sales/insured/get-policy-overview/{policyid}', 'Admin\InsuredController@policyOverviewModal');
+        Route::get('/sales/insured/export', 'Admin\InsuredController@exportExcel');
+        
         
         Route::get('/sales/leads', 'Admin\LeadsController@index');
         Route::post('sales/leads/datatable/enq', 'Admin\LeadsController@getLeadsenQdatatable');

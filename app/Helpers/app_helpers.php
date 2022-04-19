@@ -2,7 +2,7 @@
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 // use PDF;
- use File;
+ use File as Fileuse;
  use Config;
 
  if (!function_exists('getAssets')) {
@@ -34,7 +34,7 @@ if (!function_exists('updateCustomConfig')){
  function updateCustomConfig(){
          $settings  = DB::table('site_settings')->pluck('value','key_name')->toArray();
          $content = var_export($settings, true);
-         File::put(config_path('custom.php'), "<?php\n return $content ;");
+         Fileuse::put(config_path('custom.php'), "<?php\n return $content ;");
          return true;
     }
 }

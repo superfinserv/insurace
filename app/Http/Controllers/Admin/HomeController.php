@@ -197,7 +197,7 @@ class HomeController extends Controller{
     
     public function testany(){
         
-         //   $path =  public_path('/site_assets/financers.json');
+         //  $path =  public_path('/site_assets/financers.json');
         //   $content = json_decode(file_get_contents($path), true);
         
         // $results =  $content['Data'];

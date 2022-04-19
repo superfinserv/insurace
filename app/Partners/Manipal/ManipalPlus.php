@@ -38,7 +38,7 @@ class ManipalPlus{
                      else if($data['type']=="mother")  {  $relationCd = "MOTH";   $roleCd ="PRIMARY";$gender="FEMALE";}
                         $dob= $data['dd']."/".$data['mm']."/".$data['yy'];
                         $quotationProductInsuredDOList[]=[
-                                "issueAge"=> (int)$data['age'],
+                                "issueAge"=> ($data['age']!="3-12")?(int)$data['age']:0,
                                 "genderCd"=> $gender,
                                 "insuredTypeCd"=> $roleCd,
                                 "cityCd"=> $_city[1],
@@ -144,7 +144,7 @@ class ManipalPlus{
                       
                       $quoteData = ['short_sumInsured'=>$sum,'long_sumInsured'=>$sumInsured,'premiumAmount'=>$amount,
                                     'quote_id'=>$quoteId,'type'=>'HEALTH','policyType'=>$policytyp,
-                                    'code'=>$productPlanOptionCd,'product'=>$productId,'title'=>"ProHealth-Protect",
+                                    'code'=>$productPlanOptionCd,'product'=>$productId,'title'=>"ProHealth-Plus",
                                     'device'=>$devicetoken,'provider'=>'MANIPAL_CIGNA',
                                     'call_type'=>"QUOTE",'response'=>($response),
                                     'json_quote'=>($response),'req'=>json_encode($Request),'resp'=>($response)];
@@ -197,7 +197,7 @@ class ManipalPlus{
              else if($data->type=="mother")  {  $relationCd = "MOTH";   $roleCd ="PRIMARY";$gender="FEMALE";}
                 $dob= $data->dd."/".$data->mm."/".$data->yy;
                 $quotationProductInsuredDOList[]=[
-                        "issueAge"=> (int)$data->age,
+                        "issueAge"=> ($data->age!="3-12")?(int)$data->age:0,
                         "genderCd"=> $gender,
                         "insuredTypeCd"=> $roleCd,
                         "cityCd"=> $_city[1],
@@ -339,7 +339,7 @@ class ManipalPlus{
                DB::table('app_quote')->where('enquiry_id', $enqId)->update($quoteData);
      }
      
-     function validateProposal($enqID){
+       function validateProposal($enqID){
             $Querydata = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enqID)->first();
             $dataParam = json_decode($Querydata->json_data);
             $sumData = json_decode($Querydata->sumInsured);
@@ -376,14 +376,58 @@ class ManipalPlus{
             
             $docTypeArr = ['PAN_CARD'=>"PAN"];
             $period = timePeriod('d/m/Y',$termYear);
-            $partyDOList =$this->partyDOList_obj();
-            $partyRoleDOList = $this->policyPartyRoleDOList_obj(); 
-            $ProductInsuredDOList =  $this->policyProductInsuredDOList_obj();
-            $QuestionSet = $this->policyQuestionSetDOList_obj();
+            
+            
+           
+          
             $Document = $this->policyDocumentDOList_obj();
-           // print_r($QuestionSet);
-            $ProductDOList =  $this->policyProductDOList_obj();
-            $_partyDOList =[];$_RoleDOList = [];$_ProductInsuredDOList =[];$_Document=[];$refGuid=1;$i=0;$WSPolicyAdditionalMedicalDtlsDOLst=[];
+         
+            $ProductDOList =  $this->policyProductDOList_obj();//Globel
+            
+            $_partyDOList =[];$_RoleDOList = [];$_ProductInsuredDOList =[];$_Document=[];$_refGuid=1;$i=0;$WSPolicyAdditionalMedicalDtlsDOLst=[];
+            
+            
+            //Role For Proposer
+            $PROPOSER_refGuid = "PRO00099";
+            $proser_policyPartyRoleDOList = $this->policyPartyRoleDOList_obj(); 
+            $proser_policyPartyRoleDOList["roleCd"]= "PROPOSER";
+            $proser_policyPartyRoleDOList["refGuid"]= $params->plan.$PROPOSER_refGuid;
+            $proser_policyPartyRoleDOList["partyId"]= $params->plan.$PROPOSER_refGuid;
+            $_RoleDOList[]=$proser_policyPartyRoleDOList;
+            
+            //Party Do list for Proposer
+            $PROPOSER_partyDOList =$this->partyDOList_obj();
+            $PROPOSER_partyDOList['partyId']  = $params->plan.$PROPOSER_refGuid;
+            $PROPOSER_partyDOList['partyGuid']  = $params->plan.$PROPOSER_refGuid;
+            $PROPOSER_partyDOList['firstName1'] = $params->selfFname;;
+            $PROPOSER_partyDOList['lastName1'] = $params->selfLname;;
+            $PROPOSER_partyDOList['birthDt'] = $params->selfdd."/".$params->selfmm."/".$params->selfyy;;
+            $PROPOSER_partyDOList['genderCd'] = $params->gender;
+            $PROPOSER_partyDOList['maritalStatusCd'] = strtoupper($params->selfMstatus);;
+            $PROPOSER_partyDOList['titleCd'] = ($params->gender=="MALE")?"MR":"MRS";
+            $PROPOSER_partyDOList['roleCd'] = "PROPOSER";
+            $PROPOSER_partyDOList['nomineeTitleCd']   = $nomineeTitle;
+            $PROPOSER_partyDOList['nomineeFirstName'] = $nominee_name[0];
+            $PROPOSER_partyDOList['nomineeLastName'] = $nominee_name[1];
+            $PROPOSER_partyDOList['zoneCd'] = $zoneCd;
+            $PROPOSER_partyDOList['partyAddressDOList'][0]['addressLine1Lang1'] = $PROPOSER_partyDOList['partyAddressDOList'][1]['addressLine1Lang1'] = $addressLine1;
+            $PROPOSER_partyDOList['partyAddressDOList'][0]['addressLine2Lang1'] = $PROPOSER_partyDOList['partyAddressDOList'][1]['addressLine2Lang1']= $addressLine2;
+            $PROPOSER_partyDOList['partyAddressDOList'][0]['stateCd'] = $PROPOSER_partyDOList['partyAddressDOList'][1]['stateCd'] = $stateCd;
+            $PROPOSER_partyDOList['partyAddressDOList'][0]['cityCd'] = $PROPOSER_partyDOList['partyAddressDOList'][1]['cityCd'] = $cityCd;
+            $PROPOSER_partyDOList['partyAddressDOList'][0]['pinCode'] =$PROPOSER_partyDOList['partyAddressDOList'][1]['pinCode'] = $pinCode;
+            $PROPOSER_partyDOList['partyAddressDOList'][0]['postalZone'] = $PROPOSER_partyDOList['partyAddressDOList'][1]['postalZone'] = $zoneCd;
+            $PROPOSER_partyDOList['partyIdentityDOList'][0]['identityTypeCd'] = $docTypeArr[$params->document->documentType];
+            $PROPOSER_partyDOList['partyIdentityDOList'][0]['identityNum'] = $params->document->documentId;
+            $PROPOSER_partyDOList['partyContactDOList'][0]['contactNum'] = intval($params->selfMobile);
+            $PROPOSER_partyDOList['partyEmailDOList'][0]['emailAddress'] = $params->selfEmail;
+            $PROPOSER_partyDOList['partyEducationDOList'][0]['educationLevelCd']='HSC'; 
+            $PROPOSER_partyDOList['partyRelationDOList'][0]['relatedToPartyId'] = $params->plan.$PROPOSER_refGuid;
+            $PROPOSER_partyDOList['partyRelationDOList'][0]['relationCd'] = "SELF";
+            $_partyDOList[] = $PROPOSER_partyDOList;
+            
+            
+            
+            
             foreach($members as $member){ 
                    $_QuestionSet =[];
                    $chrList = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -396,7 +440,7 @@ class ManipalPlus{
                    $Lname   = ($member->type=="self")?$params->selfLname:$member->lname;
                    $birthDt = ($member->type=="self")?$params->selfdd."/".$params->selfmm."/".$params->selfyy:$member->dd."/".$member->mm."/".$member->yy;
                    $genderCd= ($member->type=="self")?$params->gender:$member->gender;
-                   $roleCd  = ($member->type=="self")?"PROPOSER":"PRIMARY";
+                   $roleCd  = "PRIMARY";//($member->type=="self")?"PROPOSER":"PRIMARY";
                    $marital = ($member->type=="self")?strtoupper($params->selfMstatus)
                                                      :((in_array($member->type,["wife","husband","father","mother"]))?"MARRIED":"SINGLE");
                    $titleCd = ($member->type=="self" && $params->gender=="MALE")?"MR"
@@ -411,20 +455,25 @@ class ManipalPlus{
                     else if($member->type=="husband") {  $relationCd = "HUSBAND";}
                     else if($member->type=="father")  {  $relationCd = "FATH";}
                     else if($member->type=="mother")  {  $relationCd = "MOTH";} 
-                    
+                    $refGuid = $_refGuid;//($member->type=="self")?$PROPOSER_refGuid:$_refGuid;
                     $Document['partyId'] = $params->plan.$refGuid;
                     $_Document[] = $Document;
-                
-                    $ProductInsuredDOList['refGuid']=$params->plan.$refGuid;//"00".$str.$refGuid;
-                    $ProductInsuredDOList['partyId']=$params->plan.$refGuid;//"00".$str.$refGuid;
+                    
+                    // Product Insured DOList 
+                    $ProductInsuredDOList =  $this->policyProductInsuredDOList_obj();
+                    $ProductInsuredDOList['refGuid']=$params->plan.$refGuid;
+                    $ProductInsuredDOList['partyId']=$params->plan.$refGuid;
                     $ProductInsuredDOList['weight']=floatval($weight);
                     $ProductInsuredDOList['height']=round($height*2.54);
                     $ProductInsuredDOList['zoneCd']= $zoneCd;
                     
-                    $ProductInsuredDOList['productPlanOptionCd']=$dataParam->code;
+                    $ProductInsuredDOList['productPlanOptionCd']=$Querydata->code;
                     $ProductInsuredDOList['baseSumAssured']=floatval($sum*100000);
                     $ProductInsuredDOList['sumInsured']=($sum*100000);
                     
+                    
+                    //Questtion Set
+                    $QuestionSet = $this->policyQuestionSetDOList_obj();
                     $lvl802 =  ['Lvl02_O802_01','Lvl02_O802_02','Lvl02_O802_03','Lvl02_O802_04','Lvl02_O802_05','Lvl02_O802_06','Lvl02_O802_07','Lvl02_O802_08','Lvl02_O802_09','Lvl02_O802_10','Lvl02_O802_11','Lvl02_O802_12','Lvl02_O802_13','Lvl02_O802_14'];
                     $arrNotIn =[];$hasMedicle =false;
                     if(isset($member->medical)){
@@ -465,13 +514,13 @@ class ManipalPlus{
                                 }
                         }
                     }
-                    //print_r($arrNotIn);
+                    
                     $QSet =   DB::table('medical_questions')
                                    ->where(['supplier'=>'MANIPAL_CIGNA','parentId'=>0])
                                    ->when($arrNotIn, function ($query, $arrNotIn) { 
                                                return  $query->whereNotIn('id',$arrNotIn);
                                          })->get();
-                                   //->whereNotIn('id',$arrNotIn)->get();
+            
                     foreach($QSet as $_otherSet){
                                $Q['policyQuestionSetSeq'] = null;
                                 $Q['questionCd'] = $_otherSet->code;
@@ -489,10 +538,10 @@ class ManipalPlus{
                     $ProductInsuredDOList['policyQuestionSetDOList']=$_QuestionSet;
                     $_ProductInsuredDOList[] = $ProductInsuredDOList;
                     
-                   
-                   $partyDOList['partyId']  = $params->plan.$refGuid;//"00".$str.$refGuid;
-                   $partyDOList['partyGuid']  = $params->plan.$refGuid;//"00".$str.$refGuid;
-                   //$partyDOList['relationCd'] = $relationCd;
+                   $partyDOList = $this->partyDOList_obj();
+                   $partyDOList['partyId']  = $params->plan.$refGuid;
+                   $partyDOList['partyGuid']  = $params->plan.$refGuid;
+                   $partyDOList['relationCd'] = $relationCd;
                    $partyDOList['firstName1'] = $Fname;
                    $partyDOList['lastName1'] = $Lname;
                    $partyDOList['birthDt'] = $birthDt;
@@ -523,21 +572,17 @@ class ManipalPlus{
                     $partyDOList['partyRelationDOList'][0]['relatedToPartyId'] = $params->plan.$refGuid;
                     $partyDOList['partyRelationDOList'][0]['relationCd'] = $relationCd;
                     $_partyDOList[] = $partyDOList;
-                   
+                    
+                   //Role for insured
+                   $partyRoleDOList = $this->policyPartyRoleDOList_obj(); 
                    $partyRoleDOList['refGuid']  =$params->plan.$refGuid;//"00".$str.$refGuid;
                    $partyRoleDOList['partyId']  =$params->plan.$refGuid;//"00".$str.$refGuid;
                    $partyRoleDOList['roleCd']   =$roleCd;
                    $partyRoleDOList['age']  = intval($member->age);
                    $_RoleDOList[]=$partyRoleDOList;
-                   if($roleCd=='PROPOSER'){ 
-                     $partyRoleDOList['refGuid']  =$params->plan.$refGuid;//"00".$str.$refGuid;
-                     $partyRoleDOList['partyId']  =$params->plan.$refGuid;//"00".$str.$refGuid;
-                     $partyRoleDOList['roleCd']   ="PRIMARY";
-                     $partyRoleDOList['age']  = intval($member->age);
-                     $_RoleDOList[]=$partyRoleDOList;
-                   }
+                  
                    
-                 $refGuid++; $i++;  
+                 $_refGuid++; $i++;  
              }//members foreach;
             //echo  $params->addOn;
             $ProductDOList['productPlanOptionCd'] = $dataParam->code; 
@@ -557,7 +602,7 @@ class ManipalPlus{
                 
                 $ProductDOList['policyProductAddOnsDOList'] = $policyProductAddOnsDOList;
             }
-            
+           // print_r($ProductDOList['policyProductAddOnsDOList']);
             $req['policySeq'] =null;//date('YmdHis');//$dataParam->applicationID;
             $req['policyNum'] =$dataParam->applicationID;
             $req['applicationID'] =$dataParam->applicationID;//$req['proposalNum'] =$dataParam->applicationID;
@@ -634,7 +679,7 @@ class ManipalPlus{
             $req['policyStatusCd'] ='';
             $req['leadGenerationCd'] ='';
             $req['statCd'] ='';
-            $req['productPlanOptionCd'] =$dataParam->code;//'IN-PLS5.5-HMB2K';
+            $req['productPlanOptionCd'] =$Querydata->code;//$dataParam->code;//'IN-PRT5.5-HMB500';
             $req['leadGeneratorRemarks'] ='';
             $req['medicalStatusCd'] ='';
             $req['lastModifiedDt'] ='';
@@ -675,7 +720,7 @@ class ManipalPlus{
             $req['inwardSubTypeCd'] ='PROPOSALDOCUMENT';
             $req['receivedFrom'] ='ONLINE';
             $req['zoneCd'] =$zoneCd;
-            $req['planId'] ="RPRT04";//$dataParam->product;
+            $req['planId'] ="RPLS06";//$dataParam->product;
             $req['higherEduCess'] =null;
             $req['uwReqFl'] ='NO';
             $req['ppmcFl'] ='NO';
@@ -792,24 +837,57 @@ class ManipalPlus{
             $req['modalLoadingPremium'] =null;
             $listofPolicyTO[]  = $req;
             $REQUEST = ["listofPolicyTO"=>$listofPolicyTO];
+           // print_r(json_encode($REQUEST));die;
+            try{
+                $client = new Client([
+                    'headers' => [ 'Action-Type'=>'VALIDATE','Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKey'),"app_id"=>config('mediclaim.MANIPAL.appIdValidate')]
+                ]);
+                
+                $clientResp = $client->post(config('mediclaim.MANIPAL.validateProposal'),
+                    ['body' => json_encode($REQUEST)]
+                );
+                
+              //print_r(json_encode($REQUEST));die;
+                $response = $clientResp->getBody()->getContents();   
+                $result=json_decode($response);
+               // print_r($response);
+                //$result=json_decode($response);
+                      
+                DB::table('app_quote')->where('enquiry_id', $enqID)->update(['reqCreate'=>json_encode($REQUEST),'respCreate'=>$response]);
+                if($result->errorList==null || $result->errorList==""){
+                    return ['status'=>true,'message'=>"Success",'data'=>[]]; 
+                }else{
+                   $errorList = $result->errorList;
+                   if($errorList[0]->errDescription!=null){
+                       return ['status'=>false,'message'=>$errorList[0]->errDescription,'data'=>[]];  
+                   }else{
+                      return ['status'=>false,'message'=>$errorList[0]->errActualMessage,'data'=>[]];   
+                   }
+                   
+                }
             
-            $client = new Client([
-                'headers' => [ 'Action-Type'=>'VALIDATE','Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKey'),"app_id"=>config('mediclaim.MANIPAL.appIdValidate')]
-            ]);
-            
-            $clientResp = $client->post(config('mediclaim.MANIPAL.validateProposal'),
-                ['body' => json_encode($REQUEST)]
-            );
-            
-            $response = $clientResp->getBody()->getContents();   
-            $result=json_decode($response);
-            
-            //$result=json_decode($response);
-            if($result->errorList==null || $result->errorList==""){
-                return ['status'=>true,'message'=>"Success",'data'=>[]]; 
-            }else{
-               $errorList = $result->errorList;
-               return ['status'=>false,'message'=>$errorList[0]->errDescription,'data'=>[]];  
+        }catch (ConnectException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                //DB::table('app_quote')->where('enquiry_id', $enqId)->update(['reqCreate'=>json_encode($REQUEST),'respCreate'=>$response]);
+                $resp = json_decode($responseBodyAsString);
+               //print_r($resp);
+                return ['status'=>false,'message'=>"ConnectException",'data'=>[]];  
+               // return ['status'=>false,'plans'=>[],"message"=>"Sorry we are unable to process your request."];
+            }catch (RequestException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $resp = json_decode($responseBodyAsString);
+                //print_r($responseBodyAsString);die;
+                return ['status'=>false,'message'=>"Request Exception",'data'=>[]];  
+               
+            }catch (ClientException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $resp = json_decode($responseBodyAsString);
+                //print_r($resp);
+                return ['status'=>false,'message'=>"ClientException error",'data'=>[]];  
+                // return ['status'=>false,'plans'=>[],"message"=>"Internal server error"];
             }
             
            
@@ -1523,7 +1601,72 @@ class ManipalPlus{
                      return $elem;
     }
     
-    function saveProposal($enqID,$quoteId,$proposalNum,$txnid,$amount){
+     function saveProposal($enqID,$quoteId,$proposalNum,$txnid,$amount){ 
+            $Querydata = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enqID)->first();
+           $termYear = $Querydata->termYear;
+           $period = timePeriod('d/m/Y',$termYear);
+           $object = json_decode($Querydata->reqCreate);
+           $REQUEST = json_decode(json_encode($object), true);
+           $REQUEST['listofPolicyTO'][0]['inwardDOList'] =[$this->inwardDoList_obj($period,$proposalNum,$txnid,$amount)];
+           
+            try{
+                $client = new Client([
+                'headers' => ['Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKey'),"app_id"=>config('mediclaim.MANIPAL.appIdSave')]
+            ]);
+            
+            $clientResp = $client->post(config('mediclaim.MANIPAL.saveProposal'),
+                ['body' => json_encode($REQUEST)]
+            );
+                
+              
+                $response = $clientResp->getBody()->getContents();   
+                $result=json_decode($response);
+               
+                DB::table('app_quote')->where('enquiry_id', $enqID)->update(['reqSaveGenPolicy'=>json_encode($REQUEST),'respSaveGenPolicy'=>$response]);
+                if($result->errorList==null || $result->errorList==""){
+                     $receiptId = isset($result->listofPolicyTO[0]->inwardDOList[0]->receiptId)?$result->listofPolicyTO[0]->inwardDOList[0]->receiptId:"";
+                     DB::table('app_quote')->where('enquiry_id',$enqID)->update(['json_data->receiptId'=>$receiptId]);
+                    return ['status'=>true,'message'=>"Success",'data'=>['receiptId'=>$receiptId]]; 
+                }else{
+                   $errorList = $result->errorList;
+                   if($errorList[0]->errDescription!=null){
+                       return ['status'=>false,'message'=>$errorList[0]->errDescription,'data'=>[]];  
+                   }else{
+                      return ['status'=>false,'message'=>$errorList[0]->errActualMessage,'data'=>[]];   
+                   }
+                   
+                }
+            
+        }catch (ConnectException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                //DB::table('app_quote')->where('enquiry_id', $enqId)->update(['reqCreate'=>json_encode($REQUEST),'respCreate'=>$response]);
+                $resp = json_decode($responseBodyAsString);
+               //print_r($resp);
+                return ['status'=>false,'message'=>"ConnectException",'data'=>[]];  
+               // return ['status'=>false,'plans'=>[],"message"=>"Sorry we are unable to process your request."];
+            }catch (RequestException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $resp = json_decode($responseBodyAsString);
+                //print_r($responseBodyAsString);die;
+                return ['status'=>false,'message'=>"Request Exception",'data'=>[]];  
+               
+            }catch (ClientException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $resp = json_decode($responseBodyAsString);
+                //print_r($resp);
+                return ['status'=>false,'message'=>"ClientException error",'data'=>[]];  
+                // return ['status'=>false,'plans'=>[],"message"=>"Internal server error"];
+            }
+            
+           
+    }
+    
+    
+    
+    function _____saveProposal($enqID,$quoteId,$proposalNum,$txnid,$amount){
             $Querydata = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enqID)->first();
             
             $sumData = json_decode($Querydata->sumInsured);

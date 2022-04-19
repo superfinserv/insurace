@@ -461,7 +461,7 @@ $('body').on('click','.btn-next-insurer',function(e){
                 $(this).rules("add", { required: true, });
             });
             $('.insurer-weight').each(function() {
-                $(this).rules("add", { required: true,number:true,min:5, max:150});
+                $(this).rules("add", { required: true,number:true,min:1, max:150});
             });
             //  $('.insurer-relation').each(function() {
             //     $(this).rules("add", { required: true, });

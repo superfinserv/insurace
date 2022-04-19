@@ -384,7 +384,7 @@ class CareBasic{
         $policy = new \stdClass();
         $policy->businessTypeCd="NEWBUSINESS";
         $policy->baseProductId='10001101';
-        $policy->baseAgentId="20008325";
+        $policy->baseAgentId=config('mediclaim.CARE.agentId');//"20008325";
         $policy->coverType=$policyType;
        
         $policyAdditionalFieldsDOList = new \stdClass();

@@ -8,6 +8,9 @@ use View;
 use File;
 use Auth;
 
+use App\Exports\PolicyExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 use Meng\AsyncSoap\Guzzle\Factory;
 use App\Partners\Care\Care;
 use App\Partners\Manipal\Manipal;
@@ -24,6 +27,15 @@ class InsuredController extends Controller{
        
        $this->HdfcErgoCarResource =$HdfcErgoCarResource;
        $this->DigitCarResource = $DigitCarResource;
+    }
+    
+    public function exportExcel(Request $request)   { 
+        $from_date=$request->input('from_date');
+        $to_date = $request->input('to_date');
+        $type = ($request->input('type')=="ALL")?"":$request->input('type');
+        $partner = ($request->input('partner')=="ALL")?"":$request->input('partner');
+        
+        return Excel::download(new PolicyExport($from_date,$to_date,$type,$partner), 'Policy-Report.xlsx');  
     }
    
 

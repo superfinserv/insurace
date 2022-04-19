@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use App\Resources\Signzy;
 use App\Resources\DigitCarResource;
 use App\Resources\HdfcErgoCarResource;
+use App\Resources\FgiTwResource;
 
 use App\VarientCar;
 use App\VarientTw;
@@ -26,7 +27,9 @@ class MotorInsurance extends Controller
     public function __construct(DigitCarResource $DigitCarResource ,HdfcErgoCarResource $HdfcErgoCarResource,Signzy $Signzy){ 
            $this->DigitCar   = $DigitCarResource; 
            $this->HdfcErgoCar= $HdfcErgoCarResource; 
+            $this->FgiTw =  new FgiTwResource;
            $this->Signzy = $Signzy;
+           
     }
     
      function GetVehicleRegistrationDetails(Request $request){
@@ -369,7 +372,6 @@ class MotorInsurance extends Controller
     }
     
     
-    
     public function getminMaxassValue(Request $request){
         $token = isset(Auth::guard('agents')->user()->posp_ID)?Auth::guard('agents')->user()->posp_ID:Auth::guard('customers')->user()->uniqueToken;
         $data = DB::table('app_temp_quote')
@@ -489,6 +491,24 @@ class MotorInsurance extends Controller
                   $template['paymetAction'] = config('motor.HDFCERGO.car.paymentGateway');
               }
               $template['checkSum'] = strtoupper(hash('sha512', $hashSequence));
+         }else if($template['info']->provider=='FGI'){
+               $jsonData = json_decode($template['info']->json_data);
+               $paramData = json_decode($template['info']->params_request);
+               $template['TransactionID']= $template['info']->token;
+               $template['PaymentOption']= 3;
+               $template['ResponseURL'] = config('custom.site_url').'/moter-insurance/insured-success/bike/'.$enQId;
+               $template['ProposalNumber'] =$enQId;
+               $template['PremiumAmount']  = $jsonData->gross;
+               $template['UserIdentifier'] = $paramData->customer->first_name." ".$paramData->customer->last_name;
+               $template['UserId'] = $paramData->customer->mobile;
+               $template['FirstName'] =$paramData->customer->first_name;
+               $template['LastName'] = $paramData->customer->last_name;
+               $template['Mobile'] =$paramData->customer->mobile;
+               $template['Email'] =$paramData->customer->email;
+               $template['Vendor'] =1;
+               $hashSequence=$template['info']->token."|".$template['PaymentOption']."|".$template['ResponseURL']."|".$enQId."|".$jsonData->gross."|".$template['UserIdentifier']."|".$template['UserId']."|".$template['FirstName']."|".$template['LastName']."|".$template['Mobile']."|".$template['Email']."|";
+               $template['checkSum'] = $this->FgiTw->Generatehash256($hashSequence);
+               $template['paymetAction'] = config('motor.FGI.tw.payment');
          }
          return View::make('motor.payment-link-page')->with($template);
         

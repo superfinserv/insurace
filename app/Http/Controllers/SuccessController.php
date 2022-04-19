@@ -16,7 +16,7 @@ use App\Resources\DigitCarResource;
 use App\Resources\DigitBikeResource;
 use App\Resources\HdfcErgoTwResource;
 use App\Resources\HdfcErgoCarResource;
-
+use App\Resources\FgiTwResource;
 
 use App\Partners\Care\Care;
 use App\Partners\Manipal\Manipal;
@@ -24,19 +24,16 @@ use App\Partners\Digit\DigitHealth;
     
 class SuccessController extends Controller{
     public $uniqueToken;
-    public function __construct(Care $care, Manipal $manipal,DigitHealth $digitHealth,
-                                DigitCarResource $DigitCarResource,
-                                DigitBikeResource $DigitBikeResource,
-                                HdfcErgoTwResource $HdfcErgoTwResource,
-                                HdfcErgoCarResource $HdfcErgoCarResource) { 
-       $this->DigitBikeResource  = $DigitBikeResource;
-       $this->DigitCarResource = $DigitCarResource;
-       $this->HdfcErgoTwResource = $HdfcErgoTwResource;
-       $this->HdfcErgoCarResource = $HdfcErgoCarResource;
-       
-       $this->Care =  $care;
-       $this->Manipal  = $manipal;
-       $this->DigitHealth  = $digitHealth;
+    public function __construct() { 
+       $this->DigitBikeResource  = new DigitBikeResource;
+       $this->DigitCarResource =   new DigitCarResource;
+       $this->HdfcErgoTwResource =  new HdfcErgoTwResource;
+       $this->HdfcErgoCarResource =  new HdfcErgoCarResource;
+       $this->FgiTw =  new FgiTwResource;
+        
+       $this->Care =   new Care;
+       $this->Manipal  =  new Manipal;
+       $this->DigitHealth  =  new DigitHealth;
    }
    
     
@@ -70,7 +67,7 @@ class SuccessController extends Controller{
                      $data =  DB::table('app_quote')->where(['type'=>'HEALTH','token'=>$_REQUEST['ProposalNo']])->first();
                      $isExist = DB::table('policy_saled')->where('type','HEALTH')->where('enquiry_id',$data->enquiry_id)->count();
                      $json_data = json_decode($data->json_data);
-                     $saledData = ['type'=>'HEALTH','provider'=>$data->provider,
+                     $saledData = ['type'=>'HEALTH','provider'=>$data->provider,'policyType'=>$data->policyType,
                                   'json_data'=>$data->json_data,'mobile_no'=>"",'getway_response'=>json_encode($_REQUEST),
                                   "customer_id"=>$data->customer_id,'params'=>$data->params_request,
                                   ];
@@ -106,7 +103,7 @@ class SuccessController extends Controller{
                 
              $isExist = DB::table('policy_saled')->where('type','HEALTH')->where('enquiry_id',$request->enquiryID)->count();
              $data = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$request->enquiryID)->first();
-             $saledData = ['type'=>'HEALTH','provider'=>$data->provider,
+             $saledData = ['type'=>'HEALTH','provider'=>$data->provider,'policyType'=>$data->policyType,
                           'mobile_no'=>$data->customer_mobile,'customer_name' =>$data->customer_name,'getway_response'=>json_encode($_REQUEST),
                           "customer_id"=>$data->customer_id,'params'=>$data->params_request,
                           ];
@@ -191,6 +188,7 @@ class SuccessController extends Controller{
              }
              DB::table('app_quote')->where('enquiry_id', '=', $request->enquiryID)->update(['status'=>'SOLD']);
              //return redirect('policy/success/'.$data->provider.'/'.$request->enquiryID);
+            // die;
              if($data->server=='AGENT_WEB'){
                $url = config('custom.posp_site_url').'/policy/success/'.$data->provider.'/'.$request->enquiryID;
                  return redirect($url);
@@ -206,11 +204,11 @@ class SuccessController extends Controller{
     
     function moterTransactionUpdate(Request $request){
            
-
+       //print_r($_REQUEST);die;
             $this->loaderPageNew();
             @csrf;
            if($request->type=='hdfcergo_motor'){
-               //print_r($_REQUEST);
+              
                 $enQ =    DB::table('app_quote')
                                ->where('token',$_REQUEST['hdmsg'])
                                ->latest('id')->first();
@@ -219,7 +217,7 @@ class SuccessController extends Controller{
             //   print_r($pData);
                //if($pData['status']){
                    $saledData = [
-                         'type'=>strtoupper($enQ->type),'provider'=>$enQ->provider,
+                         'type'=>strtoupper($enQ->type),'provider'=>$enQ->provider,'policyType'=>$enQ->policyType,
                          'json_data'=>$enQ->json_data,
                          'mobile_no'=>$enQ->customer_mobile,
                          'customer_name' =>$enQ->customer_name,
@@ -239,9 +237,11 @@ class SuccessController extends Controller{
                     	'reqRecalculate'=>$enQ->reqRecalculate,
                     	'respRecalculate'=>$enQ->respRecalculate,
                     	'reqCreate'=>$enQ->reqCreate,
-                    	'respCreate'=>$enQ->respCreate
+                    	'respCreate'=>$enQ->respCreate,
+                    	'reqSaveGenPolicy'=>$enQ->reqSaveGenPolicy,
+                    	'respSaveGenPolicy'=>$enQ->respSaveGenPolicy,
                        ];
-                       $isExist = DB::table('policy_saled')->where('type',strtoupper($enQ->type))->where('enquiry_id',$request->enquiry_id)->count();
+                       $isExist = DB::table('policy_saled')->where('enquiry_id',$request->enquiry_id)->count();
                            if(!$isExist){
                               $refID = DB::table('policy_saled')->insertGetId($saledData);
                            }else{
@@ -265,7 +265,7 @@ class SuccessController extends Controller{
              $json = json_decode($info->json_data);
           
              $saledData = [
-                         'type'=>strtoupper($request->type),'provider'=>$info->provider,
+                         'type'=>strtoupper($request->type),'provider'=>$info->provider,'policyType'=>$info->policyType,
                          'json_data'=>$info->json_data,
                          'mobile_no'=>$info->customer_mobile,
                          'customer_name' =>$info->customer_name,
@@ -290,6 +290,20 @@ class SuccessController extends Controller{
                 //  $saledData['filename'] =($fileData->status)?$fileData->filename:"";
                  $saledData['payment_status'] = "Completed";
                  $saledData['policy_status']  = "Completed";
+             }else if($info->provider=="FGI"){
+                $saledData['getway_response']= json_encode($_REQUEST);
+                 //https://superfinserv.co.in/moter-insurance/insured-success/bike/48daf5f2cbeb879468ea38d346f226f9?WS_P_ID=TP0000096531&TID=1k450629W9&PGID=403993715525903340&Premium=1471.00&Response=Success
+                // Array ( [WS_P_ID] => TP0000096531 [TID] => 1k450629W9 [PGID] => 403993715525903340 [Premium] => 1471.00 [Response] => Success ) 
+                if($request->input('Response')=="Success"){
+                      
+                      $saledData['transaction_no'] =$request->input('WS_P_ID');
+                      $saledData['payment_status'] = "Completed";
+                      $saledData['amount'] = $request->input('Premium');
+                      $pdata = $this->FgiTw->policyIssuance($request->enquiryID,$request->input('Premium'),$request->input('WS_P_ID'),$request->input('TID'),$request->input('PGID'));
+                      $saledData['policy_no'] = $pdata['data'];
+                      $saledData['policy_status'] = "Completed";
+                 }
+                 
              }
              
              
@@ -749,6 +763,11 @@ class SuccessController extends Controller{
           
        /// $this->savePolicyPDF_Digit("D400265600","bus");
      }
+     
+    function testIssue(Request $request){
+        
+        $this->HdfcErgoTwResource->bugReport();
+    }
     
     
     

@@ -16,34 +16,203 @@ class FgiTwResource extends AppResource{
       
     }
     
-         public function productCode($plan){
+    public function productCode($plan){
           $res =  new \stdClass();
           
             switch ($plan) {
-             case "COM":
-                $res->contract =  "FTW";
-                $res->risk =  "FTW";
-                $res->cover =  "CO";
+            //  case "COM":
+            //     $res->contract =  "FTW"; $res->risk =  "FTW"; $res->cover =  "CO";
+            //     return $res;
+            //     break;
+             case "COM-NEW":
+                $res->contract = "F15";$res->risk  =  "F15";$res->cover =  "CO";
                 return $res;
                 break;
-              case "TP":
-                $res->contract =  "FTW";
-                $res->risk =  "FTW";
-                $res->cover =  "LO";
+            case "COM-ROLLOVER":
+                $res->contract =  "FTW";$res->risk =  "FTW";  $res->cover =  "CO";
                 return $res;
                 break;
-              case "OD":
-                $res->contract = "FTW";
-                $res->risk  =  "FTW";
-                $res->cover =  "OD";
+            case "COM-USED":
+                $res->contract =  "FTW"; $res->risk =  "FTW";$res->cover =  "CO";
+                return $res;
+                break;
+            case "TP-ROLLOVER":
+                $res->contract =  "FTW";$res->risk =  "FTW"; $res->cover =  "LO";
+                return $res;
+                break;
+            case "TP-USED":
+                $res->contract =  "FTW";$res->risk =  "FTW"; $res->cover =  "LO";
+                return $res;
+                break;
+              case "OD-ROLLOVER":
+                $res->contract = "TWO"; $res->risk  =  "TWO"; $res->cover =  "OD";
+                return $res;
+                break;
+             case "OD-NEW":
+                $res->contract = "TWO"; $res->risk  =  "TWO"; $res->cover =  "OD";
                 return $res;
                 break;
               default:
-                $res->contract =  "FTW";
-                $res->risk =  "FTW";
-                $res->cover =  "CO";
+                $res->contract =  "FTW"; $res->risk =  "FTW";  $res->cover =  "CO";
                 return $res;
             }
+    }
+    
+      function GetPreviousPolicyData($params,$callTyp){
+      
+            $res =  new \stdClass();
+            $res->isExp = false;
+            $res->expDate = "";
+            $res->ncb = "ZERO";
+            $res->ncbPercent =0;
+            $res->prePolicyType = "";
+            $res->isPreviousInsurerKnown = false;
+            $res->hasPreClaim ="NO";
+            $res->preInsurerCode = "";
+            $res->businessType   = "Rollover";
+            $res->prePolicyNo ="";
+            
+             $ncbArr = ["ZERO"=>0,'TWENTY'=>20,'TWENTY_FIVE'=>25,'THIRTY_FIVE'=>35,'FORTY_FIVE'=>45,'FIFTY'=>50];
+            
+            if($params['vehicle']['isBrandNew']==='false'){ 
+                if(isset($params['previousInsurance']['isExp']) && $params['previousInsurance']['isExp']!=""){ 
+                         
+                         if($params['previousInsurance']['isExp']=="Not Expired"){ //Not Expired 
+                              $res->businessType ="Rollover";
+                               if($callTyp=="Proposal"){
+                                    $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('Y-m-d');
+                              }else{
+                                  
+                                   if($params['previousInsurance']['expDate']!=""){
+                                         $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('Y-m-d');
+                                    }else{
+                                         $res->expDate =date('Y-m-d', strtotime('+10 days'));
+                                    }
+                                   
+                                }
+                              //$res->hasPreClaim = ($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
+                              //$res->ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
+                              $res->prePolicyType = !empty($params['previousInsurance']['policyType'])?$this->productCode($params['previousInsurance']['policyType']):"Comprehensive"; 
+                              if($res->prePolicyType=="ThirdParty"){
+                                    $res->ncb = "ZERO";//isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
+                                     $res->hasPreClaim = 'YES';//($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
+                               }else{
+                                     $res->ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
+                                     $res->hasPreClaim = ($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
+                               }
+                              $res->isPreviousInsurerKnown = true;
+                         }else if($params['previousInsurance']['isExp']=="Expired"){
+                             if($params['previousInsurance']['exp']=="+90"){ 
+                                       if($callTyp=="Proposal"){
+                                          $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('Y-m-d');
+                                       }else{
+                                          
+                                            if($params['previousInsurance']['expDate']!=""){
+                                                 $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('Y-m-d');
+                                            }else{
+                                                 $res->expDate =date('Y-m-d', strtotime('-100 days'));
+                                            }
+                                       }
+                                       $res->prePolicyType = !empty($params['previousInsurance']['policyType'])?$this->productCode($params['previousInsurance']['policyType']):"Comprehensive";
+                                       if($res->prePolicyType=="ThirdParty"){
+                                            $res->ncb = "ZERO";//isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
+                                            $res->hasPreClaim = 'YES';//($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
+                                       }else{
+                                             $res->ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
+                                             $res->hasPreClaim = ($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
+                                       }
+                                      // $res->ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
+                                       //$res->hasPreClaim = ($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
+                                       
+                                       $res->isPreviousInsurerKnown = true;
+                                       $res->businessType   = "Rollover";
+                             }else if($params['previousInsurance']['exp']=="45-90"){
+                                      if($callTyp=="Proposal"){
+                                           $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('Y-m-d');
+                                       }else{
+                                            
+                                             if($params['previousInsurance']['expDate']!=""){
+                                                 $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('Y-m-d');
+                                            }else{
+                                                $res->expDate = date('Y-m-d', strtotime('-60 days'));
+                                            }
+                                       }
+                                      $res->prePolicyType = !empty($params['previousInsurance']['policyType'])?$this->productCode($params['previousInsurance']['policyType']):"Comprehensive";
+                                       if($res->prePolicyType=="ThirdParty"){
+                                            $res->ncb = "ZERO";//isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
+                                             $res->hasPreClaim = 'YES';//($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
+                                       }else{
+                                             $res->ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
+                                             $res->hasPreClaim = ($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
+                                       }
+                                    
+                                      $res->isPreviousInsurerKnown = true;
+                                      $res->businessType   = "Rollover";
+                             }else if($params['previousInsurance']['exp']=="-45"){
+                                      if($callTyp=="Proposal"){
+                                           $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('Y-m-d');
+                                       }else{
+                                            if($params['previousInsurance']['expDate']!=""){
+                                                 $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('Y-m-d');
+                                            }else{
+                                                 $res->expDate = date('Y-m-d', strtotime('-25 days'));
+                                            }
+                                            
+                                       }
+                                      //$res->ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
+                                     // $res->hasPreClaim = ($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
+                                       $res->prePolicyType = !empty($params['previousInsurance']['policyType'])?$this->productCode($params['previousInsurance']['policyType']):"Comprehensive";
+                                       if($res->prePolicyType=="ThirdParty"){
+                                            $res->ncb = "ZERO";//isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
+                                             $res->hasPreClaim = 'YES';//($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
+                                       }else{
+                                             $res->ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
+                                             $res->hasPreClaim = ($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
+                                       }
+                                      $res->isPreviousInsurerKnown = true;
+                                      $res->businessType   = "Rollover";
+                             }else if($params['previousInsurance']['exp']=="0"){ 
+                                      $res->expDate = "";
+                                      $res->ncb = "ZERO";	
+                                      $res->hasPreClaim="";
+                                      $res->isPreviousInsurerKnown = false;
+                                      $res->businessType   = "USED";
+                             }
+                         }
+                }else{  //exp data not avialble
+                    $res->expDate = "";
+                    $res->ncb = "ZERO";	
+                    $res->hasPreClaim="";
+                    $res->isPreviousInsurerKnown = false;
+                    $res->businessType   = "NEW";
+                }
+            }else{ // new
+                $res->expDate = "";
+                $res->ncb = "ZERO";	
+                $res->hasPreClaim="";
+                $res->isPreviousInsurerKnown = false;
+                $res->businessType   = "NEW";
+            }
+            
+            if(isset($params['previousInsurance']['insurer']) && $params['previousInsurance']['insurer']!="0"){
+               $res->preInsurerCode = DB::table('previous_insurer')->where('id', $params['previousInsurance']['insurer'])->value('name');
+               //$res->preInsurerName = DB::table('previous_insurer')->where('id', $params['previousInsurance']['insurer'])->value('name');
+            }
+            if($params['previousInsurance']['policyType']=='TP'){
+                $res->ncbPercent =0; 
+            }else{
+                $res->ncbPercent =$ncbArr[$res->ncb]; 
+            }
+            
+            if($callTyp=="Proposal"){
+                  
+                  $res->prePolicyNo = !empty($params['previousInsurance']['policyNo'])?$params['previousInsurance']['policyNo']:"";
+                  
+            }
+            
+           
+            return $res;
+                                      
     }
     
      public function getJsonData($options,$data){
@@ -335,7 +504,7 @@ class FgiTwResource extends AppResource{
             
             // //vehicle
             // $RTO = substr($options['carnumber'],0,4);
-            // $vehicle = new \stdClass(); 
+            $vehicle = new \stdClass(); 
             // $vehicle->make =$options['vehicle']['brand']['name'];
             // $vehicle->model =$options['vehicle']['model']['name'];
             // $vehicle->varient =$options['vehicle']['varient']['name'];
@@ -345,10 +514,10 @@ class FgiTwResource extends AppResource{
             // $vehicle->reg_date = date('d').'-'.$options['vehicle']['regMonth']."-".$options['regYear'];
             // $vehicle->chassis_no = '';
             // $vehicle->engin_no = '';
-            // $vehicle->idv =$data->Policy->VehicleIDV;
+             $vehicle->idv =$data->Policy->VehicleIDV;
             // $vehicle->minIdv =$data->Policy->VehicleIDV;
             // $vehicle->maxIdv =$data->Policy->VehicleIDV;
-            // $obj->vehicle = $vehicle;
+             $obj->vehicle = $vehicle;
             
             return $obj;
     }
@@ -356,7 +525,7 @@ class FgiTwResource extends AppResource{
      function fnQuoteRequest($params){
          $chars = date('Ymd').time();
          $uid = str_shuffle(substr(str_shuffle($chars), 0, 10));
-         $productCode = $this->productCode($params['planType']);
+         $productCode = $this->productCode("COM-NEW");
          $make=($params['vehicle']['brand']['name'])?trim($params['vehicle']['brand']['name']):null;
          $model = ($params['vehicle']['model']['name'])?$params['vehicle']['model']['name']:null;
          $varient = ($params['vehicle']['varient']['name'])?$params['vehicle']['varient']['name']:null;
@@ -474,7 +643,7 @@ class FgiTwResource extends AppResource{
 	                    <Risk>
                     		<RiskType>".$productCode->risk."</RiskType>
                     		<Zone>A</Zone>
-                    		<Cover>".$productCode->cover."</Cover>
+                    		<Cover>CO</Cover>
                     		<Vehicle>
                     			<TypeOfVehicle></TypeOfVehicle>
                     			<VehicleClass></VehicleClass>
@@ -636,7 +805,7 @@ class FgiTwResource extends AppResource{
      function getQuickQuote($deviceToken,$options){
         $XML =  $this->fnQuoteRequest($options);
         
-        
+         $subcovers = $options['subcovers'];
         $XML = str_replace("{{CPAReq}}","Y",$XML);
         $XML = str_replace("{{CPANomName}}","Test",$XML);
         $XML = str_replace("{{CPANomAge}}","25",$XML);
@@ -651,18 +820,29 @@ class FgiTwResource extends AppResource{
              }
         $XML = str_replace("{{RegistrationNo}}",$licensePlateNumber,$XML);
         
-        $idv = "0";$XML = str_replace("{{IDV}}",$idv,$XML);
-        $isPA_UNPassCover = "";$XML = str_replace("{{isPA_UNPassCover}}",$isPA_UNPassCover,$XML);
-        $isLL_PaidDriverCover = "";$XML = str_replace("{{isLL_PaidDriverCover}}",$isLL_PaidDriverCover,$XML);
-        $LL_Emp = "";$XML = str_replace("{{isLL_EmpCover}}",$LL_Emp,$XML);
+        $idv = isset($options['vehicle']['idv']['value'])?$options['vehicle']['idv']['value']:0;
+        $XML = str_replace("{{IDV}}",$idv,$XML);
         
-        $hasAddons = "N";$XML = str_replace("{{HAS_ADDONS}}",$hasAddons,$XML);
-        $XML = str_replace("{{ADDONS}}","<Addon><CoverCode></CoverCode></Addon>",$XML);	
-       // $ADDONS = "";$XML = str_replace("{{ADDONS}}",$ADDONS,$XML);
-        	
-       		
-      //  $url = 'http://fglpg001.futuregenerali.in/BO/Service.svc?wsdl';
-  // echo $XML;die;
+        $PA_UNNAMED_PASS = (isset($subcovers['isPA_UNPassCover']) && $subcovers['isPA_UNPassCover']=='true')?$options['coverValues']['PA_UNPassCoverval']:'';
+        $XML = str_replace("{{isPA_UNPassCover}}",$PA_UNNAMED_PASS,$XML);
+        
+        $LL_PaidDriver = (isset($subcovers['isLL_PaidDriverCover']) && $subcovers['isLL_PaidDriverCover']=='true')?"1":"";
+        $XML = str_replace("{{isLL_PaidDriverCover}}",$LL_PaidDriver,$XML);
+        
+        $LL_Emp = (isset($subcovers['isLL_EmpCover']) && $subcovers['isLL_EmpCover']=='true')?"Y":"";
+        $XML = str_replace("{{isLL_EmpCover}}",$LL_Emp,$XML);
+        $ADDONS="";
+       // $ADDONS .= (isset($options['isTyreProCover']) && $options['isTyreProCover']=='true')?"<Addon><CoverCode>00001</CoverCode></Addon>":"";
+       // $ADDONS .= (isset($options['isRetInvCover']) && $options['isRetInvCover']=='true')?"<Addon><CoverCode>00006</CoverCode></Addon>":"";
+        $ADDONS .= (isset($subcovers['isEng_GearBoxProCover']) && $subcovers['isEng_GearBoxProCover']=='true')?"<Addon><CoverCode>ENGPR</CoverCode></Addon>":"";
+        $ADDONS .= (isset($subcovers['isPartDepProCover']) && $subcovers['isPartDepProCover']=='true')?"<Addon><CoverCode>PLAN1</CoverCode></Addon>":"";
+        $hasAddons = ($ADDONS!="")?"Y":"N";
+        $XML = str_replace("{{HAS_ADDONS}}",$hasAddons,$XML);
+        if($hasAddons=="Y"){
+             $XML = str_replace("{{ADDONS}}",$ADDONS,$XML);
+        }else{
+             $XML = str_replace("{{ADDONS}}","<Addon><CoverCode></CoverCode></Addon>",$XML);	
+        }
         try {
             $factory = new Factory();
             $client = $factory->create(new Client(), config('motor.FGI.tw.QuickQuote')); 
@@ -854,6 +1034,378 @@ class FgiTwResource extends AppResource{
                DB::table('app_quote')->where('enquiry_id', $enquiry_id)->update(['token'=>$token]);
                return ['status'=>true,'data'=>$enquiry_id,'token'=>$token];
      }
+     
+     function fnPolicyIssuance($params,$Premium,$WS_P_ID,$TID,$PGID){
+         $chars = date('Ymd').time();
+         $uid = str_shuffle(substr(str_shuffle($chars), 0, 10));
+         $productCode = $this->productCode($params['planType']);
+         $make=($params['vehicle']['brand']['name'])?trim($params['vehicle']['brand']['name']):null;
+         $model = ($params['vehicle']['model']['name'])?$params['vehicle']['model']['name']:null;
+         $varient = ($params['vehicle']['varient']['name'])?$params['vehicle']['varient']['name']:null;
+         $regionCode = $params['vehicle']['rtoCode'];
+         $registrationDate=date('d').'/'.$params['vehicle']['regMonth'].'/'.$params['vehicle']['regYear'];
+         $expDate = createFormatDate($params['previousInsurance']['expDate'],'d-m-Y','d/m/Y');
+         $startDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->addDays()->format('Y-m-d');
+      
+         $var = DB::table('vehicle_variant_tw')->where('id',$params['vehicle']['varient']['id'])->first();
+    
+         $pincode =  $params['address']['pincode'];
+         $_city   =  strtoupper(explode("-",$params['address']['state'])[1]);
+         $_state  =  strtoupper(explode("-",$params['address']['state'])[1]);
+         $fuel = "P";
+         switch (strtolower($var->fuel_type)) {
+            case "petrol":$fuel =  "P";break;
+            case "diesel":$fuel =  "D";break;
+            case "cng": $fuel =  "C";break;
+            default:$fuel =  "P";
+        }
+        $period = $this->timePeriod('d/m/Y',1 ,$startDate);
+        $ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
+        $ncbArray = ['ZERO'=>0,'TWENTY'=>20,'TWENTY_FIVE'=>25,'THIRTY_FIVE'=>35,'FORTY_FIVE'=>45,'FIFTY'=>50];
+        $ncbArrayNew = ['ZERO'=>20,'TWENTY'=>25,'TWENTY_FIVE'=>35,'THIRTY_FIVE'=>45,'FORTY_FIVE'=>50,'FIFTY'=>50];
+        $hasMadePreClaim  = (isset($params['previousInsurance']['hasPreClaim']) && $params['previousInsurance']['hasPreClaim']=='yes')?'Y':'N';
+        $ncbPercent = $ncbArray[$ncb];
+        $ncbPercentNew = $ncbArrayNew[$ncb];
+            $ROOT = "<Root>
+                    	<Uid>".$uid."</Uid>
+                    	<VendorCode>webagg</VendorCode>
+                    	<VendorUserId>webagg</VendorUserId>
+                    	<PolicyHeader>
+                    		<PolicyStartDate>".$period->startDate."</PolicyStartDate> 
+                            <PolicyEndDate>".$period->endDate."</PolicyEndDate>
+                    		<AgentCode>".config('motor.FGI.tw.AgentCode')."</AgentCode>
+                    		<BranchCode>".config('motor.FGI.tw.BranchCode')."</BranchCode>
+                    		<MajorClass>MOT</MajorClass>
+                    		<ContractType>".$productCode->contract."</ContractType>
+                    		<METHOD>CRT</METHOD>
+                    		<PolicyIssueType>I</PolicyIssueType>
+                    		<PolicyNo></PolicyNo>
+                    		<ClientID></ClientID>
+                    		<ReceiptNo></ReceiptNo>
+                    	</PolicyHeader>
+                    	<POS_MISP>
+		                   <Type></Type>
+		                   <PanNo></PanNo>
+	                    </POS_MISP>
+                    	<Client>
+                    		<ClientType>I</ClientType>
+                    		<CreationType>C</CreationType>
+                    		<Salutation>".strtoupper($params['customer']['salutation'])."</Salutation>
+                    		<FirstName>".$params['customer']['first_name']."</FirstName>
+                    		<LastName>".$params['customer']['last_name']."</LastName>
+                    		<DOB>".str_replace('-','/',$params['customer']['dob'])."</DOB>
+                    		<Gender>".strtoupper(substr($params['customer']['gender'],0,1))."</Gender>
+                    		<MaritalStatus>M</MaritalStatus>
+                    		<Occupation>SVCM</Occupation>
+                    		<PANNo></PANNo>
+                    		<GSTIN></GSTIN>
+                    		<AadharNo></AadharNo>
+                    		<CKYCNo></CKYCNo>
+                    		<EIANo></EIANo>
+                    		<Address1>
+                    			<AddrLine1>".$params['address']['addressLineOne']."</AddrLine1>
+                    			<AddrLine2>".$params['address']['addressLineTwo']."</AddrLine2>
+                    			<AddrLine3></AddrLine3>
+                    			<Landmark></Landmark>
+                    			<Pincode>".$pincode."</Pincode>
+                    			<City>".$_city."</City>
+                    			<State>".$_state."</State>
+                    			<Country>IND</Country>
+                    			<AddressType>R</AddressType>
+                    			<HomeTelNo></HomeTelNo>
+                    			<OfficeTelNo></OfficeTelNo>
+                    			<FAXNO></FAXNO>
+                    			<MobileNo>".$params['customer']['mobile']."</MobileNo>
+                    			<EmailAddr>".$params['customer']['email']."</EmailAddr>
+                    		</Address1>
+                    		<Address2>
+                    		    <AddrLine1>".$params['address']['addressLineOne']."</AddrLine1>
+                    			<AddrLine2>".$params['address']['addressLineTwo']."</AddrLine2>
+                    			<AddrLine3></AddrLine3>
+                    			<Landmark></Landmark>
+                    			<Pincode>".$pincode."</Pincode>
+                    			<City>".$_city."</City>
+                    			<State>".$_state."</State>
+                    			<Country>IND</Country>
+                    			<AddressType>B</AddressType>
+                    			<HomeTelNo></HomeTelNo>
+                    			<OfficeTelNo></OfficeTelNo>
+                    			<FAXNO></FAXNO>
+                    		    <MobileNo>".$params['customer']['mobile']."</MobileNo>
+                    			<EmailAddr>".$params['customer']['email']."</EmailAddr>
+                    		</Address2>
+                         	<VIPFlag>N</VIPFlag>
+                    	    <VIPCategory></VIPCategory>
+                    	</Client>
+                    	<Receipt>
+                    		<UniqueTranKey>".$WS_P_ID."</UniqueTranKey>
+                    		<CheckType></CheckType>
+                    		<BSBCode></BSBCode>
+                    		<TransactionDate>".date('d/m/Y')."</TransactionDate>
+                    		<ReceiptType>IVR</ReceiptType>
+                    		<Amount>".$Premium."</Amount>
+                    		<TCSAmount></TCSAmount>
+                    		<TranRefNo>".$TID."</TranRefNo>
+                    		<TranRefNoDate>".date('d/m/Y')."</TranRefNoDate>
+                    	</Receipt>
+	                    <Risk>
+                    		<RiskType>".$productCode->risk."</RiskType>
+                    		<Zone>A</Zone>
+                    		<Cover>".$productCode->cover."</Cover>
+                    		<Vehicle>
+                    			<TypeOfVehicle></TypeOfVehicle>
+                    			<VehicleClass></VehicleClass>
+                    			<RTOCode>".$regionCode."</RTOCode>
+                    			<Make>".strtoupper($make)."</Make>
+                    			<ModelCode>".$var->fgi_code."</ModelCode>
+                    			<RegistrationNo>{{RegistrationNo}}</RegistrationNo>
+                    			<RegistrationDate>".$registrationDate."</RegistrationDate>
+                    			<ManufacturingYear>".clean_str($var->price_year)."</ManufacturingYear>
+                    			<FuelType>".$fuel."</FuelType>
+                    			<CNGOrLPG>
+                    				<InbuiltKit>N</InbuiltKit>
+                    				<IVDOfCNGOrLPG></IVDOfCNGOrLPG>
+                    			</CNGOrLPG>
+                    			<BodyType>SOLO</BodyType>
+                    			<EngineNo>".getRandomStr(10)."</EngineNo>
+                    			<ChassiNo>".getRandomStr(17)."</ChassiNo>
+                    			<CubicCapacity>".$var->cubic_capacity."</CubicCapacity>
+                    			<SeatingCapacity>".$var->seating_capacity."</SeatingCapacity>
+                    			<IDV>{{IDV}}</IDV>
+                    			<GrossWeigh></GrossWeigh>
+                    			<CarriageCapacityFlag></CarriageCapacityFlag>
+                    			<ValidPUC>Y</ValidPUC>
+                    			<TrailerTowedBy></TrailerTowedBy>
+                    			<TrailerRegNo></TrailerRegNo>
+                    			<NoOfTrailer></NoOfTrailer>
+                    			<TrailerValLimPaxIDVDays></TrailerValLimPaxIDVDays>
+                    	     	<TrailerChassisNo></TrailerChassisNo>
+                    	    	<TrailerMfgYear></TrailerMfgYear>
+                    	    	<SchoolBusFlag></SchoolBusFlag>
+                    		</Vehicle>
+                    		<InterestParty>
+                    			<Code></Code>
+                    			<BankName></BankName>
+                    		</InterestParty>
+                    		<AdditionalBenefit>
+                    			<Discount>0.00000</Discount>
+                    			<ElectricalAccessoriesValues></ElectricalAccessoriesValues>
+                    			<NonElectricalAccessoriesValues></NonElectricalAccessoriesValues>
+                    			<FibreGlassTank></FibreGlassTank>
+                    			<GeographicalArea></GeographicalArea>
+                    			<PACoverForUnnamedPassengers>{{isPA_UNPassCover}}</PACoverForUnnamedPassengers>
+                    			<LegalLiabilitytoPaidDriver>{{isLL_PaidDriverCover}}</LegalLiabilitytoPaidDriver>
+                    			<LegalLiabilityForOtherEmployees>{{isLL_EmpCover}}</LegalLiabilityForOtherEmployees>
+                    			<LegalLiabilityForNonFarePayingPassengers></LegalLiabilityForNonFarePayingPassengers>
+                    			<UseForHandicap></UseForHandicap>
+                    			<AntiThiefDevice></AntiThiefDevice>
+                    			<NCB>".$ncbPercentNew."</NCB>
+                    			<RestrictedTPPD></RestrictedTPPD>
+                    			<PrivateCommercialUsage></PrivateCommercialUsage>
+                    			<CPAYear></CPAYear>
+                    			<CPADisc></CPADisc>
+                    			<IMT23></IMT23>
+                    			<CPAReq>{{CPAReq}}</CPAReq>
+                    			<CPA>
+                    				<CPANomName>{{CPANomName}}</CPANomName>
+                                    <CPANomAge>{{CPANomAge}}</CPANomAge>
+                                    <CPANomAgeDet>{{CPANomAgeDet}}</CPANomAgeDet>
+                                    <CPANomPerc>{{CPANomPerc}}</CPANomPerc>
+                                    <CPARelation>{{CPARelation}}</CPARelation>
+                    				<CPAAppointeeName></CPAAppointeeName>
+                    				<CPAAppointeRel></CPAAppointeRel>
+                    			</CPA>
+                    			<NPAReq>N</NPAReq>
+                    			<NPA>
+                    				<NPAName></NPAName>
+                    				<NPALimit></NPALimit>
+                    				<NPANomName></NPANomName>
+                    				<NPANomAge></NPANomAge>
+                    				<NPANomAgeDet></NPANomAgeDet>
+                    				<NPARel></NPARel>
+                    				<NPAAppinteeName></NPAAppinteeName>
+                    				<NPAAppinteeRel></NPAAppinteeRel>
+                    			</NPA>
+                        		<ZNCBRSRCV></ZNCBRSRCV>
+                        		<ZNOFEMPLY></ZNOFEMPLY>
+                        		<ZLMTPERPD></ZLMTPERPD>
+                        		<ZADDLPAPD></ZADDLPAPD>
+                        		<ZTPPER></ZTPPER>
+                        		<ZCMPTPPA></ZCMPTPPA>
+                        		<ZLMTTPPD></ZLMTTPPD>
+                        		<ZPREMISE></ZPREMISE>
+                        		<ZVINTAGE></ZVINTAGE>
+                        		<XCESSLAB></XCESSLAB>
+                        		<XCESCDE></XCESCDE>
+                        		<ZSCARSI></ZSCARSI>
+                        		<ZSCARIND></ZSCARIND>
+                        		<ZAANO></ZAANO>
+                        		<ZEMBASSY></ZEMBASSY>
+                        		<ZSPECRAL></ZSPECRAL>
+                        		<ZRALTRAIL></ZRALTRAIL>
+                        		<ZDRVTTN></ZDRVTTN>
+                        		<EXPDTE></EXPDTE>
+                        		<ZOVRTFLG></ZOVRTFLG>
+                        		<ZIMT44ID></ZIMT44ID>
+                        		<ZPAPDPRM></ZPAPDPRM>
+                        		<ZNOPPM></ZNOPPM>
+                        		<ZIMT34ID></ZIMT34ID>
+                        	</AdditionalBenefit>
+                    		<AddonReq>{{HAS_ADDONS}}</AddonReq>
+                    		{{ADDONS}}
+                    		<PreviousTPInsDtls>
+                    			<PreviousInsurer></PreviousInsurer>
+                    			<TPPolicyNumber></TPPolicyNumber>
+                    			<TPPolicyEffdate></TPPolicyEffdate>
+                    			<TPPolicyExpiryDate></TPPolicyExpiryDate>
+                    		</PreviousTPInsDtls>
+                    		<PreviousInsDtls>
+                    			<UsedCar>N</UsedCar>
+                    			<UsedCarList>
+                    				<PurchaseDate></PurchaseDate>
+                    				<InspectionRptNo></InspectionRptNo>
+                    				<InspectionDt></InspectionDt>
+                    			</UsedCarList>
+                    			<RollOver>Y</RollOver>
+                    			<RollOverList>
+                    			    <PolicyNo>OG-18-17-5412E548-00-000</PolicyNo>
+                                    <InsuredName>Bajaj Allianz General Insurance Co Ltd.</InsuredName>
+                    				<PreviousPolExpDt>".$expDate."</PreviousPolExpDt>
+                    				<ClientCode>40062645</ClientCode>
+                    				<Address1>".$_city."</Address1>
+                    				<Address2>".$_city."</Address2>
+                    				<Address3>".$_city."</Address3>
+                    				<Address4>".$_city."</Address4>
+                    				<Address5>".$_state."</Address5>
+                    				<PinCode>".$pincode."</PinCode>
+                    				<InspectionRptNo></InspectionRptNo>
+                    				<InspectionDt></InspectionDt>
+                    				<NCBDeclartion>".$hasMadePreClaim."</NCBDeclartion>  
+                    				<ClaimInExpiringPolicy>".$hasMadePreClaim."</ClaimInExpiringPolicy>
+                    				<NCBInExpiringPolicy>".$ncbPercent."</NCBInExpiringPolicy>
+                    		   	    <PreviousPolStartDt></PreviousPolStartDt>
+                    			    <TypeOfDoc></TypeOfDoc>
+                    			    <NoOfClaims></NoOfClaims>
+                    			</RollOverList>
+                    			<NewVehicle>N</NewVehicle>
+                    			<NewVehicleList>
+                    				<InspectionRptNo></InspectionRptNo>
+                    				<InspectionDt></InspectionDt>
+                    			</NewVehicleList>
+                    		</PreviousInsDtls>
+                        	<ZLLOTFLG></ZLLOTFLG>
+                        	<GARAGE></GARAGE>
+                        	<ZREFRA></ZREFRA>
+                        	<ZREFRB></ZREFRB>
+                        	<ZIDVBODY></ZIDVBODY>
+                        	<COVERNT></COVERNT>
+                        	<CNTISS></CNTISS>
+                        	<ZCVNTIME></ZCVNTIME>
+                        	<AddressSeqNo></AddressSeqNo>
+                    	</Risk>
+                   </Root>";
+
+
+ return $ROOT;
+              
+    }
+    
+     function policyIssuance($enQId,$Premium,$WS_P_ID,$TID,$PGID){
+        $info =    DB::table('app_quote')->where('enquiry_id',$enQId)->first();
+        $params = json_decode($info->params_request);
+        $subcovers = $params->subcovers;
+        $XML =  $this->fnPolicyIssuance(json_decode(json_encode($params), true),$Premium,$WS_P_ID,$TID,$PGID);
+        
+        //$jData = json_decode($info->json_data);
+        $CPAReq = (isset($subcovers->isPA_OwnerDriverCover) && $subcovers->isPA_OwnerDriverCover=='true')?'Y':'N';
+        if($CPAReq=="Y"){
+      
+            $nR = DB::table('relations')->where('value',$params->nominee->relation)->value('FGI');
+            $nR = ($nR)?$nR:"BROT";
+            $age = calulateAge(createFormatDate($params->nominee->dob,'d-m-Y','Y-m-d'));
+            $XML = str_replace("{{CPAReq}}",$CPAReq,$XML);
+            $XML = str_replace("{{CPANomName}}",$params->nominee->name,$XML);
+            $XML = str_replace("{{CPANomAge}}",$age,$XML);
+            $XML = str_replace("{{CPANomAgeDet}}","Y",$XML);
+            $XML = str_replace("{{CPANomPerc}}","100",$XML);
+            $XML = str_replace("{{CPARelation}}",$nR,$XML);
+        }else{
+            
+            $XML = str_replace("{{CPAReq}}",$CPAReq,$XML);
+            $XML = str_replace("{{CPANomName}}","",$XML);
+            $XML = str_replace("{{CPANomAge}}","",$XML);
+            $XML = str_replace("{{CPANomAgeDet}}","",$XML);
+            $XML = str_replace("{{CPANomPerc}}","",$XML);
+            $XML = str_replace("{{CPARelation}}","",$XML);
+        }
+        
+       
+        //$licensePlateNumber =$options['vehicle']['vehicleNumber'];
+           // if($options['vehicle']['hasvehicleNumber']=="true"){
+                $licensePlateNumber =$params->vehicle->vehicleNumber;
+           //  }
+        $XML = str_replace("{{RegistrationNo}}",$licensePlateNumber,$XML);
+        
+             $idv = isset($params->vehicle->idv->value)?$params->vehicle->idv->value:0;
+             $XML = str_replace("{{IDV}}",$idv,$XML);
+            
+            $PA_UNNAMED_PASS = (isset($subcovers->isPA_UNPassCover) && $subcovers->isPA_UNPassCover=='true')?$params->coverValues->PA_UNPassCoverval:'';
+            $XML = str_replace("{{isPA_UNPassCover}}",$PA_UNNAMED_PASS,$XML);
+            
+            $LL_PaidDriver = (isset($subcovers->isLL_PaidDriverCover) && $subcovers->isLL_PaidDriverCover=='true')?"1":"";
+            $XML = str_replace("{{isLL_PaidDriverCover}}",$LL_PaidDriver,$XML);
+            
+            $LL_Emp = (isset($subcovers->isLL_EmpCover) && $subcovers->isLL_EmpCover=='true')?"Y":"";
+            $XML = str_replace("{{isLL_EmpCover}}",$LL_Emp,$XML);
+            $ADDONS="";
+           // $ADDONS .= (isset($options['isTyreProCover']) && $options['isTyreProCover']=='true')?"<Addon><CoverCode>00001</CoverCode></Addon>":"";
+           // $ADDONS .= (isset($options['isRetInvCover']) && $options['isRetInvCover']=='true')?"<Addon><CoverCode>00006</CoverCode></Addon>":"";
+            $ADDONS .= (isset($subcovers->isEng_GearBoxProCover) && $subcovers->isEng_GearBoxProCover=='true')?"<Addon><CoverCode>ENGPR</CoverCode></Addon>":"";
+            $ADDONS .= (isset($subcovers->isPartDepProCover) && $subcovers->isPartDepProCover=='true')?"<Addon><CoverCode>PLAN1</CoverCode></Addon>":"";
+            $hasAddons = ($ADDONS!="")?"Y":"N";
+            $XML = str_replace("{{HAS_ADDONS}}",$hasAddons,$XML);
+            if($hasAddons=="Y"){
+                 $XML = str_replace("{{ADDONS}}",$ADDONS,$XML);
+            }else{
+                 $XML = str_replace("{{ADDONS}}","<Addon><CoverCode></CoverCode></Addon>",$XML);	
+            }
+        try {
+            $factory = new Factory();
+            $client = $factory->create(new Client(), config('motor.FGI.tw.QuickQuote')); 
+            $result = $client->call('CreatePolicy', [["Product"=>"Motor","XML"=>$XML]]);
+            $xml   = simplexml_load_string($result->CreatePolicyResult, 'SimpleXMLElement', LIBXML_NOCDATA);
+            $array = json_decode(json_encode((array)$xml), TRUE);
+            
+              
+            if(isset($array['Policy'])){
+                    $Inuptxml   = simplexml_load_string($XML, 'SimpleXMLElement', LIBXML_NOCDATA);
+                    $Inuptxml = json_decode(json_encode((array)$Inuptxml), TRUE);
+                     
+                    $policyNo = $array['Policy']['PolicyNo'];
+                   
+                    $QDATA = ['reqCreate'=>json_encode($Inuptxml),'respCreate'=>json_encode($array)];
+                    print_r($QDATA);
+                    DB::table('app_quote')->where('enquiry_id',$enQId)->update($QDATA);
+                    return ['status'=>true,'message'=>'Policy Generated successfully','data'=>$policyNo];
+            }else{
+               return ['status'=>false,'message' => "Connection Fail",'data'=>""];
+            }
+        }catch (ConnectException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $jsonRes = json_decode($responseBodyAsString);
+                return ['status' => false, 'message' => "ConnectException",'data'=>""];
+            }catch (RequestException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                 return ['status' => false,'message' => 'RequestException','data'=>""];
+            }catch (ClientException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $jsonRes = json_decode($responseBodyAsString);
+                return ['status' =>false,'message' => "ClientException",'data'=>""];
+            }
+    }
     
      function Generatehash256($message) {
          $hash = hash('sha256', mb_convert_encoding($message, 'UTF-8'), true);
@@ -868,6 +1420,44 @@ class FgiTwResource extends AppResource{
                     $hex .= dechex(ord($string[$i]));
                 }
         return ($hex);
+    }
+    
+      function GetPDF($pno){
+            
+            try {
+                $url = "http://fglpg001.futuregenerali.in/PDFDownload?wsdl";
+                $factory = new Factory();
+                $client =  $factory->create(new Client(), $url); 
+                $_result = $client->call('GetPDF', [["PolicyNumber"=>$pno,'UserID'=>'webagg','Password'=>'webagg@123']]);
+                if(isset($_result->GetPDFResult) && $_result->GetPDFResult!=""){
+                    if(isset($_result->GetPDFResult->any)){
+                        return  ['status'=>false,'filename'=>"",'message'=>$_result->GetPDFResult->any];
+                    }else{
+                    $filename = 'FGI_TW_'.$pno.'.pdf';
+                    $filePath =$_result->GetPDFResult;
+                    $ff = file_get_contents($filePath,true);
+                    $file = getcwd()."/public/assets/customers/policy/pdf/".$fileName;
+                    file_put_contents($file, $ff);
+                    return  ['status'=>true,'filename'=>$fileName];
+                   }
+                }
+                   
+            }catch (ConnectException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $jsonRes = json_decode($responseBodyAsString);
+                 return  ['status'=>false,'filename'=>"",'message'=>"Internal error"];
+            }catch (RequestException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $jsonRes = json_decode($responseBodyAsString);
+               return  ['status'=>false,'filename'=>"",'message'=>"Internal error"];
+            }catch (ClientException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $jsonRes = json_decode($responseBodyAsString);
+                return  ['status'=>false,'filename'=>"",'message'=>"Internal error"];
+            }
     }
     
    

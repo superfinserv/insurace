@@ -16,7 +16,7 @@ use App\Resources\DigitCarResource;
 use App\Resources\DigitBikeResource;
 use App\Resources\HdfcErgoTwResource;
 use App\Resources\HdfcErgoCarResource;
-
+use App\Resources\FgiTwResource;
 
 use App\Partners\Care\Care;
 use App\Partners\Manipal\Manipal;
@@ -24,19 +24,16 @@ use App\Partners\Digit\DigitHealth;
     
 class Insurance extends Controller{
     public $uniqueToken;
-    public function __construct(Care $care, Manipal $manipal,DigitHealth $digitHealth,
-                                DigitCarResource $DigitCarResource,
-                                DigitBikeResource $DigitBikeResource,
-                                HdfcErgoTwResource $HdfcErgoTwResource,
-                                HdfcErgoCarResource $HdfcErgoCarResource) { 
-       $this->DigitBikeResource  = $DigitBikeResource;
-       $this->DigitCarResource = $DigitCarResource;
-       $this->HdfcErgoTwResource = $HdfcErgoTwResource;
-       $this->HdfcErgoCarResource = $HdfcErgoCarResource;
-       
-       $this->Care =  $care;
-       $this->Manipal  = $manipal;
-       $this->DigitHealth  = $digitHealth;
+    public function __construct() { 
+       $this->DigitBikeResource  = new DigitBikeResource;
+       $this->DigitCarResource =   new DigitCarResource;
+       $this->HdfcErgoTwResource =  new HdfcErgoTwResource;
+       $this->HdfcErgoCarResource =  new HdfcErgoCarResource;
+       $this->FgiTw =  new FgiTwResource;
+        
+       $this->Care =   new Care;
+       $this->Manipal  =  new Manipal;
+       $this->DigitHealth  =  new DigitHealth;
    }
    
   
@@ -89,6 +86,18 @@ class Insurance extends Controller{
                 }
         }else if($sale->provider=="HDFCERGO" && ($sale->type=="BIKE" || $sale->type=="CAR")){
              $resp = ($sale->type=="BIKE")?$this->HdfcErgoTwResource->GetPDF($sale->policy_no):$this->HdfcErgoCarResource->GetPDF($sale->policy_no);
+             if($resp['status']){
+                DB::table('policy_saled')->where('policy_no', $sale->policy_no)->update(['filename'=>$resp['filename']]);
+                 return response()->json(['status'=>'success',
+                                             'message'=>"Policy Get Successfully",
+                                             "provider"=>$sale->provider,
+                                             "type"=>$sale->type,
+                                             'data'=>['fileName'=>$resp['filename'],'path'=>url('get/download/file/policy-file/'.$resp['filename'])]]); 
+             }else{
+                return response()->json(['status'=>'error','fileName'=>"",'message'=>$resp['message']]);  
+             }
+        }else if($sale->provider=="FGI" && ($sale->type=="BIKE" || $sale->type=="CAR")){
+             $resp = $this->FgiTw->GetPDF($sale->policy_no);
              if($resp['status']){
                 DB::table('policy_saled')->where('policy_no', $sale->policy_no)->update(['filename'=>$resp['filename']]);
                  return response()->json(['status'=>'success',
