@@ -280,7 +280,7 @@ input[type="email"]::-ms-input-placeholder,input[type="text"]:-ms-input-placehol
                                             <div class="col-md-4">    
                                                 <div class="form-group">
                                                     <label for="name" style="width: 100%">Nominee Relation</label>    
-                                                    <select style="margin-bottom:0px;" class="form-control select2" id="nominee_relation" name="nominee_relation">
+                                                    <select style="margin-bottom:0px;" class="" id="nominee_relation" name="nominee_relation">
                                                       <option value="">Select</option>
                                                       <?php foreach ($relations as  $value) { ?>
                                                         <option value="{{$value->value}}" <?=(isset($params->nominee->relation) && $params->nominee->relation==$value->value)?'selected':'';?>>{{$value->label}}</option>
@@ -328,8 +328,8 @@ input[type="email"]::-ms-input-placeholder,input[type="text"]:-ms-input-placehol
                                         <div class="row">
                                             <div class="col-md-6">    
                                                 <div class="form-group">
-                                                    <label for="pincode" style="width: 100%">State Name</label>    
-                                                    <select style="margin-bottom:0px;" class="form-control select2" id="state_id" name="state_id">
+                                                    <label for="state_id" style="width: 100%">State Name</label>    
+                                                    <select style="margin-bottom:0px;" class=" " id="state_id" name="state_id">
                                                       <option value="">Select state</option>
                                                       <?php foreach ($states as  $value) { ?>
                                                         <option value="{{$value->id}}-{{$value->name}}"  <?=(isset($params->address->state) && $params->address->state==$value->id.'-'.$value->name)?'selected':'';?>>{{$value->name}}</option>
@@ -339,8 +339,8 @@ input[type="email"]::-ms-input-placeholder,input[type="text"]:-ms-input-placehol
                                             </div>
                                             <div class="col-md-6">    
                                                 <div class="form-group">
-                                                    <label for="pincode" style="width: 100%">City Name</label>    
-                                                    <select style="margin-bottom:0px;" class="form-control select2" id="city_id" name="city_id">
+                                                    <label for="city_id" style="width: 100%">City Name</label>    
+                                                    <select style="margin-bottom:0px;" class=" " id="city_id" name="city_id">
                                                       <option value="">Select City</option>
                                                       <?php if(isset($cities)){
                                                           foreach ($cities as  $ct) { ?>
@@ -353,9 +353,16 @@ input[type="email"]::-ms-input-placeholder,input[type="text"]:-ms-input-placehol
                                         <div class="row">
                                             <div class="col-md-6">    
                                               <div class="form-group">
-                                                    <label for="pincode" style="width: 100%">Pincode</label>    
-                                                    <input style="margin-bottom:0px;" type="text" name="pincode" id="pincode" maxlength="6" value="<?=isset($params->address->pincode)?$params->address->pincode:'';?>" class="form-control number-only" placeholder="Pincode">
-                                                </div>
+                                                    <label for="pincode" style="width: 100%">Pincode</label>  
+                                                   <?php /*   <select style="margin-bottom:0px;"  id="pincode" name="pincode">
+                                                      <option value="">Select Pincode</option>
+                                                      <?php if(isset($pincodes)){
+                                                          foreach ($pincodes as  $P) { ?>
+                                                              <option value="{{$P->pincode}}"  <?=(isset($params->address->pincode) && $params->address->pincode==$P->pincode)?'selected':'';?>>{{$P->pincode}}</option>
+                                                          <?php }  } ?>
+                                                </select> */ ?>
+                                                  <input style="margin-bottom:0px;" type="text" name="pincode" id="pincode" maxlength="6" value="<?=isset($params->address->pincode)?$params->address->pincode:'';?>" class="form-control number-only" placeholder="Pincode"> 
+                                               </div>
                                             </div>
                                             <div class="col-md-3" style="margin-top: 30px;"> <button type="button" id="btn-back-step-2" class="btn-block sp-custom-btn btn-red font-18" style="float: right;"><i class="backword fa fa-angle-double-left" aria-hidden="true"></i> Previous </button></div>
                                             <div class="col-md-3" style="margin-top: 30px;"> <button type="button" id="btn-step-2" class="btn-block sp-custom-btn btn-red font-18" style="float: right;">Next <i class="forword fa fa-angle-double-right" aria-hidden="true"></i></button></div>
@@ -368,11 +375,12 @@ input[type="email"]::-ms-input-placeholder,input[type="text"]:-ms-input-placehol
                                     <form class="form-group"  enctype="multipart/form-data"  id="vehicle_form" method="post" >
                                         <input name="_token" type="hidden" value="{{ csrf_token() }}"  />
                                         <div class="row"  id="">
-                                             <?php if($params->vehicle->isBrandNew!="true") { ?>
+                                             <?php if($params->vehicle->isBrandNew!="true") {
+                                             $vNum = !empty($params->vehicle->vehicleNumber)?$params->vehicle->vehicleNumber:$params->vehicle->rtoCode;?>
                                             <div class="col-md-6" >    
                                                 <div class="form-group">
                                                     <label for="car_number" style="width: 100%">Your Vehicle Number</label>    
-                                                     <input style="margin-bottom:0px;" type="text" name="bike_number" id="bike_number" class="form-control vehicleRegNumber" placeholder="Your Vehicle Number" value="<?=isset($params->vehicle->vehicleNumber)?$params->vehicle->vehicleNumber:'';?>">
+                                                     <input style="margin-bottom:0px;" type="text" name="bike_number" id="bike_number" class="form-control vehicleRegNumber" placeholder="Your Vehicle Number" value="<?=$vNum?>">
                                                 </div>
                                             </div>
                                             <?php }?>
@@ -554,6 +562,16 @@ input[type="email"]::-ms-input-placeholder,input[type="text"]:-ms-input-placehol
 						                </span></td> </tr>
 						                <tr><th>2W</th> <td>:{{$params->vehicle->brand->name}},{{$params->vehicle->model->name}},{{$params->vehicle->varient->name}}</td> </tr>
 						                <tr><th>Reg. Year</th> <td>:<span id="span_reg_date">{{$params->vehicle->regYear}}</span></td> </tr>
+						                <?php  $isNew = ($params->vehicle->rtoCode=='true')?'-New':"";?>
+						                <tr>   <th>Cover Type</th> 
+						                      @if($params->planType=="COM")
+						                         <td>:Comprehansive{{$isNew}}</td> 
+						                      @elseif($params->planType=="TP")
+						                          <td>:Third Party{{$isNew}}</td> 
+						                      @elseif($params->planType=="SAOD")
+						                           <td>:Standalone Own Damage{{$isNew}}</td> 
+						                      @endif
+						              </tr>
 						            </table>
 						        </div>
 						    </div>

@@ -11,21 +11,13 @@ use File;
 use Illuminate\Support\Facades\Hash;
 use App\Model\Agents;
 use Illuminate\Support\Facades\Auth;
-use App\Resources\DigitCarResource;
-use App\Resources\DigitResource;
-use App\Resources\DigitBikeResource;
-use App\Resources\CareResource;
+
 
 
 class SalesController extends Controller{
-    //  public function __construct() { 
-    //     //$this->middleware('auth');
-    //  }
-    public function __construct(DigitResource $DigitResource,DigitCarResource $DigitCarResource,DigitBikeResource $DigitBikeResource,CareResource $CareResource) { 
-            $this->DigitCarResource  = $DigitCarResource;
-            $this->DigitBikeResource = $DigitBikeResource;
-            $this->DigitResource     = $DigitResource;
-            $this->CareResource      = $CareResource;
+   
+    public function __construct() { 
+          
             $this->middleware('auth');
     }
     public function createQuote(){
@@ -221,34 +213,7 @@ class SalesController extends Controller{
         return response()->json($data); 
     }
     
-    public function getPolicyDoc(Request $request){
-        $sale=DB::table('policy_saled')->where('id', $request->id)->first();
-       
-        if($sale->provider=="DIGIT"){
-                $resp = $this->DigitCarResource->GetPDF($sale->policy_no);
-                if($resp->status){
-                  return response()->json(['status'=>'success','fileName'=>$resp->filename]); 
-                }else{
-                  return response()->json(['status'=>'error','fileName'=>"",'path'=>url('get/download/file/policy-file/'.$resp['filename'])]); 
-                }
-        }else if($sale->provider=="DIGIT_H"){
-            $resp  = $this->DigitResource->GetPDF($sale->policy_no);
-             if($resp->status){
-                 DB::table('policy_saled')->where(['id'=>$request->id])->update(['filename'=>$resp->filename]);
-                  return response()->json(['status'=>'success','fileName'=>$resp->filename,'path'=>url('get/download/file/policy-file/'.$resp->filename)]); 
-                }else{
-                  return response()->json(['status'=>'error','fileName'=>""]); 
-                }
-        }else if($sale->provider=="CARE"){
-                $resp = $this->CareResource->savePDF($sale->enquiry_id,$sale->policy_no);
-                if($resp['status']=='success'){
-                    DB::table('policy_saled')->where(['id'=>$request->id])->update(['filename'=>$resp['filename']]);
-                    return response()->json(['status'=>'success','fileName'=>$resp['filename'],'path'=>url('get/download/file/policy-file/'.$resp['filename'])]); 
-                }else{
-                  return response()->json(['status'=>'error','fileName'=>$resp['filename']]); 
-                }
-        }
-    }
+
     
     // public function testVh(){
          

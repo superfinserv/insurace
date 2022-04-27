@@ -513,7 +513,7 @@ class DigitCarResource extends AppResource{
                     $policyTPEndDate= isset($params['TP']['TPpolicyEndDate'])?explode('-',$params['TP']['TPpolicyEndDate']):null;
                  $request['previousInsurer']['originalPreviousPolicyType'] =$pp;   
                     $request['previousInsurer']['currentThirdPartyPolicy']    = ["isCurrentThirdPartyPolicyActive"=>null,
-                                                                                  "currentThirdPartyPolicyInsurerCode"=>DB::table('previous_insurer')->where('id', $params['previousInsurance']['insurer'])->value('digit_code'),
+                                                                                  "currentThirdPartyPolicyInsurerCode"=>DB::table('previous_insurer')->where('id', $params['TP']['TPInsurer'])->value('digit_code'),
                                                                                   "currentThirdPartyPolicyNumber"=>$params['previousInsurance']['policyNo'],
                                                                                   "currentThirdPartyPolicyStartDateTime"=>$policyStartDate[2]."-".$policyStartDate[1]."-".$policyStartDate[0],
                                                                                   "currentThirdPartyPolicyExpiryDateTime"=>$policyTPEndDate[2]."-".$policyTPEndDate[1]."-".$policyTPEndDate[0]
@@ -537,7 +537,7 @@ class DigitCarResource extends AppResource{
              );
             $result = $clientResp->getBody()->getContents();
             $response = json_decode($result);
-        //print_r($result);die;
+        
          
             DB::table('app_temp_quote')->where(['type'=>'CAR','device'=>$deviceToken,'provider'=>'DIGIT'])->delete();
             if(isset($response->error->errorCode) && $response->error->errorCode==0 ){
@@ -1288,7 +1288,7 @@ class DigitCarResource extends AppResource{
     }
     
     function createQuote($enquiry_id,$options ){
-     
+    
        if(isset($options->vehicle->vehicleNumber)){
           $vehicleNo  = $options->vehicle->vehicleNumber;
        }else{
@@ -1315,12 +1315,12 @@ class DigitCarResource extends AppResource{
         if(!empty($options->vehicle->hypothecationAgency)){
         
            $motorQuestions->furtherAgreement="";
-           $motorQuestions->selfInspection=false;
+           $motorQuestions->selfInspection=true;
            $motorQuestions->financer=$options->vehicle->hypothecationAgency;
         }else{
            
            $motorQuestions->furtherAgreement="";
-           $motorQuestions->selfInspection=false;
+           $motorQuestions->selfInspection=true;
            $motorQuestions->financer="";
         }
         $REQUEST->motorQuestions=$motorQuestions;
@@ -1465,10 +1465,10 @@ class DigitCarResource extends AppResource{
                 )]
             );
             $result = $clientResp->getBody()->getContents();
-            //print_r($result);die;
+            // print_r($result);
            $response = json_decode($result);
            if(isset($response->message)){
-                return ['status'=>false,'data'=>$enquiry_id ,"message"=>$response->message];
+                return ['status'=>false,'data'=>$enquiry_id ,"message"=>$response->message,'reqCreate'=>json_encode($REQUEST),'respCreate'=>$result];
            }else if(isset($response->error->errorCode) && $response->error->errorCode==0 ){
                $jsonData = $this->getJsonData($result);
                $jsonData->enq = $enquiry_id;
@@ -1484,8 +1484,23 @@ class DigitCarResource extends AppResource{
                               'respCreate'=>$result,
                               'json_data'=>json_encode($jsonData),
                               'req'=>json_encode($REQUEST), 'resp'=>$result ];
-               DB::table('app_quote')->where('enquiry_id', $enquiry_id)->update($quoteData);
-               return ['status'=>true,'data'=>$enquiry_id];
+                if($response->motorBreakIn->isBreakin===true){
+                    
+                    $breakInJson =  new \stdClass(); 
+                    $breakInJson->BreakinId =  $response->enquiryId;
+                    $breakInJson->QuoteId =  $response->contract->policyNumber;
+                    $breakInJson->inspectionStatus = 'Pending';
+                    $quoteData['isBreakInCase']='YES';
+                    $quoteData['breakInJson']=json_encode($breakInJson);
+                    $quoteData['token']=$response->enquiryId;
+                    DB::table('app_quote')->where('enquiry_id', $enquiry_id)->update($quoteData);
+                    return ['status'=>true,'data'=>$enquiry_id,'isBreakIn'=>true,'message'=>'Proposal Created successful']; 
+                }else{
+                    DB::table('app_quote')->where('enquiry_id', $enquiry_id)->update($quoteData);
+                    return ['status'=>true,'data'=>$enquiry_id,'isBreakIn'=>false,'message'=>'Payment will be done after inspection']; 
+                }
+              // DB::table('app_quote')->where('enquiry_id', $enquiry_id)->update($quoteData);
+              
            }else{
                return ['status'=>false,'data'=>$enquiry_id ,"message"=>$response->error->validationMessages];
            }
@@ -1494,17 +1509,16 @@ class DigitCarResource extends AppResource{
          }catch (ConnectException $e) {
                 $response = $e->getResponse();
                 $responseBodyAsString = $response->getBody()->getContents();
-                return ['status'=>false,'plans'=>[],"message"=>"ConnectException server error"];
+                return ['status'=>false,'data'=>$enquiry_id ,"message"=>"ConnectException server error"];
             }catch (RequestException $e) {
                 $response = $e->getResponse();
                 $responseBodyAsString = $response->getBody()->getContents();
-               // print_r($responseBodyAsString);
                 $resp = json_decode($responseBodyAsString);
                 if(isset($resp->error->validationMessages[0])){
                      $msg = isset($resp->error->validationMessages[0])?($resp->error->validationMessages[0]):'Internal server error';
-                     return ['status'=>false,'plans'=>[],"message"=>$msg];
+                     return ['status'=>false,'data'=>$enquiry_id ,"message"=>$msg];
                 }else{
-                     return ['status'=>false,'plans'=>[],"message"=>"RequestException server error"];
+                     return ['status'=>false,'data'=>$enquiry_id ,"message"=>"RequestException server error"];
                 }
             }catch (ClientException $e) {
                 $response = $e->getResponse();
@@ -1571,11 +1585,62 @@ class DigitCarResource extends AppResource{
                 $result->status =false;$result->filename ="";$result->message="";
              }
          }catch(Exception $e) {
-          $result->status =false;$result->filename ="";
+           $result->status =false;$result->filename ="";
          }
      //$result->status =false;$result->filename ="";
      return $result;
      }
+     
+     function GetpolicyInfo($enq,$policyNumber){
+          try{  
+            $basicAuth = base64_encode(config('motor.DIGIT.car.username').":".config('motor.DIGIT.car.password'));
+             $client = new Client([
+                'headers' => ["accept"=> "*/*",  'Content-Type' => 'application/json','Authorization'=>"Basic ".$basicAuth]
+            ]);
+            
+            $clientResp = $client->get("https://preprod-qnb.godigit.com/digit/motor-insurance/services/v2/quote?policyNumber=".$policyNumber);
+            $result = $clientResp->getBody()->getContents();
+           // print_r($result);
+           $response = json_decode($result)[0];
+           if(isset($response->message)){
+                return ['status'=>false,'data'=>$enquiry_id ,"message"=>$response->message,'reqCreate'=>json_encode($REQUEST),'respCreate'=>$result];
+           }else if(isset($response->error->errorCode) && $response->error->errorCode==0){
+              if($response->policyStatus=="PENDING_DOCUMENTS"){
+                   return ['status'=>true,'BreakInStatus'=>'Pending','message'=>"Inspection is not Initiated for your vehicle number ".$response->vehicle->licensePlateNumber]; 
+              }else if($response->policyStatus=="ASSESSMENT_PENDING"){
+                  return ['status'=>true,'BreakInStatus'=>'Initiated','message'=>"Inspection Request is under assessment by UW for your vehicle number ".$response->vehicle->licensePlateNumber]; 
+              }else if($response->policyStatus=="INCOMPLETE"){
+                  return ['status'=>true,'BreakInStatus'=>'Approved','message'=>"Inspection Request approved by UW for  your vehicle number ".$response->vehicle->licensePlateNumber]; 
+              }else {
+                  return ['status'=>true,'BreakInStatus'=>'Pending','message'=>"Inspection is not Initiated for your vehicle number ".$response->vehicle->licensePlateNumber];  
+              }
+              
+           }else{
+               return ['status'=>true,'BreakInStatus'=>'Pending','message'=>"Inspection Request Initiated for your vehicle"]; 
+           }
+           
+           
+         }catch (ConnectException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                  return ['status'=>true,'BreakInStatus'=>'Pending','message'=>"Inspection Request Initiated for your vehicle"]; 
+            }catch (RequestException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+               // print_r($responseBodyAsString);
+                $resp = json_decode($responseBodyAsString);
+                   return ['status'=>true,'BreakInStatus'=>'Pending','message'=>"Inspection Request Initiated for your vehicle"]; 
+            }catch (ClientException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                    return ['status'=>true,'BreakInStatus'=>'Pending','message'=>"Inspection Request Initiated for your vehicle"]; 
+            }catch (ErrorException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                   return ['status'=>true,'BreakInStatus'=>'Pending','message'=>"Inspection Request Initiated for your vehicle"]; 
+            } 
+     }
+    
     
     
 }

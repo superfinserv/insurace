@@ -462,7 +462,7 @@ class MotorInsurance extends Controller
                                   ->subject($subject);
                                  $message->from('care@superfinserv.com',config('custom.site_short_name'));
                                 });
-                           return response()->json(['status'=>true,'message'=>'Payment link has been send to `'.$custemail.'`']);
+                           return response()->json(['status'=>true,'message'=>'Payment link has been sent to `'.$custemail.'`']);
                     }
             }else{
                 return response()->json(['status'=>false,'message'=>"Invalid Enquiry Found. Kindly contact to SuperFinserv's Relationship Manager"]);

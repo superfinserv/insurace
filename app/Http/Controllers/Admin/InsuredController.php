@@ -17,14 +17,16 @@ use App\Partners\Manipal\Manipal;
 use App\Partners\Digit\DigitHealth;
 use App\Resources\DigitCarResource;
 use App\Resources\HdfcErgoCarResource;
-
+use App\Resources\FgiTwResource;
+FgiTw
 class InsuredController extends Controller{
    
     public function __construct(Care $care,DigitHealth $digit,Manipal $manipal,HdfcErgoCarResource $HdfcErgoCarResource,DigitCarResource $DigitCarResource) { 
        $this->Care =  $care;
        $this->DigitHealth = $digit;
        $this->Manipal =  $manipal;
-       
+    
+       $this->FgiTw =  new FgiTwResource;
        $this->HdfcErgoCarResource =$HdfcErgoCarResource;
        $this->DigitCarResource = $DigitCarResource;
     }
@@ -181,6 +183,18 @@ class InsuredController extends Controller{
                }else if($policy->provider=='HDFCERGO' && ($policy->type=='BIKE' || $policy->type=='CAR') ){
                    
                         $resp = ($policy->type=="BIKE")?$this->HdfcErgoTwResource->GetPDF($policy->policy_no):$this->HdfcErgoCarResource->GetPDF($policy->policy_no);
+                         if($resp['status']){
+                             DB::table('policy_saled')->where('policy_no', $policy->policy_no)->update(['filename'=>$resp['filename']]);
+                             return Response::json(['status'=>'success','message'=>"Policy document get successfully!",'filePath'=>url('get/download/file/policy-file/'.$resp['filename'])]); 
+                         }else{
+                            return Response::json(['status'=>'error','fileName'=>"",'message'=>$resp['message']]);  
+                         }
+                   
+                  
+               }else if($policy->provider=='FGI' && ($policy->type=='BIKE' || $policy->type=='CAR') ){
+                   
+                        //$resp = ($policy->type=="BIKE")?$this->FgiTw->GetPDF($policy->policy_no):$this->HdfcErgoCarResource->GetPDF($policy->policy_no);
+                        $resp = $this->FgiTw->GetPDF($sale->policy_no);
                          if($resp['status']){
                              DB::table('policy_saled')->where('policy_no', $policy->policy_no)->update(['filename'=>$resp['filename']]);
                              return Response::json(['status'=>'success','message'=>"Policy document get successfully!",'filePath'=>url('get/download/file/policy-file/'.$resp['filename'])]); 

@@ -56,20 +56,26 @@ $(document).ready(function() {
         });
      }
     
-    
+    if($('#nominee_relation').length){
+        $("#nominee_relation").selectize({
+          create: false,
+          sortField: "text",
+        });
+    }
     
     $("body").on("click","#btn-step-1",function() {
         var form = $("#profile_form");
         form.validate({
             errorElement: 'span',
             errorClass: 'error',
+               ignore: ':hidden:not([class~=selectized]),:hidden > .selectized, .selectize-control .selectize-input input',
              errorPlacement: function(error, element) {
             
              if(element.attr("name")=='gender'){
                 error.insertAfter(element.parent().parent('.form-group'));
              }else if(element.attr("name")=='first_name'){
                 error.insertAfter(element.parent().parent('.form-group'));
-             }else { 
+             }else{ 
                 error.insertAfter(element.parent('.form-group'));
              }
             },
@@ -180,6 +186,7 @@ $(document).ready(function() {
     $("body").on("click","#btn-step-2",function() {
         var form = $("#address_form");
         form.validate({
+            ignore: ':hidden:not([class~=selectized]),:hidden > .selectized, .selectize-control .selectize-input input',
             errorElement: 'span',
             errorClass: 'error',
             highlight: function(element, errorClass, validClass) {
@@ -274,6 +281,7 @@ $(document).ready(function() {
         var ref = $(this).attr('data-ref');
         var form = $("#vehicle_form");
         form.validate({
+               ignore: ':hidden:not([class~=selectized]),:hidden > .selectized, .selectize-control .selectize-input input',
             errorElement: 'span',
             errorClass: 'error',
             highlight: function(element, errorClass, validClass) {
@@ -461,28 +469,28 @@ $(document).ready(function() {
         }
     });
     
-    $("body").on("change","#state_id",function() {
-       var state = $(this).val();
-       var stateID = state.split('-');
-       var twInfo = JSON.parse(localStorage.getItem('twInfo'));
-        $.get(base_url + "/get-cities/"+stateID[0], function (resp) {
-              if(resp.status=='success'){
-                 var citydata =resp.data;
-                 $("#city_id").empty();
-                  var newState_ = new Option("Select City", "", false, false);
-                  $("#city_id").append(newState_);//.trigger('change');
-                  jQuery.each(citydata, function (index, item) {
-                    var newState = new Option(item['value'], item['id'], false, false);
-                      $("#city_id").append(newState);//.trigger('change');
-                   });
-                  if(twInfo.hasOwnProperty('address')){
-                    $('#city_id').val(twInfo.address.city).trigger('change');
-                  } else{
-                     $('#city_id').val('').trigger("change");
-                  }
-              }
-        });
-    });
+    // $("body").on("change","#state_id",function() {
+    //   var state = $(this).val();
+    //   var stateID = state.split('-');
+    //   var twInfo = JSON.parse(localStorage.getItem('twInfo'));
+    //     $.get(base_url + "/get-cities/"+stateID[0], function (resp) {
+    //           if(resp.status=='success'){
+    //              var citydata =resp.data;
+    //              $("#city_id").empty();
+    //               var newState_ = new Option("Select City", "", false, false);
+    //               $("#city_id").append(newState_);//.trigger('change');
+    //               jQuery.each(citydata, function (index, item) {
+    //                 var newState = new Option(item['value'], item['id'], false, false);
+    //                   $("#city_id").append(newState);//.trigger('change');
+    //               });
+    //               if(twInfo.hasOwnProperty('address')){
+    //                 $('#city_id').val(twInfo.address.city).trigger('change');
+    //               } else{
+    //                  $('#city_id').val('').trigger("change");
+    //               }
+    //           }
+    //     });
+    // });
     
    
      
@@ -543,9 +551,81 @@ $('body').on('click','.Premium-Breakup', function(e){
         });
 });
 
+	var xhr;
+				var select_state, $select_state;
+				var select_city, $select_city;
+                var select_pincode,$select_pincode;
+				$select_state = $('#state_id').selectize({
+					onChange: function(value) {
+						if (!value.length) return;
+						 var state = value;
+                         var stateID = state.split('-');
+						//select_city.disable();
+						 select_city.clearOptions();
+						select_city.load(function(callback){
+							xhr && xhr.abort();
+							xhr = $.ajax({
+								url: base_url + "/get-cities/"+stateID[0],
+								success: function(results) {
+								   
+									//select_city.enable();
+									callback(results.data);
+								},
+								error: function() {
+									callback();
+								}
+							})
+						});
+					}
+				});
+
+				$select_city = $('#city_id').selectize({
+					valueField: 'id',
+					labelField: 'value',
+					searchField: ['value'],
+					onChange: function(value) { 
+					    // select_pincode.clearOptions();
+					}
+					    
+					
+				});
+                 
+			   
+			
+                
+			//	select_city.disable();
+			
+// 			$select_pincode = $("#pincode").selectize({
+//                   valueField: "value",
+//                   labelField: "label",
+//                   searchField: ["value"],
+//                  // create: false,
+//                   load: function (query, callback) {
+//                     if (!query.length) return callback();
+//                     $.ajax( {
+//                           url:  base_url+"/get-city-pincode",
+//                           dataType: "json",
+//                           data: {
+//                             term:encodeURIComponent(query),city:$('#city_id').val()
+//                           },error: function () {
+//                             callback();
+//                           },
+//                           success: function( res ) {
+//                               callback(res);
+//                              //callback(res.repositories.slice(0, 10));
+//                           },
+//                         } );
+//                   },
+//                 });
+                
+                
+              select_city    = $select_city[0].selectize;
+			select_state   = $select_state[0].selectize;
+             // select_pincode = $select_pincode[0].selectize;  
+           
   $( function() {
-      
-           $( "#pincode" ).autocomplete({
+           
+          $( "#pincode" ).autocomplete({
                       source: function(request,response){
                           $.ajax( {
                           url:  base_url+"/get-city-pincode",
@@ -569,17 +649,17 @@ $('body').on('click','.Premium-Breakup', function(e){
       
       
      
-       $("body").on("change","#city_id",function() {
-          var city = $(this).val();
-          if(city!=""){
-            $('#pincode').attr('disabled',false);
-            $('#pincode').prop('disabled',false);
-         }else{
-              $('#pincode').val('') ;
-              $('#pincode').attr('disabled',true);
-              $('#pincode').attr('disabled',true);
-         }
-    })
+    //   $("body").on("change","#city_id",function() {
+    //       var city = $(this).val();
+    //       if(city!=""){
+    //         $('#pincode').attr('disabled',false);
+    //         $('#pincode').prop('disabled',false);
+    //      }else{
+    //           $('#pincode').val('') ;
+    //           $('#pincode').attr('disabled',true);
+    //           $('#pincode').attr('disabled',true);
+    //      }
+    // })
       
       
       

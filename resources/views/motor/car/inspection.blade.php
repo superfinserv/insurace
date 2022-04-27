@@ -118,6 +118,7 @@ input[type="email"]::-ms-input-placeholder,input[type="text"]:-ms-input-placehol
                 <div class="col-md-12 col-12 col-sm-12" style="background: #fff;padding-top: 25px;">
                     <h4 class="userInfo-title text-center" style="">Just a step away from protecting your car.</h4>
                     <p class="userInfo-subtitle">Please wait till complete your inspection then process for get insured.</p>
+                    @if($info->provider == "HDFCEERGO")
                     <ul class="progress-indicator">
                         <li class="active" id="progress-step-1">
                             <span class="bubble"></span>
@@ -136,6 +137,28 @@ input[type="email"]::-ms-input-placeholder,input[type="text"]:-ms-input-placehol
                         <!--    Step 4. <br><small></small>-->
                         <!--</li>-->
                     </ul>
+                    @endif
+                    @if($info->provider == "DIGIT")
+                    <ul class="progress-indicator">
+                        
+                        <li class="active" id="progress-step-1">
+                            <span class="bubble"></span>
+                            Step 1. <br><small>(Inspection Status)</small>
+                        </li>
+                        <li class=""  id="progress-step-2">
+                            <span class="bubble"></span>
+                            Step 2. <br><small>(Payment Link)</small>
+                        </li>
+                        <!--<li class=""  id="progress-step-3">-->
+                        <!--    <span class="bubble"></span>-->
+                        <!--    Step 3. <br><small>(Create Proposal)</small>-->
+                        <!--</li>-->
+                        <!-- <li class=""  id="progress-step-4">-->
+                        <!--    <span class="bubble"></span>-->
+                        <!--    Step 4. <br><small></small>-->
+                        <!--</li>-->
+                    </ul>
+                    @endif
                     
                     <div class="fieldset">
                         <div class="row">

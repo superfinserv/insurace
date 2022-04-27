@@ -923,9 +923,9 @@ class HdfcErgoTwResource extends AppResource{
                 return ['status'=>false,'message'=>$response->Message];
            }else if($response->Status==400){
                // $rsp = json_decode($response);
-                $msgs = $response->Message;
-                //print_r($msgs);
-                $msg = current($msgs);
+                $msg = $response->Message;
+              //  print_r($msgs);
+               // $msg = "";//current($msgs);
                  DB::table('app_quote')->where('enquiry_id',$enquiry_id)->update(['reqCreate'=>json_encode($request),'respCreate'=>$result,'req'=>json_encode($request),'resp'=>($result)]);
                 return ['status'=>false,'message'=>$msg];
            }else {
@@ -1019,7 +1019,7 @@ class HdfcErgoTwResource extends AppResource{
     
    function bugReport(){
         $request =  new \stdClass(); 
-        $request->MasterKey = "INSURER";
+        $request->MasterKey = "MAKE";
         $request->PolicyType ="ALL"; 
         $request->AgentCode ="TWD22020";
         $client = new Client([
@@ -1032,7 +1032,7 @@ class HdfcErgoTwResource extends AppResource{
                 )]
             );
             $result = $clientResp->getBody()->getContents();
-          
+            
            print_r($result);
            $response = json_decode($result);
            //print_r($response);

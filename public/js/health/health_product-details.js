@@ -137,16 +137,17 @@ function getPlanData(act){
              $('#'+resp.data.enq+'-termYear').text(resp.data.termYear);
              $('#'+resp.data.enq+'-sumInsured').text(resp.data.sumInsured);
              $('#'+resp.data.enq+'-planTitle').text(resp.data.title); //((resp.data.extParam=="" && resp.data.SI<=5) ||
-             if((resp.data.partner=="608" || resp.data.partner=="611")  &&
-                 (  ( (resp.data.extParam=="" || resp.data.extParam=="CAREWITHNCB") && parseInt(resp.data.SI)>=7) || (resp.data.extParam=="" && parseInt(resp.data.SI)<=5)) ){
-                 if($('#addOn4').length===0){ 
-                     $('.addon-container').append('<input id="addOn4" value="CAREWITHNCB" name="addOn4" type="checkbox" class="addon-ncb addonInput addon-label"/><label style="margin-top: 20px;" class="addon-ncb" for="addOn4">NCB Super</label>');
-                 }
-                     
+             if(resp.data.partner!="1967"){
+                 if((resp.data.partner=="608" || resp.data.partner=="611")  &&
+                     (  ( (resp.data.extParam=="" || resp.data.extParam=="CAREWITHNCB") && parseInt(resp.data.SI)>=7) || (resp.data.extParam=="" && parseInt(resp.data.SI)<=5)) ){
+                     if($('#addOn4').length===0){ 
+                         $('.addon-container').append('<input id="addOn4" value="CAREWITHNCB" name="addOn4" type="checkbox" class="addon-ncb addonInput addon-label"/><label style="margin-top: 20px;" class="addon-ncb" for="addOn4">NCB Super</label>');
+                     }
+                         
                  }else{
                   $('.addon-ncb').remove();
-              }
-        
+                 }
+            }
             $.each(resp.data.amt, function(i, item) { 
                // console.log(i, item);
               

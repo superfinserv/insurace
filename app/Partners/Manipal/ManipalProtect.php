@@ -557,6 +557,7 @@ class ManipalProtect{
                         foreach($member->medical as $mediSet){
                                 array_push($arrNotIn,$mediSet->queId);
                                 $_set =   DB::table('medical_questions')->where(['supplier'=>'MANIPAL_CIGNA','id'=>$mediSet->queId])->first();
+                                //print_r($_set);
                                 $Q['policyQuestionSetSeq'] = null;
                                 $Q['questionCd'] = $_set->code;
                                 $Q['dataElementCd'] =$_set->code;
@@ -575,7 +576,7 @@ class ManipalProtect{
                                         $additionalMedi = ["partyGuid"=>$params->plan.$refGuid,'adMedComments'=>""];
                                         foreach($mediSet->childQuestions as $ch){
                                            $childSet =   DB::table('medical_questions')->where(['supplier'=>'MANIPAL_CIGNA','parentId'=>$ch->parentId,'id'=>$ch->Qid])->first();
-                                          // print_r($childSet);
+                                           //print_r($childSet);
                                            $additionalMedi['questionSetCd'] = $childSet->code;
                                            $ansswer = $ch->answer;
                                           if($childSet->setparam=="illness"){
@@ -587,6 +588,27 @@ class ManipalProtect{
                                        $WSPolicyAdditionalMedicalDtlsDOLst[] = $additionalMedi;
                                       }
                                     
+                                }else{
+                                    if($mediSet->hasChildQuestions==true){ 
+                                        foreach($mediSet->childQuestions as $ch){
+                                            if($ch->answer!=""){
+                                            $childSet =   DB::table('medical_questions')->where(['supplier'=>'MANIPAL_CIGNA','parentId'=>$ch->parentId,'id'=>$ch->Qid])->first();
+                                          // $ans = ($ch->answer=="YES" ||  $ch->answer=="NO")?
+                                           
+                                            $Q['policyQuestionSetSeq'] = null;
+                                            $Q['questionCd'] = $childSet->code;
+                                            $Q['dataElementCd'] =$childSet->code;
+                                            $Q['policyQuestionResponseDOList'] = [['policyQuestionSeq'=>null,'responseValue'=> $ch->answer,'rowGuid'=>$params->plan.$refGuid]];
+                                            $QuestionSet['questionSetCd'] =$childSet->code;
+                                            $QuestionSet['policySeq'] = null;
+                                            $QuestionSet['policyProductSeq'] =null; 
+                                            $QuestionSet['policyProductInsuredseq'] =null;
+                                            $QuestionSet['partyGuid'] = $params->plan.$refGuid;
+                                            $QuestionSet['policyQuestionDOList'] =[$Q];
+                                            $_QuestionSet[]=$QuestionSet;
+                                          }
+                                        }
+                                    }
                                 }
                         }
                     }
@@ -2197,7 +2219,11 @@ class ManipalProtect{
                 DB::table('app_quote')->where('enquiry_id', $enqID)->update(['reqSaveGenPolicy'=>json_encode($REQUEST),'respSaveGenPolicy'=>$response]);
                 if($result->errorList==null || $result->errorList==""){
                      $receiptId = isset($result->listofPolicyTO[0]->inwardDOList[0]->receiptId)?$result->listofPolicyTO[0]->inwardDOList[0]->receiptId:"";
-                     DB::table('app_quote')->where('enquiry_id',$enqID)->update(['json_data->receiptId'=>$receiptId]);
+                     DB::table('app_quote')->where('enquiry_id',$enqID)->update(
+                         ['json_data->receiptId'=>$receiptId,
+                         'startDate'=>Carbon::createFromFormat('d/m/Y', $period->startDate)->format('Y-m-d'),
+                         'endDate'=>Carbon::createFromFormat('d/m/Y', $period->endDate)->format('Y-m-d')]
+                         );
                     return ['status'=>true,'message'=>"Success",'data'=>['receiptId'=>$receiptId]]; 
                 }else{
                    $errorList = $result->errorList;

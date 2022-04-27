@@ -13,7 +13,11 @@ function getInspectionInfo(enQId){
              $("#step2").addClass('active-step');
              $("#progress-step-1").removeClass('active').addClass('completed');
              $("#progress-step-2").addClass('active');
-             reCalculatePremium(enQId);
+             if($.trim(result.BreakInStatus)=='HDFCERGO'){
+                reCalculatePremium(enQId);
+             }else{
+                window.location.href=base_url+"/car-insurance/plan-summary/"+enQId;
+             }
          }
     },'json');
 }

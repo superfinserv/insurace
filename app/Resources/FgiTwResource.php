@@ -6,6 +6,11 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Client;
 use Meng\AsyncSoap\Guzzle\Factory;
+
+use Artisaninweb\SoapWrapper\SoapWrapper;
+//use App\Soap\Request\GetConversionAmount;
+//use App\Soap\Response\GetConversionAmountResponse;
+
 use Carbon\Carbon;
 
 class FgiTwResource extends AppResource{ 
@@ -13,10 +18,10 @@ class FgiTwResource extends AppResource{
  
     
     public function __construct(){
-      
+      $this->soapWrapper = new SoapWrapper;
     }
     
-    public function productCode($plan){
+     public function productCode($plan){
           $res =  new \stdClass();
           
             switch ($plan) {
@@ -40,15 +45,23 @@ class FgiTwResource extends AppResource{
                 $res->contract =  "FTW";$res->risk =  "FTW"; $res->cover =  "LO";
                 return $res;
                 break;
+           case "TP-NEW":
+                $res->contract =  "FTW";$res->risk =  "FTW"; $res->cover =  "LO";
+                return $res;
+                break;
             case "TP-USED":
                 $res->contract =  "FTW";$res->risk =  "FTW"; $res->cover =  "LO";
                 return $res;
                 break;
-              case "OD-ROLLOVER":
+              case "SAOD-ROLLOVER":
                 $res->contract = "TWO"; $res->risk  =  "TWO"; $res->cover =  "OD";
                 return $res;
                 break;
-             case "OD-NEW":
+             case "SAOD-NEW":
+                $res->contract = "TWO"; $res->risk  =  "TWO"; $res->cover =  "OD";
+                return $res;
+                break;
+             case "SAOD-USED":
                 $res->contract = "TWO"; $res->risk  =  "TWO"; $res->cover =  "OD";
                 return $res;
                 break;
@@ -57,174 +70,16 @@ class FgiTwResource extends AppResource{
                 return $res;
             }
     }
-    
-      function GetPreviousPolicyData($params,$callTyp){
-      
-            $res =  new \stdClass();
-            $res->isExp = false;
-            $res->expDate = "";
-            $res->ncb = "ZERO";
-            $res->ncbPercent =0;
-            $res->prePolicyType = "";
-            $res->isPreviousInsurerKnown = false;
-            $res->hasPreClaim ="NO";
-            $res->preInsurerCode = "";
-            $res->businessType   = "Rollover";
-            $res->prePolicyNo ="";
-            
-             $ncbArr = ["ZERO"=>0,'TWENTY'=>20,'TWENTY_FIVE'=>25,'THIRTY_FIVE'=>35,'FORTY_FIVE'=>45,'FIFTY'=>50];
-            
-            if($params['vehicle']['isBrandNew']==='false'){ 
-                if(isset($params['previousInsurance']['isExp']) && $params['previousInsurance']['isExp']!=""){ 
-                         
-                         if($params['previousInsurance']['isExp']=="Not Expired"){ //Not Expired 
-                              $res->businessType ="Rollover";
-                               if($callTyp=="Proposal"){
-                                    $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('Y-m-d');
-                              }else{
-                                  
-                                   if($params['previousInsurance']['expDate']!=""){
-                                         $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('Y-m-d');
-                                    }else{
-                                         $res->expDate =date('Y-m-d', strtotime('+10 days'));
-                                    }
-                                   
-                                }
-                              //$res->hasPreClaim = ($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
-                              //$res->ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
-                              $res->prePolicyType = !empty($params['previousInsurance']['policyType'])?$this->productCode($params['previousInsurance']['policyType']):"Comprehensive"; 
-                              if($res->prePolicyType=="ThirdParty"){
-                                    $res->ncb = "ZERO";//isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
-                                     $res->hasPreClaim = 'YES';//($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
-                               }else{
-                                     $res->ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
-                                     $res->hasPreClaim = ($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
-                               }
-                              $res->isPreviousInsurerKnown = true;
-                         }else if($params['previousInsurance']['isExp']=="Expired"){
-                             if($params['previousInsurance']['exp']=="+90"){ 
-                                       if($callTyp=="Proposal"){
-                                          $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('Y-m-d');
-                                       }else{
-                                          
-                                            if($params['previousInsurance']['expDate']!=""){
-                                                 $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('Y-m-d');
-                                            }else{
-                                                 $res->expDate =date('Y-m-d', strtotime('-100 days'));
-                                            }
-                                       }
-                                       $res->prePolicyType = !empty($params['previousInsurance']['policyType'])?$this->productCode($params['previousInsurance']['policyType']):"Comprehensive";
-                                       if($res->prePolicyType=="ThirdParty"){
-                                            $res->ncb = "ZERO";//isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
-                                            $res->hasPreClaim = 'YES';//($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
-                                       }else{
-                                             $res->ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
-                                             $res->hasPreClaim = ($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
-                                       }
-                                      // $res->ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
-                                       //$res->hasPreClaim = ($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
-                                       
-                                       $res->isPreviousInsurerKnown = true;
-                                       $res->businessType   = "Rollover";
-                             }else if($params['previousInsurance']['exp']=="45-90"){
-                                      if($callTyp=="Proposal"){
-                                           $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('Y-m-d');
-                                       }else{
-                                            
-                                             if($params['previousInsurance']['expDate']!=""){
-                                                 $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('Y-m-d');
-                                            }else{
-                                                $res->expDate = date('Y-m-d', strtotime('-60 days'));
-                                            }
-                                       }
-                                      $res->prePolicyType = !empty($params['previousInsurance']['policyType'])?$this->productCode($params['previousInsurance']['policyType']):"Comprehensive";
-                                       if($res->prePolicyType=="ThirdParty"){
-                                            $res->ncb = "ZERO";//isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
-                                             $res->hasPreClaim = 'YES';//($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
-                                       }else{
-                                             $res->ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
-                                             $res->hasPreClaim = ($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
-                                       }
-                                    
-                                      $res->isPreviousInsurerKnown = true;
-                                      $res->businessType   = "Rollover";
-                             }else if($params['previousInsurance']['exp']=="-45"){
-                                      if($callTyp=="Proposal"){
-                                           $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('Y-m-d');
-                                       }else{
-                                            if($params['previousInsurance']['expDate']!=""){
-                                                 $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('Y-m-d');
-                                            }else{
-                                                 $res->expDate = date('Y-m-d', strtotime('-25 days'));
-                                            }
-                                            
-                                       }
-                                      //$res->ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
-                                     // $res->hasPreClaim = ($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
-                                       $res->prePolicyType = !empty($params['previousInsurance']['policyType'])?$this->productCode($params['previousInsurance']['policyType']):"Comprehensive";
-                                       if($res->prePolicyType=="ThirdParty"){
-                                            $res->ncb = "ZERO";//isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
-                                             $res->hasPreClaim = 'YES';//($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
-                                       }else{
-                                             $res->ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
-                                             $res->hasPreClaim = ($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
-                                       }
-                                      $res->isPreviousInsurerKnown = true;
-                                      $res->businessType   = "Rollover";
-                             }else if($params['previousInsurance']['exp']=="0"){ 
-                                      $res->expDate = "";
-                                      $res->ncb = "ZERO";	
-                                      $res->hasPreClaim="";
-                                      $res->isPreviousInsurerKnown = false;
-                                      $res->businessType   = "USED";
-                             }
-                         }
-                }else{  //exp data not avialble
-                    $res->expDate = "";
-                    $res->ncb = "ZERO";	
-                    $res->hasPreClaim="";
-                    $res->isPreviousInsurerKnown = false;
-                    $res->businessType   = "NEW";
-                }
-            }else{ // new
-                $res->expDate = "";
-                $res->ncb = "ZERO";	
-                $res->hasPreClaim="";
-                $res->isPreviousInsurerKnown = false;
-                $res->businessType   = "NEW";
-            }
-            
-            if(isset($params['previousInsurance']['insurer']) && $params['previousInsurance']['insurer']!="0"){
-               $res->preInsurerCode = DB::table('previous_insurer')->where('id', $params['previousInsurance']['insurer'])->value('name');
-               //$res->preInsurerName = DB::table('previous_insurer')->where('id', $params['previousInsurance']['insurer'])->value('name');
-            }
-            if($params['previousInsurance']['policyType']=='TP'){
-                $res->ncbPercent =0; 
-            }else{
-                $res->ncbPercent =$ncbArr[$res->ncb]; 
-            }
-            
-            if($callTyp=="Proposal"){
-                  
-                  $res->prePolicyNo = !empty($params['previousInsurance']['policyNo'])?$params['previousInsurance']['policyNo']:"";
-                  
-            }
-            
-           
-            return $res;
-                                      
-    }
-    
-     public function getJsonData($options,$data){
+     public function getJsonData($options,$data,$preInfo){
             //$resp = $temp->response;
             //$data = json_decode($response);
             
-            $ncb = isset($options['previousInsurance']['ncb'])?$options['previousInsurance']['ncb']:"ZERO";
-            $ncbArray = ['ZERO'=>0,'TWENTY'=>20,'TWENTY_FIVE'=>25,'THIRTY_FIVE'=>35,'FORTY_FIVE'=>45,'FIFTY'=>50];
-            $ncbArrayNew = ['ZERO'=>20,'TWENTY'=>25,'TWENTY_FIVE'=>35,'THIRTY_FIVE'=>45,'FORTY_FIVE'=>50,'FIFTY'=>50];
-            $hasMadePreClaim  = (isset($options['previousInsurance']['hasPreClaim']) && $options['previousInsurance']['hasPreClaim']=='yes')?'Y':'N';
-            $ncbPercent = $ncbArray[$ncb];
-            $ncbPercentNew = $ncbArrayNew[$ncb];
+           // $ncb = isset($options['previousInsurance']['ncb'])?$options['previousInsurance']['ncb']:"ZERO";
+            ///$ncbArray = ['ZERO'=>0,'TWENTY'=>20,'TWENTY_FIVE'=>25,'THIRTY_FIVE'=>35,'FORTY_FIVE'=>45,'FIFTY'=>50];
+           /// $ncbArrayNew = ['ZERO'=>20,'TWENTY'=>25,'TWENTY_FIVE'=>35,'THIRTY_FIVE'=>45,'FORTY_FIVE'=>50,'FIFTY'=>50];
+           // $hasMadePreClaim  = (isset($options['previousInsurance']['hasPreClaim']) && $options['previousInsurance']['hasPreClaim']=='yes')?'Y':'N';
+            //$ncbPercent = $ncbArray[$ncb];
+           // $ncbPercentNew = $ncbArrayNew[$ncb];
             
             $tp =  new \stdClass();
             $tp->title = "Third Party";
@@ -361,10 +216,7 @@ class FgiTwResource extends AppResource{
                     $ll_emp->netAmt   =  trim($cover->BOValue);
                 }
                 
-                
-                
-                
-                 if($cover->Code=="PrmDue" && trim($cover->Type)=='TP'){
+                if($cover->Code=="PrmDue" && trim($cover->Type)=='TP'){
                     
                      $tp->grossAmt = trim($cover->BOValue);
                      $totalgrossAmt = $totalgrossAmt+trim($cover->BOValue);
@@ -425,10 +277,36 @@ class FgiTwResource extends AppResource{
                      $eachDis =   new \stdClass();
                      $eachDis->type    = "NCB_DISCOUNT";
                      $eachDis->amount  = trim($cover->BOValue);
-                     $eachDis->percent = $ncbPercentNew;
+                     $eachDis->percent = $preInfo->ncbNew;
                      array_push($discounts,$eachDis);
                      $totalDis+= trim($cover->BOValue);
                 }
+                
+                 if($cover->Code=="ZODEP" && trim($cover->Type)=='OD'){ 
+                       $eachAddon =   new \stdClass();
+                       $eachAddon->title   = $cover->Description;
+                       $eachAddon->code    = $cover->Code;
+                        $eachAddon->grossAmt= trim($cover->BOValue);
+                       $eachAddon->netAmt  = trim($cover->BOValue);
+                       array_push($addons,$eachAddon);
+                 }
+                 if($cover->Code=="CONSM" && trim($cover->Type)=='OD'){ 
+                       $eachAddon =   new \stdClass();
+                       $eachAddon->title   = $cover->Description;
+                       $eachAddon->code    = $cover->Code;
+                        $eachAddon->grossAmt= trim($cover->BOValue);
+                       $eachAddon->netAmt  = trim($cover->BOValue);
+                       array_push($addons,$eachAddon);
+                 }
+                 
+                 if($cover->Code=="RODSA" && trim($cover->Type)=='OD'){ 
+                       $eachAddon =   new \stdClass();
+                       $eachAddon->title   = $cover->Description;
+                       $eachAddon->code    = $cover->Code;
+                        $eachAddon->grossAmt= trim($cover->BOValue);
+                       $eachAddon->netAmt  = trim($cover->BOValue);
+                       array_push($addons,$eachAddon);
+                 }
                 
                 
                 
@@ -514,6 +392,7 @@ class FgiTwResource extends AppResource{
             // $vehicle->reg_date = date('d').'-'.$options['vehicle']['regMonth']."-".$options['regYear'];
             // $vehicle->chassis_no = '';
             // $vehicle->engin_no = '';
+             $vehicle->newNCB = $preInfo->ncbNew;
              $vehicle->idv =$data->Policy->VehicleIDV;
             // $vehicle->minIdv =$data->Policy->VehicleIDV;
             // $vehicle->maxIdv =$data->Policy->VehicleIDV;
@@ -522,28 +401,228 @@ class FgiTwResource extends AppResource{
             return $obj;
     }
     
+     function GetPreviousPolicyData($params,$callTyp){
+          
+            $res =  new \stdClass();
+            $res->isExp = false;
+            $res->expDate = "";
+            $res->ncb = "ZERO";
+            $res->ncbPercent =0;
+            $res->prePolicyType = "";
+            $res->isPreviousInsurerKnown = false;
+            $res->hasPreClaim ="N";
+            $res->preInsurerCode = "";
+            $res->businessType   = "Rollover";
+            $res->prePolicyNo ="";
+            $res->isRollover ="Y";
+            $res->isUsed ="N";
+            $res->isNew = 'N';
+            $res->startDate = "";
+            
+             $ncbArr = ["ZERO"=>0,'TWENTY'=>20,'TWENTY_FIVE'=>25,'THIRTY_FIVE'=>35,'FORTY_FIVE'=>45,'FIFTY'=>50];
+            
+            if($params['vehicle']['isBrandNew']==='false'){ 
+                if(isset($params['previousInsurance']['isExp']) && $params['previousInsurance']['isExp']!=""){ 
+                         
+                         if($params['previousInsurance']['isExp']=="Not Expired"){ //Not Expired 
+                              $res->businessType ="Rollover";
+                              $res->isRollover ="Y";
+                              $res->isUsed ="N";
+                               if($callTyp=="Proposal"){
+                                    $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('Y-m-d');
+                              }else{
+                                  
+                                   if($params['previousInsurance']['expDate']!=""){
+                                         $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('Y-m-d');
+                                    }else{
+                                         $res->expDate =date('Y-m-d', strtotime('+10 days'));
+                                    }
+                                    
+                                }
+                              $res->startDate = Carbon::createFromFormat('Y-m-d', $res->expDate)->addDays()->format('Y-m-d');  
+                              $res->prePolicyType = !empty($params['previousInsurance']['policyType'])?$this->productCode($params['previousInsurance']['policyType']):"Comprehensive"; 
+                              if($res->prePolicyType=="ThirdParty"){
+                                    $res->ncb = "ZERO";//isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
+                                     $res->hasPreClaim = 'Y';//($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
+                               }else{
+                                     $res->ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
+                                     $res->hasPreClaim = ($params['previousInsurance']['hasPreClaim']=='yes')?"Y":"N";
+                               }
+                              $res->isPreviousInsurerKnown = true;
+                         }else if($params['previousInsurance']['isExp']=="Expired"){
+                             if($params['previousInsurance']['exp']=="+90"){ 
+                                       if($callTyp=="Proposal"){
+                                          $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('d/m/Y');
+                                         
+                                       }else{
+                                          
+                                            if($params['previousInsurance']['expDate']!=""){
+                                                 $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('d/m/Y');
+                                            }else{
+                                                 $res->expDate =date('d/m/Y', strtotime('-100 days'));
+                                            }
+                                       }
+                                       $res->startDate = Carbon::createFromFormat('d/m/Y', $res->expDate)->addDays()->format('Y-m-d');  
+                                       $res->prePolicyType = !empty($params['previousInsurance']['policyType'])?$this->productCode($params['previousInsurance']['policyType']):"Comprehensive";
+                                       if($res->prePolicyType=="ThirdParty"){
+                                            $res->ncb = "ZERO";//isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
+                                            $res->hasPreClaim = 'Y';//($params['previousInsurance']['hasPreClaim']=='yes')?"YES":"NO";
+                                       }else{
+                                             $res->ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
+                                             $res->hasPreClaim = ($params['previousInsurance']['hasPreClaim']=='yes')?"Y":"N";
+                                       }
+                                      
+                                       $res->isPreviousInsurerKnown = true;
+                                       $res->businessType   = "Rollover";$res->isRollover ="N";$res->isUsed ="Y";
+                             }else if($params['previousInsurance']['exp']=="45-90"){
+                                      if($callTyp=="Proposal"){
+                                           $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('d/m/Y');
+                                        
+                                       }else{
+                                            
+                                             if($params['previousInsurance']['expDate']!=""){
+                                                 $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('d/m/Y');
+                                            }else{
+                                                $res->expDate = date('d/m/Y', strtotime('-60 days'));
+                                            }
+                                       }
+                                      $res->startDate = Carbon::createFromFormat('d/m/Y', $res->expDate)->addDays()->format('Y-m-d');  
+                                      $res->prePolicyType = !empty($params['previousInsurance']['policyType'])?$this->productCode($params['previousInsurance']['policyType']):"Comprehensive";
+                                       if($res->prePolicyType=="ThirdParty"){
+                                            $res->ncb = "ZERO";
+                                             $res->hasPreClaim = 'Y';
+                                       }else{
+                                             $res->ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
+                                             $res->hasPreClaim = ($params['previousInsurance']['hasPreClaim']=='yes')?"Y":"N";
+                                       }
+                                    
+                                      $res->isPreviousInsurerKnown = true;
+                                      $res->businessType   = "Rollover"; $res->isRollover ="N";$res->isUsed ="Y";
+                             }else if($params['previousInsurance']['exp']=="-45"){
+                                      if($callTyp=="Proposal"){
+                                           $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('d/m/Y');
+                                       }else{
+                                            if($params['previousInsurance']['expDate']!=""){
+                                                 $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('d/m/Y');
+                                            }else{
+                                                 $res->expDate = date('d/m/Y', strtotime('-25 days'));
+                                            }
+                                       }
+                                       $res->startDate = Carbon::createFromFormat('d/m/Y', $res->expDate)->addDays()->format('Y-m-d');  
+                                       $res->prePolicyType = !empty($params['previousInsurance']['policyType'])?$this->productCode($params['previousInsurance']['policyType']):"Comprehensive";
+                                       if($res->prePolicyType=="ThirdParty"){
+                                            $res->ncb = "ZERO";
+                                             $res->hasPreClaim = 'Y';
+                                       }else{
+                                             $res->ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
+                                             $res->hasPreClaim = ($params['previousInsurance']['hasPreClaim']=='yes')?"Y":"N";
+                                       }
+                                      $res->isPreviousInsurerKnown = true;
+                                      $res->businessType   = "Rollover"; $res->isRollover ="N";$res->isUsed ="Y";
+                             }else if($params['previousInsurance']['exp']=="0"){ 
+                                      $res->expDate = "";
+                                      $res->ncb = "ZERO";	
+                                      $res->hasPreClaim="Y";
+                                      $res->isPreviousInsurerKnown = false;
+                                      $res->businessType   = "USED"; $res->isRollover ="N";$res->isUsed ="Y";
+                                      $res->startDate = date('Y-m-d', strtotime('+1 days'));
+                             }
+                         }
+                }else{  //exp data not avialble
+                    $res->expDate = "";
+                    $res->ncb = "ZERO";	
+                    $res->hasPreClaim="N";
+                    $res->isPreviousInsurerKnown = false;
+                    $res->businessType   = "NEW";$res->isNew = 'Y';$res->isRollover ="N";$res->isUsed ="N";
+                    $res->startDate = date('Y-m-d', strtotime('+1 days'));
+                }
+            }else{ // new
+                $res->expDate = "";
+                $res->ncb = "ZERO";	
+                $res->hasPreClaim="N";
+                $res->isPreviousInsurerKnown = false;
+                $res->businessType   = "NEW";$res->isNew = 'Y';$res->isRollover ="N";$res->isUsed ="N";
+                $res->startDate = date('Y-m-d', strtotime('+1 days'));
+            }
+            
+            if(isset($params['previousInsurance']['insurer']) && $params['previousInsurance']['insurer']!="0"){
+                if($res->businessType!="NEW")
+                $res->preInsurerCode = DB::table('previous_insurer')->where('id', $params['previousInsurance']['insurer'])->value('name');
+            }else{ 
+                if($res->businessType!="NEW")
+                $res->preInsurerCode = DB::table('previous_insurer')->where('type', 'GENERAL')->inRandomOrder()->limit(1)->value('name');
+            }
+            if($params['previousInsurance']['policyType']=='TP'){
+                $res->ncbPercent =0; 
+            }else{
+                $res->ncbPercent =$ncbArr[$res->ncb]; 
+            }
+            
+            if($callTyp=="Proposal"){
+                  
+                  $res->prePolicyNo = !empty($params['previousInsurance']['policyNo'])?$params['previousInsurance']['policyNo']:"";
+                  
+            }
+             $ncbArrayNew = ['ZERO'=>20,'TWENTY'=>25,'TWENTY_FIVE'=>35,'THIRTY_FIVE'=>45,'FORTY_FIVE'=>50,'FIFTY'=>50];
+             $res->ncbNew = ($res->isRollover!='Y')?0:$ncbArrayNew[$res->ncb];
+           
+            return $res;
+                                      
+    }
+    
      function fnQuoteRequest($params){
          $chars = date('Ymd').time();
          $uid = str_shuffle(substr(str_shuffle($chars), 0, 10));
-         $productCode = $this->productCode("COM-NEW");
+         $preInfo = $this->GetPreviousPolicyData($params,"Premium");
+        // print_r($preInfo);
+         $productCode = $this->productCode(strtoupper($params['planType']."-".$preInfo->businessType));
+        // $productCode = $this->productCode("COM-ROLLOVER");
          $make=($params['vehicle']['brand']['name'])?trim($params['vehicle']['brand']['name']):null;
          $model = ($params['vehicle']['model']['name'])?$params['vehicle']['model']['name']:null;
          $varient = ($params['vehicle']['varient']['name'])?$params['vehicle']['varient']['name']:null;
          $regionCode = $params['vehicle']['rtoCode'];
          $registrationDate=date('d').'/'.$params['vehicle']['regMonth'].'/'.$params['vehicle']['regYear'];
-         $expDate = createFormatDate($params['previousInsurance']['expDate'],'d-m-Y','d/m/Y');
-         $startDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->addDays()->format('Y-m-d');
+        
+         
+         //$expDate = createFormatDate($params['previousInsurance']['expDate'],'d-m-Y','d/m/Y');
+        // $startDate = Carbon::createFromFormat('d/m/Y', $params['previousInsurance']['expDate'])->addDays()->format('Y-m-d');
+        $damiPolicyNo = getRandomStr(12);
+        if($params['vehicle']['isBrandNew']==='false'){ 
+            $period = $this->timePeriod('d/m/Y',1 ,$preInfo->startDate);
+         }else{
+             if($productCode->cover=="OD"){ 
+                 $period = $this->timePeriod('d/m/Y',1 );
+             }else{
+                 $period = $this->timePeriod('d/m/Y',5 );
+             }
+             $damiPolicyNo ="";
+         }
+         
+         $TPStartDate="";
+         $TPEndDate ="";
+         $TPInsurer ="";
+         $TPpolicyNo ="";
+          if($params['planType']=="SAOD"){
+             
+            $TPStartDate= isset($params['TP']['TPpolicyStartDate'])?Carbon::createFromFormat('d-m-Y',$params['TP']['TPpolicyStartDate'])->format('d/m/Y'):"";
+            $TPEndDate= isset($params['TP']['TPpolicyEndDate'])?Carbon::createFromFormat('d-m-Y',$params['TP']['TPpolicyStartDate'])->format('d/m/Y'):"";
+            $TPInsurer= isset($params['TP']['TPInsurer'])?DB::table('previous_insurer')->where('id', $params['TP']['TPInsurer'])->value('name'):"";
+            $TPpolicyNo= isset($params['TP']['TP_policyno'])?$params['TP']['TP_policyno']:"";
+          }
          $rto_master=DB::table('rtoMaster')->select('rtoMaster.rtoCode as rtoCode','cities.name as cityName','cities.id as cityId','states.name as stateName',
                                                     'states.id as stateId')
                                                 ->where('rtoCode',strtoupper($params['vehicle']['rtoCode']))
                                                 ->leftJoin('cities', 'cities.id', '=', 'rtoMaster.city_id')
                                                 ->leftJoin('states', 'states.id', '=', 'cities.state_id')->first();
+       
          $pincode = DB::table('pincode_masters')->where('city_id',$rto_master->cityId)->first();
          $var = DB::table('vehicle_variant_tw')->where('id',$params['vehicle']['varient']['id'])->first();
-    
-         $pincode =  "302020";//isset($pincode->pincode)?$pincode->pincode:'';
-         $_city   =  "JAIPUR";//isset($rto_master->_city)?strtoupper($rto_master->_city):'';
-         $_state  =  "RAJASTHAN";//isset($rto_master->_state)?strtoupper($rto_master->_state):'';
+         
+         $adrsData = DB::table('pincode_masters')->where('city_id',$rto_master->cityId)->first();
+         
+         $pincode =  isset($pincode->pincode)?$pincode->pincode:'';
+         $_city   =  isset($rto_master->cityName)?strtoupper($rto_master->cityName):'';
+         $_state  =  isset($rto_master->stateName)?strtoupper($rto_master->stateName):'';
          $fuel = "P";
          switch (strtolower($var->fuel_type)) {
             case "petrol":$fuel =  "P";break;
@@ -551,13 +630,8 @@ class FgiTwResource extends AppResource{
             case "cng": $fuel =  "C";break;
             default:$fuel =  "P";
         }
-        $period = $this->timePeriod('d/m/Y',1 ,$startDate);
-        $ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
-        $ncbArray = ['ZERO'=>0,'TWENTY'=>20,'TWENTY_FIVE'=>25,'THIRTY_FIVE'=>35,'FORTY_FIVE'=>45,'FIFTY'=>50];
-        $ncbArrayNew = ['ZERO'=>20,'TWENTY'=>25,'TWENTY_FIVE'=>35,'THIRTY_FIVE'=>45,'FORTY_FIVE'=>50,'FIFTY'=>50];
-        $hasMadePreClaim  = (isset($params['previousInsurance']['hasPreClaim']) && $params['previousInsurance']['hasPreClaim']=='yes')?'Y':'N';
-        $ncbPercent = $ncbArray[$ncb];
-        $ncbPercentNew = $ncbArrayNew[$ncb];
+        
+       
             $ROOT = "<Root>
                     	<Uid>".$uid."</Uid>
                     	<VendorCode>webagg</VendorCode>
@@ -643,7 +717,7 @@ class FgiTwResource extends AppResource{
 	                    <Risk>
                     		<RiskType>".$productCode->risk."</RiskType>
                     		<Zone>A</Zone>
-                    		<Cover>CO</Cover>
+                    		<Cover>".$productCode->cover."</Cover>
                     		<Vehicle>
                     			<TypeOfVehicle></TypeOfVehicle>
                     			<VehicleClass></VehicleClass>
@@ -652,7 +726,7 @@ class FgiTwResource extends AppResource{
                     			<ModelCode>".$var->fgi_code."</ModelCode>
                     			<RegistrationNo>{{RegistrationNo}}</RegistrationNo>
                     			<RegistrationDate>".$registrationDate."</RegistrationDate>
-                    			<ManufacturingYear>".clean_str($var->price_year)."</ManufacturingYear>
+                    			<ManufacturingYear>".clean_str($params['vehicle']['regYear'])."</ManufacturingYear>
                     			<FuelType>".$fuel."</FuelType>
                     			<CNGOrLPG>
                     				<InbuiltKit>N</InbuiltKit>
@@ -691,10 +765,10 @@ class FgiTwResource extends AppResource{
                     			<LegalLiabilityForNonFarePayingPassengers></LegalLiabilityForNonFarePayingPassengers>
                     			<UseForHandicap></UseForHandicap>
                     			<AntiThiefDevice></AntiThiefDevice>
-                    			<NCB>".$ncbPercentNew."</NCB>
+                    			<NCB>".$preInfo->ncbNew."</NCB>
                     			<RestrictedTPPD></RestrictedTPPD>
                     			<PrivateCommercialUsage></PrivateCommercialUsage>
-                    			<CPAYear></CPAYear>
+                    			<CPAYear>{{CPAYear}}</CPAYear>
                     			<CPADisc></CPADisc>
                     			<IMT23></IMT23>
                     			<CPAReq>{{CPAReq}}</CPAReq>
@@ -746,23 +820,23 @@ class FgiTwResource extends AppResource{
                     		<AddonReq>{{HAS_ADDONS}}</AddonReq>
                     		{{ADDONS}}
                     		<PreviousTPInsDtls>
-                    			<PreviousInsurer></PreviousInsurer>
-                    			<TPPolicyNumber></TPPolicyNumber>
-                    			<TPPolicyEffdate></TPPolicyEffdate>
-                    			<TPPolicyExpiryDate></TPPolicyExpiryDate>
+                    			<PreviousInsurer>".$TPInsurer."</PreviousInsurer>
+                    			<TPPolicyNumber>".$TPpolicyNo."</TPPolicyNumber>
+                    			<TPPolicyEffdate>".$TPStartDate."</TPPolicyEffdate>
+                    			<TPPolicyExpiryDate>".$TPEndDate."</TPPolicyExpiryDate>
                     		</PreviousTPInsDtls>
                     		<PreviousInsDtls>
-                    			<UsedCar>N</UsedCar>
+                    			<UsedCar>".$preInfo->isUsed."</UsedCar>
                     			<UsedCarList>
-                    				<PurchaseDate></PurchaseDate>
+                    				<PurchaseDate>".$registrationDate."</PurchaseDate>
                     				<InspectionRptNo></InspectionRptNo>
                     				<InspectionDt></InspectionDt>
                     			</UsedCarList>
-                    			<RollOver>Y</RollOver>
+                    			<RollOver>".$preInfo->isRollover."</RollOver>
                     			<RollOverList>
-                    			    <PolicyNo>OG-18-17-5412E548-00-000</PolicyNo>
-                                    <InsuredName>Bajaj Allianz General Insurance Co Ltd.</InsuredName>
-                    				<PreviousPolExpDt>".$expDate."</PreviousPolExpDt>
+                    			    <PolicyNo>".$damiPolicyNo."</PolicyNo>
+                                    <InsuredName>".$preInfo->preInsurerCode."</InsuredName>
+                    				<PreviousPolExpDt>".$preInfo->expDate."</PreviousPolExpDt>
                     				<ClientCode>40062645</ClientCode>
                     				<Address1>".$_city."</Address1>
                     				<Address2>".$_city."</Address2>
@@ -772,14 +846,14 @@ class FgiTwResource extends AppResource{
                     				<PinCode>".$pincode."</PinCode>
                     				<InspectionRptNo></InspectionRptNo>
                     				<InspectionDt></InspectionDt>
-                    				<NCBDeclartion>".$hasMadePreClaim."</NCBDeclartion>  
-                    				<ClaimInExpiringPolicy>".$hasMadePreClaim."</ClaimInExpiringPolicy>
-                    				<NCBInExpiringPolicy>".$ncbPercent."</NCBInExpiringPolicy>
+                    				<NCBDeclartion>".$preInfo->hasPreClaim."</NCBDeclartion>  
+                    				<ClaimInExpiringPolicy>".$preInfo->hasPreClaim."</ClaimInExpiringPolicy>
+                    				<NCBInExpiringPolicy>".$preInfo->ncbPercent."</NCBInExpiringPolicy>
                     		   	    <PreviousPolStartDt></PreviousPolStartDt>
                     			    <TypeOfDoc></TypeOfDoc>
                     			    <NoOfClaims></NoOfClaims>
                     			</RollOverList>
-                    			<NewVehicle>N</NewVehicle>
+                    			<NewVehicle>".$preInfo->isNew."</NewVehicle>
                     			<NewVehicleList>
                     				<InspectionRptNo></InspectionRptNo>
                     				<InspectionDt></InspectionDt>
@@ -804,8 +878,22 @@ class FgiTwResource extends AppResource{
     
      function getQuickQuote($deviceToken,$options){
         $XML =  $this->fnQuoteRequest($options);
+        $preInfo = $this->GetPreviousPolicyData($options,"Premium");
+        $subcovers = $options['subcovers'];
+        $optionValues = $options['coverValues'];
         
-         $subcovers = $options['subcovers'];
+        if((isset($subcovers['isPA_OwnerDriverCover']) && $subcovers['isPA_OwnerDriverCover']=='true')){ 
+                  if($options['planType']=="TP" && $preInfo->businessType=="NEW"){
+                        $PA_OWNER =5;
+                      }else{ 
+                           $paCoverVal = isset($optionValues['PA_OwnerDriverCoverval'])?$optionValues['PA_OwnerDriverCoverval']:1;
+                           $PA_OWNER =$paCoverVal;
+                      }
+                  
+              }else{
+                  $PA_OWNER ="";
+              }
+        $XML = str_replace("{{CPAYear}}","",$XML);
         $XML = str_replace("{{CPAReq}}","Y",$XML);
         $XML = str_replace("{{CPANomName}}","Test",$XML);
         $XML = str_replace("{{CPANomAge}}","25",$XML);
@@ -814,10 +902,14 @@ class FgiTwResource extends AppResource{
         $XML = str_replace("{{CPARelation}}","BROT",$XML);
         
        
-        $licensePlateNumber =$options['vehicle']['rtoCode']."JK7104";
-            if($options['vehicle']['hasvehicleNumber']=="true"){
+            $licensePlateNumber =$options['vehicle']['rtoCode']."JK7104";
+             if($options['vehicle']['hasvehicleNumber']=="true"){
                 $licensePlateNumber =$options['vehicle']['vehicleNumber'];
              }
+            if($options['vehicle']['isBrandNew']==='true'){ 
+                $licensePlateNumber = "";
+            }
+           //  if($preInfo->businessType=="N"){$licensePlateNumber = "NEW";}
         $XML = str_replace("{{RegistrationNo}}",$licensePlateNumber,$XML);
         
         $idv = isset($options['vehicle']['idv']['value'])?$options['vehicle']['idv']['value']:0;
@@ -832,31 +924,36 @@ class FgiTwResource extends AppResource{
         $LL_Emp = (isset($subcovers['isLL_EmpCover']) && $subcovers['isLL_EmpCover']=='true')?"Y":"";
         $XML = str_replace("{{isLL_EmpCover}}",$LL_Emp,$XML);
         $ADDONS="";
-       // $ADDONS .= (isset($options['isTyreProCover']) && $options['isTyreProCover']=='true')?"<Addon><CoverCode>00001</CoverCode></Addon>":"";
-       // $ADDONS .= (isset($options['isRetInvCover']) && $options['isRetInvCover']=='true')?"<Addon><CoverCode>00006</CoverCode></Addon>":"";
-        $ADDONS .= (isset($subcovers['isEng_GearBoxProCover']) && $subcovers['isEng_GearBoxProCover']=='true')?"<Addon><CoverCode>ENGPR</CoverCode></Addon>":"";
-        $ADDONS .= (isset($subcovers['isPartDepProCover']) && $subcovers['isPartDepProCover']=='true')?"<Addon><CoverCode>PLAN1</CoverCode></Addon>":"";
+        $ADDONS .= (isset($subcovers['isBreakDownAsCover']) && $subcovers['isBreakDownAsCover']=='true')?"<Addon><CoverCode>RODSA</CoverCode></Addon>":"";
+        $ADDONS .= (isset($subcovers['isConsumableCover']) && $subcovers['isConsumableCover']=='true')?"<Addon><CoverCode>CONSM</CoverCode></Addon>":"";
+        $ADDONS .= (isset($subcovers['isPartDepProCover']) && $subcovers['isPartDepProCover']=='true')?"<Addon><CoverCode>ZODEP</CoverCode></Addon>":"";
         $hasAddons = ($ADDONS!="")?"Y":"N";
         $XML = str_replace("{{HAS_ADDONS}}",$hasAddons,$XML);
         if($hasAddons=="Y"){
-             $XML = str_replace("{{ADDONS}}",$ADDONS,$XML);
+            $XML = str_replace("{{ADDONS}}",$ADDONS,$XML);
         }else{
-             $XML = str_replace("{{ADDONS}}","<Addon><CoverCode></CoverCode></Addon>",$XML);	
+            $XML = str_replace("{{ADDONS}}","<Addon><CoverCode></CoverCode></Addon>",$XML);	
         }
-        try {
+        
+        if($options['vehicle']['isBrandNew']==='true' && $options['planType']=="TP"){
+             return ['status' =>false, 'plans'=>[],'message' => "Plan nott available"];
+        }else{
+            
+          try {
             $factory = new Factory();
             $client = $factory->create(new Client(), config('motor.FGI.tw.QuickQuote')); 
             $result = $client->call('CreatePolicy', [["Product"=>"Motor","XML"=>$XML]]);
             $xml   = simplexml_load_string($result->CreatePolicyResult, 'SimpleXMLElement', LIBXML_NOCDATA);
             $array = json_decode(json_encode((array)$xml), TRUE);
             //print_r($result);die;
+            
               
             if(isset($array['Policy'])){
                   $policy = $array['Policy'];
                   $response  = json_decode(json_encode($array));
                 if($policy['Status']=="Successful"){
                     $partner = DB::table('our_partners')->where('shortName','FGI')->value('name');
-                    $json_data = $this->getJsonData($options,$response);
+                    $json_data = $this->getJsonData($options,$response,$preInfo);
                     $enq = "QT-TW-".time().mt_rand();
                     
                       $plan['title'] = $partner;
@@ -897,7 +994,7 @@ class FgiTwResource extends AppResource{
             }else{
                return ['status'=>false,'message' => "Connection Fail",'plans'=>[]];
             }
-        }catch (ConnectException $e) {
+            }catch (ConnectException $e) {
                 $response = $e->getResponse();
                 $responseBodyAsString = $response->getBody()->getContents();
                 $jsonRes = json_decode($responseBodyAsString);
@@ -913,16 +1010,33 @@ class FgiTwResource extends AppResource{
                 $jsonRes = json_decode($responseBodyAsString);
                 return ['status' =>false, 'plans'=>[],'message' => "ClientException"];
             }
+       }
     }
     
      function getRecalulateQuote($deviceToken,$params){
-        //print_r($params);
+        $preInfo = $this->GetPreviousPolicyData($params,"Premium");
         $XML =  $this->fnQuoteRequest($params);
         $options = $params['subcovers'];
         $_quoteData = DB::table('app_temp_quote')->where(['provider'=>"FGI",'type'=>'BIKE','device'=>$deviceToken])->orderBy('id','desc')->first();  
         
         
         $CPAReq = (isset($options['isPA_OwnerDriverCover']) && $options['isPA_OwnerDriverCover']=='true')?'Y':'N';
+        
+         $optionValues = $params['coverValues'];
+        
+        if((isset($options['isPA_OwnerDriverCover']) && $options['isPA_OwnerDriverCover']=='true')){ 
+                  if($params['planType']=="TP" && $preInfo->businessType=="NEW"){
+                        $PA_OWNER =5;
+                      }else{ 
+                           $paCoverVal = isset($optionValues['PA_OwnerDriverCoverval'])?$optionValues['PA_OwnerDriverCoverval']:1;
+                           $PA_OWNER =$paCoverVal;
+                      }
+                  
+              }else{
+                  $PA_OWNER ="";
+              }
+        $XML = str_replace("{{CPAYear}}","",$XML);
+        $XML = str_replace("{{CPAYear}}","",$XML);
         $XML = str_replace("{{CPAReq}}",$CPAReq,$XML);
         $XML = str_replace("{{CPANomName}}","Test",$XML);
         $XML = str_replace("{{CPANomAge}}","25",$XML);
@@ -930,10 +1044,13 @@ class FgiTwResource extends AppResource{
         $XML = str_replace("{{CPANomPerc}}","100",$XML);
         $XML = str_replace("{{CPARelation}}","BROT",$XML);
         
-        $licensePlateNumber =$params['vehicle']['rtoCode']."JK7104";
-            if($params['vehicle']['hasvehicleNumber']=="true"){
+         $licensePlateNumber =$params['vehicle']['rtoCode']."JK7104";
+             if($params['vehicle']['hasvehicleNumber']=="true"){
                 $licensePlateNumber =$params['vehicle']['vehicleNumber'];
              }
+            if($params['vehicle']['isBrandNew']==='true'){ 
+                $licensePlateNumber = "";
+            }
         $XML = str_replace("{{RegistrationNo}}",$licensePlateNumber,$XML);
         
         $idv = isset($params['vehicle']['idv']['value'])?$params['vehicle']['idv']['value']:0;
@@ -948,10 +1065,9 @@ class FgiTwResource extends AppResource{
         $LL_Emp = (isset($options['isLL_EmpCover']) && $options['isLL_EmpCover']=='true')?"Y":"";
         $XML = str_replace("{{isLL_EmpCover}}",$LL_Emp,$XML);
         $ADDONS="";
-       // $ADDONS .= (isset($options['isTyreProCover']) && $options['isTyreProCover']=='true')?"<Addon><CoverCode>00001</CoverCode></Addon>":"";
-       // $ADDONS .= (isset($options['isRetInvCover']) && $options['isRetInvCover']=='true')?"<Addon><CoverCode>00006</CoverCode></Addon>":"";
-        $ADDONS .= (isset($options['isEng_GearBoxProCover']) && $options['isEng_GearBoxProCover']=='true')?"<Addon><CoverCode>ENGPR</CoverCode></Addon>":"";
-        $ADDONS .= (isset($options['isPartDepProCover']) && $options['isPartDepProCover']=='true')?"<Addon><CoverCode>PLAN1</CoverCode></Addon>":"";
+        $ADDONS .= (isset($options['isBreakDownAsCover']) && $options['isBreakDownAsCover']=='true')?"<Addon><CoverCode>RODSA</CoverCode></Addon>":"";
+        $ADDONS .= (isset($options['isConsumableCover']) && $options['isConsumableCover']=='true')?"<Addon><CoverCode>CONSM</CoverCode></Addon>":"";
+        $ADDONS .= (isset($options['isPartDepProCover']) && $options['isPartDepProCover']=='true')?"<Addon><CoverCode>ZODEP</CoverCode></Addon>":"";
         $hasAddons = ($ADDONS!="")?"Y":"N";
         $XML = str_replace("{{HAS_ADDONS}}",$hasAddons,$XML);
         if($hasAddons=="Y"){
@@ -959,7 +1075,7 @@ class FgiTwResource extends AppResource{
         }else{
              $XML = str_replace("{{ADDONS}}","<Addon><CoverCode></CoverCode></Addon>",$XML);	
         }
-         //echo $XML;
+       //  echo $XML;
         
        // $url = 'http://fglpg001.futuregenerali.in/BO/Service.svc?wsdl';
         try {
@@ -970,12 +1086,13 @@ class FgiTwResource extends AppResource{
             $xml   = simplexml_load_string($result->CreatePolicyResult, 'SimpleXMLElement', LIBXML_NOCDATA);
             $array = json_decode(json_encode((array)$xml), TRUE);
            // print_r($array);
+          // print_r($result);die;
             if(isset($array['Policy'])){
                   $policy = $array['Policy'];  
                   $response  = json_decode(json_encode($array));
                 if($policy['Status']=="Successful"){
                     $partner = DB::table('our_partners')->where('shortName','FGI')->value('name');
-                    $json_data = $this->getJsonData($options,$response);
+                    $json_data = $this->getJsonData($options,$response,$preInfo);
                     $enq = "QT-TW-".time().mt_rand();
                     
                       $plan['title'] = $partner;
@@ -1031,22 +1148,31 @@ class FgiTwResource extends AppResource{
     
      function createQuote($enquiry_id,$options){
                $token =  getRandomStr(10);
-               DB::table('app_quote')->where('enquiry_id', $enquiry_id)->update(['token'=>$token]);
+               $EnQ = DB::table('app_quote')->where('enquiry_id', $enquiry_id)->first();
+               $reQRec = json_decode($EnQ->reqRecalculate);
+               $DATA = ['token'=>$token,
+                        'startDate'=>isset($reQRec->PolicyHeader->PolicyStartDate)?Carbon::createFromFormat('d/m/Y',$reQRec->PolicyHeader->PolicyStartDate)->format('Y-m-d'):NULL,
+                        'endDate'  =>isset($reQRec->PolicyHeader->PolicyEndDate)?Carbon::createFromFormat('d/m/Y',$reQRec->PolicyHeader->PolicyEndDate)->format('Y-m-d'):NULL];
+               DB::table('app_quote')->where('enquiry_id', $enquiry_id)->update($DATA);
                return ['status'=>true,'data'=>$enquiry_id,'token'=>$token];
      }
      
      function fnPolicyIssuance($params,$Premium,$WS_P_ID,$TID,$PGID){
+         $preInfo = $this->GetPreviousPolicyData($params,"Proposal");
+         $productCode = $this->productCode(strtoupper($params['planType']."-".$preInfo->businessType));
+         
          $chars = date('Ymd').time();
          $uid = str_shuffle(substr(str_shuffle($chars), 0, 10));
-         $productCode = $this->productCode($params['planType']);
+         
+         //$productCode = $this->productCode($params['planType']);
          $make=($params['vehicle']['brand']['name'])?trim($params['vehicle']['brand']['name']):null;
          $model = ($params['vehicle']['model']['name'])?$params['vehicle']['model']['name']:null;
          $varient = ($params['vehicle']['varient']['name'])?$params['vehicle']['varient']['name']:null;
          $regionCode = $params['vehicle']['rtoCode'];
          $registrationDate=date('d').'/'.$params['vehicle']['regMonth'].'/'.$params['vehicle']['regYear'];
-         $expDate = createFormatDate($params['previousInsurance']['expDate'],'d-m-Y','d/m/Y');
-         $startDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->addDays()->format('Y-m-d');
-      
+         //$expDate = createFormatDate($params['previousInsurance']['expDate'],'d-m-Y','d/m/Y');
+         //$startDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->addDays()->format('Y-m-d');
+         
          $var = DB::table('vehicle_variant_tw')->where('id',$params['vehicle']['varient']['id'])->first();
     
          $pincode =  $params['address']['pincode'];
@@ -1059,13 +1185,39 @@ class FgiTwResource extends AppResource{
             case "cng": $fuel =  "C";break;
             default:$fuel =  "P";
         }
-        $period = $this->timePeriod('d/m/Y',1 ,$startDate);
-        $ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
-        $ncbArray = ['ZERO'=>0,'TWENTY'=>20,'TWENTY_FIVE'=>25,'THIRTY_FIVE'=>35,'FORTY_FIVE'=>45,'FIFTY'=>50];
-        $ncbArrayNew = ['ZERO'=>20,'TWENTY'=>25,'TWENTY_FIVE'=>35,'THIRTY_FIVE'=>45,'FORTY_FIVE'=>50,'FIFTY'=>50];
-        $hasMadePreClaim  = (isset($params['previousInsurance']['hasPreClaim']) && $params['previousInsurance']['hasPreClaim']=='yes')?'Y':'N';
-        $ncbPercent = $ncbArray[$ncb];
-        $ncbPercentNew = $ncbArrayNew[$ncb];
+        
+        if($params['vehicle']['isBrandNew']==='false'){ 
+            $period = $this->timePeriod('d/m/Y',1 ,$preInfo->startDate);
+         }else{
+             if($productCode->cover=="OD"){ 
+                 $period = $this->timePeriod('d/m/Y',1 );
+             }else{
+                 $period = $this->timePeriod('d/m/Y',5 );
+             }
+           
+         }
+         
+         $hypothecationAgency = !empty($params['vehicle']['hypothecationAgency'])?$params['vehicle']['hypothecationAgency']:"";
+         
+         
+          $TPStartDate="";
+         $TPEndDate ="";
+         $TPInsurer ="";
+         $TPpolicyNo ="";
+          if($params['planType']=="SAOD"){
+             
+            $TPStartDate= isset($params['TP']['TPpolicyStartDate'])?Carbon::createFromFormat('d-m-Y',$params['TP']['TPpolicyStartDate'])->format('d/m/Y'):"";
+            $TPEndDate= isset($params['TP']['TPpolicyEndDate'])?Carbon::createFromFormat('d-m-Y',$params['TP']['TPpolicyStartDate'])->format('d/m/Y'):"";
+            $TPInsurer= isset($params['TP']['TPInsurer'])?DB::table('previous_insurer')->where('id', $params['TP']['TPInsurer'])->value('name'):"";
+            $TPpolicyNo= isset($params['TP']['TP_policyno'])?$params['TP']['TP_policyno']:"";
+          }
+         
+        //$ncb = isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
+       //// $ncbArray = ['ZERO'=>0,'TWENTY'=>20,'TWENTY_FIVE'=>25,'THIRTY_FIVE'=>35,'FORTY_FIVE'=>45,'FIFTY'=>50];
+       // $ncbArrayNew = ['ZERO'=>20,'TWENTY'=>25,'TWENTY_FIVE'=>35,'THIRTY_FIVE'=>45,'FORTY_FIVE'=>50,'FIFTY'=>50];
+       // $hasMadePreClaim  = (isset($params['previousInsurance']['hasPreClaim']) && $params['previousInsurance']['hasPreClaim']=='yes')?'Y':'N';
+       // $ncbPercent = $ncbArray[$ncb];
+        //$ncbPercentNew = $ncbArrayNew[$ncb];
             $ROOT = "<Root>
                     	<Uid>".$uid."</Uid>
                     	<VendorCode>webagg</VendorCode>
@@ -1160,15 +1312,15 @@ class FgiTwResource extends AppResource{
                     			<ModelCode>".$var->fgi_code."</ModelCode>
                     			<RegistrationNo>{{RegistrationNo}}</RegistrationNo>
                     			<RegistrationDate>".$registrationDate."</RegistrationDate>
-                    			<ManufacturingYear>".clean_str($var->price_year)."</ManufacturingYear>
+                    			<ManufacturingYear>".clean_str($params['vehicle']['regYear'])."</ManufacturingYear>
                     			<FuelType>".$fuel."</FuelType>
                     			<CNGOrLPG>
                     				<InbuiltKit>N</InbuiltKit>
                     				<IVDOfCNGOrLPG></IVDOfCNGOrLPG>
                     			</CNGOrLPG>
                     			<BodyType>SOLO</BodyType>
-                    			<EngineNo>".getRandomStr(10)."</EngineNo>
-                    			<ChassiNo>".getRandomStr(17)."</ChassiNo>
+                    			<EngineNo>".$params['vehicle']['engineNumber']."</EngineNo>
+                    			<ChassiNo>".$params['vehicle']['chassisNumber']."</ChassiNo>
                     			<CubicCapacity>".$var->cubic_capacity."</CubicCapacity>
                     			<SeatingCapacity>".$var->seating_capacity."</SeatingCapacity>
                     			<IDV>{{IDV}}</IDV>
@@ -1185,7 +1337,7 @@ class FgiTwResource extends AppResource{
                     		</Vehicle>
                     		<InterestParty>
                     			<Code></Code>
-                    			<BankName></BankName>
+                    			<BankName>".$hypothecationAgency."</BankName>
                     		</InterestParty>
                     		<AdditionalBenefit>
                     			<Discount>0.00000</Discount>
@@ -1199,10 +1351,10 @@ class FgiTwResource extends AppResource{
                     			<LegalLiabilityForNonFarePayingPassengers></LegalLiabilityForNonFarePayingPassengers>
                     			<UseForHandicap></UseForHandicap>
                     			<AntiThiefDevice></AntiThiefDevice>
-                    			<NCB>".$ncbPercentNew."</NCB>
+                    			<NCB>".$preInfo->ncbNew."</NCB>
                     			<RestrictedTPPD></RestrictedTPPD>
                     			<PrivateCommercialUsage></PrivateCommercialUsage>
-                    			<CPAYear></CPAYear>
+                    			<CPAYear>{{CPAYear}}</CPAYear>
                     			<CPADisc></CPADisc>
                     			<IMT23></IMT23>
                     			<CPAReq>{{CPAReq}}</CPAReq>
@@ -1254,23 +1406,23 @@ class FgiTwResource extends AppResource{
                     		<AddonReq>{{HAS_ADDONS}}</AddonReq>
                     		{{ADDONS}}
                     		<PreviousTPInsDtls>
-                    			<PreviousInsurer></PreviousInsurer>
-                    			<TPPolicyNumber></TPPolicyNumber>
-                    			<TPPolicyEffdate></TPPolicyEffdate>
-                    			<TPPolicyExpiryDate></TPPolicyExpiryDate>
+                    			<PreviousInsurer>".$TPInsurer."</PreviousInsurer>
+                    			<TPPolicyNumber>".$TPpolicyNo."</TPPolicyNumber>
+                    			<TPPolicyEffdate>".$TPStartDate."</TPPolicyEffdate>
+                    			<TPPolicyExpiryDate>".$TPEndDate."</TPPolicyExpiryDate>
                     		</PreviousTPInsDtls>
                     		<PreviousInsDtls>
-                    			<UsedCar>N</UsedCar>
+                    			<UsedCar>".$preInfo->isUsed."</UsedCar>
                     			<UsedCarList>
-                    				<PurchaseDate></PurchaseDate>
+                    				<PurchaseDate>".$registrationDate."</PurchaseDate>
                     				<InspectionRptNo></InspectionRptNo>
                     				<InspectionDt></InspectionDt>
                     			</UsedCarList>
-                    			<RollOver>Y</RollOver>
+                    			<RollOver>".$preInfo->isRollover."</RollOver>
                     			<RollOverList>
-                    			    <PolicyNo>OG-18-17-5412E548-00-000</PolicyNo>
-                                    <InsuredName>Bajaj Allianz General Insurance Co Ltd.</InsuredName>
-                    				<PreviousPolExpDt>".$expDate."</PreviousPolExpDt>
+                    			    <PolicyNo>".$preInfo->prePolicyNo."</PolicyNo>
+                                    <InsuredName>".$preInfo->preInsurerCode."</InsuredName>
+                    				<PreviousPolExpDt>".$preInfo->expDate."</PreviousPolExpDt>
                     				<ClientCode>40062645</ClientCode>
                     				<Address1>".$_city."</Address1>
                     				<Address2>".$_city."</Address2>
@@ -1280,14 +1432,14 @@ class FgiTwResource extends AppResource{
                     				<PinCode>".$pincode."</PinCode>
                     				<InspectionRptNo></InspectionRptNo>
                     				<InspectionDt></InspectionDt>
-                    				<NCBDeclartion>".$hasMadePreClaim."</NCBDeclartion>  
-                    				<ClaimInExpiringPolicy>".$hasMadePreClaim."</ClaimInExpiringPolicy>
-                    				<NCBInExpiringPolicy>".$ncbPercent."</NCBInExpiringPolicy>
+                    				<NCBDeclartion>".$preInfo->hasPreClaim."</NCBDeclartion>  
+                    				<ClaimInExpiringPolicy>".$preInfo->hasPreClaim."</ClaimInExpiringPolicy>
+                    				<NCBInExpiringPolicy>".$preInfo->ncbPercent."</NCBInExpiringPolicy>
                     		   	    <PreviousPolStartDt></PreviousPolStartDt>
                     			    <TypeOfDoc></TypeOfDoc>
                     			    <NoOfClaims></NoOfClaims>
                     			</RollOverList>
-                    			<NewVehicle>N</NewVehicle>
+                    			<NewVehicle>".$preInfo->isNew."</NewVehicle>
                     			<NewVehicleList>
                     				<InspectionRptNo></InspectionRptNo>
                     				<InspectionDt></InspectionDt>
@@ -1304,25 +1456,39 @@ class FgiTwResource extends AppResource{
                         	<AddressSeqNo></AddressSeqNo>
                     	</Risk>
                    </Root>";
-
-
- return $ROOT;
+                return $ROOT;
               
     }
     
      function policyIssuance($enQId,$Premium,$WS_P_ID,$TID,$PGID){
         $info =    DB::table('app_quote')->where('enquiry_id',$enQId)->first();
+        
         $params = json_decode($info->params_request);
+        $preInfo = $this->GetPreviousPolicyData(json_decode(json_encode($params), true),"Proposal");
         $subcovers = $params->subcovers;
+        $optionValues = $params->coverValues;
+         if((isset($subcovers->isPA_OwnerDriverCover) && $subcovers->isPA_OwnerDriverCover=='true')){ 
+            if($params->planType=="TP" && $preInfo->businessType=="NEW"){
+               $PA_OWNER =5;
+            }else{ 
+               $paCoverVal = isset($optionValues->PA_OwnerDriverCoverval)?$optionValues->PA_OwnerDriverCoverval:1;
+               $PA_OWNER =$paCoverVal;
+            }
+          }else{
+              $PA_OWNER ="";
+          }
         $XML =  $this->fnPolicyIssuance(json_decode(json_encode($params), true),$Premium,$WS_P_ID,$TID,$PGID);
         
         //$jData = json_decode($info->json_data);
         $CPAReq = (isset($subcovers->isPA_OwnerDriverCover) && $subcovers->isPA_OwnerDriverCover=='true')?'Y':'N';
         if($CPAReq=="Y"){
-      
             $nR = DB::table('relations')->where('value',$params->nominee->relation)->value('FGI');
             $nR = ($nR)?$nR:"BROT";
             $age = calulateAge(createFormatDate($params->nominee->dob,'d-m-Y','Y-m-d'));
+            
+            
+        
+            $XML = str_replace("{{CPAYear}}","",$XML);
             $XML = str_replace("{{CPAReq}}",$CPAReq,$XML);
             $XML = str_replace("{{CPANomName}}",$params->nominee->name,$XML);
             $XML = str_replace("{{CPANomAge}}",$age,$XML);
@@ -1330,7 +1496,7 @@ class FgiTwResource extends AppResource{
             $XML = str_replace("{{CPANomPerc}}","100",$XML);
             $XML = str_replace("{{CPARelation}}",$nR,$XML);
         }else{
-            
+            $XML = str_replace("{{CPAYear}}","",$XML);
             $XML = str_replace("{{CPAReq}}",$CPAReq,$XML);
             $XML = str_replace("{{CPANomName}}","",$XML);
             $XML = str_replace("{{CPANomAge}}","",$XML);
@@ -1339,11 +1505,15 @@ class FgiTwResource extends AppResource{
             $XML = str_replace("{{CPARelation}}","",$XML);
         }
         
+        
+        
        
         //$licensePlateNumber =$options['vehicle']['vehicleNumber'];
-           // if($options['vehicle']['hasvehicleNumber']=="true"){
+            //if($params->vehicle->hasvehicleNumber=="true"){
                 $licensePlateNumber =$params->vehicle->vehicleNumber;
-           //  }
+            //  }else {
+            //     $licensePlateNumber ="NEW".$params->vehicle->rtoCode;
+            //  }
         $XML = str_replace("{{RegistrationNo}}",$licensePlateNumber,$XML);
         
              $idv = isset($params->vehicle->idv->value)?$params->vehicle->idv->value:0;
@@ -1358,10 +1528,9 @@ class FgiTwResource extends AppResource{
             $LL_Emp = (isset($subcovers->isLL_EmpCover) && $subcovers->isLL_EmpCover=='true')?"Y":"";
             $XML = str_replace("{{isLL_EmpCover}}",$LL_Emp,$XML);
             $ADDONS="";
-           // $ADDONS .= (isset($options['isTyreProCover']) && $options['isTyreProCover']=='true')?"<Addon><CoverCode>00001</CoverCode></Addon>":"";
-           // $ADDONS .= (isset($options['isRetInvCover']) && $options['isRetInvCover']=='true')?"<Addon><CoverCode>00006</CoverCode></Addon>":"";
-            $ADDONS .= (isset($subcovers->isEng_GearBoxProCover) && $subcovers->isEng_GearBoxProCover=='true')?"<Addon><CoverCode>ENGPR</CoverCode></Addon>":"";
-            $ADDONS .= (isset($subcovers->isPartDepProCover) && $subcovers->isPartDepProCover=='true')?"<Addon><CoverCode>PLAN1</CoverCode></Addon>":"";
+           $ADDONS .= (isset($subcovers->isBreakDownAsCover) && $subcovers->isBreakDownAsCover=='true')?"<Addon><CoverCode>RODSA</CoverCode></Addon>":"";
+           $ADDONS .= (isset($subcovers->isConsumableCover) && $subcovers->isConsumableCover=='true')?"<Addon><CoverCode>CONSM</CoverCode></Addon>":"";
+           $ADDONS .= (isset($subcovers->isPartDepProCover) && $subcovers->isPartDepProCover=='true')?"<Addon><CoverCode>ZODEP</CoverCode></Addon>":"";
             $hasAddons = ($ADDONS!="")?"Y":"N";
             $XML = str_replace("{{HAS_ADDONS}}",$hasAddons,$XML);
             if($hasAddons=="Y"){
@@ -1370,24 +1539,31 @@ class FgiTwResource extends AppResource{
                  $XML = str_replace("{{ADDONS}}","<Addon><CoverCode></CoverCode></Addon>",$XML);	
             }
         try {
+             $Inuptxml   = simplexml_load_string($XML, 'SimpleXMLElement', LIBXML_NOCDATA);
+             $Inuptxml = json_decode(json_encode((array)$Inuptxml), TRUE);
+           // echo "<pre>";
+             echo '<pre>', htmlentities($XML), '</pre>';
             $factory = new Factory();
             $client = $factory->create(new Client(), config('motor.FGI.tw.QuickQuote')); 
             $result = $client->call('CreatePolicy', [["Product"=>"Motor","XML"=>$XML]]);
+            //print_r($result);
             $xml   = simplexml_load_string($result->CreatePolicyResult, 'SimpleXMLElement', LIBXML_NOCDATA);
             $array = json_decode(json_encode((array)$xml), TRUE);
-            
+       print_r($array);
               
             if(isset($array['Policy'])){
                     $Inuptxml   = simplexml_load_string($XML, 'SimpleXMLElement', LIBXML_NOCDATA);
                     $Inuptxml = json_decode(json_encode((array)$Inuptxml), TRUE);
                      
-                    $policyNo = $array['Policy']['PolicyNo'];
+                    $policyNo = is_array($array['Policy']['PolicyNo'])?"":$array['Policy']['PolicyNo'];
                    
                     $QDATA = ['reqCreate'=>json_encode($Inuptxml),'respCreate'=>json_encode($array)];
-                    print_r($QDATA);
+                    //print_r($QDATA);
                     DB::table('app_quote')->where('enquiry_id',$enQId)->update($QDATA);
                     return ['status'=>true,'message'=>'Policy Generated successfully','data'=>$policyNo];
             }else{
+                $QDATA = ['reqCreate'=>json_encode($Inuptxml),'respCreate'=>json_encode($array)];
+                DB::table('app_quote')->where('enquiry_id',$enQId)->update($QDATA);
                return ['status'=>false,'message' => "Connection Fail",'data'=>""];
             }
         }catch (ConnectException $e) {
@@ -1410,7 +1586,7 @@ class FgiTwResource extends AppResource{
      function Generatehash256($message) {
          $hash = hash('sha256', mb_convert_encoding($message, 'UTF-8'), true);
         return $this->hexToStr($hash);
-    }
+     }
     
      function hexToStr($string){
                 $hex="";
@@ -1422,41 +1598,94 @@ class FgiTwResource extends AppResource{
         return ($hex);
     }
     
-      function GetPDF($pno){
+     function GetPDF($pno){
             
             try {
-                $url = "http://fglpg001.futuregenerali.in/PDFDownload?wsdl";
-                $factory = new Factory();
-                $client =  $factory->create(new Client(), $url); 
-                $_result = $client->call('GetPDF', [["PolicyNumber"=>$pno,'UserID'=>'webagg','Password'=>'webagg@123']]);
-                if(isset($_result->GetPDFResult) && $_result->GetPDFResult!=""){
-                    if(isset($_result->GetPDFResult->any)){
-                        return  ['status'=>false,'filename'=>"",'message'=>$_result->GetPDFResult->any];
-                    }else{
-                    $filename = 'FGI_TW_'.$pno.'.pdf';
-                    $filePath =$_result->GetPDFResult;
-                    $ff = file_get_contents($filePath,true);
-                    $file = getcwd()."/public/assets/customers/policy/pdf/".$fileName;
-                    file_put_contents($file, $ff);
-                    return  ['status'=>true,'filename'=>$fileName];
-                   }
-                }
+                 $url = "http://fglpg001.futuregenerali.in/PDFDownload?wsdl";
+              //  $factory = new Factory();
+              //  $client =  $factory->create(new Client(['headers' => ["Content-Type" => "text/xml;charset=utf-8"]]), $url); 
+                $REQUEST= ["PolicyNumber"=>$pno,'UserID'=>'webagg','Password'=>'webagg@123'];
+               // print_r($REQUEST);
+               // $_result = $client->call('GetPDF', [$REQUEST]);
+                
+               // $new = simplexml_load_string($_result);
+              // print_r($_result->GetPDFResult);
+               // $xml   = simplexml_load_string($_result->GetPDFResult, 'SimpleXMLElement', LIBXML_NOCDATA);
+              // $array = json_decode(json_encode((array)$xml), TRUE);
+               // print_r($xml);
+                //if(isset($_result->GetPDFResult) && $_result->GetPDFResult!=""){
+                    // if(isset($_result->GetPDFResult->any)){
+                    //     return  ['status'=>false,'filename'=>"",'message'=>$_result->GetPDFResult->any];
+                    // }else{
+                    // $filename = 'FGI_TW_'.$pno.'.pdf';
+                    // $filePath =$_result->GetPDFResult->any;
+                    // $ff = file_get_contents($filePath,true);
+                    // $file = getcwd()."/public/assets/customers/policy/pdf/".$fileName;
+                    // file_put_contents($file, $ff);
+                    // return  ['status'=>true,'filename'=>$fileName];
+                    
+                    
+                   //}
+               // }
+               
+               $this->soapWrapper->add('DataTable', function ($service) {
+                      $service
+                        ->wsdl("http://fglpg001.futuregenerali.in/PDFDownload?wsdl")
+                        ->trace(true);
+                        // ->options([
+                        //     'UserID' => 'webagg',
+                        //     'Password' => 'webagg@123'
+                        // ]);
+                    });
                    
+                    // Without classmap
+                    $response = $this->soapWrapper->call('DataTable.GetPDF', [$REQUEST]);
+                    // print_r($response->GetPDFResult->any);
+                      $xmmll =  "<root>".$response->GetPDFResult->any."</root>";
+                        $doc = new \DOMDocument();
+                        $doc->preserveWhiteSpace = true;
+                        $doc->loadXML($xmmll);
+                        $doc->save('t.xml');
+                    
+                        $xmlfile  = file_get_contents('t.xml');
+                        $parseObj = str_replace($doc->lastChild->prefix.':',"",$xmlfile);
+                        $ob       = simplexml_load_string($parseObj);
+                        $data     = json_decode(json_encode($ob), true);
+                    
+                   //  print_r($data);
+                    if(isset($data['diffgrdiffgram'])){
+                    $diffgrdiffgram = $data['diffgrdiffgram'];
+                    $DocumentElement = $diffgrdiffgram['DocumentElement'];
+                    $PDF = $DocumentElement['PDF'];
+                        if(isset($PDF['PDFBytes'])){
+                            $PDFBytes = $PDF['PDFBytes'];
+                            $fileName = "FGI-TW-".$pno.".pdf";
+                            $filePath1 = base64_decode($PDFBytes);
+                             $file1 = getcwd()."/public/assets/customers/policy/pdf/".$fileName;
+                            file_put_contents($file1, $filePath1);
+                            return  ['status'=>true,'filename'=>$fileName];
+                        }else{
+                            return  ['status'=>false,'filename'=>"" ,'message'=>$response->GetPDFResult->any];
+                        }
+                    }else{
+                        return  ['status'=>false,'filename'=>"" ,'message'=>$response->GetPDFResult->any];
+                    }
+                    
             }catch (ConnectException $e) {
                 $response = $e->getResponse();
                 $responseBodyAsString = $response->getBody()->getContents();
                 $jsonRes = json_decode($responseBodyAsString);
-                 return  ['status'=>false,'filename'=>"",'message'=>"Internal error"];
+                 return  ['status'=>false,'filename'=>"",'message'=>"Internal server error"];
             }catch (RequestException $e) {
                 $response = $e->getResponse();
                 $responseBodyAsString = $response->getBody()->getContents();
                 $jsonRes = json_decode($responseBodyAsString);
-               return  ['status'=>false,'filename'=>"",'message'=>"Internal error"];
+               return  ['status'=>false,'filename'=>"",'message'=>"Internal server error"];
             }catch (ClientException $e) {
                 $response = $e->getResponse();
                 $responseBodyAsString = $response->getBody()->getContents();
                 $jsonRes = json_decode($responseBodyAsString);
-                return  ['status'=>false,'filename'=>"",'message'=>"Internal error"];
+                return  ['status'=>false,'filename'=>"",'message'=>"Internal server error"];
             }
     }
     

@@ -274,6 +274,7 @@ $(document).ready(function() {
             $("#progress-step-2").removeClass('active').removeClass('completed');
             $("#progress-step-3").removeClass('active').removeClass('completed');
             $("#progress-step-1").addClass('active');
+            $('#btn-step-2').loadButton('off');
             $('html, body').animate({ scrollTop: 0 }, 1200);
     });
     
@@ -461,6 +462,8 @@ $(document).ready(function() {
             $("#progress-step-1").removeClass('active').addClass('completed');
             $("#progress-step-3").removeClass('active').removeClass('completed');
             $("#progress-step-2").addClass('active');
+            
+            $('#btn-step-3').loadButton('off');
     });
     
     $(document).on('click change', "input[name='gender']", function(e) {

@@ -57,6 +57,7 @@ class ComposerStaticInitfd4b2299e9ea1d44080d8d7eb6768d1d
         'decc78cc4436b1292c6c0d151b19445c' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
         'b6b991a57620e2fb6b2f66f03fe9ddc2' => __DIR__ . '/..' . '/symfony/string/Resources/functions.php',
         'f18cc91337d49233e5754e93f3ed9ec3' => __DIR__ . '/..' . '/laravelcollective/html/src/helpers.php',
+        '029bffbd721800038bcfaf4916fa491c' => __DIR__ . '/..' . '/mtownsend/xml-to-array/src/helpers.php',
         '8ce9bf7b9d648de055d8de6577639a53' => __DIR__ . '/../..' . '/app/Helpers/app_helpers.php',
         'ff3c5222f7384a426b7eaf015ea0ddbf' => __DIR__ . '/../..' . '/app/Helpers/comman.php',
         'b7b352e8164ec1f03b559107c7dffa05' => __DIR__ . '/../..' . '/app/Helpers/insurance.php',
@@ -153,6 +154,7 @@ class ComposerStaticInitfd4b2299e9ea1d44080d8d7eb6768d1d
         'M' => 
         array (
             'MyCLabs\\Enum\\' => 13,
+            'Mtownsend\\XmlToArray\\' => 21,
             'Monolog\\' => 8,
             'Meng\\Soap\\HttpBinding\\' => 22,
             'Meng\\Soap\\' => 10,
@@ -455,6 +457,10 @@ class ComposerStaticInitfd4b2299e9ea1d44080d8d7eb6768d1d
         array (
             0 => __DIR__ . '/..' . '/myclabs/php-enum/src',
         ),
+        'Mtownsend\\XmlToArray\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/mtownsend/xml-to-array/src',
+        ),
         'Monolog\\' => 
         array (
             0 => __DIR__ . '/..' . '/monolog/monolog/src/Monolog',
@@ -667,6 +673,13 @@ class ComposerStaticInitfd4b2299e9ea1d44080d8d7eb6768d1d
                 0 => __DIR__ . '/..' . '/ezyang/htmlpurifier/library',
             ),
         ),
+        'A' => 
+        array (
+            'Artisaninweb\\SoapWrapper' => 
+            array (
+                0 => __DIR__ . '/..' . '/artisaninweb/laravel-soap/src',
+            ),
+        ),
     );
 
     public static $classMap = array (
@@ -675,6 +688,10 @@ class ComposerStaticInitfd4b2299e9ea1d44080d8d7eb6768d1d
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\Customers' => __DIR__ . '/../..' . '/app/Customers.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
+        'App\\Exports\\CarExport' => __DIR__ . '/../..' . '/app/Exports/CarExport.php',
+        'App\\Exports\\PolicyExport' => __DIR__ . '/../..' . '/app/Exports/PolicyExport.php',
+        'App\\Exports\\PospExport' => __DIR__ . '/../..' . '/app/Exports/PospExport.php',
+        'App\\Exports\\TwExport' => __DIR__ . '/../..' . '/app/Exports/TwExport.php',
         'App\\Http\\Controllers\\API\\AuthController' => __DIR__ . '/../..' . '/app/Http/Controllers/API/AuthController.php',
         'App\\Http\\Controllers\\API\\Uat' => __DIR__ . '/../..' . '/app/Http/Controllers/API/Uat.php',
         'App\\Http\\Controllers\\Admin\\AgentsController' => __DIR__ . '/../..' . '/app/Http/Controllers/Admin/AgentsController.php',
@@ -735,6 +752,12 @@ class ComposerStaticInitfd4b2299e9ea1d44080d8d7eb6768d1d
         'App\\Http\\Middleware\\TrustProxies' => __DIR__ . '/../..' . '/app/Http/Middleware/TrustProxies.php',
         'App\\Http\\Middleware\\VerifyCsrfToken' => __DIR__ . '/../..' . '/app/Http/Middleware/VerifyCsrfToken.php',
         'App\\Model\\Agents' => __DIR__ . '/../..' . '/app/Model/Agents.php',
+        'App\\Model\\CarMake' => __DIR__ . '/../..' . '/app/Model/CarMake.php',
+        'App\\Model\\CarModal' => __DIR__ . '/../..' . '/app/Model/CarModal.php',
+        'App\\Model\\CarVariant' => __DIR__ . '/../..' . '/app/Model/CarVariant.php',
+        'App\\Model\\TwMake' => __DIR__ . '/../..' . '/app/Model/TwMake.php',
+        'App\\Model\\TwModal' => __DIR__ . '/../..' . '/app/Model/TwModal.php',
+        'App\\Model\\TwVariant' => __DIR__ . '/../..' . '/app/Model/TwVariant.php',
         'App\\Partners\\Care\\Care' => __DIR__ . '/../..' . '/app/Partners/Care/Care.php',
         'App\\Partners\\Care\\CareBasic' => __DIR__ . '/../..' . '/app/Partners/Care/CareBasic.php',
         'App\\Partners\\Care\\CareClassic' => __DIR__ . '/../..' . '/app/Partners/Care/CareClassic.php',
@@ -766,6 +789,14 @@ class ComposerStaticInitfd4b2299e9ea1d44080d8d7eb6768d1d
         'App\\VarientCar' => __DIR__ . '/../..' . '/app/VarientCar.php',
         'App\\VarientTw' => __DIR__ . '/../..' . '/app/VarientTw.php',
         'App\\Visitor' => __DIR__ . '/../..' . '/app/Visitor.php',
+        'Artisaninweb\\SoapWrapper\\Client' => __DIR__ . '/..' . '/artisaninweb/laravel-soap/src/Artisaninweb/SoapWrapper/Client.php',
+        'Artisaninweb\\SoapWrapper\\Exceptions\\ServiceAlreadyExists' => __DIR__ . '/..' . '/artisaninweb/laravel-soap/src/Artisaninweb/SoapWrapper/Exceptions/ServiceAlreadyExists.php',
+        'Artisaninweb\\SoapWrapper\\Exceptions\\ServiceMethodNotExists' => __DIR__ . '/..' . '/artisaninweb/laravel-soap/src/Artisaninweb/SoapWrapper/Exceptions/ServiceMethodNotExists.php',
+        'Artisaninweb\\SoapWrapper\\Exceptions\\ServiceNotFound' => __DIR__ . '/..' . '/artisaninweb/laravel-soap/src/Artisaninweb/SoapWrapper/Exceptions/ServiceNotFound.php',
+        'Artisaninweb\\SoapWrapper\\Facade' => __DIR__ . '/..' . '/artisaninweb/laravel-soap/src/Artisaninweb/SoapWrapper/Facade.php',
+        'Artisaninweb\\SoapWrapper\\Service' => __DIR__ . '/..' . '/artisaninweb/laravel-soap/src/Artisaninweb/SoapWrapper/Service.php',
+        'Artisaninweb\\SoapWrapper\\ServiceProvider' => __DIR__ . '/..' . '/artisaninweb/laravel-soap/src/Artisaninweb/SoapWrapper/ServiceProvider.php',
+        'Artisaninweb\\SoapWrapper\\SoapWrapper' => __DIR__ . '/..' . '/artisaninweb/laravel-soap/src/Artisaninweb/SoapWrapper/SoapWrapper.php',
         'Asm89\\Stack\\Cors' => __DIR__ . '/..' . '/asm89/stack-cors/src/Cors.php',
         'Asm89\\Stack\\CorsService' => __DIR__ . '/..' . '/asm89/stack-cors/src/CorsService.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
@@ -3465,6 +3496,7 @@ class ComposerStaticInitfd4b2299e9ea1d44080d8d7eb6768d1d
         'Monolog\\SignalHandler' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/SignalHandler.php',
         'Monolog\\Test\\TestCase' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Test/TestCase.php',
         'Monolog\\Utils' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Utils.php',
+        'Mtownsend\\XmlToArray\\XmlToArray' => __DIR__ . '/..' . '/mtownsend/xml-to-array/src/XmlToArray.php',
         'MyCLabs\\Enum\\Enum' => __DIR__ . '/..' . '/myclabs/php-enum/src/Enum.php',
         'MyCLabs\\Enum\\PHPUnit\\Comparator' => __DIR__ . '/..' . '/myclabs/php-enum/src/PHPUnit/Comparator.php',
         'Nicolaslopezj\\Searchable\\SearchableTrait' => __DIR__ . '/..' . '/nicolaslopezj/searchable/src/SearchableTrait.php',

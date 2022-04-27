@@ -11,6 +11,7 @@ use Auth;
 use App\Partners\Care\CareBasic;
 use App\Partners\Care\CareSmart;
 use App\Partners\Care\CareClassic;
+use App\Partners\Care\CareAdvantage;
 
 class Care {
     protected $classic;
@@ -20,6 +21,7 @@ class Care {
          $this->classic = new CareClassic;
          $this->basic = new CareBasic;
          $this->smart = new CareSmart;
+         $this->adv   = new CareAdvantage;
     }
     
     function CareAuth(){
@@ -56,7 +58,7 @@ class Care {
             if($range['start']==4){  $rangeARR = ['5','7'];}
             if($range['start']==10){ $rangeARR = ['10','15'];}
             if($range['start']==16){ $rangeARR = ['20','25'];}
-            if($range['start']==26){ $rangeARR = ['30','40','50','60','75'];}
+            if($range['start']==26){ $rangeARR = ['30','40','50','60','75','100'];}
           }
           
           
@@ -69,13 +71,20 @@ class Care {
                     if($careClassic['status']){$count++; $_plans[] =$careClassic['data'];}
                 }
                 
-                $careBasic = $this->basic->calculatePremium(json_decode(json_encode($params)),$authToken,$sumInsured,$devicetoken,$policytyp);
-                if($careBasic['status']){$count++; $_plans[] =$careBasic['data'];}
+                if($sumInsured<76){
+                  $careBasic = $this->basic->calculatePremium(json_decode(json_encode($params)),$authToken,$sumInsured,$devicetoken,$policytyp);
+                  if($careBasic['status']){$count++; $_plans[] =$careBasic['data'];}
+                }
+                if($sumInsured<41){
+                   $careSmart = $this->smart->calculatePremium(json_decode(json_encode($params)),$authToken,$sumInsured,$devicetoken,$policytyp);
+                   if($careSmart['status']){$count++; $_plans[] =$careSmart['data'];}
+                }
                 
-                $careSmart = $this->smart->calculatePremium(json_decode(json_encode($params)),$authToken,$sumInsured,$devicetoken,$policytyp);
-                if($careSmart['status']){$count++; $_plans[] =$careSmart['data'];}
-                
-                  
+               if(in_array($sumInsured, ['25','50','100']) && (($policytyp=="FL") || (($adult+$child)==1 && $policytyp=="IN"))){
+                $careAdv = $this->adv->calculatePremium(json_decode(json_encode($params)),$authToken,$sumInsured,$devicetoken,$policytyp);
+                if($careAdv['status']){$count++; $_plans[] =$careAdv['data'];}
+               }
+                 
             }//foreach Range
            
          if($count>0){   
@@ -98,6 +107,8 @@ class Care {
                $careClassic = $this->classic->recalculatePremium($enqId,$authToken,$termYear,$sum,$addOn);
           }else if($enQ->product=="CARESMART"){
                $careBasic = $this->smart->recalculatePremium($enqId,$authToken,$termYear,$sum,$addOn);
+          }else if($enQ->product=="CAREADVANTAGE"){
+               $careBasic = $this->adv->recalculatePremium($enqId,$authToken,$termYear,$sum,$addOn);
           }else{
                $careBasic = $this->basic->recalculatePremium($enqId,$authToken,$termYear,$sum,$addOn);
           }
@@ -110,6 +121,9 @@ class Care {
               return $careClassic;
           }else if($enQ->product=="CARESMART"){
                $careSmart = $this->smart->createPolicy($enqId);
+               return  $careSmart;
+          }else if($enQ->product=="CAREADVANTAGE"){
+               $careSmart = $this->adv->createPolicy($enqId);
                return  $careSmart;
           }else{
               $careBasic = $this->basic->createPolicy($enqId);

@@ -73,7 +73,8 @@ class SuccessController extends Controller{
                                   ];
                      $saledData['transaction_no'] =$_REQUEST['ProposalNo'];
                      $saledData['policy_no'] =$_REQUEST['PolicyNo'];
-                     
+                     $saledData['startDate']=$data->startDate;
+                     $saledData['endDate']=$data->endDate;
                      $saledData['sp_id'] =0;
                      $saledData['mobile_no'] =$data->customer_mobile;
                      $saledData['agent_id'] =$data->agent_id;
@@ -110,14 +111,15 @@ class SuccessController extends Controller{
             $jsonData = json_decode($data->json_data);
              if($data->provider=="CARE"){
                  //print_r($_POST);
-                // Array ( [csrf] => null [policyNumber] => 10483768 [transactionRefNum] => 403993715523730916 [uwDecision] => INFORCE [errorFlag] => [errorMsg] => )
+                 //Array ( [csrf] => null [policyNumber] => 10483768 [transactionRefNum] => 403993715523730916 [uwDecision] => INFORCE [errorFlag] => [errorMsg] => )
                  $json_data = json_decode($data->json_data);
                  $saledData['transaction_no'] =$_POST['transactionRefNum'];
                  $saledData['policy_no'] =$_POST['policyNumber'];
                  $saledData['payment_status'] = "Completed";
                  $saledData['policy_status'] = "Completed";//($_POST['uwDecision']=='INFORCE')?"Completed":"Pending";
                  $saledData['amount'] = $json_data->amount;
-                 
+                 $saledData['startDate']=$data->startDate;
+                 $saledData['endDate']=$data->endDate;
                  $premium = json_decode($data->amounts); 
                  $saledData['termYear'] = $data->termYear;
                  $saledData['sumInsured'] = $json_data->sumInsured;
@@ -145,7 +147,7 @@ class SuccessController extends Controller{
                  $saledData['sp_id'] =0;
                  $saledData['mobile_no'] =$data->customer_mobile;
                  $saledData['agent_id'] =$data->agent_id;
-                 
+                
                  $saledData['payment_status'] = "Completed";
                  $saledData['policy_status'] = "Completed";
                  
@@ -169,8 +171,17 @@ class SuccessController extends Controller{
                  try {
                        $saveProposal = $this->Manipal->saveProposalData($request->enquiryID,$quoteId,$_POST['udf4'],$_POST['txnid'],$_POST['amount']);
                        if($saveProposal['status']){
-                    
-                    //      $saledData['filename'] =($pdfResp['status'])?$pdfResp['filename']:"";
+                         $NewQuoteData = DB::table('app_quote')->where(['enquiry_id'=>$request->enquiryID])->first();
+                         $saledData['startDate']=$NewQuoteData->startDate;
+                         $saledData['endDate']=$NewQuoteData->endDate;
+                         $saledData['reqQuote']=$NewQuoteData->reqQuote;
+                     	 $saledData['respQuote']=$NewQuoteData->respQuote;
+                    	 $saledData['reqRecalculate']=$NewQuoteData->reqRecalculate;
+                    	 $saledData['respRecalculate']=$NewQuoteData->respRecalculate;
+                    	 $saledData['reqCreate']=$NewQuoteData->reqCreate;
+                    	 $saledData['respCreate']=$NewQuoteData->respCreate;
+                         $saledData['reqSaveGenPolicy']=$NewQuoteData->reqSaveGenPolicy;
+                         $saledData['respSaveGenPolicy']=$NewQuoteData->respSaveGenPolicy;
                          $jsonData->receiptId=$saveProposal['data']['receiptId'];
                        }
                 }catch(Exception $e) {
@@ -225,7 +236,8 @@ class SuccessController extends Controller{
                          'agent_id'=>$enQ->agent_id,
                          'params'=>$enQ->params_request,
                          'sp_id' =>0,
-                       //  'uploaded_doc'=>$enQ->policy_doc,
+                        'startDate'=>$info->startDate,
+                         'endDate'=>$info->endDate,
                          'enquiry_id' =>$enQ->enquiry_id,
                          'transaction_no'=>$enQ->token,
                          'policy_no'=>($pData['status'])?$pData['data']:"",
@@ -241,6 +253,8 @@ class SuccessController extends Controller{
                     	'reqSaveGenPolicy'=>$enQ->reqSaveGenPolicy,
                     	'respSaveGenPolicy'=>$enQ->respSaveGenPolicy,
                        ];
+                       
+                      
                        $isExist = DB::table('policy_saled')->where('enquiry_id',$request->enquiry_id)->count();
                            if(!$isExist){
                               $refID = DB::table('policy_saled')->insertGetId($saledData);
@@ -273,7 +287,8 @@ class SuccessController extends Controller{
                          'agent_id'=>$info->agent_id,
                          'params'=>$info->params_request,
                          'sp_id' =>0,
-                         //'uploaded_doc'=>$info->policy_doc,
+                         'startDate'=>$info->startDate,
+                         'endDate'=>$info->endDate,
                          'reqQuote'=>$info->reqQuote,
                      	 'respQuote'=>$info->respQuote,
                     	 'reqRecalculate'=>$info->reqRecalculate,
@@ -294,19 +309,19 @@ class SuccessController extends Controller{
                 $saledData['getway_response']= json_encode($_REQUEST);
                  //https://superfinserv.co.in/moter-insurance/insured-success/bike/48daf5f2cbeb879468ea38d346f226f9?WS_P_ID=TP0000096531&TID=1k450629W9&PGID=403993715525903340&Premium=1471.00&Response=Success
                 // Array ( [WS_P_ID] => TP0000096531 [TID] => 1k450629W9 [PGID] => 403993715525903340 [Premium] => 1471.00 [Response] => Success ) 
-                if($request->input('Response')=="Success"){
-                      
+                // if($request->input('Response')=="Success"){
                       $saledData['transaction_no'] =$request->input('WS_P_ID');
                       $saledData['payment_status'] = "Completed";
                       $saledData['amount'] = $request->input('Premium');
                       $pdata = $this->FgiTw->policyIssuance($request->enquiryID,$request->input('Premium'),$request->input('WS_P_ID'),$request->input('TID'),$request->input('PGID'));
+                   if($request->input('Response')=="Success"){   //print_r($pdata);die;
                       $saledData['policy_no'] = $pdata['data'];
                       $saledData['policy_status'] = "Completed";
-                 }
+                   }
                  
              }
              
-             
+              //print_r($saledData);die;
              if(!$isExist){
                   $saledData['enquiry_id'] =$request->enquiryID;
                   $refID = DB::table('policy_saled')->insertGetId($saledData);

@@ -97,7 +97,12 @@ $(function(){
                            
                             hdfcergoCard.removeClass('cart-empty');
                             hdfcergoCard.find('a.Premium-Breakup').attr('data-ref',result.id);
-                            if(twInfo.planType=="TP"){ hdfcergoCard.find('h5.idv').hide();}else{ hdfcergoCard.find('h5.idv').html('IDV:'+result.idv+'/-');}
+                            if(twInfo.planType=="TP"){ 
+                                hdfcergoCard.find('h5.idv').hide();
+                            }else{
+                                hdfcergoCard.find('h5.idv').show();
+                                hdfcergoCard.find('h5.idv').html('IDV:'+result.idv+'/-');
+                            }
                             hdfcergoCard.find('.column-2').attr('style',"");
                             hdfcergoCard.find('.column-3').attr('style',"");
                             hdfcergoCard.find('button.btn-netpremiumn').attr('data-ref',result.id);
@@ -168,7 +173,7 @@ $(function(){
                        
                         fgiCard.removeClass('cart-empty');
                         fgiCard.find('a.Premium-Breakup').attr('data-ref',result.id);
-                        if(twInfo.planType=="TP"){ fgiCard.find('h5.idv').hide();}else{ fgiCard.find('h5.idv').html('IDV:'+result.idv+'/-');}
+                        if(twInfo.planType=="TP"){ fgiCard.find('h5.idv').hide();}else{  fgiCard.find('h5.idv').show(); fgiCard.find('h5.idv').html('IDV:'+result.idv+'/-');}
                         fgiCard.find('.column-2').attr('style',"");
                         fgiCard.find('.column-3').attr('style',"");
                         fgiCard.find('button.btn-netpremiumn').attr('data-ref',result.id);
@@ -430,6 +435,7 @@ $(function(){
              configSetting.coverSetup(currentPlan);
              planLib.digit('firstCall');
              planLib.hdfcErgo('firstCall');
+              planLib.fgi('first-call');
         }
     });
     
@@ -474,6 +480,7 @@ $(function(){
              planLib.digit('recalculate');
              planLib.hdfcErgo('recalculate');
              planLib.fgi('recalculate');
+              planLib.fgi('recalculate');
      });
      
      $('body').on('click','#btn-pa-owner-driver',function() {

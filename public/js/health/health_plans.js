@@ -1,7 +1,7 @@
 $( document ).ready(function() {
     var postData = JSON.parse(localStorage.getItem('healthInfo'));
     var typ ="FL";
-    if(parseInt(postData.total_adult+postData.total_child)==1){
+    if(parseInt(postData.total_adult)+parseInt(postData.total_child)==1){
         $("#plan_policy_typ_filter option[value=FL]").attr('disabled', true);
         $("#plan_policy_typ_filter option[value=FL]").prop('disabled', true);
         typ = "IN";
@@ -318,7 +318,13 @@ function addElements(key,data){
         })
       }
      //console.log(_feature);
-    
+    let sumInsured = parseFloat(data.sumInsured);
+    if(sumInsured>99){
+        sumInsured = "1 Cr";
+    }else{
+        sumInsured = (sumInsured==1)?data.sumInsured+" Lakh":data.sumInsured+" Lakhs";
+        
+    }
     var _html='<div class="col-12 col-md-6 col-lg-4 col-sm-12 elem-plan elem-'+data.id+'-'+data.supplier+'" data-sumInsured="'+data.sumInsured+'">'
                              +'<div class="card plan-card">'
 						      	+'<div class="card-header plan-card-header" >'
@@ -330,7 +336,7 @@ function addElements(key,data){
 						      	    +'<ul class="plan-header-right">'
 						      	        +'<li class="info-box">'
 						      	            +'<h4>Sum Insured</h4>'
-						      	            +'<span data-val="'+data.sumInsured+'" class="plan-premium-amount'+data.id+'-'+data.supplier+'">₹ '+data.sumInsured+'Lakh</span>'
+						      	            +'<span data-val="'+data.sumInsured+'" class="plan-premium-amount'+data.id+'-'+data.supplier+'">₹ '+sumInsured+'</span>'
 						      	        +'</li>'
 						      	        +'<li class="info-box">'
 						      	             +'<h4>Premium/Yr</h4>'

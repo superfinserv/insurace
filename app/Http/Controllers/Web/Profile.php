@@ -17,7 +17,7 @@ class Profile extends Controller{
 
  
     public function index(){
-         $polices = DB::table('policy_saled')->where('mobile_no',Auth::guard('customers')->user()->mobile)->get();
+         $polices = DB::table('policy_saled')->where('mobile_no',Auth::guard('customers')->user()->mobile)->orderBy('id','DESC')->get();
          $template = ['title' => 'Super Finserv',"subtitle"=>"Profile",'polices'=>$polices];  
          return View::make('web.profile.index')->with($template);
     }

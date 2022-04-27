@@ -11,7 +11,7 @@
 						<div class="row mt-3">
 						<div class="col-md-3 col-sm-3"></div>
 						<div class="col-md-6 col-sm-6">
-						    	<select class="car-registen-year br-all invest-month single-select2" id="rto_code" name="rto_code">
+						    	<select class="rto-location" id="rto_code" name="rto_code">
 								<option value="">Select registration place </option>
                                   @foreach($rto_master as $rto)
                                    <option value="{{$rto->rtoCode}}">{{$rto->rtoCode}} {{$rto->text}}</option>

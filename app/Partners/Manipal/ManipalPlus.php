@@ -1625,7 +1625,11 @@ class ManipalPlus{
                 DB::table('app_quote')->where('enquiry_id', $enqID)->update(['reqSaveGenPolicy'=>json_encode($REQUEST),'respSaveGenPolicy'=>$response]);
                 if($result->errorList==null || $result->errorList==""){
                      $receiptId = isset($result->listofPolicyTO[0]->inwardDOList[0]->receiptId)?$result->listofPolicyTO[0]->inwardDOList[0]->receiptId:"";
-                     DB::table('app_quote')->where('enquiry_id',$enqID)->update(['json_data->receiptId'=>$receiptId]);
+                       DB::table('app_quote')->where('enquiry_id',$enqID)->update(
+                         ['json_data->receiptId'=>$receiptId,
+                         'startDate'=>Carbon::createFromFormat('d/m/Y', $period->startDate)->format('Y-m-d'),
+                         'endDate'=>Carbon::createFromFormat('d/m/Y', $period->endDate)->format('Y-m-d')]
+                         );
                     return ['status'=>true,'message'=>"Success",'data'=>['receiptId'=>$receiptId]]; 
                 }else{
                    $errorList = $result->errorList;

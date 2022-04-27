@@ -186,11 +186,27 @@
                              @if($data->type=='CAR' || $data->type=='BIKE')
                              <tr>
                                  <td>Plan Name</td>
-                                 <td style="color: #000;"><?=($data->type=='CAR')?'Pvt Car Insurance':'Two wheeler Insurance';?></td>
+                                 <td style="color: #000;">
+                                     
+                                     <?php $typ = ($data->type=='CAR')?'Pvt Car Insurance':'Two wheeler Insurance';?>
+                                      @if($data->policyType=="COM")
+                                       {{$typ}} - Comprehansive
+                                     @elseif($data->policyType=="TP")
+                                       {{$typ}} - Third Party
+                                      @elseif($data->policyType=="SAOD")
+                                      {{$typ}} - Standalone Own Damage
+                                     @endif
+                                     </td>
                              </tr>
                              <tr>
                                  <td>Registration No</td>
-                                 <td style="color: #000;">{{$param->vehicle->vehicleNumber}}</td>
+                                 <td style="color: #000;">
+                                     @if($param->vehicle->isBrandNew=="true")
+                                       NEW - {{$param->vehicle->rtoCode}}
+                                     @else
+                                       {{$param->vehicle->vehicleNumber}}
+                                     @endif
+                                  </td>
                              </tr>
                              @else
                              <tr>
