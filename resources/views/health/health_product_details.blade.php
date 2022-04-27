@@ -492,7 +492,23 @@ input[name='planYear']:checked + label.label-planYear::after {
                                        ?>
                                         
                                         
-
+                                        @if($data->code=='1967')
+                                                <input id="addOn4" value="CAREADWITHNCB" name="addOn4" type="checkbox" class="addon-ncb addonInput addon-label" <?=((!empty($addons)) && in_array("CAREADWITHNCB",$addons))?"checked":"";?>/>
+                                                <label class= "addon-ncb" for="addOn4" class="">NCB Super </label>
+                                                
+                                                <input id="addOn2" value="CARESHILED1104" name="addOn2" type="checkbox" class="addonInput addon-label" <?=((!empty($addons)) && in_array("CARESHILED1104",$addons))?"checked":"";?>/>
+                                                <label for="addOn2">Care Shield</label>
+                                                
+                                                <input id="addOn3" value="SMARTCA" name="addOn3" type="checkbox" class="addonInput addon-label" <?=((!empty($addons)) && in_array("SMARTCA",$addons))?"checked":"";?>/>
+                                                <label for="addOn3">Smart Select</label>
+                                                <?php /*
+                                                <input id="addOn1" value="HCUPCA1093" name="addOn1" type="checkbox" class="addonInput addon-label" <?=((!empty($addons)) && in_array("HCUPCA1093",$addons))?"checked":"";?>/>
+                                                <label for="addOn1">Annual Health Check-up</label>
+                                                 */?>
+                                                <input id="addOn5" value="RRMCA" name="addOn5" type="checkbox" class="addonInput addon-label" <?=((!empty($addons)) && in_array("RRMCA",$addons))?"checked":"";?>/>
+                                                <label for="addOn5">Room rent</label>
+                                        
+                                        @else
 	
 
                                          
@@ -554,7 +570,7 @@ input[name='planYear']:checked + label.label-planYear::after {
                                              @endif
                                            </div>
                                             
-                                         
+                                         @endif 
                                     </div>
                                     
                                
@@ -589,9 +605,9 @@ input[name='planYear']:checked + label.label-planYear::after {
                                             <input id="addOn1" value="OPHDCB03" name="addOn1" type="checkbox" class="addonInput addon-label" <?=((!empty($addons)) && in_array("OPHDCB03",$addons))?"checked":"";?>/>
                                             <label for="addOn1">Hospital Daily Cash Benefit</label>
                                             
-                                            <input id="addOn3" value="OPWMC04" name="addOn3" type="checkbox" class="addonInput addon-label" <?=((!empty($addons)) && in_array("OPWMC04",$addons))?"checked":"";?>/>
+                                          <?php /*  <input id="addOn3" value="OPWMC04" name="addOn3" type="checkbox" class="addonInput addon-label" <?=((!empty($addons)) && in_array("OPWMC04",$addons))?"checked":"";?>/>
                                             <label for="addOn3">ProHealth-Waiver Mandatory CoPay</label>
-                                            
+                                            */?>
                                             
                                      </div>
                                  </div>

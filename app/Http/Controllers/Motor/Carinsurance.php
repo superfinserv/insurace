@@ -72,7 +72,7 @@ class Carinsurance extends Controller
     
     public function loadCarModel(Request $request){
        $count=DB::table('vehicle_modal_car')->where(['make_id'=>$request->brandId,'status'=>'ACTIVE'])->count();
-       $models   = DB::table('vehicle_modal_car')->select('id','modal')->where(['make_id'=>$request->brandId,'status'=>'ACTIVE'])->orderBy('serial_no','ASC')->get();
+       $models   = DB::table('vehicle_modal_car')->select('id','modal')->where(['make_id'=>$request->brandId,'status'=>'ACTIVE'])->orderBy('modal','ASC')->get();
        $models10 = DB::table('vehicle_modal_car')->select('id','modal')->where(['make_id'=>$request->brandId,'status'=>'ACTIVE'])->orderBy('serial_no','ASC')->limit(10)->get();
       
        $template = ['count' => $count,"models"=>$models,"models10"=>$models10,"brandName"=>$request->brandName];  
@@ -321,7 +321,12 @@ class Carinsurance extends Controller
              if($data->provider=='DIGIT'){
                  $resp = $this->DigitCar->createQuote($request->enc,json_decode($data->params_request));
                 if($resp['status']){
-                     $result = ['status'=>'success','message'=>'Proposal Created successfully','data'=>['enc'=>$request->enc]];
+                    if($resp['isBreakIn']){
+                        $result = ['status'=>'success','isBreakIn'=>'Yes','message'=>'Inspection case created successfully','data'=>['enc'=>$request->enc]];
+                    }else{
+                        $result = ['status'=>'success','isBreakIn'=>'No','message'=>'Proposal Created successfully','data'=>['enc'=>$request->enc]];
+                    }
+                     //$result = ['status'=>'success','message'=>'Proposal Created successfully','data'=>['enc'=>$request->enc]];
                 }else{
                     $result = ['status'=>'error','message'=>$resp['message'],'data'=>[]];
                 }
@@ -378,26 +383,44 @@ class Carinsurance extends Controller
     
     function GetInspectionApprovalInfo(Request $request){
        $info =   DB::table('app_quote')->where('type','CAR')->where('enquiry_id',$request->enquiryID)->first();
-       $breakIn =  json_decode($info->breakInJson,true);
-       $res = $this->HdfcErgoCar->GetBreakinDetails($breakIn['BreakinId'],$breakIn['QuoteId']);
-     //  print_r($res);die;
-       if(trim($res['BreakInStatus'])=="Pending"){
-           $html= '<p class="text-center">Your inspection tracking no. <b>'.$breakIn['QuoteId'].'</b> </p>
-                 <p class="text-center" style="margin: 10px;">Download HdfcErgo self Inspection app and enter above tracking number.</p> 
-                 <p class="text-center">--OR--</p>
-                 <p class="text-center">you will receive an SMS with <b>"Self-Inspection App Link"</b> to complete the inspection process</p>';
-       }else if(trim($res['BreakInStatus'])=="Initiated"){
-            $html= '<p class="text-center">Your inspection tracking no. <b>'.$breakIn['QuoteId'].'</b> </p>
-                 <p class="text-center" style="margin: 10px;">'.$res['message'].'</p> ';
-       }else if(trim($res['BreakInStatus'])=="Processed"){
-            $html= '<p class="text-center">Your inspection tracking no. <b>'.$breakIn['QuoteId'].'</b> </p>
-                 <p class="text-center" style="margin: 10px;">'.$res['message'].'</p> ';
-       }else if(trim($res['BreakInStatus'])=="Approved"){
-            $html= '<p class="text-center">Your inspection tracking no. <b>'.$breakIn['QuoteId'].'</b> </p>
-                 <p class="text-center" style="margin: 10px;">'.$res['message'].'</p> ';
+       if($info->provider=='HDFCERGO'){
+               $breakIn =  json_decode($info->breakInJson,true);
+               $res = $this->HdfcErgoCar->GetBreakinDetails($breakIn['BreakinId'],$breakIn['QuoteId']);
+               if(trim($res['BreakInStatus'])=="Pending"){
+                   $html= '<p class="text-center">Your inspection tracking no. <b>'.$breakIn['QuoteId'].'</b> </p>
+                         <p class="text-center" style="margin: 10px;">Download HdfcErgo self Inspection app and enter above tracking number.</p> 
+                         <p class="text-center">--OR--</p>
+                         <p class="text-center">you will receive an SMS with <b>"Self-Inspection App Link"</b> to complete the inspection process</p>';
+               }else if(trim($res['BreakInStatus'])=="Initiated"){
+                    $html= '<p class="text-center">Your inspection tracking no. <b>'.$breakIn['QuoteId'].'</b> </p>
+                         <p class="text-center" style="margin: 10px;">'.$res['message'].'</p> ';
+               }else if(trim($res['BreakInStatus'])=="Processed"){
+                    $html= '<p class="text-center">Your inspection tracking no. <b>'.$breakIn['QuoteId'].'</b> </p>
+                         <p class="text-center" style="margin: 10px;">'.$res['message'].'</p> ';
+               }else if(trim($res['BreakInStatus'])=="Approved"){
+                    $html= '<p class="text-center">Your inspection tracking no. <b>'.$breakIn['QuoteId'].'</b> </p>
+                         <p class="text-center" style="margin: 10px;">'.$res['message'].'</p> ';
+               }
+       }else if($info->provider=='DIGIT'){
+            $breakIn =  json_decode($info->breakInJson);
+            $res = $this->DigitCar->GetpolicyInfo($breakIn->BreakinId,$breakIn->QuoteId);
+            //print_r($res);
+            if(trim($res['BreakInStatus'])=="Pending"){
+                   $html= '<p class="text-center">Your inspection tracking no. <b>'.$breakIn->QuoteId.'</b> </p>
+                         <p class="text-center">you will receive an SMS with <b>"Self-Inspection App Link"</b> to complete the inspection process</p>';
+               }else if(trim($res['BreakInStatus'])=="Initiated"){
+                    $html= '<p class="text-center">Your inspection tracking no. <b>'.$breakIn->QuoteId.'</b> </p>
+                         <p class="text-center" style="margin: 10px;">'.$res['message'].'</p> ';
+               }else if(trim($res['BreakInStatus'])=="Processed"){
+                    $html= '<p class="text-center">Your inspection tracking no. <b>'.$breakIn->QuoteId.'</b> </p>
+                         <p class="text-center" style="margin: 10px;">'.$res['message'].'</p> ';
+               }else if(trim($res['BreakInStatus'])=="Approved"){
+                    $html= '<p class="text-center">Your inspection tracking no. <b>'.$breakIn->QuoteId.'</b> </p>
+                         <p class="text-center" style="margin: 10px;">'.$res['message'].'</p> ';
+               }
        }
        
-        $result = ['status'=>'success','BreakInStatus'=>$res['BreakInStatus'],'message'=>"Success",'data'=>$html];
+        $result = ['status'=>'success','provider'=>$info->provider,'BreakInStatus'=>$res['BreakInStatus'],'message'=>"Success",'data'=>$html];
          return response()->json($result);
     }
     

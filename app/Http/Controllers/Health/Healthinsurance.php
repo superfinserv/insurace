@@ -368,6 +368,8 @@ class Healthinsurance extends Controller{
                          $plan_val = 'CARE-FREEDOM';
                      }else if($data->product=='CARECLASSIC'){
                          $plan_val = 'CARE-CLASSIC';
+                     }else if($data->product=='CAREADVANTAGE'){
+                         $plan_val = 'CARE-ADV';
                      }
                      
                  }else if($data->provider=='DIGIT'){

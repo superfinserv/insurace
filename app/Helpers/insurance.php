@@ -61,7 +61,7 @@
              }
                  
              }else if($provider=='CARE'){
-                if($plan=='716'){
+                if($plan=='1967'){
                     return  ['25'=>2500000,'50'=>5000000,'100'=>10000000];
                 }else{
                     if($uType=="customer"){

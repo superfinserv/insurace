@@ -25,7 +25,7 @@
                                             <tbody>
                                             
                                              @foreach($polices as $sale)
-                                             <?php $supp =  DB::table('suppliers')->where('short',$sale->provider)->value('name'); ?>
+                                             <?php $supp =  DB::table('our_partners')->where('shortName',$sale->provider)->value('name'); ?>
                                             <tr class="">
                                                 
                                                  <td class="hidden-xs">

@@ -6,11 +6,20 @@
     'aliases' => 
     array (
     ),
-    'reference' => '77b0eb95ef3eef9622fc5aa996e69ebadd247248',
+    'reference' => '9babb4527be673a7376e6c554e742ce08d6d4867',
     'name' => 'laravel/laravel',
   ),
   'versions' => 
   array (
+    'artisaninweb/laravel-soap' => 
+    array (
+      'pretty_version' => '0.3.0.10',
+      'version' => '0.3.0.10',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '809073fe1116e3e3daadcf8571fc58b0a9603574',
+    ),
     'asm89/stack-cors' => 
     array (
       'pretty_version' => 'v2.0.3',
@@ -485,7 +494,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => '77b0eb95ef3eef9622fc5aa996e69ebadd247248',
+      'reference' => '9babb4527be673a7376e6c554e742ce08d6d4867',
     ),
     'laravel/passport' => 
     array (
@@ -671,6 +680,15 @@
       array (
       ),
       'reference' => '1cb1cde8e8dd0f70cc0fe51354a59acad9302084',
+    ),
+    'mtownsend/xml-to-array' => 
+    array (
+      'pretty_version' => '2.0.0',
+      'version' => '2.0.0.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '0734720a8462dba36d90fb8b2723bf46af0091f4',
     ),
     'myclabs/deep-copy' => 
     array (

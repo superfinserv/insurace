@@ -9,7 +9,7 @@
 
                 <div class="start-screen__content-container home-title-top-men">
                     
-                    <div class="start-screen__content__item align-items-center"  style="background: url({{asset('/site_assets/img/167.png')}});background-repeat: no-repeat;color: #fff;background-size: 100% 100%;">
+                    <div class="start-screen__content__item align-items-center"  style="background: url({{asset('/site_assets/img/167.webp')}});background-repeat: no-repeat;color: #fff;background-size: 100% 100%;">
                         <div class="container">
                             
                             <div class="row">
@@ -172,7 +172,7 @@
                                 <!-- start video -->
                                     <div class="video-box video-box--s1">
                                         <figure class="">
-                                    <img class="lazy" src="{{asset('site_assets/img/why-choose.png')}}" data-src="{{asset('site_assets/img/why-choose.png')}}" alt="{{env('APP_NAME')}}" />
+                                    <img class="lazy" src="{{asset('site_assets/img/why-choose.webp')}}" data-src="{{asset('site_assets/img/why-choose.webp')}}" alt="{{env('APP_NAME')}}" />
 
                                    
                             </figure>
@@ -188,7 +188,7 @@
                 <section class="data-security mt-40 mb-40">
                     <div class="container">
                         <div class="row">
-                            <div class="col-md-6 col-sm-6" class="item" data-aos="fade-right"><img src="{{asset('site_assets/img/security.png')}}" style=""></div>
+                            <div class="col-md-6 col-sm-6" class="item" data-aos="fade-right"><img src="{{asset('site_assets/img/security.webp')}}" style=""></div>
                             <div class="col-md-6 col-sm-6" class="item" data-aos="fade-left">
                                 <div class="secure page-heading-h2" style="margin-bottom:10px">
                                   <!--<h3 class="text-primary">SECURE</h3>  -->
@@ -218,7 +218,7 @@
                                       We are backed by an expert Claim Support Team which  will also ensure that your rights are protected.</p>
                                 </div>
                             </div>
-                            <div class="col-md-6 col-sm-6" class="item" data-aos="fade-left"><img src="{{asset('site_assets/img/claim.jpg')}}" style=""></div>
+                            <div class="col-md-6 col-sm-6" class="item" data-aos="fade-left"><img src="{{asset('site_assets/img/claim.webp')}}" style=""></div>
                         </div>
                     </div>
                 </section>
@@ -309,19 +309,19 @@
             <div class="row">
                 <div class="col-md-2">
                    <div style="padding:25px 0px;">
-                       <img  class="govt-startup-img" style="" src="{{asset('site_assets/logo/startupIndia.png')}}"/>
+                       <img  class="govt-startup-img" style="" src="{{asset('site_assets/logo/startupIndia.webp')}}"/>
                    </div>
                 </div>
                 <div class="col-md-2">
                    <div style="padding:25px 0px;">
-                       <img  class="govt-digilocker-img" style="" src="{{asset('site_assets/logo/digiLocker.png')}}"/>
+                       <img  class="govt-digilocker-img" style="" src="{{asset('site_assets/logo/digiLocker.webp')}}"/>
                    </div>
                 </div>
                 <div class="col-md-4">
                     <div class="DflaxBox">
                        <div class="d-flex align-items-center">
                         <div style="width:15%" class="position-relative">
-                            <img  style="width:100%" src="{{asset('site_assets/logo/Ashok-stambh-small.png')}}" alt="" class="rounded-circle avatar-xl">
+                            <img  style="width:100%" src="{{asset('site_assets/logo/Ashok-stambh-small.webp')}}" alt="" class="avatar-xl">
                         </div>
                         <div class="ml4">
                             <p class="mb-1 font-size-xs">Government of India Ministry of Commerce & Industry <br/> Department for Promotion of Industry and Internal Trade</p>
@@ -336,7 +336,7 @@
                      <div class="DflaxBox">
                     <div class="d-flex align-items-center">
                                 <div style="width:15%" class="position-relative">
-                                    <img  style="width:100%" src="{{asset('site_assets/logo/Ashok-stambh-small.png')}}" alt="" class="rounded-circle avatar-xl">
+                                    <img  style="width:100%" src="{{asset('site_assets/logo/Ashok-stambh-small.webp')}}" alt="" class=" avatar-xl">
                                 </div>
                                 <div class="ml4">
                                     <p class="mb-1 font-size-xs">Ministry of Electronics & Information <br/>Technology</p>

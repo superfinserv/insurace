@@ -53,14 +53,14 @@ $("body").on("click",".readTermsConditions",function() {
              $('#payNowForm').submit();
         }else{
           $.post(base_url + "/car-insurance/connect-to-insurer/",{enc:enc}, function (resp) {
-            console.log(resp);
+              //console.log(resp);
               if($.trim(resp.status)=='success'){
                    if(resp.data!==null){
                       window.location.href=resp.data;
                    }else{
                        _this.html(_html);
                        _this.attr('disabled',false);_this.prop('disabled',false);
-                       toastr.error("Unable to connect to insurer try again!..","Error",{positionclass:'toast-bottom-right'});
+                       toastr.error("Unable to connect with the insurer try again!..","Error",{positionclass:'toast-bottom-right'});
                    }
               }else{
                   _this.html(_html);_this.attr('disabled',false);_this.prop('disabled',false);

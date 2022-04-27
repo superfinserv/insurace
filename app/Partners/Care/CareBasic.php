@@ -76,7 +76,7 @@ class CareBasic{
             
             $postedField  =  new \stdClass();
             
-            $postedField->field_1 = ($params->total_child+$params->total_adult);
+            $postedField->field_1 = $params->total_adult;
             $postedField->field_10 =$params->total_child;
             $postedField->customerType = "New";
             $postedField->field_4 = "1 Year";
@@ -222,7 +222,7 @@ class CareBasic{
             
             $postedField  =  new \stdClass();
             
-            $postedField->field_1  = ($adult+$child);
+            $postedField->field_1  = ($adult);
             $postedField->field_10 = $child;
             $postedField->field_2  = $sum;
             $postedField->customerType = "New";

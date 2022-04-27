@@ -317,6 +317,8 @@ class Twinsurance extends Controller
          if(isset($prm->address->state)){
              $ST = explode('-',$prm->address->state);
              $template['cities'] =  DB::table('cities')->select(DB::raw("CONCAT(id,'-',name) AS id,name as value"))->where('state_id',$ST[0])->get(); 
+             $CT = explode('-',$prm->address->city);
+             $template['pincodes'] = DB::table('pincode_masters')->select('pincode')->where('city_id',$CT[0])->groupBy('pincode')->orderBy('pincode','ASC')->get();
          }
          return View::make('motor.tw.user_info')->with($template);
     }

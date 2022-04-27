@@ -61,6 +61,7 @@ return array(
     'NunoMaduro\\Collision\\' => array($vendorDir . '/nunomaduro/collision/src'),
     'Nicolaslopezj\\Searchable\\' => array($vendorDir . '/nicolaslopezj/searchable/src'),
     'MyCLabs\\Enum\\' => array($vendorDir . '/myclabs/php-enum/src'),
+    'Mtownsend\\XmlToArray\\' => array($vendorDir . '/mtownsend/xml-to-array/src'),
     'Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),
     'Meng\\Soap\\HttpBinding\\' => array($vendorDir . '/meng-tian/soap-http-binding/src'),
     'Meng\\Soap\\' => array($vendorDir . '/meng-tian/php-soap-interpreter/src'),

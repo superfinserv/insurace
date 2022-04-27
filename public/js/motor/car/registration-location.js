@@ -11,6 +11,7 @@
 
 $(document).ready(function() {
    $("#rtocodeForm").validate({
+       ignore: ':hidden:not([class~=selectized]),:hidden > .selectized, .selectize-control .selectize-input input',
     rules: {
         'rto_code': { required: true, },
         //'bikenew': { required: true, },
@@ -31,5 +32,10 @@ $(document).ready(function() {
            localStorage.setItem("carInfo", JSON.stringify(carInfo));
         window.location.href = base_url + "/car-insurance/brand";
     }
+});
+
+$(".rto-location").selectize({
+  create: false,
+  sortField: "text",
 });
 });

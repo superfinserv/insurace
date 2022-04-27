@@ -73,9 +73,10 @@ width: 75px;
 }
   </style>
     <main role="main">
-        <section class="become-an-insurance">
+        <section class="become-an-insurance" style="background:unset";>
             <div class="container">
                 <div class="row ">
+                    
                     @if($isPass===false)
                     <div class="col-md-12 col-sm-12">
                         <div class="myprofile alert-profile-complete"  style="background: #fff;border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">
@@ -83,6 +84,92 @@ width: 75px;
                        </div>
                     </div>
                     @endif
+                    <?php  $isPass =  true;?>
+                      <div class="col-12">
+                         <div class="col-md-12 col-sm-12 myprofile section-heading">
+                             <h2 style="color: #003379;font-size: 18px;margin-bottom: 0;letter-spacing: 0.5px;font-weight: 700;">Live Products</h2>
+                        </div>
+                        
+                        <div class="steps steps--s2">
+                          <div class="container ">
+                            <div class="create row">
+                                  <a href="@if($isPass) {{url('/health-insurance/health-profile')}} @else {{url('#')}} @endif"  class="col-sm-4 col-md-2 mb-3 tx-center image-box" data-toggle="tooltip" data-placement="top" title="#">
+                                        <div class="br-section-wrapper pd-10 bg-gray-100">
+                                           <i class="fa fa-heartbeat" aria-hidden="true" style="color: #AC0F0B;"></i>
+                                           <p>Mediclaim</p>
+                                        </div><!-- br-section-wrapper -->
+                                  </a>
+                                  
+                                  <a href="@if($isPass) {{url('/twowheeler-insurance/registration-number')}} @else {{url('#')}} @endif"  class="col-sm-4 col-md-2 mb-3 tx-center image-box" data-toggle="tooltip" data-placement="top" title="#">
+                                        <div class="br-section-wrapper pd-10 bg-gray-100">
+                                           <i class="fa fa-motorcycle" aria-hidden="true" style="color: #AC0F0B;"></i>
+                                           <p>2w</p>
+                                        </div><!-- br-section-wrapper -->
+                                  </a>
+                                  
+                                  <a href="@if($isPass) {{url('/car-insurance/registration-number')}} @else {{url('#')}} @endif"  class="col-sm-4 col-md-2 mb-3 tx-center image-box" data-toggle="tooltip" data-placement="top" title="#">
+                                        <div class="br-section-wrapper pd-10 bg-gray-100">
+                                           <i class="fa fa-car" aria-hidden="true" style="color: #AC0F0B;"></i>
+                                           <p>Car</p>
+                                        </div><!-- br-section-wrapper -->
+                                  </a>
+                            </div>
+                          </div>
+                        </div>
+                        
+                     </div>
+                     
+                     <div class="col-12">
+                         <div class="col-md-12 col-sm-12 myprofile section-heading">
+                             <h2 style="color: #003379;font-size: 18px;margin-bottom: 0;letter-spacing: 0.5px;font-weight: 700;">Coming Soon</h2>
+                        </div>
+                        
+                        <div class="steps steps--s2">
+                          <div class="container ">
+                            <div class="create row">
+                                  <a href="#"  class="col-sm-4 col-md-2 mb-3 tx-center image-box" data-toggle="tooltip" data-placement="top" title="#">
+                                        <div class="br-section-wrapper pd-10 bg-gray-100">
+                                           <i class="fa fa-bus" aria-hidden="true" style="color: #AC0F0B;"></i>
+                                           <p>Bus</p>
+                                        </div><!-- br-section-wrapper -->
+                                  </a>
+                                  
+                                  <a href="#"  class="col-sm-4 col-md-2 mb-3 tx-center image-box" data-toggle="tooltip" data-placement="top" title="#">
+                                        <div class="br-section-wrapper pd-10 bg-gray-100">
+                                           <i class="fa fa-medkit" aria-hidden="true" style="color: #AC0F0B;"></i>
+                                           <p>Super Topup</p>
+                                        </div><!-- br-section-wrapper -->
+                                  </a>
+                                  
+                                   <a href="#"  class="col-sm-4 col-md-2 mb-3 tx-center image-box" data-toggle="tooltip" data-placement="top" title="#">
+                                        <div class="br-section-wrapper pd-10 bg-gray-100">
+                                           <i class="fa fa-plane" aria-hidden="true" style="color: #AC0F0B;"></i>
+                                           <p>Travel</p>
+                                        </div><!-- br-section-wrapper -->
+                                  </a>
+                                  
+                                  <a href="#"  class="col-sm-4 col-md-2 mb-3 tx-center image-box" data-toggle="tooltip" data-placement="top" title="#">
+                                        <div class="br-section-wrapper pd-10 bg-gray-100">
+                                           <i class="fa fa-ambulance" aria-hidden="true" style="color: #AC0F0B;"></i>
+                                           <p>Accidental</p>
+                                        </div><!-- br-section-wrapper -->
+                                  </a>
+                                  
+                                  <a href="#"  class="col-sm-4 col-md-2 mb-3 tx-center image-box" data-toggle="tooltip" data-placement="top" title="#">
+                                        <div class="br-section-wrapper pd-10 bg-gray-100">
+                                           <i class="fa fa-money" aria-hidden="true" style="color: #AC0F0B;"></i>
+                                           <p>Savings</p>
+                                        </div><!-- br-section-wrapper -->
+                                  </a>
+                            </div>
+                          </div>
+                        </div>
+                        
+                     </div>
+                     
+                     
+                     
+                     <?php /*
                     <div class="col-12">
                          <div class="col-md-12 col-sm-12 myprofile section-heading">
                              <h2>Create a quote for Life Insurance </h2>
@@ -177,7 +264,7 @@ width: 75px;
 
 
                      </div>
-
+                     */ ?>
                   </div>
 
                   </div>
