@@ -339,7 +339,7 @@ input[name='planYear']:checked + label.label-planYear::after {
                                     <div class="row" id="page-proposal">
                                         <div class="col-12 col-md-5 col-lg-5 col-sm-12">
                                             <label for="planSumInsured"  style="width:100%;font-weight: 800;">
-                                                <select id="planSumInsured" class="selectize-single" style="width:100%">
+                                                <select id="planSumInsured" class="" style="width:100%">
                                                     <?php $sumArr = sumInsuredArr($data->provider,$data->code,$uType);
                                                     foreach($sumArr as $s=>$l){ ?>
                                                     <option value="<?=$s;?>"   <?=($s==$SUM->shortAmt)?'selected':'';?>><?=($s<100)?$s.' Lakhs':'1 crore';?> </option>

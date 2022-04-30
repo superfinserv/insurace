@@ -7,107 +7,206 @@ use Response;
 use View;
 use Session; 
 use Auth;
-use Redirect;
+//use Redirect;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
-use App\Resources\ManipalResource;
-use App\Resources\CareResource;
-use App\Resources\FgiResource;
-use App\Resources\DigitResource;
-use App\Resources\FgiCarResource;
-use App\Resources\DigitCarResource;
+use PDF;
 
+use App\Resources\DigitCarResource;
+use App\Resources\DigitBikeResource;
+use App\Resources\HdfcErgoTwResource;
+use App\Resources\HdfcErgoCarResource;
+use App\Resources\FgiTwResource;
+
+use App\Partners\Care\Care;
+use App\Partners\Manipal\Manipal;
+use App\Partners\Digit\DigitHealth;
     
 class TestController extends Controller{
-    
-    public function __construct(ManipalResource $ManipalResource,
-                                CareResource $CareResource,
-                                FgiResource $FgiResource,
-                                DigitResource $DigitResource,
-                                FgiCarResource $FgiCarResource,
-                                DigitCarResource $DigitCarResource) { 
-       $this->ManipalResource = $ManipalResource;
-       $this->CareResource = $CareResource;
-       $this->FgiResource = $FgiResource;
-       $this->DigitResource = $DigitResource;
-       
-       $this->FgiCarResource = $FgiCarResource;
-       $this->DigitCarResource = $DigitCarResource;
+    public $uniqueToken;
+    public function __construct() { 
+       $this->DigitBikeResource  = new DigitBikeResource;
+       $this->DigitCarResource =   new DigitCarResource;
+       $this->HdfcErgoTwResource =  new HdfcErgoTwResource;
+       $this->HdfcErgoCarResource =  new HdfcErgoCarResource;
+       $this->FgiTw =  new FgiTwResource;
+        
+       $this->Care =   new Care;
+       $this->Manipal  =  new Manipal;
+       $this->DigitHealth  =  new DigitHealth;
    }
-   
-   function testkit(){
-       //echo "ghjgh";
-        $query = DB::table('temp_vehicles_car')->whereBetween('id', [6001, 7000])->get();
-        // foreach($query as $temp){
-        //     $make  =  strtoupper($temp->make);
-        //     $hasMake = DB::table("vehicle_make_car")->where('make',$make)->count();
-        //     if($hasMake){
-        //          $makeId = DB::table("vehicle_make_car")->where(DB::raw('UPPER(make)'),$make)->value('id');
-        //     }else{
-        //         $makeId = DB::table("vehicle_make_car")->insertGetId(['make'=>$make,'hdfcErgo_makeCode'=>$temp->hdfcErgoMake_id]);  
-        //     }
-           
-        //   $hasModal = DB::table("vehicle_modal_car")->where('make_id',$makeId)->where('modal',$temp->modal)->count(); 
-        //   if($hasModal){
-        //       $modalId = DB::table("vehicle_modal_car")->where('make_id',$makeId)->where('modal',$temp->modal)->value('id');
-        //   }else{
-        //       $modalId = DB::table("vehicle_modal_car")->insertGetId(['modal'=>$temp->modal,'make_id'=>$makeId]); 
+     
+     function testPartnerBug(Request $request){
+        header('Content-Type: application/json');
+        $this->HdfcErgoTwResource->bugReport();
+    }
+    
+    
+     public function testany(){
+        
+         //  $path =  public_path('/site_assets/financers.json');
+        //   $content = json_decode(file_get_contents($path), true);
+        
+        // $results =  $content['Data'];
+         // foreach($results as $res){ 
+            // print_r($res);
+            // DB::table('financiers')->insertGetId(['name'=>$res['Name'],'hdfcErgoCode'=>$res['Value']]);
+             	 
+       //  }
+        
+        
+        // $temp_vehicles_car_hdfcMap  = DB::table("temp_vehicles_car_hdfcMap")->get();
+        //   foreach($temp_vehicles_car_hdfcMap as $row){
+        //       DB::table("vehicle_variant_car")->where('digit_code',$row->digit_code)->update(['hdfcErgo_code'=>$row->hdfcErgo_code]);  
         //   }
+        //   $path =  public_path('/js/hdfc-car-model.json');
+        //   $content = json_decode(file_get_contents($path), true);
+        
+        //   $results =  $content['data'];
+        //   foreach($results as $res){
+        //      if(DB::table('temp_hdfc_car_model')->where('ModelId', $res['ModelId'])->doesntExist()){
+        //         DB::table('temp_hdfc_car_model')->insertGetId(['MakeId'=>$res['MakeId'],'ModelId'=>$res['ModelId'],'ModelName'=>$res['ModelName'],
+        //                                                       'VariantName'=>$res['VariantName'],'FuelType'=>$res['FuelType'], 
+        //                                                       'CubicCapacity'=> $res['CubicCapacity']]);
+        //           print_r($res);
+        //           echo "</br></hr></br>";
+        //     }
+             
+        //   }
+        
+        
+    //   $data = getMailSmsInfo(6,"POSP_FEE_PAID");
+    //   print_r($data);
+       // sendNotification($data);
+        //  $template = ['title' => 'TEST-ANY',"subtitle"=>"TEST",'body'=>$data->email->body];  
+        //   return View::make('emailTemplate.frame')->with($template);
+        
+        //  $states = DB::table("states")->get();
+        //  foreach($states as $st){
+        //      $isExist = DB::table("pincode_master12")->where('State',$st->name)->count();
+        //  }
+        
+        //   $cities = DB::table("cities")->get();
+        //      foreach($cities as $ct){
+        //          $isExist = DB::table("cities")->where('id',$ct->id)->update(['name'=>ucfirst(strtolower($ct->name))]);
+        //      }
+        
+        
+       //  $pinmasters  = DB::table("pincode_masters")->get();
+        //  foreach($pinmasters as $row){
+        //         $cnt = DB::table("cities")->where('name',ucfirst(strtolower($row->District)))->count();
+        //         if($cnt){
+        //             $ct = DB::table("cities")->where('name',ucfirst(strtolower($row->District)))->first();
+        //              DB::table("pincode_masters")->where('id',$row->id)->update(['city_id'=>$ct->id]);
+        //         }
+        //      $isExist = DB::table("cities")->where('state_id',$row->state_id)->where('name',$row->District)->count();
+        //      $cityID =0;
+        //      if($isExist){
+        //         $cityID =  DB::table("cities")->where('state_id',$row->state_id)->where('name',$row->District)->value('id');
+        //      }else{
+        //          $cityID = DB::table('cities')->insertGetId(['state_id' =>$row->state_id, 'name' =>$row->District]);
+        //      }
+             
+        //      print_r($row);
+        //      echo "</br></hr></br>";
+         //}
+        
+        //  $rto_masters = DB::table("rto_master")->get();
+        //  foreach($rto_masters as $row){
+        //       DB::table("rtoMaster")->where('rtoCode',$row->region_code)->update(['hdfcErgoCodeTw'=>$row->hdfcErgoRtoCode]);
+        //  }
+        
+        //  $path =  public_path('/site_assets/hdfcCity.json');
+        //  $content = json_decode(file_get_contents($path), true);
+        
+        //  $results =  $content['results'];
+        //  foreach($results as $res){
+        //      if(DB::table('cities')->where('hdfcErgoCode', $res['CityId'])->doesntExist()) {
+        //           DB::table('cities')->whereRaw('LOWER(name) = ?', [strtolower($res['CityName'])])->update(['hdfcErgoCode' => $res['CityId']]);
+        //           print_r($res);
+        //           echo "</br></hr></br>";
+        //     }
+             
+        //  }
+        
+        //  $rtos = DB::table("rtoMaster")->where('city_id',0)->get();
+        //  foreach($rtos as $res){
+        //      DB::table("rtoMaster")->where('id',$res->id)->update(['rtoCode'=>trim($res->rtoCode)]);
+            //  $strArr = explode(',',$res->text);
+            //  $str = $strArr[0];
+            //   $cnt  =DB::table('cities')->whereRaw('LOWER(name) = ?', [strtolower($str)])->count();
+            //   if($cnt){
+            //          $f=  DB::table('cities')->whereRaw('LOWER(name) = ?', [strtolower($str)])->first();
+            //           DB::table("rtoMaster")->where('id',$res->id)->update(['city_id'=>$f->id]);
+                   
+                     
+            //      }
+                 
+            // print_r($res);
+            //echo "</br></hr></br>";
+       //  }
+       
+       
+        //  $path =  public_path('/js/hdfc-car-model.json');
+        //  $content = json_decode(file_get_contents($path), true);
+        
+        //  $results =  $content['results'];
+        //  foreach($results as $res){
+        //      if(DB::table('temp_hdfc_city_code')->where('cityCode', $res['CityId'])->doesntExist()) {
+        //          DB::table('temp_hdfc_city_code')->insertGetId(['cityCode' =>$res['CityId'],'CityName' =>$res['CityName']]);
+        //           print_r($res);
+        //           echo "</br></hr></br>";
+        //     }
+             
+        //  }
+        
+        
+    //   $temps = DB::table("temp_state_city_rto")->whereBetween('id', [783, 795])->get();
+    //     foreach($temps as $res){
+            
+                //   print_r($res);
+                //   echo "</br></hr></br>";
+            
+            // if(DB::table('rtoMaster')->where('rtoCode', $res->rto)->doesntExist()) {
+            //       DB::table('rtoMaster')->insertGetId(['rtoCode'=>$res->rto,'text'=>$res->city,'city_id'=>$res->cityId,'hdfcErgoCodeTw' =>$res->rtoCodeTw,'hdfcErgoCodeCar' =>$res->rtoCodeCar]);
+            // }
+            // if(DB::table('cities')->where('name', ucfirst(strtolower($res->city)))->doesntExist()) {
+            //      $cityId =  DB::table('cities')->insertGetId(['hdfcErgoCode' =>$res->cityCode,'name' =>ucfirst(strtolower($res->city))]);
+            // }else{
+            //     $cityId = DB::table('cities')->where('name', ucfirst(strtolower($res->city)))->value('id');
+            // }
+            // DB::table("temp_state_city_rto")->where('id',$res->id)->update(['cityId'=>$cityId]);
+            
+            // if(DB::table('rtoMaster')->where('rtoCode', $res->rto)->doesntExist()) {
+            //       $text =  ucfirst(strtolower($res->city));
+            //       DB::table('rtoMaster')->insertGetId(['rtoCode'=>$res->rto,'text'=>$text,'city_id'=>$res->cityId,'hdfcErgoCodeTw' =>$res->rtoCodeTw,'hdfcErgoCodeCar' =>$res->rtoCodeCar]);
+            // }
+           // DB::table("temp_state_city_rto")->where('id',$res->id)->update(['cityId'=>$cityId]);
            
-        //   DB::table('temp_vehicles_car')->where('id',$temp->id)->update(['make_id'=>$makeId,'modal_id'=>$modalId]);
+            // if(DB::table('states')->where('hdfcErgoCode', ucfirst(strtolower($res->stateCode)))->doesntExist()) {
+            //      $stateId =  DB::table('states')->insertGetId(['hdfcErgoCode' =>$res->stateCode,'name' =>ucfirst(strtolower($res->state))]);
+            // }else{
+            //      $stateId = DB::table('states')->where('hdfcErgoCode', $res->stateCode)->value('id');
+            // }
+            // DB::table("temp_state_city_rto")->where('id',$res->id)->update(['stateId'=>$stateId]);
+            // DB::table("cities")->where('id',$res->cityId)->update(['state_id'=>$stateId]);
             
+       // }
+       
+       
+        // $temps = DB::table("medical_questions")->whereBetween('id', [58, 69])->get();
+        // foreach($temps as $res){ 
+        //     $childs = DB::table("medical_questions")->where('parentId', 57)->get();
+        //     foreach($childs as $ch){
+        //         $ch->parentId = $res->id;
+        //         $array = json_decode(json_encode($ch), true);
+        //         unset($array["id"]);
+        //         DB::table('medical_questions')->insertGetId($array);
+        //     }
         // }
-   }
-    
-//   function testkit(){
-//         $query = DB::table('vehicle_variant')->whereBetween('id', [1, 100])->get();
-//         foreach($query as $row){
-//             print_r($row);
-//             $hasMake = DB::table("vehicle_make")
-//                           ->where(DB::raw('lower(make)'),strtolower($row->make))
-//                           ->where(function ($query) {
-//                             $query->where('vehicle_type','Pvt Car')
-//                                   ->orWhere('vehicle_type','Trailer')
-//                                   ->orWhere('vehicle_type','Miscellaneous')
-//                                   ->orWhere('vehicle_type','Passenger Carrying');
-//                             })->count();
-                          
-//                   if($hasMake){
-//                       $makeId = DB::table("vehicle_make")
-//                                   ->where(DB::raw('lower(make)'),strtolower($row->make))
-//                                   ->where(function ($query) {
-//                                     $query->where('vehicle_type','Pvt Car')
-//                                           ->orWhere('vehicle_type','Trailer')
-//                                           ->orWhere('vehicle_type','Miscellaneous')
-//                                           ->orWhere('vehicle_type','Passenger Carrying');
-//                                     })->value('id');
-//                   }else{
-//                      $makeId = DB::table("vehicle_make")->insertGetId(['make'=>trim($row->make),'vehicle_type'=>'Pvt Car,Trailer,Miscellaneous,Passenger Carrying']);  
-//                   }
-//             //if($row->vehicle_type=='Pvt Car' || $row->vehicle_type=='Goods Carrying' || 
-//             //   $row->vehicle_type=='Miscellaneous' || $row->vehicle_type=="Passenger Carrying" || 
-//             //   $row->vehicle_type=="Trailer"){
-                  
-                   
-//             //   }else{
-                   
-//             //   }
-//               //->whereRaw("find_in_set($row->vehicle_type,tags)")
-                          
-//             // $makeCount4w = DB::table('vehicle_make')->where('vehicle_type','Pvt Car')
-//             //                                       ->orWhere('vehicle_type','Goods Carrying')
-//             //                                       ->orWhere('vehicle_type','Miscellaneous')
-//             //                                       ->orWhere('vehicle_type','Passenger Carrying')->count();
-//             // if($makeCount4w){
-                
-//             // }else{
-//             //   DB::table('vehicle_make')->insert() 
-//             // }
-            
-            
-//             echo "<br/><hr/><br/>";
-//         }
-//   }
+        
+    }
+
     
     
     

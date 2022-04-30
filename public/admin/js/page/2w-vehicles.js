@@ -36,41 +36,27 @@ $(function(){
                     "url": base_url+"/vehicles/2w/datatable",
                      "type": "POST",
                 },
-               
-                //  createdRow: function( row, data, dataIndex ) {
-                //         // Set the data-status attribute, and add a class
-                //         $( row ).find('td:eq(0)').attr('data-make', data.make_id);
-                //         $( row ).find('td:eq(0)').attr('data-varient', data.varient_id);
-                //         $(row).attr('id',data.varient_id);
-                //         //.addClass('asset-context box');
-                //     },
                 "columns": [
-                    // {"data" : "sno","orderable":false,'className':'text-center reorder'},
                     {"data" : "make","orderable":true ,'className':'text-center'},
                     {"data" : "modal","orderable":true,'className':'text-center'},
                     {"data" : "variant","orderable":true,'className':'text-center'},
-                    
-                    {"data" : "body_type","orderable":true,'className':'text-center'},
+                    {"data" : "cc","orderable":true,'className':'text-center'},
+                    {"data" : "body_type","orderable":false,'className':'text-center'},
                     {"data" : "digit_code","orderable":true,'className':'vcode text-center'},
                     {"data" : "fgi_code","orderable":true,'className':'vcode text-center'},
-                    {"data" : "hdfc_code","orderable":true,'className':'vcode text-center'},
-                    // {
-                    //     "class":          "details-control",
-                    //     "orderable":      false,
-                    //     "data":           null,
-                    //     "defaultContent": ""
-                    // },
+                    {"data" : "hdfc_make","orderable":true,'className':'text-center'},
+                    {"data" : "hdfc_code","orderable":true,'className':'vcode text-center'}
                 ],
                 "columnDefs": [
-                    // { "width": "5%", "targets": 0 },
-                    { "width": "12%", "targets": 0 },
-                    { "width": "12%", "targets": 1 },
-                    { "width": "12%", "targets": 2 },
-                    { "width": "12%", "targets": 3 },
-                    { "width": "12%", "targets": 4 },
-                    { "width": "12%", "targets": 5 },
-                    { "width": "12%", "targets": 6 },
-                    // { "width": "5%", "targets": 8 },
+                    { "width": "16%", "targets": 0 },
+                    { "width": "15%", "targets": 1 },
+                    { "width": "20%", "targets": 2 },
+                    { "width": "5%", "targets": 3 },
+                    { "width": "8%", "targets": 4 },
+                    { "width": "9%", "targets": 5},
+                    { "width": "9%", "targets": 6 },
+                    { "width": "8%", "targets": 7 },
+                    { "width": "9%", "targets": 8 },
                   ],
             } );
             

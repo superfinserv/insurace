@@ -354,14 +354,15 @@ input[type="email"]::-ms-input-placeholder,input[type="text"]:-ms-input-placehol
                                             <div class="col-md-6">    
                                               <div class="form-group">
                                                     <label for="pincode" style="width: 100%">Pincode</label>  
-                                                   <?php /*   <select style="margin-bottom:0px;"  id="pincode" name="pincode">
+                                                    <select style="margin-bottom:0px;"  id="pincode" name="pincode">
                                                       <option value="">Select Pincode</option>
                                                       <?php if(isset($pincodes)){
                                                           foreach ($pincodes as  $P) { ?>
                                                               <option value="{{$P->pincode}}"  <?=(isset($params->address->pincode) && $params->address->pincode==$P->pincode)?'selected':'';?>>{{$P->pincode}}</option>
                                                           <?php }  } ?>
-                                                </select> */ ?>
-                                                  <input style="margin-bottom:0px;" type="text" name="pincode" id="pincode" maxlength="6" value="<?=isset($params->address->pincode)?$params->address->pincode:'';?>" class="form-control number-only" placeholder="Pincode"> 
+                                                </select> 
+                                                  <?php /*<input style="margin-bottom:0px;" type="text" name="pincode" id="pincode" maxlength="6" value="<?=isset($params->address->pincode)?$params->address->pincode:'';?>" class="form-control number-only" placeholder="Pincode"> 
+                                                       */?>
                                                </div>
                                             </div>
                                             <div class="col-md-3" style="margin-top: 30px;"> <button type="button" id="btn-back-step-2" class="btn-block sp-custom-btn btn-red font-18" style="float: right;"><i class="backword fa fa-angle-double-left" aria-hidden="true"></i> Previous </button></div>

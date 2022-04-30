@@ -945,10 +945,10 @@ class ManipalProtect{
                     ['body' => json_encode($REQUEST)]
                 );
                 
-              //print_r(json_encode($REQUEST));die;
+             // print_r(json_encode($REQUEST));die;
                 $response = $clientResp->getBody()->getContents();   
                 $result=json_decode($response);
-               // print_r($response);
+                //print_r($response);
                 //$result=json_decode($response);
                       
                 DB::table('app_quote')->where('enquiry_id', $enqID)->update(['reqCreate'=>json_encode($REQUEST),'respCreate'=>$response]);

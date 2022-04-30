@@ -201,8 +201,8 @@ $(document).ready(function() {
             rules: {
                 pincode: {
                     required: true,
-                    minlength: 6,
-                    maxlength: 6,
+                    //minlength: 6,
+                    //maxlength: 6,
                 },
                  addressLineOne: {
                     required: true,
@@ -223,8 +223,8 @@ $(document).ready(function() {
             messages: {
                 pincode: {
                     required: "Area pincode is required!",
-                    minlength:"Enter valid pincode number",
-                    maxlength:"Enter valid pincode number",
+                    //minlength:"minlength Enter valid pincode number",
+                    //maxlength:"maxlength Enter valid pincode number",
                 },
                addressLineOne: {
                     required: "Your House No/Building Name is required!",
@@ -293,7 +293,7 @@ $(document).ready(function() {
             rules: {
                 chassis_number: {
                     required: true,
-                    minlength: 6,
+                    minlength: 17,
                     maxlength:20
                 },
                 e_number: {
@@ -555,21 +555,22 @@ $('body').on('click','.Premium-Breakup', function(e){
 				var select_state, $select_state;
 				var select_city, $select_city;
                 var select_pincode,$select_pincode;
+                
 				$select_state = $('#state_id').selectize({
 					onChange: function(value) {
 						if (!value.length) return;
 						 var state = value;
                          var stateID = state.split('-');
-						//select_city.disable();
-						 select_city.clearOptions();
+					      $("#city_id")[0].selectize.clear();
+						  $("#city_id")[0].selectize.clearOptions();
+						   $("#city_id")[0].selectize.focus();
+						 
 						select_city.load(function(callback){
 							xhr && xhr.abort();
 							xhr = $.ajax({
 								url: base_url + "/get-cities/"+stateID[0],
 								success: function(results) {
-								   
-									//select_city.enable();
-									callback(results.data);
+								   callback(results.data);
 								},
 								error: function() {
 									callback();
@@ -584,7 +585,26 @@ $('body').on('click','.Premium-Breakup', function(e){
 					labelField: 'value',
 					searchField: ['value'],
 					onChange: function(value) { 
-					    // select_pincode.clearOptions();
+					     select_pincode.clearOptions();
+					      $("#pincode")[0].selectize.clear();
+						  $("#pincode")[0].selectize.clearOptions();
+						  $("#pincode")[0].selectize.focus();
+						  
+						  select_pincode.load(function(callback){
+							xhr && xhr.abort();
+							xhr = $.ajax({
+								url: base_url+"/get-city-pincode",
+								dataType: "json",
+                                data: {city:$('#city_id').val()},
+								success: function(results) {
+									callback(results);
+								},
+								error: function() {
+									callback();
+								}
+							})
+						});
+						
 					}
 					    
 					
@@ -595,55 +615,55 @@ $('body').on('click','.Premium-Breakup', function(e){
                 
 			//	select_city.disable();
 			
-// 			$select_pincode = $("#pincode").selectize({
-//                   valueField: "value",
-//                   labelField: "label",
-//                   searchField: ["value"],
-//                  // create: false,
-//                   load: function (query, callback) {
-//                     if (!query.length) return callback();
-//                     $.ajax( {
-//                           url:  base_url+"/get-city-pincode",
-//                           dataType: "json",
-//                           data: {
-//                             term:encodeURIComponent(query),city:$('#city_id').val()
-//                           },error: function () {
-//                             callback();
-//                           },
-//                           success: function( res ) {
-//                               callback(res);
-//                              //callback(res.repositories.slice(0, 10));
-//                           },
-//                         } );
-//                   },
-//                 });
+			$select_pincode = $("#pincode").selectize({
+                  valueField: "value",
+                  labelField: "label",
+                  searchField: ["value"],
+                 // create: false,
+                //   load: function (query, callback) {
+                //     if (!query.length) return callback();
+                //     $.ajax( {
+                //           url:  base_url+"/get-city-pincode",
+                //           dataType: "json",
+                //           data: {
+                //             term:encodeURIComponent(query),city:$('#city_id').val()
+                //           },error: function () {
+                //             callback();
+                //           },
+                //           success: function( res ) {
+                //               callback(res);
+                //              //callback(res.repositories.slice(0, 10));
+                //           },
+                //         } );
+                //   },
+                });
                 
                 
               select_city    = $select_city[0].selectize;
-			select_state   = $select_state[0].selectize;
-             // select_pincode = $select_pincode[0].selectize;  
+			  select_state   = $select_state[0].selectize;
+              select_pincode = $select_pincode[0].selectize;  
            
   $( function() {
            
-          $( "#pincode" ).autocomplete({
-                      source: function(request,response){
-                          $.ajax( {
-                          url:  base_url+"/get-city-pincode",
-                          dataType: "json",
-                          data: {
-                            term: request.term,city:$('#city_id').val()
-                          },
-                          success: function( data ) {
-                            response( data );
-                          },
-                        } );
-                      },
-                      minLength: 1,
-                      select: function( event, ui ) {
-                        //alert( "Selected: " + ui.item.value + " aka " + ui.item.label );
-                        // window.location.href = ui.item.url;
-                      }
-                });
+        //   $( "#pincode" ).autocomplete({
+        //               source: function(request,response){
+        //                   $.ajax( {
+        //                   url:  base_url+"/get-city-pincode",
+        //                   dataType: "json",
+        //                   data: {
+        //                     term: request.term,city:$('#city_id').val()
+        //                   },
+        //                   success: function( data ) {
+        //                     response( data );
+        //                   },
+        //                 } );
+        //               },
+        //               minLength: 1,
+        //               select: function( event, ui ) {
+        //                 //alert( "Selected: " + ui.item.value + " aka " + ui.item.label );
+        //                 // window.location.href = ui.item.url;
+        //               }
+        //         });
       
       
       

@@ -15,6 +15,23 @@
             text-align: center;
             cursor: move;
         }
+        
+        table.dataTable thead .sorting_desc , table.dataTable thead .sorting_asc,table.dataTable thead .sorting {
+            background-image: unset;
+         }
+         
+        table thead th {
+            vertical-align: middle !important;
+        }
+        .vcode input{
+            width: 103px;
+        }
+        
+        table tbody tr td{
+           font-size: 13px;
+           letter-spacing: 0.5px;
+        }
+         
   </style> 
        
         <div class="card bd-0 ">
@@ -66,14 +83,21 @@
                     <table id="vehicles-datatable" class="table table-bordered display">
                       <thead>
                         <tr>
-                          <!--<th>#</th>-->
-                          <th>Make</th>
-                          <th>Modal</th>
-                          <th>Varient</th>
-                          <th>Body Type</th>
-                          <th>Digit</th>
-                          <th>FGI</th>
-                          <th>HDFC</th>
+                          <th colspan="4" class="text-center th-v-middle">MMVs</th>
+                          
+                          <th rowspan="2" class="text-center th-v-middle">Body Type</th>
+                          <th rowspan="2" class="text-center th-v-middle">Digit</th>
+                          <th rowspan="2" class="text-center th-v-middle">FGI</th>
+                          <th colspan="2" class="text-center th-v-middle">HDFC</th>
+                        </tr>
+                        <tr>
+                             <th  class="text-center th-v-middle">Make</th>
+                             <th  class="text-center th-v-middle">Modal</th>
+                             <th  class="text-center th-v-middle"> Varient</th>
+                             <th  class="text-center th-v-middle">CC</th>
+                            
+                             <th style="border-left: 1px solid #ccc;" class=" text-center th-v-middle">MakeID</th>
+                             <th class="text-center th-v-middle">ModelID</th>
                         </tr>
                         
                       </thead>

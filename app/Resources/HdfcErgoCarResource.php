@@ -1727,6 +1727,27 @@ class HdfcErgoCarResource extends AppResource{
           }
     } 
     
+      function bugReport(){
+        $request =  new \stdClass(); 
+        $request->MasterKey = "MAKE";
+        $request->PolicyType ="ALL"; 
+        $request->AgentCode ="FWD22000";
+        $client = new Client([
+                'headers' => [ 'Content-Type' => 'application/json','MerchantKey'=>"SUPER FINSERV PRIVATE LIMITED DBG MUM BHANUP",'SecretToken'=>"ZUAXaH2CcvguB1m5gWxYjA=="]
+            ]);
+            
+            $clientResp = $client->post("https://chpa.heaggregator.com/CPMotorOnline/ChannelPartner/GetMasterData",
+                ['body' => json_encode(
+                    $request
+                )]
+            );
+            $result = $clientResp->getBody()->getContents();
+            
+          $response = json_decode($result);
+           echo  json_encode($response,JSON_PRETTY_PRINT);
+           //print_r($response);
+    }
+    
    
     
    
