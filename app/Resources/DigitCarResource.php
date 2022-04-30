@@ -1600,7 +1600,7 @@ class DigitCarResource extends AppResource{
             
             $clientResp = $client->get("https://preprod-qnb.godigit.com/digit/motor-insurance/services/v2/quote?policyNumber=".$policyNumber);
             $result = $clientResp->getBody()->getContents();
-           // print_r($result);
+            //print_r($result);die;
            $response = json_decode($result)[0];
            if(isset($response->message)){
                 return ['status'=>false,'data'=>$enquiry_id ,"message"=>$response->message,'reqCreate'=>json_encode($REQUEST),'respCreate'=>$result];

@@ -113,7 +113,14 @@ class VehiclesController extends Controller
     
     public function getTwoVehiclesdatatable(Request $request){
        //$whr = array();$like=array();$or_like=array();$likeArr=array(); 
-        $columns = array(0 =>'vehicle_make_tw.make', 1 =>'vehicle_modal_tw.modal', 2 =>'vehicle_variant_tw.variant',3=>'vehicle_variant_tw.body_type',4=>'vehicle_make_tw.digit_code',5=>'vehicle_variant_tw.fgi_code',6=>'vehicle_variant_tw.hdfcErgo_code'); 
+        $columns =array(0 =>'vehicle_make_tw.make', 
+                        1 =>'vehicle_modal_tw.modal',
+                        2 =>'vehicle_variant_tw.variant',
+                        3=>'vehicle_variant_tw.cubic_capacity',
+                        5=>'vehicle_make_tw.digit_code',
+                        6=>'vehicle_variant_tw.fgi_code',
+                        7=>'vehicle_variant_tw.hdfcErgo_code',
+                        8=>'vehicle_make_tw.hdfcErgo_makeCode'); 
         $limit = $request->length;
         $start = $request->start;
         $order = $columns[$request->input('order.0.column')];
@@ -159,17 +166,18 @@ class VehiclesController extends Controller
                 
                 $eachData=array();
                 $eachData['sno']          = $i;
-                $eachData['make']         = '<a href="'.url('vehicle/view/'.$each->id).'">'.trim($each->make_name).'</a><sapn style="font-size:12px;color:black;">('.$each->hdfcErgo_makeCode.')</span>';
+                $eachData['make']         = '<a href="'.url('vehicle/view/'.$each->id).'">'.trim($each->make_name).'</a>';
                 $eachData['modal']        = trim($each->modal_name);
-                $eachData['variant']      = trim($each->variant).'<sapn style="font-size:12px;color:black;">('.$each->cubic_capacity.'cc)</span>';    
-               
+                $eachData['variant']      = trim($each->variant);    
+                 $eachData['cc']          =  '<sapn style="font-size:12px;color:black;">'.$each->cubic_capacity.'</span>';
                 $eachData['body_type']    = $each->body_type;
-                $eachData['digit_code']   = $each->digit_code;
+                $eachData['digit_code']   = '<sapn style="font-size:13px;color:black;">'.$each->digit_code.'</span>';
                 $eachData['fgi_code']     = '<input data-supp="fgi_code"      class="text-vcode" type="text" data-id="'.$each->id.'" id="fgi_code'.$each->id.'" name="fgi_code'.$each->id.'"   value="'.$each->fgi_code.'">';//$each->fgi_code;
                  $eachData['hdfc_code']   = '<input data-supp="hdfcErgo_code" class="text-vcode" type="text" data-id="'.$each->id.'" id="hdfc_code'.$each->id.'" name="hdfc_code'.$each->id.'" value="'.$each->hdfcErgo_code.'">';//$each->hdfcErgo_code;
                 $eachData['make_id']      = $each->make_id;
                 $eachData['modal_id']     = $each->modal_id;
                 $eachData['varient_id']     = $each->id;
+                $eachData['hdfc_make']     = '<sapn style="font-size:12px;color:black;">'.$each->hdfcErgo_makeCode.'</span>';
                 
                  $eachData['fullInfo']    = $each;
               //if($this->appUtil->hasPermission('cat_2')){ 
@@ -192,7 +200,14 @@ class VehiclesController extends Controller
    
     public function getPvtCarVehiclesdatatable(Request $request){
        //$whr = array();$like=array();$or_like=array();$likeArr=array(); 
-        $columns = array(0 =>'vehicle_variant_car.make', 1 =>'vehicle_variant_car.modal', 2 =>'vehicle_variant_car.variant',3=>'vehicle_variant_car.body_type',4=>'vehicle_variant_car.digit_code',5=>'vehicle_variant_car.fgi_code',6=>'vehicle_variant_car.hdfcErgo_code'); 
+        $columns = array(   0 =>'vehicle_variant_car.make', 
+                            1 =>'vehicle_variant_car.modal', 
+                            2 =>'vehicle_variant_car.variant',
+                            3=>'vehicle_variant_car.cubic_capacity',
+                            5=>'vehicle_variant_car.digit_code',
+                            6=>'vehicle_variant_car.fgi_code',
+                            7=>'vehicle_make_car.hdfcErgo_makeCode',
+                            8=>'vehicle_variant_car.hdfcErgo_code'); 
         $limit = $request->length;
         $start = $request->start;
         $order = $columns[$request->input('order.0.column')];
@@ -207,7 +222,7 @@ class VehiclesController extends Controller
         $query = DB::query();
         $query = DB::table('vehicle_variant_car')->join('vehicle_modal_car', 'vehicle_modal_car.id', '=', 'vehicle_variant_car.modal_id')
                                              ->join('vehicle_make_car', 'vehicle_make_car.id', '=', 'vehicle_variant_car.make_id');
-        $query->select('vehicle_variant_car.*','vehicle_make_car.make as make_name','vehicle_modal_car.modal as modal_name')
+        $query->select('vehicle_variant_car.*','vehicle_make_car.make as make_name','vehicle_modal_car.modal as modal_name','vehicle_make_car.hdfcErgo_makeCode as hdfcErgo_makeCode')
                 ->when($vehicleCode, function ($query, $vehicleCode) {
                     return $query->where('vehicle_variant_car.digit_code','like', '%'.$vehicleCode.'%')
                                  ->orwhere('vehicle_variant_car.fgi_code','like', '%'.$vehicleCode.'%')
@@ -240,16 +255,16 @@ class VehiclesController extends Controller
                 $eachData['sno']          = $i;
                 $eachData['make']         = '<a href="'.url('vehicle/view/'.$each->id).'">'.trim($each->make_name).'</a>';
                 $eachData['modal']        = trim($each->modal_name);
-                $eachData['variant']      = trim($each->variant).'<sapn style="font-size:12px;color:black;">('.$each->cubic_capacity.'cc)</span>';    
-               
+                $eachData['variant']      = trim($each->variant);    
+                 $eachData['cc']          =  '<sapn style="font-size:12px;color:black;">'.$each->cubic_capacity.'</span>';
                 $eachData['body_type']    = $each->body_type;
-                $eachData['digit_code']   = $each->digit_code;
+                $eachData['digit_code']   = '<sapn style="font-size:13px;color:black;">'.$each->digit_code.'</span>';
                 $eachData['fgi_code']     = '<input data-supp="fgi_code"      class="text-vcode" type="text" data-id="'.$each->id.'" id="fgi_code'.$each->id.'" name="fgi_code'.$each->id.'"   value="'.$each->fgi_code.'">';//$each->fgi_code;
                  $eachData['hdfc_code']   = '<input data-supp="hdfcErgo_code" class="text-vcode" type="text" data-id="'.$each->id.'" id="hdfc_code'.$each->id.'" name="hdfc_code'.$each->id.'" value="'.$each->hdfcErgo_code.'">';//$each->hdfcErgo_code;
                 $eachData['make_id']      = $each->make_id;
                 $eachData['modal_id']     = $each->modal_id;
                 $eachData['varient_id']     = $each->id;
-                
+                $eachData['hdfc_make']     = '<sapn style="font-size:12px;color:black;">'.$each->hdfcErgo_makeCode.'</span>';
                  $eachData['fullInfo']    = $each;
               //if($this->appUtil->hasPermission('cat_2')){ 
                 //$eachData['action']          = $buttons;  

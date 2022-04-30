@@ -140,11 +140,6 @@ class Care {
           $inner->ltype ="POLSCHD";
           $req->intFaveoGetPolicyPDFIO = $inner;
         
-          
-            
-                
-         
-        
            try{
                
                $client = new Client([
@@ -157,7 +152,7 @@ class Care {
                  
                   $response = $clientResp->getBody()->getContents();
                   $output = json_decode($response);
-              //print_r($output);die;
+              //print_r($response);die;
                   if(isset($output->responseData->status) && $output->responseData->status==1){
                       $decoded = base64_decode($output->intFaveoGetPolicyPDFIO->dataPDF);
                       //$file = dirname(getcwd())."/public_html/insurance/customers/policy/pdf/Religare_".$policyNumber.".pdf";

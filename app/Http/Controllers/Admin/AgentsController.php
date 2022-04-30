@@ -297,7 +297,7 @@ public function exportExcel()   {
     
      public function editPersonal(Request $request){
         $info = $this->Posp->profileCompleteData($request->id);
-        $states = DB::table('states_list')->select('*')->where('country_id',101)->get(); 
+        $states = DB::table('states')->select('*')->get(); 
         $agentData = Agents::select('*')->where('id',$request->id)->first(); 
         $template = ['title' => 'Agents',"subtitle"=>"Personal Informations",'info'=>$info,'agentData'=>$agentData,'states'=>$states,
                      'scripts'=>[asset('admin/js/page/agents-personal.js')]];

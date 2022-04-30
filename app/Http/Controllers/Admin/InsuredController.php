@@ -18,7 +18,7 @@ use App\Partners\Digit\DigitHealth;
 use App\Resources\DigitCarResource;
 use App\Resources\HdfcErgoCarResource;
 use App\Resources\FgiTwResource;
-FgiTw
+
 class InsuredController extends Controller{
    
     public function __construct(Care $care,DigitHealth $digit,Manipal $manipal,HdfcErgoCarResource $HdfcErgoCarResource,DigitCarResource $DigitCarResource) { 

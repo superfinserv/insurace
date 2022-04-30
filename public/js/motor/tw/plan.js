@@ -38,7 +38,7 @@ $(function(){
                         if(twInfo.subcovers.isPartDepProCover==="true"){ digitCard.find('.zeroDepStatus-txt').text("Added");}else{ digitCard.find('.zeroDepStatus-txt').text('N/A');}
                         digitCard.find('button.btn-netpremiumn').attr('data-ref',result.id);
                         digitCard.find('button.btn-netpremiumn').html('<span class="fa fa-inr"></span> '+result.grossamount+' <i style="" class="fa fa-angle-double-right" aria-hidden="true"></i>');
-                        
+                        digitCard.find('button.btn-netpremiumn').attr('disabled',false);
                         
                         var addon =  result.addons.covers.addons;
                         if( addon.length){

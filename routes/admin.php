@@ -24,7 +24,7 @@ Route::get('/clear-cache', function() {
         // TEMP
          
        //All the routes that belongs to the group goes here
-       Route::get('/test-any','Admin\HomeController@testany')->name('testany');
+       
         Route::get('/home','Admin\HomeController@index')->name('home');
         Route::get('/get-posp-statistic/{tab?}','Admin\HomeController@getPOSPStatistic');
         Route::get('/get-nop-statistic/{tab?}','Admin\HomeController@getNOPStatistic');

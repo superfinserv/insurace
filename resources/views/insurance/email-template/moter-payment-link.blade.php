@@ -142,9 +142,10 @@
                                                             <tbody>
                                                                <tr style="border-collapse:collapse">
                                                                   <td style="padding:0;Margin:0" align="left">
+                                                                      
                                                                      <p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:helvetica, 'helvetica neue', arial, verdana, sans-serif;line-height:17px;color:#666666;font-size:14px">
-                                                                         IDV: <b>{{$idv}}</b>&nbsp;&nbsp;&nbsp;&nbsp; 
-                                                                         New NCB: <b>{{$ncb}}% &nbsp;&nbsp;</b></p>
+                                                                         IDV: <b>@if($enQ->policyType!="TP") {{$idv}} @else N/A @endif</b>&nbsp;&nbsp;&nbsp;&nbsp; 
+                                                                         New NCB: <b>@if($enQ->policyType!="TP") {{$ncb}}% @else N/A @endif&nbsp;&nbsp;</b></p>
                                                                   </td>
                                                                </tr>
                                                             </tbody>

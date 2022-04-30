@@ -45,6 +45,11 @@ any: function() {
 }
 };
 
+$("#planSumInsured").selectize({
+          create: true,
+          sortField: "value",
+        });
+
 
 $('body').on('click','#wp-button',function(e){
     var text = $(this).attr("data-message");

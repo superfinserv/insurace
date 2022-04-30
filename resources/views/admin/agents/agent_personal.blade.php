@@ -8,7 +8,7 @@
             <div class="col-md-3 col-lg-3">
                  @include('admin.agents.agents_menu')
             </div>
-            <?php $assetUrl = "https://supersolutions.in/insassets/agents/";?>
+            
             <div class="col-md-9 col-lg-9 mg-t-20 mg-lg-t-0-force">
             <div class="agent-personal-notify"></div>
               <form class="form-group" method="post" enctype="multipart/form-data" action="{{url('agent/personal/infoupdate')}}" id="agentPersonalInfo" >
@@ -123,7 +123,7 @@
                             </div>
                        </div>
                        <?php if($agentData->state!="" && $agentData->state>0){
-                            $cities = DB::table('cities_list')->select('*')->where('state_id',$agentData->state)->get(); 
+                            $cities = DB::table('cities')->select('*')->where('state_id',$agentData->state)->get(); 
                        }?>
                         <div class="col-lg-4 col-md-4">
                             <div class="form-group">

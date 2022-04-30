@@ -1033,8 +1033,9 @@ class HdfcErgoTwResource extends AppResource{
             );
             $result = $clientResp->getBody()->getContents();
             
-           print_r($result);
+        //   print_r($result);
            $response = json_decode($result);
+           echo  json_encode($response,JSON_PRETTY_PRINT);
            //print_r($response);
     }
     

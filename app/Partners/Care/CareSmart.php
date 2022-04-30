@@ -76,7 +76,7 @@ class CareSmart{
             
             $postedField  =  new \stdClass();
             
-            $postedField->field_1 = ($params->total_adult);
+            $postedField->field_1 = ($params->total_adult+$params->total_child);
             $postedField->field_10 =$params->total_child;
             $postedField->customerType = "New";
             $postedField->field_4 = "1 Year";
