@@ -61,14 +61,17 @@
                
                    
                 </form>
-                <?php  $trn_user = "";$trn_pass = "";$istrncrdSent = false;
-                if($agentData->tranning_crd!=""){
-                       $crd = json_decode($agentData->tranning_crd);
-                       $trn_user = $crd->username;
-                       $trn_pass = $crd->pass;
-                       $istrncrdSent = true;
-                   } ?>
-                <div class="card mg-b-20">
+                
+                   @if($agentData->application_status=="Approved")
+                   
+                     <?php  $trn_user = "";$trn_pass = "";$istrncrdSent = false;
+                        if($agentData->tranning_crd!=""){
+                               $crd = json_decode($agentData->tranning_crd);
+                               $trn_user = $crd->username;
+                               $trn_pass = $crd->pass;
+                               $istrncrdSent = true;
+                           } ?>
+                    <div class="card mg-b-20">
                     <div class="card-header d-flex align-items-center justify-content-between ">
                         <h6 class="mg-b-0 tx-14 tx-inverse"> Training credentials</h6>
                            <div class="card-option tx-12"></div>
@@ -101,16 +104,18 @@
                         </div>
                     </div>
                 </div>
-                    
-               <div class="card">
+                  @if($istrncrdSent)
+                    <div class="card">
                     <div class="card-header d-flex align-items-center justify-content-between ">
                         <h6 class="mg-b-0 tx-14 tx-inverse">
-                            <label class="ckbox" style="margin-bottom:0px;"><input id="isTranningCompleted" type="checkbox" <?=($agentData->is_tranning_complete=='YES')?'checked':'';?>><span>Is Training Completed ?</span></label>
+                            Is Training Completed ? Then upload Certificate</span></label>
                         </h6>
                        <div class="card-option tx-12" id="isTranningCompletedStatus"></div>
                     </div><!-- card-header -->
-                    <div class="card-body" id="isTranningCompletedBody" style="@if($agentData->is_tranning_complete=='YES') display:block;@else display:none; @endif">
+                    <div class="card-body" id="isTranningCompletedBody" >
                         <div class="row">
+                             
+                             
                             <div class="col-lg-6 col-md-6">
                                 <span>Life Insurance Training Certificate</span>
                                <table class="table table-bordered table-file-has-life_ins_cert" style="@if($agentData->life_ins_cert!='') display:block;@else display:none; @endif border: 1px solid #ccc;margin-top:7px;">
@@ -174,13 +179,27 @@
                                         </tr>
                                      </thead>
                                </table>
-                           
+                             
                                
-                               
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4"></div>
+                            <div class="col-md-5">
+                                <label class="ckbox">
+                                      <input type="checkbox" name="isTranningCompleted" id="isTranningCompleted">
+                                        <span style="font-size: 13px;">Check here and allow posp to take cerification Test.</span>
+                                    </label>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-primary btn-sm" id="isTranningCompletedBtn">Yes! Training Completed</button>
                             </div>
                         </div>
                     </div><!-- card-body -->
                   </div><!-- card -->
+                  @endif
+                  @endif
                       
             </div><!-- col-9 -->
         </div>

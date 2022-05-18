@@ -155,6 +155,7 @@ $(".resend").on('click',function() {
     
 $("#verifyotp").submit(function(e) {
      e.preventDefault();
+     
        var mobile=$('#mobile').val();
         $.ajax({
                 type: "POST",
@@ -300,22 +301,32 @@ $("#agentDetails").validate({
                                     text: 'I Agree',
                                     btnClass: 'btn-red btn-agree',
                                     action: function(){
-                                        console.log('Agredd');
+                                        //console.log('Agredd');
+                                        $('#agentDetails').find('button').attr('disabled',true);
+                                        $('#agentDetails').find('button').prop('disabled',true);
+                                        $('#agentDetails').find('button').html('Submitting....');
                                         $.ajax({
                                                 type: "POST",
                                                 url: base_url + "/become-agent/agentDetails/",
                                                 data: $('#agentDetails').serialize(),
                                                 dataType:'json',
                                                 success: function (data) {
-                                                    $('.ajax_response').html('');;
+                                                    $('.ajax_response').html('');
                                                     var str = $.trim(data.status);
                                                     if (str == 'success') {
                                                         window.location.href = base_url + "/profile";
                                                     }else{
+                                                        $('#agentDetails').find('button').attr('disabled',false);
+                                                        $('#agentDetails').find('button').prop('disabled',false);
+                                                        $('#agentDetails').find('button').html('Get Started');
                                                         $('.ajax_response').html('<div class="alert alert-danger alert-bordered"><span class="text-semibold">Opps Error ! </span>'+data.msg+'.</div>')
                                                     }
                                                 },
-                                                error: function () { }
+                                                error: function () { 
+                                                        $('#agentDetails').find('button').attr('disabled',false);
+                                                        $('#agentDetails').find('button').prop('disabled',false);
+                                                        $('#agentDetails').find('button').html('Get Started');
+                                                }
                                             });
                                     }
                                 },

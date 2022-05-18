@@ -7,18 +7,16 @@ use Illuminate\Support\Facades\DB;
 use Response;
 use View;
 use Session; 
-use File;
 use Illuminate\Support\Facades\Hash;
 use App\Model\Agents;
 use Illuminate\Support\Facades\Auth;
-use PDF;
-//use App\User;
-use App\Resources\Posp;
+use App\Utils\Posp;
+use App\Utils\Certificate;
 class CertificationController extends Controller{
     
-   public function __construct(Posp $posp) { 
-       // $this->appUtil = $appUtil; 
-        $this->Posp = $posp;
+   public function __construct() { 
+        $this->certificate = new Certificate;
+        $this->posp = new Posp;
        
    }
     
@@ -44,11 +42,11 @@ class CertificationController extends Controller{
     public function isAllowtest(){
          $id = Auth::guard('agents')->user()->id;
          $agent=Agents::select('*')->where('id', $id)->first();
-         $com =  $this->Posp->profileCompleteData($id);          
+         $com =  $this->posp->profileCompleteData($id);          
           if($com['iscomplete']==1){
-              if($com['payment_status']==1){
-                    if($agent->isVerified==1){
-                        if($agent->isTestAllow==1){  return json_encode(array('status'=>"success","title"=>"Start Certification","msg"=>'Start Test'));}else{ return json_encode(array('status'=>"error","title"=>"Not allowed Certification","msg"=>'You can not start test!.Please contact administration to allow you certifications!.')); }
+              if($com['payment_status']=='Paid'){
+                    if($agent->application_status=='Approved'){
+                        if($agent->isTestAllow=='Yes'){  return json_encode(array('status'=>"success","title"=>"Start Certification","msg"=>'Start Test'));}else{ return json_encode(array('status'=>"error","title"=>"Not allowed Certification","msg"=>'You can not start test!.Please contact administration to allow you certifications!.')); }
                     }else{ return json_encode(array('status'=>"error","title"=>"Profile not verified :","msg"=>'Your Profile is not verified to start certification.')); }
               }else{ return json_encode(array('status'=>"error","title"=>"Application Fee","msg"=>'Your Application Fee is pending')); }
           }else{
@@ -62,10 +60,10 @@ class CertificationController extends Controller{
     public function test_start(){
         $id = Auth::guard('agents')->user()->id;
         $agent=Agents::select('*')->where('id', $id)->first();
-         $com =  $this->Posp->profileCompleteData($id);          
+         $com =  $this->posp->profileCompleteData($id);          
           if($com['iscomplete']==1){
-            if($agent->isVerified==1){
-                if($agent->isTestAllow==1){
+             if($agent->application_status=='Approved'){
+                if($agent->isTestAllow=='Yes'){
                      $randomquestions = DB::table('questions')->inRandomOrder()->limit(1)->get();
                         foreach ($randomquestions as $value) {
                             $answers = DB::table('answers')->inRandomOrder()->where('que_id', $value->id)->get();
@@ -117,18 +115,17 @@ class CertificationController extends Controller{
               $marks = $marks + $mark;
             }
           $p = round(($marks/$total)*100);
-          $reqMarks = get_site_settings('cert_required_marks');
+          $reqMarks = config('custom.cert_required_marks');
           //$reqMarks = ($reqMarks!="" && $reqMarks>0)?$reqMarks:50;
           DB::table('certification')
             ->where('id', $cid)
             ->update(['obtained_marks' => $marks,'required_marks'=>$reqMarks,'percentage'=>round($p)]);
              if($p>=$reqMarks){
                  $agInfo = DB::table('agents')->where('id',Auth::guard('agents')->user()->id)->first();
-                 $this->certificate_downloads($agInfo->posp_ID,$cid); 
-                 userLog(['user_id'=>Auth::guard('agents')->user()->id,'type'=>"POSP",'action'=>"CERT_PASS",'message'=>"Certification completed with (".$p.")",'created_at'=>date('Y-m-d H:i:s')]);
+                 $this->certificate->GeneratePdf($agInfo->posp_ID,$cid); 
+                //userLog(['user_id'=>Auth::guard('agents')->user()->id,'type'=>"POSP",'action'=>"CERT_PASS",'message'=>"Certification completed with (".$p.")",'created_at'=>date('Y-m-d H:i:s')]);
                  $TEMP = getMailSmsInfo(Auth::guard('agents')->user()->id,'CERTIFICATION_COMPLETE');
                  sendNotification($TEMP);
-                 
              }
           return response()->json(['statusCode'=>200,'msg'=>'sucess','certification_id'=>$cid]);  
         }
@@ -155,62 +152,6 @@ class CertificationController extends Controller{
                      'scripts'=>[asset('page_js/pospJs/profile.js')],'certification'=>$certification];
       
         return View::make('pos.certification.exam_review')->with($template);
-    }
-     
-    public function certificate_downloads($pospID,$id){
-       
-        $certification= DB::table('certification')->where('id', $id)->first();
-        $data = ['certification'=>$certification];
-        $user = Agents::find($certification->agent_id); 
-        
-        $filename = "Certificate-".str_replace("/","-",$pospID).'-'.uniqid();
-        $path = "public/assets/agents/pdf/certificate";
-        if(!File::exists($path)) {
-            File::makeDirectory($path, $mode = 0755, true, true);
-        } 
-       
-            $logo = get_site_settings('site_logo');
-            $arrContextOptions=array(
-                            "ssl"=>array(
-                                "verify_peer"=>false,
-                                "verify_peer_name"=>false,
-                            ),
-                        );
-            $type = pathinfo($logo, PATHINFO_EXTENSION);
-            $avatarData = file_get_contents($logo, false, stream_context_create($arrContextOptions));
-            $avatarBase64Data = base64_encode($avatarData);
-            $data['logo'] = 'data:image/' . $type . ';base64,' . $avatarBase64Data;
-            
-            $profile = "public/assets/agents/profile/".$user->profile;
-            $arrContextOptions1=array(
-                            "ssl"=>array(
-                                "verify_peer"=>false,
-                                "verify_peer_name"=>false,
-                            ),
-                        );
-            $type1 = pathinfo($profile, PATHINFO_EXTENSION);
-            $avatarData1 = file_get_contents($profile, false, stream_context_create($arrContextOptions1));
-            $avatarBase64Data1 = base64_encode($avatarData1);
-            $data['profile'] = 'data:image/' . $type1 . ';base64,' . $avatarBase64Data1;
-         
-         $data['user'] = $user;
-         $data['user_city'] = ($user->city!="" && $user->city>0)?DB::table('cities_list')->where('id', $user->city)->value('name'):"";
-         $data['user_state'] = ($user->state!="" && $user->state>0)?DB::table('states_list')->where('id', $user->state)->value('name'):"";
-         
-         PDF::setOptions(['defaultFont' => 'sans-serif','defaultMediaType'=>'all','isFontSubsettingEnabled'=>true]);
-         $pdf = PDF::loadView('pos.certification.certificate_format',$data);
-       
-      
-         //return $pdf->stream();//For browser view.
-         $headers =[
-                    'Content-Description' => 'File Transfer',
-                    'Content-Type' => 'application/pdf',
-                ];
-         $pdf->save($path.'/'.$filename.'.pdf',$filename.'.pdf',$headers);
-         DB::table('certification')
-                        ->where('id', $id)
-                     ->update(['file' => $filename.'.pdf']);
-        return Response::download($path.'/'.$filename.'.pdf',$filename.'.pdf',$headers);
     }
      
  }

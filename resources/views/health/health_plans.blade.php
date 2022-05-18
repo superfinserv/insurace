@@ -251,10 +251,21 @@
                                 <!--<label style="padding: 12px;border: 1px solid #ccc;box-shadow: 0px 0px 1px #ccc;">Cover:4.5 Lacs- 10Lacs</label>-->
                                 <select id="plan_cover_filter" class="plan-filter" style=";">
                                     <option value="2-3"> Cover:2-3 Lakh</option>
+                                    @if(isset(Auth::guard('customers')->user()->id))
                                     <option value="4-9" selected>Cover:4-9 Lakh</option>
                                     <option value="10-15">Cover:10- 15Lakh</option>
                                     <option value="16-25">Cover:16- 25Lakh</option>
                                     <option value="26-#">Cover:More then 25Lakh</option>
+                                    @else
+                                       @if(Auth::guard('agents')->user()->userType=="POSP")
+                                         <option value="4-9" selected>Cover:4-5 Lakh</option>
+                                        @else
+                                        <option value="4-9" selected>Cover:4-9 Lakh</option>
+                                        <option value="10-15">Cover:10- 15Lakh</option>
+                                        <option value="16-25">Cover:16- 25Lakh</option>
+                                        <option value="26-#">Cover:More then 25Lakh</option>
+                                        @endif
+                                    @endif
                                 </select>
                                 
                             </li>

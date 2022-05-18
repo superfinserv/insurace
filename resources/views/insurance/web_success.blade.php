@@ -190,7 +190,7 @@
                                      
                                      <?php $typ = ($data->type=='CAR')?'Pvt Car Insurance':'Two wheeler Insurance';?>
                                       @if($data->policyType=="COM")
-                                       {{$typ}} - Comprehansive
+                                       {{$typ}} - Comprehensive 
                                      @elseif($data->policyType=="TP")
                                        {{$typ}} - Third Party
                                       @elseif($data->policyType=="SAOD")

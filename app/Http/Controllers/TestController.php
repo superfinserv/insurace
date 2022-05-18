@@ -11,6 +11,7 @@ use Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use PDF;
+use Carbon\Carbon;
 
 use App\Resources\DigitCarResource;
 use App\Resources\DigitBikeResource;
@@ -21,7 +22,8 @@ use App\Resources\FgiTwResource;
 use App\Partners\Care\Care;
 use App\Partners\Manipal\Manipal;
 use App\Partners\Digit\DigitHealth;
-    
+ use App\Utils\PolicyMail;
+ use App\Utils\OrcCalculate;
 class TestController extends Controller{
     public $uniqueToken;
     public function __construct() { 
@@ -34,6 +36,9 @@ class TestController extends Controller{
        $this->Care =   new Care;
        $this->Manipal  =  new Manipal;
        $this->DigitHealth  =  new DigitHealth;
+       
+       $this->policymail = new PolicyMail;
+       $this->orc =  new OrcCalculate;
    }
      
      function testPartnerBug(Request $request){
@@ -43,6 +48,62 @@ class TestController extends Controller{
     
     
      public function testany(){
+       
+          die;
+                 $sql= DB::table('policy_saled')->select('sp_id','agent_id','policy_no','date')
+                              ->whereMonth('date', 05)->whereYear('date', 2022);
+               
+                     
+                      $Sales = $sql->get();
+                         foreach($Sales as $each){
+                             print_r($each);
+                             echo "<br/><hr/><br/>";
+                             $amts = $this->orc->calculateAndSave($each->policy_no);
+                         }
+                         
+                        $agents = DB::table('agents')->where('status', 'Inforce')->get();
+                        foreach($agents as $posp){
+                            $SUM = 0;$ID = $posp->id;
+                            if($posp->userType=="SP"){
+                                 // SELECT sum(if(pospId = spId,(pospDst+spDst),0)) as Amount1, sum(if(pospId != spId,(spDst),0)) as Amount2 FROM `policy_payouts`  WHERE (pospId = 19 && spId =19) OR  (pospId != 19 && spId =19)
+                                 $sm = DB::table('policy_payouts')->select(DB::raw('sum(if(pospId = spId,(pospDst+spDst),0)) as Amount1, sum(if(pospId != spId,(spDst),0)) as Amount2'))
+                                            ->where(function($query) use ($ID){
+                                                 $query->where('pospId', '=', $ID);
+                                                 $query->where('spId', '=', $ID);
+                                             })
+                                             ->orWhere(function($query) use ($ID){
+                                                 $query->where('pospId', '!=', $ID);
+                                                 $query->where('spId', '=', $ID);
+                                             })->first();
+                                             
+                                $Amt1 = ($sm->Amount1)?$sm->Amount1:0;
+                                $Amt2 = ($sm->Amount2)?$sm->Amount2:0;
+                                $SUM = ($Amt1 + $Amt2);
+                            }else{
+                                 $SUM = DB::table('policy_payouts')->where('pospId',$posp->id)->sum('pospDst');
+                            }
+                            
+                            $ps = explode('/',$posp->posp_ID);
+                            $ppiArr = ['invoiceNo'=>'INV'.date('Ym').$ps[2],
+                                      'spId'=>($posp->userType=="SP")?$posp->id:0,
+                                      'pospId'=>($posp->userType=="POSP")?$posp->id:0,
+                                      'invoiceDate'=>date('Y-m-d H:i:s'),
+                                      'totalAmount'=>$SUM,
+                                      'invMonth'=>'05', 
+                                      'invYear'=>'2022'];
+                            DB::table('policy_payout_invoice')->insertGetId($ppiArr); 
+                         }
+                         
+                       
+         
+         
+        //  $Sales = DB::table('policy_saled')
+        //               ->where('MailStatus', 'No')
+        //               ->get();
+        //  foreach($Sales as $each){
+        //       $this->policymail->calculateAndSendMail($each->policy_no);
+        //       //Log::channel('cronlog')->info($each->policy_no.'- Commision Calculate');
+        //  }
         
          //  $path =  public_path('/site_assets/financers.json');
         //   $content = json_decode(file_get_contents($path), true);

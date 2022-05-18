@@ -32,9 +32,9 @@
               <!--<span class="tx-normal">[</span> -->
               <!-- bracket <span class="tx-info">plus</span>-->
               <!--<span class="tx-normal">]</span>-->
-              <img src="{{get_site_settings('site_logo')}}" class="wd-100p ht-100p object-fit-cover" alt="">
+              <img src="{{url('/site_assets/logo/'.config('custom.site_logo'))}}" class="wd-100p ht-100p object-fit-cover" alt="">
             </div>
-          <div class="tx-black-5 tx-center mg-b-60 mg-t-10 ">Welcome Back to supersolutions.</div>
+          <div class="tx-black-5 tx-center mg-b-60 mg-t-10 ">Welcome Back to {{config('custom.site_short_name')}}</div>
           
           <div id="loginResp"></div>
           <form method="POST" action="" id="loginAuth">
@@ -57,7 +57,7 @@
           </div><!-- form-group -->
           <button type="submit" class="btn btn-info btn-block app-btn">Sign In</button>
            </form>
-          <div class="mg-t-60 tx-center">Copyright © {{date('Y')}}. <br/><a href="#" class="tx-info app-color">Supersolutions Advisory Services Pvt Ltd.</a> <br/> All Rights Reserved</div>
+          <div class="mg-t-60 tx-center">Copyright © {{date('Y')}}<br/><a href="#" class="tx-info app-color">{{config('custom.site_name')}}</a> <br/> All Rights Reserved</div>
         </div><!-- login-wrapper -->
       </div><!-- overlay-body -->
     </div><!-- d-flex -->

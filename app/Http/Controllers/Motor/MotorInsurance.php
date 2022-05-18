@@ -406,6 +406,32 @@ class MotorInsurance extends Controller
              return response()->json($resp);
     }
     
+    public function GetMake(Request $request){
+         if(strtolower($request->param)=='car'){
+             $results = DB::table('vehicle_make_car')->select(DB::raw("id,make as value"))->get();
+             return response()->json(['status'=>true,'message'=>'Data get successfully','data'=>$results]);
+         }else{
+             $results = DB::table('vehicle_make_tw')->select(DB::raw("id,make as value"))->get();
+             return response()->json(['status'=>true,'message'=>'Data get successfully','data'=>$results]);
+         }
+     }
+     
+    public function GetModelVarientByMake(Request $request){
+        if(strtolower($request->param)=='car'){
+            $results = DB::table('vehicle_variant_car')
+                      ->select(DB::raw("CONCAT(vehicle_variant_car.id,'-',vehicle_variant_car.modal_id) as id,CONCAT(vehicle_modal_car.modal,' - ',vehicle_variant_car.variant,'(',vehicle_variant_car.cubic_capacity,'cc)') as value"))
+                     ->leftJoin('vehicle_modal_car',"vehicle_modal_car.id", "=", "vehicle_variant_car.modal_id")
+                     ->where('vehicle_modal_car.make_id',$request->make)->get();
+           return response()->json(['status'=>true,'message'=>'Data get successfully','data'=>$results]);
+         }else{
+             $results = DB::table('vehicle_variant_tw')
+                      ->select(DB::raw("CONCAT(vehicle_variant_tw.id,'-',vehicle_variant_tw.modal_id) as id,CONCAT(vehicle_modal_tw.modal,' - ',vehicle_variant_tw.variant,'(',vehicle_variant_tw.cubic_capacity,'cc)') as value"))
+                     ->leftJoin('vehicle_modal_tw',"vehicle_modal_tw.id", "=", "vehicle_variant_tw.modal_id")
+                     ->where('vehicle_modal_tw.make_id',$request->make)->get();
+           return response()->json(['status'=>true,'message'=>'Data get successfully','data'=>$results]);
+         }
+    }
+    
     public function getModelByMake(Request $request){
         $M = explode('-',$request->make);
         $tableName = ($request->type=='car')?'vehicle_modal_car':'vehicle_modal_tw';

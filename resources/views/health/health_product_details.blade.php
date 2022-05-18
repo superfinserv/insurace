@@ -293,8 +293,22 @@ input[name='planYear']:checked + label.label-planYear::after {
 /*	 font-weight: bold;*/
 /*}*/
 
+ .key-span{
+     font-weight: 700;font-family: 'Nunito Sans'; font-size: 16px;display: contents;
+ }
+ .key-see-details{width:25%;margin-left:0px !important;}
+ .key-policy-word,.key-policy-brochure{ width:35%;}
+ @media only screen and (max-width: 768px) { 
+     .key-span{
+         font-weight: 700;font-family: 'Nunito Sans'; font-size: 16px;display: inline-block;
+     }
+ .key-see-details{width:100%;}
+ .key-policy-word,.key-policy-brochure{ width:100%;}
  
- 
+ .section-zoneType h2.zone-type{
+     padding-left:0!important;
+ }
+ }
 </style>
 <?php $SUM   = json_decode($data->sumInsured);
       $amts  = json_decode($data->amounts); ?>
@@ -313,17 +327,17 @@ input[name='planYear']:checked + label.label-planYear::after {
                               <li style="display: inline-block;width:65%;vertical-align: top;padding-left:12px;">
                                   <span class="plan-title" style="font-weight: 700;font-family: 'Nunito Sans';"><?=$data->title;?></span>
                                   <p style="margin:0;padding:1px;"></p>
-                                    <span style="font-weight: 700;font-family: 'Nunito Sans'; font-size: 16px;width:25%;display: inline-block;">
+                                    <span  class="key-span key-see-details" style="">
                                        <i class="fa fa-circle" style="font-size: 10px;vertical-align: middle;margin-right: 5px;"></i><a href="{{url('/health-insurance/product-info/'.$data->enquiry_id)}}" style="color: #AC0F0B;">See Details</a>
                                     </span>
                                     @if($pData->policy_wording!="")
-                                    <span style="font-weight: 700;font-family: 'Nunito Sans'; font-size: 16px;width: 35%;display: inline-block;">
+                                    <span class="key-span key-policy-word" style="">
                                       <i class="fa fa-circle" style="font-size: 10px;vertical-align: middle;margin-right: 5px;"></i>
                                       <a href="{{url('/get/download/file/policy-word/'.$pData->policy_wording)}}" style="color: #AC0F0B;">Policy Wording</a>
                                     </span>
                                     @endif
                                      @if($pData->policy_brochure!="")
-                                    <span style="font-weight: 700;font-family: 'Nunito Sans'; font-size: 16px;width: 35%;display: inline-block;">
+                                    <span class="key-span key-policy-brochure"  style="">
                                       <i class="fa fa-circle" style="font-size: 10px;vertical-align: middle;margin-right: 5px;"></i>
                                       <a href="{{url('/get/download/file/policy-word/'.$pData->policy_brochure)}}" style="color: #AC0F0B;">Policy Brochure</a>
                                     </span>
@@ -495,10 +509,10 @@ input[name='planYear']:checked + label.label-planYear::after {
                                         @if($data->code=='1967')
                                                 <input id="addOn4" value="CAREADWITHNCB" name="addOn4" type="checkbox" class="addon-ncb addonInput addon-label" <?=((!empty($addons)) && in_array("CAREADWITHNCB",$addons))?"checked":"";?>/>
                                                 <label class= "addon-ncb" for="addOn4" class="">NCB Super </label>
-                                                
+                                                @if($maxAge<=60)
                                                 <input id="addOn2" value="CARESHILED1104" name="addOn2" type="checkbox" class="addonInput addon-label" <?=((!empty($addons)) && in_array("CARESHILED1104",$addons))?"checked":"";?>/>
                                                 <label for="addOn2">Care Shield</label>
-                                                
+                                                @endif
                                                 <input id="addOn3" value="SMARTCA" name="addOn3" type="checkbox" class="addonInput addon-label" <?=((!empty($addons)) && in_array("SMARTCA",$addons))?"checked":"";?>/>
                                                 <label for="addOn3">Smart Select</label>
                                                 <?php /*
@@ -605,10 +619,9 @@ input[name='planYear']:checked + label.label-planYear::after {
                                             <input id="addOn1" value="OPHDCB03" name="addOn1" type="checkbox" class="addonInput addon-label" <?=((!empty($addons)) && in_array("OPHDCB03",$addons))?"checked":"";?>/>
                                             <label for="addOn1">Hospital Daily Cash Benefit</label>
                                             
-                                          <?php /*  <input id="addOn3" value="OPWMC04" name="addOn3" type="checkbox" class="addonInput addon-label" <?=((!empty($addons)) && in_array("OPWMC04",$addons))?"checked":"";?>/>
+                                            <input id="addOn3" value="OPWMC04" name="addOn3" type="checkbox" class="addonInput addon-label" <?=((!empty($addons)) && in_array("OPWMC04",$addons))?"checked":"";?>/>
                                             <label for="addOn3">ProHealth-Waiver Mandatory CoPay</label>
-                                            */?>
-                                            
+                                        
                                      </div>
                                  </div>
                                       
@@ -631,10 +644,13 @@ input[name='planYear']:checked + label.label-planYear::after {
                                <h3 style="color: #AC0F0B;font-weight: 600;font-size: 16px;text-align: center;margin-top: 14px;"><span id="<?=$data->enquiry_id;?>-planTitle" class="plan-title"><?=$data->title;?></span></h3>
                                <table id="rightPlanSummaryTbl" class="table" style="margin-bottom:0px;">
                                 <tbody>
+                                    <?php $total_adult = $param->total_adult."A";
+                                          $total_child = ($param->total_child>0)?$param->total_child."C":"";
+                                          $mStr = $total_adult.$total_child;?>
                                   <tr>
                                     <td style="font-size: 13px;color: #000;padding: 15px 10px;font-family: 'Nunito Sans';">Cover Type</td>
                                     <td style="font-weight: 700;font-size: 13px;color: #000;padding: 15px 10px;font-family: 'Nunito Sans';">
-                                        <span id="<?=$data->enquiry_id;?>-coverType"><?=($data->policyType=='FL')?'Floater':'Individual';?></span>
+                                        <span id="<?=$data->enquiry_id;?>-coverType"><?=($data->policyType=='FL')?'Floater':'Individual';?>(<a href="#">{{$mStr}}</a>)</span>
                                     </td>
                                   </tr>
                                   <tr>

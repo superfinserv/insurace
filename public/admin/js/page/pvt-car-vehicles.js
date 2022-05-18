@@ -1,3 +1,4 @@
+var editor;
 $(function(){
     'use strict'
      var _token = $('meta[name="csrf-token"]').attr('content'); 
@@ -22,6 +23,8 @@ $(function(){
     //         return tbl;
     //     }  
     
+   
+    
     var vehiclestable = $('#vehicles-datatable').DataTable( {
         "scrollX": false,
          bLengthChange: false,
@@ -41,7 +44,7 @@ $(function(){
                     {"data" : "modal","orderable":true,'className':'text-center'},
                     {"data" : "variant","orderable":true,'className':'text-center'},
                     {"data" : "cc","orderable":true,'className':'text-center'},
-                    {"data" : "body_type","orderable":false,'className':'text-center'},
+                    {"data" : "fuel_type","orderable":false,'className':'text-center'},
                     {"data" : "digit_code","orderable":true,'className':'vcode text-center'},
                     {"data" : "fgi_code","orderable":true,'className':'vcode text-center'},
                     {"data" : "hdfc_make","orderable":true,'className':'text-center'},
@@ -80,7 +83,21 @@ $(function(){
         var i =$(this).attr('data-column');  // getting column index
         var v =$(this).val();  // getting search input value
         vehiclestable.columns(i).search(v).draw();
-  });
+     });
+     
+//      $('#vehicles-datatable').editable({
+// 		container:'body',
+// 		selector:'.editable-varient',
+// 		url:'update.php',
+// 		title:'Varient Name',
+// 		type:'POST',
+// 		validate:function(value){
+// 			if($.trim(value) === '')
+// 			{
+// 				return 'This field is required';
+// 			}
+// 		}
+// 	});
   
     $('body').on('change','.text-vcode', function () {   // for text boxes
         var i =$(this).attr('data-id');  // getting column index

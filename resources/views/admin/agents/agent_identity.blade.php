@@ -19,7 +19,7 @@
                        <div class="col-lg-12 col-md-12">
                            <?php //print_r($profile['complete']);?>
                             <?php if($profile['complete']==100){ ?>
-                            <?php if($agentData->isProceedSign==1 && $agentData->videoFile!=""){?>
+                            <?php if($agentData->isProceedSign=='Yes' && $agentData->videoFile!=""){?>
                               <div class="card pd-30 shadow-base bd-0 mg-t-20">
                                   <div class="d-lg-flex justify-content-lg-between align-items-lg-center">
                                     <div class="mg-b-20 mg-lg-b-0">
@@ -38,7 +38,7 @@
                             </br>
                             <div class="card widget-12 shadow-base">
                                 <div class="card-header">
-                                    <?php if($agentData->isProceedSign==1 && $agentData->videoFile!=""){?>
+                                    <?php if($agentData->isProceedSign=='Yes' && $agentData->videoFile!=""){?>
                                       <div class="card-title tx-danger">While upload new view will remove already uploaded video.</div>
                                   <?php }else{?>
                                     <div class="card-title tx-danger"><?=$agentData->name;?>, did not uploaded video yet!</div>

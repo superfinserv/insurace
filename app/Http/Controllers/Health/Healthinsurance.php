@@ -143,27 +143,11 @@ class Healthinsurance extends Controller{
         
     }
     
-     
-    
     public function getHealthPlans(Request $request){
         
         $R = explode("-",$request->range);
         $range['start'] = $R[0];
         $range['end'] = ($R[1]=="#")?75:$R[1];
-        //  if($request->supp=="HDFCERGO"){ 
-        //     $plans =[];
-        //     $hdfcErgoPlans = $this->HdfcErgoResource->getQuickPlans($range,$request->params,$this->getToken(),$request->policytyp,$request->pln);
-        //     if($hdfcErgoPlans['status']=='success'){
-        //          foreach($hdfcErgoPlans['plans'] as $pln){
-        //              array_push($plans,$pln);
-        //          }
-        //          $result = ['status' => 'success','supp'=>'HDFCERGO','plans' => $plans];
-        //      }else{
-        //         $result = ['status' => 'success','supp'=>'HDFCERGO','plans' => []];  
-        //      }
-        //       return response()->json($result);
-            
-        // }
         
          if($request->supp=="CARE" && $R[0]>2 && config('mediclaim.CARE.status')===true){
             $plans =[];
@@ -214,32 +198,41 @@ class Healthinsurance extends Controller{
     
     public function createEnquiry(Request $request){
              
-   
-       
         $sup = DB::table('our_partners')->where('shortName',$request->provider)->first();
-        if(isset(Auth::guard('agents')->user()->id)){
-                  $customerID = _createCustomer(['mobile'=>$request->carInfo['customer']['mobile']]);
-                  $custMobile = $request->carInfo['customer']['mobile'];
+        $sumInsured = str_replace(" ","",str_replace("Lakhs","",$request->insurerInfo['sumInsured']));
+             if(isset(Auth::guard('agents')->user()->id)){
+                  $customerID = 0;//_createCustomer(['mobile'=>$request->carInfo['customer']['mobile']]);
+                  $custMobile = "";//$request->carInfo['customer']['mobile'];
                   $agentID = Auth::guard('agents')->user()->id;
+                  $spID = (Auth::guard('agents')->user()->userType=="SP")?Auth::guard('agents')->user()->id:0;
+                  $status = DB::table('agents')->where('id',$agentID)->value('status');
+                  if($status!="Inforce"){
+                       $result = ['status'=>'error','message'=>"You can't create policy. Please contact to your nearest branch.",'data'=>['enq'=>""]];
+                       return response()->json($result);
+                  }else if($sumInsured>5 && Auth::guard('agents')->user()->userType=="POSP"){
+                      $result = ['status'=>'error','message'=>"We can't allow you to sell policy >5 Lahks. Please contact to your nearest branch.",'data'=>['enq'=>""]];
+                       return response()->json($result);
+                  }
                 }else{
                   $customerID =Auth::guard('customers')->user()->id;
-                  $agentID = 0;
+                  $agentID = 0;$spID=0;
                   $custMobile = Auth::guard('customers')->user()->mobile;
                 }                                        
         $quoteData = ['type'=>'HEALTH',
                       'provider'=>$sup->shortName,
                       'device_id'=>$this->getToken(),
                       'agent_id'=>$agentID,
+                      'sp_id'=>$spID,
                       'customer_id'=>$customerID,
                       'customer_mobile'=>$custMobile,
                       'customer_name'=>$request->insurerInfo['selfName'],
                       'server'=>isset(Auth::guard('customers')->user()->id)?'USER_WEB':'AGENT_WEB',
                       'call_type'=>"ENQ",
-                      
+                     
                       ];
                       
                       
-        $sumInsured = str_replace(" ","",str_replace("Lakhs","",$request->insurerInfo['sumInsured']));
+        
         $temp =   DB::table('app_temp_quote')->where('quote_id',$request->insurerInfo['plan'])->first();
         $quoteData['mandatoryAddons'] = $temp->mandatoryAddons;
         $json_data = ['cust_mobile'=>$request->customerData['mobile'],'title'=>$temp->title,'product'=>$temp->product,'code'=>$temp->code,
@@ -260,6 +253,9 @@ class Healthinsurance extends Controller{
            $ad = "AHCCC1126";
            
         }
+        $quoteData['netAmt']=$temp->netAmt;
+        $quoteData['taxAmt']=$temp->taxAmt;
+        $quoteData['grossAmt']=$temp->grossAmt;
         $quoteData['params_request']=json_encode($params);
         $quoteData['product'] =$temp->product;
         $quoteData['code'] =$temp->code;
@@ -324,7 +320,10 @@ class Healthinsurance extends Controller{
              $word = ($sUM->shortAmt<=1)?'Lakh':'Lakhs';
              $termYear = $request->termYear;
              $Q['termYear']=$request->termYear;
-             
+             $Q['grossAmt']=number_format((float)$_amts->$termYear->Total_Premium, 2, '.', '');
+             $Q['taxAmt']=number_format((float)$_amts->$termYear->Total_Premium, 2, '.', '');
+             $net =  ($_amts->$termYear->Total_Premium-$_amts->$termYear->Total_Tax);
+             $Q['netAmt']=number_format((float)($net), 2, '.', '');
              $Q['premiumAmount']=number_format((float)$_amts->$termYear->Total_Premium, 2, '.', '');
              $Q['json_data->quotation']=number_format((float)$_amts->$termYear->Total_Premium, 2, '.', '');
              $Q['json_data->amount']=number_format((float)$_amts->$termYear->Total_Premium, 2, '.', '');
@@ -344,9 +343,15 @@ class Healthinsurance extends Controller{
               $params = json_decode($data->params_request);
               $jd = json_decode($data->json_data);
               $params->selfMobile = isset($params->selfMobile)?$params->selfMobile:$jd->cust_mobile;
-            //   $supp = DB::table('suppliers')
-            //          ->select('suppliers.name as supp_name','suppliers.short as sp','suppliers.logo as supp_logo')
-            //          ->where('suppliers.id','=',$params->supplier)->first();
+              $maxAge = 0 ;$minAge=0;
+              foreach($params->members as $key=>$dt){
+                  $age = (int)$dt->age;
+                     if($minAge==0){$minAge =   $dt->age;}
+                     else if($dt->age<$minAge){ $minAge =  intval($age);}
+                     
+                    if($maxAge==0){$maxAge =  intval($dt->age);}  
+                    else if($dt->age>$maxAge){ $maxAge =  intval($age);}
+              }
               $supp = DB::table('our_partners')->where('shortName','=',$data->provider)->first();
               $planInfo = new \stdClass(); 
               $planInfo->supp_logo = asset('assets/partners/'.$supp->logo_image);
@@ -392,7 +397,7 @@ class Healthinsurance extends Controller{
               $pData = DB::table('plans')->select('*')->where('plan_val','=',$plan_val)->first();
               
               
-              $template = ['title' => 'Health Insurance Detail',"subtitle"=>"Health Product Details",
+              $template = ['title' => 'Health Insurance Detail',"subtitle"=>"Health Product Details",'maxAge' =>$maxAge,
                           'plan'=>$planInfo,'param'=>$params,'data'=>$data,'pData'=>$pData,
                           'scripts'=>[asset('js/health/health_product-details.js?v=0.4')]];  
             
@@ -411,6 +416,8 @@ class Healthinsurance extends Controller{
                      $plan_val = 'CARE-SMART_NCB_SUPER';
                  }else if($enQ->product=='CARE'){
                      $plan_val = 'CARE-CARE_HELATH';
+                 }else if($enQ->product=='CAREADVANTAGE'){
+                      $plan_val = 'CARE-ADV';
                  }
                  
              }else if($enQ->provider=='DIGIT'){
@@ -448,7 +455,7 @@ class Healthinsurance extends Controller{
          
      }
     
-    function proposalDetails(Request $request){
+    public function proposalDetails(Request $request){
         
          $enquiryID = $request->enquiryID;
          $count = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enquiryID)->count();
@@ -456,8 +463,11 @@ class Healthinsurance extends Controller{
          if($count){
               
               $data = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enquiryID)->first();
-              
-              $relations =   DB::table('relations')->get();
+              if($data->provider=="CARE"){
+                 $relations =   DB::table('relations')->whereNotNull('CARE')->get();
+              }else{
+                 $relations =   DB::table('relations')->get();
+              }
               $params = json_decode($data->params_request);
               $jd = json_decode($data->json_data);
               $params->selfMobile = isset($params->selfMobile)?$params->selfMobile:$jd->cust_mobile;
@@ -483,7 +493,11 @@ class Healthinsurance extends Controller{
          $enquiryID = $request->enquiryID;
          $data = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enquiryID)->first();
          $template['param'] = json_decode($data->params_request);
-          $template['relations'] = DB::table('relations')->get();
+         if($data->provider=="CARE"){
+            $template['relations'] = DB::table('relations')->whereNotNull('CARE')->get();
+         }else{
+             $template['relations'] = DB::table('relations')->get();
+         }
          return View::make('health.info.proposer')->with($template);
     }
     
@@ -537,6 +551,7 @@ class Healthinsurance extends Controller{
     }
     
     private function updateProposerInfo($param,$enquiryID){
+                   
                     $arr = ["params_request->selfDob"=>$param['selfDob'],
                             "params_request->selfdd"      =>$param['selfdd'],
                             "params_request->selfmm"      =>$param['selfmm'],
@@ -557,6 +572,9 @@ class Healthinsurance extends Controller{
                             "params_request->nomineemm" => $param['nomineemm'],
                             "params_request->nomineeyy" => $param['nomineeyy']
                             ];
+            if(isset(Auth::guard('agents')->user()->id)){
+                  $arr['customer_mobile'] =  $param['selfMobile'];
+             }
              DB::table('app_quote')->where('enquiry_id', $enquiryID)->update($arr);
     }
     
@@ -741,8 +759,7 @@ class Healthinsurance extends Controller{
                       $pageData->formAction = config('mediclaim.CARE.payment_url');//"https://apiuat.religarehealthinsurance.com/portalui/PortalPayment.run";
                       //$pageData->formAction ="https://api.religarehealthinsurance.com/portalui/PortalPayment.run";
                                               
-                      $pageData->returnURL = url("/health-insurance/insured-success/".$enquiryID);
-                      
+                      $pageData->returnURL = config('custom.site_url')."/health-insurance/insured-success/".$enquiryID;//url("/health-insurance/insured-success/".$enquiryID);
              }else if($data->provider=="MANIPAL_CIGNA"){
                  
                   $plan = DB::table('our_partners')->where('shortName','=',$data->provider)->first();
@@ -758,8 +775,13 @@ class Healthinsurance extends Controller{
                   
                   $txid = substr(hash('sha256', mt_rand() . microtime()), 0, 20);
                   $amt = $quoteAmt;//$params->amount;
+                  
+                  $MID = config('mediclaim.MANIPAL.payU_MID');
+                  $KEY = config('mediclaim.MANIPAL.payU_KEY');
+                  $SALT = config('mediclaim.MANIPAL.payU_SALT');
+                  
                   $productInfo = "Manipal cigna health insurance from SuperFinserv";
-                  $formData->key = "2M6Fzv";
+                  $formData->key = $KEY;//"2M6Fzv";
                   $formData->txnid = $txid;
                   $formData->amount = $amt;
                   $formData->productinfo = "Manipal cigna health insurance from SuperFinserv";
@@ -777,10 +799,10 @@ class Healthinsurance extends Controller{
                   $formData->udf2 = "";
                   $formData->udf3 = "";
                   $formData->udf4 = $jd->applicationID;
-                  $formData->udf5 = "141806";
-                  $formData->surl = url("/health-insurance/insured-success/".$enquiryID);
+                  $formData->udf5 = $MID;//"141806";
+                  $formData->surl = config('custom.site_url')."/health-insurance/insured-success/".$enquiryID;;//url("/health-insurance/insured-success/".$enquiryID);
                   $formData->furl = url("/insurance/policy/cancel/".$enquiryID);
-                  $hashSequence = "2M6Fzv|".$txid."|".$amt."|".$productInfo."|".$params->selfFname."|".$params->selfEmail."||||".$jd->applicationID."|141806||||||wUTyMOKS";
+                  $hashSequence = $KEY."|".$txid."|".$amt."|".$productInfo."|".$params->selfFname."|".$params->selfEmail."||||".$jd->applicationID."|".$MID."||||||".$SALT;
                  // $str = "2M6Fzv|".$txid."|".$amt."||Praveen|p@gmail.com||||PROHLR010288924|141806||||||wUTyMOKS";
                   $hashed = hash("sha512", $hashSequence);
                   $formData->hash = $hashed ;

@@ -22,28 +22,17 @@ class SalesController extends Controller{
     }
     public function createQuote(){
          $id = Auth::guard('agents')->user()->id;
-         
-         
-         //$city = DB::table('cities_list')->get();
-         $categories = DB::table('categories')->where('status',1)->get();
-         //$state = DB::table('states_list')->get();
-         // $agent=Agents::select('*')->where('id', $id)->get()->toArray();
-        $template = ['title' => 'create lead',"subtitle"=>"create lead",
-                     'scripts'=>[asset('page_js/pospJs/sales.js')],'categories'=>$categories];
-        $certification_count = DB::table('certification')->where('agent_id', $id)->count();
-         $isPass =  false;
-         if($certification_count){
-             $certification = DB::table('certification')->where('agent_id', $id)->orderBy('id', 'desc')->first();
-             $isPass = ($certification->percentage>=50)?true:false;
-         }
-          $template['isPass'] = $isPass;
+           
+         $template = ['title' => 'Quote',"subtitle"=>"Create Quote",
+                     'scripts'=>[asset('page_js/pospJs/sales.js')]];
+         $template['status'] = Agents::where('id',$id)->value('status');
         return View::make('pos.sales.createQuote')->with($template);
     }
     
     public function index(){
          $id = Auth::guard('agents')->user()->id;
          
-         $suppliers=DB::table('suppliers')->orderBy('id', 'desc')->get();
+         $partners=DB::table('our_partners')->orderBy('name', 'asc')->get();
          $fYear =  getCurretFinancialYear(date('m'));
          $Y = explode('-',$fYear);
          $frm = $Y[0].'-04-01';
@@ -59,7 +48,7 @@ class SalesController extends Controller{
                                              ->whereYear('date', date('Y'))
                                              ->where('agent_id', $id)->value('MonthSale');
          
-         $template = ['title' => 'Sales',"subtitle"=>"Dashboard",'suppliers'=>$suppliers,'TotalSale'=>round($TotalSale,0),
+         $template = ['title' => 'Sales',"subtitle"=>"Dashboard",'partners'=>$partners,'TotalSale'=>round($TotalSale,0),
                       'MonthSale'=>round($MonthSale,0),'TotalSalesCount'=>$TotalSalesCount,'TotalSaleMonthCount'=>$TotalSaleMonthCount,
                      'scripts'=>[asset('page_js/pospJs/sales.js?v=0.01')],
                      ];
@@ -98,11 +87,13 @@ class SalesController extends Controller{
                     return $query->where('type', "=",$policyTypeTerm);
                 })
               ->when($searchTerm, function ($query, $searchTerm) {
-                 return $query->where('policy_no','LIKE', "%{$searchTerm}%")->orWhere('transaction_no', 'LIKE', "%{$searchTerm}%");
+                  return $query->where(function ($query) use($searchTerm) {
+                      $query->where('policy_no','LIKE', "%{$searchTerm}%")->orWhere('transaction_no', 'LIKE', "%{$searchTerm}%");
+                  });
               });
         
         
-        
+       // echo $query->toSql();die;
         //$query = DB::table("policy_saled")->where('agent_id', $id);
         
         //$query->select('*');
@@ -113,11 +104,11 @@ class SalesController extends Controller{
         $totalRecords =  DB::table("policy_saled")->where('agent_id', $id)->count();
         $result=[];$i=1;
          foreach($sales as $each){
-                 $supp =  DB::table('suppliers')->where('short',$each->provider)->value('name');
+                 $supp =  DB::table('our_partners')->where('shortName',$each->provider)->value('name');
                 // $hasCust =  DB::table('customers')->where('id',$each->customer_id)->count();
                 // if($hasCust){ $Cust =  DB::table('customers')->where('id',$each->customer_id)->first(); }
                  
-                $supplier  =  ($each->provider)?DB::table("suppliers")->where('short','=',$each->provider)->value('name'):"<span class='text-danger'>Not available</span>";
+              //  $supplier  =  ($each->provider)?DB::table("suppliers")->where('short','=',$each->provider)->value('name'):"<span class='text-danger'>Not available</span>";
                  
                 $file   =($each->filename!="")
                                         ?'<a href="'.url('get/download/file/policy-file/'.$each->filename).'">Download</a>'
@@ -175,7 +166,9 @@ class SalesController extends Controller{
                                 ->when($supp, function ($query, $supp) {
                                   return $query->where('provider', "LIKE","%{$supp}%");
                                 })->when($searchTerm, function ($query, $searchTerm) {
-                                     return $query->where('policy_no','LIKE', "%{$searchTerm}%")->orWhere('transaction_no', 'LIKE', "%{$searchTerm}%");
+                                     return $query->where(function ($query) use($searchTerm) {
+                                        $query->where('policy_no','LIKE', "%{$searchTerm}%")->orWhere('transaction_no', 'LIKE', "%{$searchTerm}%");
+                                     });
                                 })->count();
          
          
@@ -185,7 +178,9 @@ class SalesController extends Controller{
                                                        ->when($supp, function ($query, $supp) {
                                                           return $query->where('provider', "LIKE","%{$supp}%");
                                                         })->when($searchTerm, function ($query, $searchTerm) {
-                                                             return $query->where('policy_no','LIKE', "%{$searchTerm}%")->orWhere('transaction_no', 'LIKE', "%{$searchTerm}%");
+                                                             return $query->where(function ($query) use($searchTerm) {
+                                                                $query->where('policy_no','LIKE', "%{$searchTerm}%")->orWhere('transaction_no', 'LIKE', "%{$searchTerm}%");
+                                                            });
                                                         })->count();
                                               
          $data['TotalSale']=DB::table('policy_saled')->select(DB::raw('ROUND(SUM(amount),0) as TotalSale'))->whereBetween('date',[$frm,$to])
@@ -194,7 +189,9 @@ class SalesController extends Controller{
                                                       return $query->where('provider', "LIKE","%{$supp}%");
                                                    })
                                                 ->when($searchTerm, function ($query, $searchTerm) {
-                                                     return $query->where('policy_no','LIKE', "%{$searchTerm}%")->orWhere('transaction_no', 'LIKE', "%{$searchTerm}%");
+                                                        return $query->where(function ($query) use($searchTerm) {
+                                                            $query->where('policy_no','LIKE', "%{$searchTerm}%")->orWhere('transaction_no', 'LIKE', "%{$searchTerm}%");
+                                                         });
                                                  })
                                                 ->value('TotalSale');
          
@@ -206,7 +203,9 @@ class SalesController extends Controller{
                                                           return $query->where('provider', "LIKE","%{$supp}%");
                                                       })
                                                      ->when($searchTerm, function ($query, $searchTerm) {
-                                                      return $query->where('policy_no','LIKE', "%{$searchTerm}%")->orWhere('transaction_no', 'LIKE', "%{$searchTerm}%");
+                                                         return $query->where(function ($query) use($searchTerm) {
+                                                            $query->where('policy_no','LIKE', "%{$searchTerm}%")->orWhere('transaction_no', 'LIKE', "%{$searchTerm}%");
+                                                         });
                                                      })
                                                     ->value('MonthSale');
                                                     

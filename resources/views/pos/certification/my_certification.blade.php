@@ -20,7 +20,7 @@
 					<div class="row text-center">
     					 <div class="col-md-2 col-sm-2"></div>
     					 <div class="col-md-8 col-sm-8 alig-20">
-                               <iframe  class="scrollbar" id="style-1"src="{{asset('/assets/agents/pdf/certificate/'.$certification->file)}}#toolbar=0" width="100%" height="900px">
+                               <iframe  class="scrollbar" id="style-1"src="{{asset('/assets/agents/pdf/certificate/'.$certification->file)}}#toolbar=0" width="100%" height="900px"></iframe>
     					</div>
     					<div class="col-md-2 col-sm-2"></div>
     				</div>

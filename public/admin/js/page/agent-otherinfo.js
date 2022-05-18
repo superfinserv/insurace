@@ -51,17 +51,17 @@ $(function(){
          e.preventDefault();
           $('#tr_username-error').remove();$('#tr_pass-error').remove();
           var isValid = 0;
-          if($('#tr_username').val()==""){ isValid++;  $('#tr_username').parent().after('<span id="tr_username-error" class="error">This filed is required.</span>'); }
-          if($('#tr_pass').val()==""){ isValid++;  $('#tr_pass').parent().after('<span id="tr_pass-error" class="error">This filed is required.</span>');}
-          if(isValid==0){
+          if($('#tr_username').val()===""){ isValid++;  $('#tr_username').parent().after('<span id="tr_username-error" class="error">This filed is required.</span>'); }
+          if($('#tr_pass').val()===""){ isValid++;  $('#tr_pass').parent().after('<span id="tr_pass-error" class="error">This filed is required.</span>');}
+          if(isValid===0){
                $('.btn-send-tr-crd').loadButton('on',{ faClass:'fa',faIcon:'fa-spinner', doSpin:true, loadingText:'Sending..'});
                $.post(base_url+'/agent/send/tranning_info',{username:$('#tr_username').val(),pass:$('#tr_pass').val(),_agent:$('#_agent').val()},function(result){
-                $(".btn-send-tr-crd").loadButton('off');
-               if($.trim(result.status)=='success'){
-                   $('.agent-other-notify')._success(result.message); 
-                }else{
-                   $('.agent-other-notify')._error(result.message);  
-                } 
+                       $(".btn-send-tr-crd").loadButton('off');
+                       if($.trim(result.status)=='success'){
+                           $('.agent-other-notify')._success(result.message); 
+                        }else{
+                           $('.agent-other-notify')._error(result.message);  
+                        } 
             },'json')
           }
          
@@ -102,19 +102,22 @@ $(function(){
          }
      })
     
-    $(document).on('click', '#isTranningCompleted', function (e) { 
+    $(document).on('click', '#isTranningCompletedBtn', function (e) { 
           var id =$('#_agent').val();
-           $('#isTranningCompletedStatus').html('');
-          if($('#isTranningCompleted').is(":checked")){ $('#isTranningCompletedBody').show();var st = 'checked';
-          }else{ var st = 'unchecked'; }
-           $.get(base_url+"/agent/otherInfo/tranning-complete-status/"+id+"/"+st,function(resp) { 
-                   if($.trim(resp.status)=='success'){
-                       if(st=='unchecked'){ $('#isTranningCompletedBody').hide();}
-                      $('#isTranningCompletedStatus').html('<span class="text-success">'+resp.message+'</span>');
-                   }else{
-                       $('#isTranningCompletedStatus').html('<span class="text-error">'+resp.message+'</span>');
-                   }
-          },'json')
+          let st = "No"
+          if($('#isTranningCompleted').is(":checked")){
+              st = "Yes"
+          }
+                   $.post(base_url+"/agent/internal/status/manage/",{id:id,'param':'testStatus','status':st},function(resp) {
+                    if($.trim(resp.status)=='success'){
+                         notification($.trim(resp.status),resp.message);
+                    }else{
+                        notification($.trim(resp.status),resp.message);
+                    }
+                },'json');
+        //   }else{
+        //       notification('error',"Please check the checkbox to allow certification test.");
+        //   }
     })
     
    
@@ -149,7 +152,7 @@ $(function(){
  
     });
     
-   $('body').on('click','.uploadattach',function () {
+    $('body').on('click','.uploadattach',function () {
            var doc = $(this).attr('data-doc');
            var myfile = "";
             if(doc=='life_ins_cert'){  myfile = $('#new_life_ins_cert').val();}

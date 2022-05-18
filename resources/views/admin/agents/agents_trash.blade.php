@@ -60,21 +60,26 @@
                    </td>
                 </tr>
             </table>
-            <table id="agent-datatable" class="table table-bordered">
+            <table id="agent-trash-datatable" class="table table-bordered display">
               <thead>
                 <tr>
-                  <th class="wd-5p">#</th>
-                  <th class="wd-15p">Name</th>
-                  <th class="wd-10p">Mobile</th>
-                  <th class="wd-20p">Email</th>
-                  <th class="wd-12p">POSP ID</th>
-                  <th class="wd-10p">Certificate</th>
-                  <th class="wd-10p">Allow Test</th>
-                  <th class="wd-8p">Status</th>
-                  <th class="wd-10p">Action</th>
+                  <th rowspan="2" class="text-center th-v-middle">Icon</th>
+                  <th rowspan="2" class="text-center th-v-middle">Name</th>
+                  <th rowspan="2" class="text-center th-v-middle">Contact</th>
+                  <th colspan="2" class="text-center th-v-middle">Address</th>
+                  <th rowspan="2" class="text-center th-v-middle">Certificate</th>
+                  <th rowspan="2" class="text-center th-v-middle">Status</th>
+                  <th rowspan="2" class="text-center th-v-middle">Action</th>
+                </tr>
+                <tr>
+                    <th class="text-center th-v-middle" style="border-left: 1px solid #ccc;">City</th>
+                    <th class="text-center th-v-middle">State</th>
                 </tr>
               </thead>
-              <tbody></tbody>
+              
+              <tbody>
+                  
+              </tbody>
             </table>
         </div><!-- table-wrapper -->
      </div><!-- card-body -->

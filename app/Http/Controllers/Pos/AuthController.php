@@ -15,11 +15,13 @@ use Illuminate\Support\Facades\Hash;
 use Validator;
 use App\Model\Agents;
 use App\User;
-    use Illuminate\Foundation\Auth\AuthenticatesUsers;
-//use App\Utils\AppUtil;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use App\Utils\Notifications;
+use App\Utils\Posp;
 class AuthController extends Controller{
     public function __construct() { 
-       // $this->appUtil = $appUtil; 
+         $this->notify = new Notifications; 
+         $this->posp   =  new Posp;
         $this->middleware('guest')->except('logout');
         $this->middleware('guest:agents')->except('logout');
      }
@@ -173,14 +175,15 @@ class AuthController extends Controller{
                         $Posp->pincode=$request->pincode;
                         $Posp->account_holder_name = ucwords(strtolower($request->name));
                         $Posp->password=Hash::make($request->password);
+                        $Posp->application_no = $this->posp->GenerateApplicationId('POSP');
                     if($Posp->save()) {  
                         DB::table('agent_register_auth')->where('mobile',$request->mobile)->delete();
                         $users=Agents::find($Posp->id);
                         $arr = ['agent_id'=>$Posp->id];
                         DB::table("agent_bussness_info")->insertGetId($arr);
-                        $TEMP = getMailSmsInfo($Posp->id,'POSP_REGISTER');
-                        sendNotification($TEMP);
-                        userLog(['user_id'=>$Posp->id,'type'=>"POSP",'action'=>"POSP_REGISTER",'message'=>"Registered",'created_at'=>date('Y-m-d H:i:s')]);
+                        $TEMP = $this->notify->getMailSmsInfo($Posp->id,'POSP_REGISTER');
+                        $this->notify->sendNotification($TEMP);
+                        //userLog(['user_id'=>$Posp->id,'type'=>"POSP",'action'=>"POSP_REGISTER",'message'=>"Registered",'created_at'=>date('Y-m-d H:i:s')]);
                         //Auth::login($users, true);
                         if(Auth::guard('agents')->attempt(['mobile' =>$request->mobile,'password'=>$request->password],1)) { 
                         //if(Auth::guard('agents')->login($users,1)) { 

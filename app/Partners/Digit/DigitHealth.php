@@ -33,8 +33,14 @@ class DigitHealth{
     function getQuickPlans($range,$params,$devicetoken,$pln,$policytyp){
             if($range['start']==2){ $rangeARR = ['2'=>200000,'3'=>300000];}
             if(isset(Auth::guard('agents')->user()->posp_ID)){
-                 if($range['start']==4){ $rangeARR = ['4'=>400000,'5'=>500000];}
-            }else{
+                if(Auth::guard('agents')->user()->userType=="POSP"){ //For POSP
+                  if($range['start']==4){ $rangeARR = ['4'=>400000,'5'=>500000];}
+                }else{ //FOR SP
+                    if($range['start']==4){ $rangeARR = ['4'=>400000,'5'=>500000,'6'=>600000,'7'=>800000,'9'=>900000];}
+                    if($range['start']==10){ $rangeARR = ['10'=>1000000,'15'=>1500000];}
+                    if($range['start']==16){ $rangeARR = ['20'=>2000000,'25'=>2500000];}
+                }
+            }else{ // For customer
                 if($range['start']==4){ $rangeARR = ['4'=>400000,'5'=>500000,'6'=>600000,'7'=>800000,'9'=>900000];}
                 if($range['start']==10){ $rangeARR = ['10'=>1000000,'15'=>1500000];}
                 if($range['start']==16){ $rangeARR = ['20'=>2000000,'25'=>2500000];}
@@ -95,7 +101,7 @@ class DigitHealth{
           if($enQCode=="DSO01"){
               $Silver = $this->silver->createPolicy($enqId);
               return $Silver;
-          }else if($$enQCode=="DGO01"){
+          }else if($enQCode=="DGO01"){
                $Gold = $this->gold->createPolicy($enqId);
                return  $Gold;
           }else if($enQCode=="DDO01"){
@@ -203,14 +209,24 @@ class DigitHealth{
              $saledData['sp_id'] =0;
              $saledData['mobile_no'] =$data->customer_mobile;
              $saledData['agent_id'] =$data->agent_id;
-            
+             $saledData['sp_id'] =$data->sp_id;
              $saledData['payment_status'] = "Completed";
              $saledData['policy_status']  = "Completed";
              $saledData['amount'] = number_format((float)$premium->$termYear->Total_Premium, 2, '.', '');//$json_data->amount;
-           // $pdfData = $this->GetPDF($REQ['policyNumber']);
-           // $saledData['filename'] = ($pdfData->status)?$pdfData->filename:"";
-           // $saledData['proposal'] = ($pdfData->status)?$pdfData->proposal:"";
-            //$saledData['ecard'] = ($pdfData->status)?$pdfData->ecard:"";
+             $saledData['netAmt']=$data->netAmt;
+             $saledData['taxAmt']=$data->taxAmt;
+             $saledData['grossAmt']=$data->grossAmt;
+             $saledData['policyType'] = $data->policyType;
+             $saledData['reqQuote']=$data->reqQuote;
+             $saledData['respQuote']=$data->respQuote;
+             $saledData['reqRecalculate']=$data->reqRecalculate;
+             $saledData['respRecalculate']=$data->respRecalculate;
+             $saledData['reqCreate']=$data->reqCreate;
+             $saledData['respCreate']=$data->respCreate;
+             $saledData['reqSaveGenPolicy']=$data->reqSaveGenPolicy;
+             $saledData['respSaveGenPolicy']=$data->respSaveGenPolicy;
+             $saledData['startDate']=$data->startDate;
+             $saledData['endDate']=$data->endDate;
             if(!$isExist){
                 $saledData['enquiry_id'] =$tr->enquiry_id;
                 $refID = DB::table('policy_saled')->insertGetId($saledData);

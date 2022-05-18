@@ -571,6 +571,9 @@ class DigitBikeResource extends AppResource{
                                 'respQuote'=>$result,
                                 'reqRecalculate'=>$result,
                                 'respRecalculate'=>$result,
+                                'netAmt'=>str_replace(',','',str_replace('INR','',$response->netPremium)),
+                                'taxAmt'=>str_replace(',','',str_replace('INR','',$response->serviceTax->totalTax)),
+                                'grossAmt'=>str_replace(',','',str_replace('INR','',$response->grossPremium)),
                                 'json_data'=>json_encode($json_data),
                                 'req'=>json_encode($this->QuoteRequest),
                                 'resp'=>($result)];
@@ -818,14 +821,18 @@ class DigitBikeResource extends AppResource{
                            $hasZeroDep = false;
                            
                          if(isset($options['isPartDepProCover']) && $options['isPartDepProCover']=='true'){
-                             $hasZeroDep = true;
-                             foreach($subCovers_ZeroDep as $zpKey=>$zpcover){
-                               if($zpcover->name==$optionValues['partDepCoverval']){ //'Cover Unlimited Claims'
-                                   $subCovers_ZeroDep[$zpKey]->selection=true;
-                               }else{
-                                   $subCovers_ZeroDep[$zpKey]->selection=false; 
-                               }
-                             }
+                              $hasZeroDep = true;
+                              $subCovers_ZeroDep[0]->selection=false;
+                              $subCovers_ZeroDep[1]->selection=false;
+                              $subCovers_ZeroDep[2]->selection=false;
+                              $subCovers_ZeroDep[2]->selection=true;
+                            //  foreach($subCovers_ZeroDep as $zpKey=>$zpcover){
+                            //   if($zpcover->name=='Cover Unlimited Claims'){ //'Cover Unlimited Claims' //$optionValues['partDepCoverval']
+                            //       $subCovers_ZeroDep[$zpKey]->selection=true;
+                            //   }else{
+                            //       $subCovers_ZeroDep[$zpKey]->selection=false; 
+                            //   }
+                            //  }
                             
                          }else{
                              
@@ -972,8 +979,9 @@ class DigitBikeResource extends AppResource{
                         'call_type'=>"QUOTE",
                         'reqRecalculate'=>json_encode($_REQUEST),
                         'respRecalculate'=>$result,
-                        //'response'=>($result),
-                        //'json_recalculate'=>($result),
+                        'netAmt'=>str_replace(',','',str_replace('INR','',$response->netPremium)),
+                        'taxAmt'=>str_replace(',','',str_replace('INR','',$response->serviceTax->totalTax)),
+                        'grossAmt'=>str_replace(',','',str_replace('INR','',$response->grossPremium)),
                         'json_data'=>json_encode($json_data),
                         //'json_quote'=>($result),
                         'req'=>json_encode($_REQUEST),'resp'=>($result)];
@@ -1018,14 +1026,15 @@ class DigitBikeResource extends AppResource{
           $plan['idv'] = number_format(str_replace('INR','',$response->vehicle->vehicleIDV->idv));
           $_quoteData = ['quote_id'=>$response->enquiryId,'type'=>'BIKE','title'=>"Digit General Insurance",
                         'device'=>$deviceToken,'provider'=>'DIGIT',
-                       'min_idv'=>isset($response->vehicle->vehicleIDV->minimumIdv)?str_replace(',','',str_replace('INR','',$response->vehicle->vehicleIDV->minimumIdv)):0,
-                       'max_idv'=>isset($response->vehicle->vehicleIDV->maximumIdv)?str_replace(',','',str_replace('INR','',$response->vehicle->vehicleIDV->maximumIdv)):0,
+                        'min_idv'=>isset($response->vehicle->vehicleIDV->minimumIdv)?str_replace(',','',str_replace('INR','',$response->vehicle->vehicleIDV->minimumIdv)):0,
+                        'max_idv'=>isset($response->vehicle->vehicleIDV->maximumIdv)?str_replace(',','',str_replace('INR','',$response->vehicle->vehicleIDV->maximumIdv)):0,
                         'idv'    =>str_replace(',','',str_replace('INR','',$response->vehicle->vehicleIDV->idv)),
                         'call_type'=>"QUOTE",
                         'reqRecalculate'=>json_encode($_REQUEST),
                         'respRecalculate'=>$result,
-                        //'response'=>($result),
-                        //'json_recalculate'=>($result),
+                        'netAmt'=>str_replace(',','',str_replace('INR','',$response->netPremium)),
+                        'taxAmt'=>str_replace(',','',str_replace('INR','',$response->serviceTax->totalTax)),
+                        'grossAmt'=>str_replace(',','',str_replace('INR','',$response->grossPremium)),
                         'json_data'=>json_encode($json_data),
                         //'json_quote'=>($result),
                         'req'=>json_encode($options),'resp'=>($result)];
@@ -1214,12 +1223,15 @@ class DigitBikeResource extends AppResource{
               //$jsonData->hypothecationAgency =$options->customer->hypothecationAgency;
               $cust = isset($options->customer->first_name)?$options->customer->first_name." ".$options->customer->last_name:$options->customer->company;
               $quoteData = ['customer_name'=>$cust,
-                             'startDate'=>isset($response->contract->startDate)?$response->contract->startDate:NULL,
-                             'endDate'=>isset($response->contract->endDate)?$response->contract->endDate:NULL,
+                            'startDate'=>isset($response->contract->startDate)?$response->contract->startDate:NULL,
+                            'endDate'=>isset($response->contract->endDate)?$response->contract->endDate:NULL,
                             'proposalNumber'=>$response->contract->policyNumber,
                             'reqCreate'=>json_encode($REQUEST),
                             'respCreate'=>$result,
                             'json_data'=>json_encode($jsonData),
+                            'netAmt'=>str_replace(',','',str_replace('INR','',$response->netPremium)),
+                            'taxAmt'=>str_replace(',','',str_replace('INR','',$response->serviceTax->totalTax)),
+                            'grossAmt'=>str_replace(',','',str_replace('INR','',$response->grossPremium)),
                             'req'=>json_encode($REQUEST), 'resp'=>$result ];
               DB::table('app_quote')->where('enquiry_id', $enquiry_id)->update($quoteData);
               return ['status'=>true,'data'=>$enquiry_id];

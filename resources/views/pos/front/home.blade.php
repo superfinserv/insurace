@@ -27,7 +27,7 @@
 								    <h1>Sell Insurance Online</h1>
 									<h2 class="text-white" style="font-size: 34px;"> Anytime Anywhere</h2>
 									<div class="row mt-60">
-										<div class="col-md-6 col-sm-6 text-right"><a href="{{url('register')}}" style="padding: 15px 25px;" class="btn btn-default btn-lg btn-dfault-amt become-sign-btn">Sign Up</a></div>
+										<div class="col-md-6 col-sm-6 text-right"><a href="{{url('register')}}"  class="btn btn-default btn-lg btn-dfault-amt become-sign-btn">Sign Up</a></div>
 										<div class="col-md-6 col-sm-6">
 										<?php /*	<a href="#"><img src="{{asset('site_assets/img/icon-google-play.svg')}}"></a> */?>
 										</div>

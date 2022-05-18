@@ -25,7 +25,7 @@ Route::post('verifyotp', 'Pos\AuthController@verifyOtp');
 Route::post('isuserexist', 'Pos\AuthController@getCheckEmail');
 Route::post('isuserexistmobile', 'Pos\AuthController@getCheckMobile');
 Route::post('isuserexistmobilecheck', 'Pos\AuthController@getCheckMobileno');
-Route::post('become-agent/agentDetails', 'Pos\AuthController@agentDetails');
+Route::post('become-agent/agentDetails', 'Pos\AuthController@register');
 Route::get('/logout','Pos\AuthController@logout')->name('logout');
 
         //Get Comman Master Data Route
@@ -120,7 +120,7 @@ Route::post('/sales-dashbord/get-dashboard-counts', 'Pos\SalesController@getDash
   
    Route::get('twowheeler-insurance', 'Motor\Twinsurance@index')->name('twowheeler-insurance');
     Route::get('twowheeler-insurance-detail/', 'Motor\Twinsurance@insuranceDetails');
-    Route::group(['middleware' => 'auth:customers'], function() {
+   // Route::group(['middleware' => 'auth:customers'], function() {
     Route::get('twowheeler-insurance/registration-number/', 'Motor\Twinsurance@regNumber');
         Route::get('twowheeler-insurance/registration-location', 'Motor\Twinsurance@registrationLocation');
         Route::get('twowheeler-insurance/brand', 'Motor\Twinsurance@brand');
@@ -141,13 +141,13 @@ Route::post('/sales-dashbord/get-dashboard-counts', 'Pos\SalesController@getDash
         Route::get('twowheeler-insurance/plan-summary/{enquiryID}', 'Motor\Twinsurance@plan_summary');
         Route::post('twowheeler-insurance/upload-files/{enquiryID}', 'Motor\Twinsurance@uploadFiles');
         Route::post('twowheeler-insurance/connect-to-insurer', 'Motor\Twinsurance@connectToinsurer');
-   });
+   //});
     
     
     //CAR INSURANCE
     Route::get('car-insurance', 'Motor\Carinsurance@index')->name('car-insurance');
     Route::get('car-insurance-detail/', 'Motor\Carinsurance@insuranceDetails');
-    Route::group(['middleware' => 'auth:customers'], function() {
+   // Route::group(['middleware' => 'auth:customers'], function() {
             Route::get('car-insurance/registration-number/', 'Motor\Carinsurance@regNumber');
          
             Route::get('car-insurance/registration-location', 'Motor\Carinsurance@registrationLocation');
@@ -175,14 +175,14 @@ Route::post('/sales-dashbord/get-dashboard-counts', 'Pos\SalesController@getDash
             Route::get('car-insurance/plan-summary/{enquiryID}', 'Motor\Carinsurance@plan_summary');
            // Route::post('car-insurance/upload-files/{enquiryID}', 'Motor\Carinsurance@uploadFiles');
             Route::post('car-insurance/connect-to-insurer', 'Motor\Carinsurance@connectToinsurer');
-    });
+  //  });
     
     
     /*  HEALTH INSURANCE */
     Route::get('health-insurance', 'Health\Healthinsurance@index')->name('health-insurance');
     
     Route::get('health-insurance-detail', 'Health\Healthinsurance@health_insurance_detail')->name('health-insurance-detail');
-    Route::group(['middleware' => 'auth:customers'], function() { 
+     
         Route::get('health-insurance/health-profile', 'Health\Healthinsurance@healthProfile');
          
         Route::get('health-insurance/health-profile-members', 'Health\Healthinsurance@healthProfileMembers');
@@ -211,18 +211,20 @@ Route::post('/sales-dashbord/get-dashboard-counts', 'Pos\SalesController@getDash
         
         Route::get('health-insurance/declaration/{enquiryID}', 'Health\Healthinsurance@proposalDeclaration');
         Route::get('health-insurance/get-pay-data/{enquiryID}', 'Health\Healthinsurance@getPayData');
-     });
+     
      
      
      //After policy Success
    // Route::any('moter-insurance/insured-success/{type}/{enquiryID?}', 'SuccessController@moterTransactionUpdate');//Moter
    // Route::any('health-insurance/insured-success/{enquiryID}', 'SuccessController@healthtransactionupdate');//Health
-    Route::get('policy/success/{type}/{enquiryID}','SuccessController@successPage');
+    
+    
+    
+});
+
+     Route::get('policy/success/{type}/{enquiryID}','SuccessController@successPage');
     Route::get('policy/cancel/{enquiryID}','SuccessController@cancelPage');
     
     //Cancel for HDFC ERGO
     Route::any('insurance/policy/cancel/{enquiryID}','SuccessController@hdfcErgocancelPage');
-    
-    
-});
 ?>

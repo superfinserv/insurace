@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => '9babb4527be673a7376e6c554e742ce08d6d4867',
+    'reference' => '358f9029f2f59c5538368d64591d2653c9ea11a8',
     'name' => 'laravel/laravel',
   ),
   'versions' => 
@@ -494,7 +494,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => '9babb4527be673a7376e6c554e742ce08d6d4867',
+      'reference' => '358f9029f2f59c5538368d64591d2653c9ea11a8',
     ),
     'laravel/passport' => 
     array (
@@ -1081,12 +1081,30 @@
       ),
       'reference' => 'cd4032040a750077205918c86049aa0f43d22947',
     ),
+    'razorpay/razorpay' => 
+    array (
+      'pretty_version' => 'v2.8.3',
+      'version' => '2.8.3.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '1ae60f9142f63cb01e6f9b843dd0a3573976fd40',
+    ),
     'rhumsaa/uuid' => 
     array (
       'replaced' => 
       array (
         0 => '4.1.1',
       ),
+    ),
+    'rmccue/requests' => 
+    array (
+      'pretty_version' => '2.0.2',
+      'version' => '2.0.2.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => 'b01ce7c91657d604f298751686d7f5eec87b9493',
     ),
     'sabberworm/php-css-parser' => 
     array (

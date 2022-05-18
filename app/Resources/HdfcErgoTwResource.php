@@ -7,7 +7,7 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Client;
 use Meng\AsyncSoap\Guzzle\Factory;
 use Carbon\Carbon;
-
+use Auth;
 class HdfcErgoTwResource extends AppResource{ 
     
  
@@ -578,9 +578,9 @@ class HdfcErgoTwResource extends AppResource{
                                 'respQuote'=>$result,
                                 'reqRecalculate'=>$result,
                                 'respRecalculate'=>$result,
-                                
-                               // 'response'=>($result),
-                               // 'json_quote'=>($result),
+                                'netAmt'=>str_replace(',','',str_replace('INR','',$response->Data[0]->NetPremiumAmount)),
+                                'taxAmt'=>str_replace(',','',str_replace('INR','',$response->Data[0]->TaxAmount)),
+                                'grossAmt'=>str_replace(',','',str_replace('INR','',$response->Data[0]->TotalPremiumAmount)),
                                 'json_data'=>json_encode($json_data),
                                 'req'=>json_encode($request),'resp'=>($result)];
               DB::table('app_temp_quote')->where(['type'=>'BIKE','device'=>$deviceToken,'provider'=>'HDFCERGO'])->delete();
@@ -659,8 +659,9 @@ class HdfcErgoTwResource extends AppResource{
                                 'call_type'=>"QUOTE",
                                  'reqRecalculate'=>json_encode($request),
                                  'respRecalculate'=>$result,
-                                //'response'=>($result),
-                                //'json_quote'=>($result),
+                                'netAmt'=>str_replace(',','',str_replace('INR','',$response->Data[0]->NetPremiumAmount)),
+                                'taxAmt'=>str_replace(',','',str_replace('INR','',$response->Data[0]->TaxAmount)),
+                                'grossAmt'=>str_replace(',','',str_replace('INR','',$response->Data[0]->TotalPremiumAmount)),
                                 'json_data'=>json_encode($json_data),
                                 'req'=>json_encode($request),'resp'=>($result)];
                                 
@@ -797,9 +798,9 @@ class HdfcErgoTwResource extends AppResource{
        $proposalDetails->RegistrationNo = $vehicleNo;
        $proposalDetails->EngineNo =  ($params->vehicle->engineNumber)?$params->vehicle->engineNumber:null;
        $proposalDetails->ChassisNo = ($params->vehicle->chassisNumber)?$params->vehicle->chassisNumber:null;
-       $proposalDetails->NetPremiumAmount = (int)$jData->net;
-       $proposalDetails->TotalPremiumAmount =(int)$jData->gross;
-       $proposalDetails->TaxAmount = (int)$jData->tax;
+       $proposalDetails->NetPremiumAmount = (int)$enQ->netAmt;
+       $proposalDetails->TotalPremiumAmount =(int)$enQ->grossAmt;
+       $proposalDetails->TaxAmount = (int)$enQ->taxAmt;
        $isNom = (isset($subcovr->isPA_OwnerDriverCover) && $subcovr->isPA_OwnerDriverCover=='true')?true:false;
        $nomineeRelation = ['BROTHER'=>'Sibling','HUSBAND'=>'Spouse','GRAND_FATHER'=>'','GRAND_MOTHER'=>'','FATHER_IN_LAW'=>'','MOTHER_IN_LAW'=>'Mother','MOTHER'=>'Mother','SISTER'=>'Sibling','SON'=>'Son','DAUGHTER'=>'Daughter','FATHER'=>'Father','SPOUSE'=>'Spouse'];
         if($params->vehicle->policyHolder=="IND" && $isNom){ 
@@ -863,7 +864,7 @@ class HdfcErgoTwResource extends AppResource{
         $customerDetails->MobileNumber= (int)$params->customer->mobile;
         $customerDetails->PanCard= "";
        
-        $customerDetails->PospCode= "";
+        $customerDetails->PospCode= (isset(Auth::guard('agents')->user()->id))?Auth::guard('agents')->user()->posp_ID:"";
         $customerDetails->IsCustomerAuthenticated= "YES";
         $customerDetails->UidNo= "";
         $customerDetails->AuthentificationType= "";
@@ -1014,8 +1015,6 @@ class HdfcErgoTwResource extends AppResource{
                  return ['status'=>false,'message'=>'Internal error while get policy copy'];
           }
     } 
-    
-    
     
    function bugReport(){
         $request =  new \stdClass(); 

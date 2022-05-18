@@ -81,7 +81,7 @@ $(document).ready(function(){
             $.post(base_url+"/sales-dashbord/get-dashboard-counts",postData,function(result){
                  $('#TotalSale').text(result.TotalSale);
                  //$('#MonthSale').text(result.MonthSale); 
-                 $('#TotalSalesCount').text(result.TotalSalesCount+'/'.result.TotalSaleMonthCount);
+                 $('#TotalSalesCount').text(result.TotalSalesCount+'/'+result.TotalSaleMonthCount);
                 // $('#collateral_total').text(result.collateral_total); 
                 // $('#net_total').text(result.net_total);
                 

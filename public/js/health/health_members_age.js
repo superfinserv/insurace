@@ -4,8 +4,8 @@ var agegroup2 = '<option value="">Select age</option>';
 var agegroup3 = '<option value="">Select age</option>';
 $(window).on('load', function(){
     for(var a1=1;a1<=24;a1++){  agegroup1 +='<option value="'+a1+'">'+a1+' Yr</option>';}
-    for(var a2=18;a2<=90;a2++){ agegroup2 +='<option value="'+a2+'">'+a2+' Yr</option>';}
-    for(var a3=40;a3<=90;a3++){ agegroup3 +='<option value="'+a3+'">'+a3+' Yr</option>';}
+    for(var a2=18;a2<=99;a2++){ agegroup2 +='<option value="'+a2+'">'+a2+' Yr</option>';}
+    for(var a3=40;a3<=99;a3++){ agegroup3 +='<option value="'+a3+'">'+a3+' Yr</option>';}
     if(localStorage.getItem("healthInfo")){ 
        healthInfo = JSON.parse(localStorage.getItem('healthInfo'));
      //  console.log("agegroup1",healthInfo);

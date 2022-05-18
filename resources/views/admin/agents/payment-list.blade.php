@@ -4,6 +4,25 @@
       .dataTables_filter{
           display:none;
       }
+      
+      #agent-payment-datatable.dataTable td.reorder {
+            text-align: center;
+            cursor: move;
+        }
+        
+        table.dataTable thead .sorting_desc , table.dataTable thead .sorting_asc,table.dataTable thead .sorting {
+            background-image: unset;
+         }
+         
+        table thead th {
+            vertical-align: middle !important;
+        }
+        
+        table tbody tr td{
+           font-size: 13px;
+           letter-spacing: 0.5px;
+           vertical-align: middle !important;
+        }
   </style> 
    <div class="agent-list-notify"></div>
   
@@ -23,6 +42,9 @@
          <div class="table-wrapper">
             <table class="table table-bordered filter-table ">
                 <tr>
+                    <td style="width:20%">
+                       
+                   </td>
                     <td style="width:20%">
                         <div class="input-group">
                          <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-search"></i></span></div>
@@ -44,7 +66,7 @@
                   
                 </tr>
             </table>
-            <table id="agent-payment-datatable" class="table table-bordered">
+            <table id="agent-payment-datatable" class="table table-bordered display">
               <thead>
                 <tr>
                   <th>#</th>

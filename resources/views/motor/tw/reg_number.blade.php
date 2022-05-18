@@ -48,25 +48,17 @@
 						</div>
 						@else
 						 <div class="row">
-    							<div class="col-md-2 col-sm-12"></div>
-    							<div class="col-md-4 col-sm-12">
-    							    <input type="text" name="mobileNumber" id="mobileNumber" class="form-control" placeholder="Customer Mobile No.">  
-    							</div>
-    							<div class="col-md-4 col-sm-12">
-    								<input class="form-control vehicleRegNumber" type="text" name="bikenumber" id="bikenumber" placeholder="Enter Bike Number (MH02BX0377)" >
-    								<div id="errors"></div>
-    								<br>
-    							</div>
-    							<div class="col-md-2 col-sm-12"></div>
-    						</div>
-    						<div class="row">
-    						 <div class="col-md-2 col-sm-12"></div>
-    						 	<div class="col-md-8 col-sm-12">
-            						<a href="#" style="width:50%;display: inline-block;" id="hasNewBike" class="car-btn1">Bought a new bike? <span class="car-btn3">Click here</span></a>
-            						<a href="#" style="width: 50%;float: right;text-align: right; display: inline-block;" id="withoutBikeNo" class="car-btn1" style=""><span class="car-btn3">Proceed without Bike Number <i style="font-size: 15px;" class="fa fa-angle-right" aria-hidden="true"></i></span></a>
-    						    </div>
-    						 <div class="col-md-2 col-sm-12"></div>
-    						</div>	
+							<div class="col-md-3 col-sm-3"></div>
+							<div class="col-md-6 col-sm-6">
+								<input type="text" class="form-control vehicleRegNumber text-center" name="bikenumber" id="bikenumber" placeholder="Enter Bike Number (eg.-MH02BX0377)" class="car-nmbr">
+								<div id="errors" style="color: red"></div>
+								<a href="#" style="width: 50%;display: inline-block;font-weight: 600;" id="hasNewBike" class="car-btn1">Bought a new bike? <span class="car-btn3">Click here</span></a>
+								<a href="#" style="width:50%;display: inline-block;float: right;text-align: right;font-weight: 600;"  id="withoutBikeNo" class="car-btn1" style=""><span class="car-btn3">Proceed without Bike Number <i style="font-size: 15px;" class="fa fa-angle-right" aria-hidden="true"></i></span></a>
+								<br>
+                            </div>
+							<div class="col-md-3 col-sm-3"></div>
+							
+						</div>	
 						@endif
 						<div class="row term-iso-mt health-pro-a" style="padding: 20px 0 0px;">
 			              <div class="col-md-5 col-sm-12"></div>

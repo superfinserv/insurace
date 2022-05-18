@@ -112,6 +112,10 @@ class DigitSilver{
                                         'call_type'=>"QUOTE",
                                         'reqQuote'=>json_encode($request),
                                         'respQuote'=>$response,
+                                        'netAmt'=>str_replace(',','',str_replace('INR','',$resp->premium->netPremium)),
+                                        'taxAmt'=>str_replace(',','',str_replace('INR','',$resp->premium->totalTax)),
+                                        'grossAmt'=>str_replace(',','',str_replace('INR','',$resp->premium->grossPremium)),
+                                        
                                         'req'=>json_encode($request),'resp'=>($response)];
                           DB::table('app_temp_quote')->insertGetId($quoteData);
                          return ['status'=>true,'data'=>$plan];
@@ -251,9 +255,14 @@ class DigitSilver{
                           'amounts'=>json_encode($jsonAmtArr),
                           'termYear'=>$termYear,
                           'zone'=>$zone,
-                           'reqQuote'=>json_encode($request),
-                          'respQuote'=>$response,
+                          'reqQuote'=>json_encode($request),
+                           'respQuote'=>$response,
+                          'reqRecalculate'=>json_encode($request),
+                          'respRecalculate'=>$response,
                           'sumInsured->shortAmt'=>$sum,
+                          'netAmt'=>str_replace(',','',str_replace('INR','',$resp->premium->netPremium)),
+                          'taxAmt'=>str_replace(',','',str_replace('INR','',$resp->premium->totalTax)),
+                          'grossAmt'=>str_replace(',','',str_replace('INR','',$resp->premium->grossPremium)),
                           'sumInsured->longAmt'=>$sumInsured];
                         DB::table('app_quote')->where('enquiry_id', $enqData->enquiry_id)->update($quoteData);
                        // return ['status'=>true,'message'=>'success'];
@@ -538,24 +547,31 @@ class DigitSilver{
                       $json->paymentLink = $resp->paymentLink;
                       $json->amount = $amt;
                       $json->zone = $enqData->zone;
+                      $period = timePeriod('Y-m-d',$request->contract->policyPeriod,$request->contract->startDate);
                       DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enq)
                                             ->update([ 'proposalNumber'=>$resp->policyNumber,
                                                        'reqCreate'=>json_encode($request),
                                                        'respCreate'=>$response,
-                                                       'premiumAmount'=>$amt,'token'=>$resp->policyNumber,
+                                                       'startDate'=>$request->contract->startDate,
+                                                       'endDate'=>$period->endDate,
+                                                       'premiumAmount'=>$amt,
+                                                       'netAmt'=>str_replace(',','',str_replace('INR','',$resp->premium->netPremium)),
+                                                       'taxAmt'=>str_replace(',','',str_replace('INR','',$resp->premium->totalTax)),
+                                                       'grossAmt'=>str_replace(',','',str_replace('INR','',$resp->premium->grossPremium)),
+                                                       'token'=>$resp->policyNumber,
                                                        'json_data'=>json_encode($json)]);
                       $result = ['status'=>'success','message'=>"Policy number generated",'data'=>$data];
                 }else{
                      DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enq)
-                                            ->update([ 'json_create'=>json_encode($request),
-                                                       'json_resp'=>$response,
+                                            ->update([ 'reqCreate'=>json_encode($request),
+                                                       'respCreate'=>$response,
                                                        ]);
                     $result = ['status'=>'error','message'=>$resp->error->errorMessage,'data'=>[]];
                 }
              }else{
                  DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enq)
-                                            ->update([ 'json_create'=>json_encode($request),
-                                                       'json_resp'=>$response,
+                                            ->update([ 'reqCreate'=>json_encode($request),
+                                                       'respCreate'=>$response,
                                                        ]);
                 $result = ['status'=>'error','message'=>"Somethig went wrong, try again",'data'=>[]]; 
              }

@@ -564,8 +564,9 @@ class DigitCarResource extends AppResource{
                                 'respQuote'=>$result,
                                 'reqRecalculate'=>$result,
                                 'respRecalculate'=>$result,
-                               // 'response'=>($result),
-                                //'json_quote'=>($result),
+                                'netAmt'=>str_replace(',','',str_replace('INR','',$response->netPremium)),
+                                'taxAmt'=>str_replace(',','',str_replace('INR','',$response->serviceTax->totalTax)),
+                                'grossAmt'=>str_replace(',','',str_replace('INR','',$response->grossPremium)),
                                 'json_data'=>json_encode($json_data),
                                 'req'=>json_encode($this->QuoteRequest),'resp'=>($result)];
                   
@@ -805,7 +806,7 @@ class DigitCarResource extends AppResource{
                                                $subCovers_ZeroDep[1]->selection=false;$subCovers_ZeroDep[1]->coverOfferingType="PACKAGE";
                                                $subCovers_ZeroDep[2]->selection=false;$subCovers_ZeroDep[2]->coverOfferingType="PACKAGE";
                                                $Indx = (int)$optionValues['partDepCoverval'];
-                                               $subCovers_ZeroDep[$Indx]->selection=true;
+                                               $subCovers_ZeroDep[2]->selection=true;
                                           }else{
                                               $subCovers_ZeroDep[0]->selection=true;
                                           }
@@ -1203,8 +1204,9 @@ class DigitCarResource extends AppResource{
                                 'call_type'=>"QUOTE",
                                 'reqRecalculate'=>json_encode($_REQUEST),
                                 'respRecalculate'=>$result,
-                               // 'response'=>($result),
-                               // 'json_recalculate'=>($result),
+                                'netAmt'=>str_replace(',','',str_replace('INR','',$response->netPremium)),
+                                'taxAmt'=>str_replace(',','',str_replace('INR','',$response->serviceTax->totalTax)),
+                                'grossAmt'=>str_replace(',','',str_replace('INR','',$response->grossPremium)),
                                 'json_data'=>json_encode($json_data),
                                 'req'=>json_encode($_REQUEST),'resp'=>($result)];
                        $quoteID = DB::table('app_temp_quote')->where('quote_id',$quoteData->quote_id)->update($_quoteData);
@@ -1273,8 +1275,9 @@ class DigitCarResource extends AppResource{
                         'call_type'=>"QUOTE",
                         'reqRecalculate'=>json_encode($_REQUEST),
                         'respRecalculate'=>$result,
-                        //'response'=>($result),
-                      //  'json_recalculate'=>($result),
+                        'netAmt'=>str_replace(',','',str_replace('INR','',$response->netPremium)),
+                        'taxAmt'=>str_replace(',','',str_replace('INR','',$response->serviceTax->totalTax)),
+                        'grossAmt'=>str_replace(',','',str_replace('INR','',$response->grossPremium)),
                         'json_data'=>json_encode($json_data),
                         //'json_quote'=>($result),
                         'req'=>json_encode($_REQUEST),'resp'=>($result)];
@@ -1482,6 +1485,9 @@ class DigitCarResource extends AppResource{
                               'proposalNumber'=>$response->contract->policyNumber,
                               'reqCreate'=>json_encode($REQUEST),
                               'respCreate'=>$result,
+                              'netAmt'=>str_replace(',','',str_replace('INR','',$response->netPremium)),
+                              'taxAmt'=>str_replace(',','',str_replace('INR','',$response->serviceTax->totalTax)),
+                              'grossAmt'=>str_replace(',','',str_replace('INR','',$response->grossPremium)),
                               'json_data'=>json_encode($jsonData),
                               'req'=>json_encode($REQUEST), 'resp'=>$result ];
                 if($response->motorBreakIn->isBreakin===true){

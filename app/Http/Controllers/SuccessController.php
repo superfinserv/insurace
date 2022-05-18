@@ -21,7 +21,9 @@ use App\Resources\FgiTwResource;
 use App\Partners\Care\Care;
 use App\Partners\Manipal\Manipal;
 use App\Partners\Digit\DigitHealth;
-    
+
+
+
 class SuccessController extends Controller{
     public $uniqueToken;
     public function __construct() { 
@@ -34,6 +36,7 @@ class SuccessController extends Controller{
        $this->Care =   new Care;
        $this->Manipal  =  new Manipal;
        $this->DigitHealth  =  new DigitHealth;
+       
    }
    
     
@@ -52,7 +55,7 @@ class SuccessController extends Controller{
                               $url = config('custom.posp_site_url').'/policy/success/'.$res->provider.'/'.$res->enq;
                               return redirect($url);
                       }else{
-                           return redirect('policy/success/'.$res->provider.'/'.$res->enq);
+                             return redirect('policy/success/'.$res->provider.'/'.$res->enq);
                       }
                   }else{
                      echo "<p style='text-align:center'>".$res->message."</p>";
@@ -75,14 +78,16 @@ class SuccessController extends Controller{
                      $saledData['policy_no'] =$_REQUEST['PolicyNo'];
                      $saledData['startDate']=$data->startDate;
                      $saledData['endDate']=$data->endDate;
-                     $saledData['sp_id'] =0;
+                     $saledData['sp_id'] =$data->sp_id;
                      $saledData['mobile_no'] =$data->customer_mobile;
                      $saledData['agent_id'] =$data->agent_id;
                     
                      $saledData['payment_status'] = "Completed";
                      $saledData['policy_status'] = "Completed";
                      $saledData['amount'] = $json_data->amount;
-                     
+                      $saledData['netAmt']=$data->netAmt;
+                      $saledData['taxAmt']=$data->taxAmt;
+                     $saledData['grossAmt']=$data->grossAmt;
                     // $saledData['filename'] = ($pdfData->status)?$pdfData->filename:"";
                         if(!$isExist){
                             $saledData['enquiry_id'] =$data->enquiry_id;
@@ -125,8 +130,10 @@ class SuccessController extends Controller{
                  $saledData['sumInsured'] = $json_data->sumInsured;
                  $saledData['product_info'] = json_encode(['title'=>$data->title,'code'=>$data->code,'code'=>$data->code,'product'=>$data->product,'policyType'=>$data->policyType,'zone'=>$data->zone]);
                  $saledData['premium_info'] = json_encode($premium->{$data->termYear});
-                 
-                 $saledData['sp_id'] =0;
+                  $saledData['netAmt']=$data->netAmt;
+                 $saledData['taxAmt']=$data->taxAmt;
+                 $saledData['grossAmt']=$data->grossAmt;
+                 $saledData['sp_id'] =$data->sp_id;
                  $saledData['mobile_no'] =$data->customer_mobile;
                  $saledData['agent_id'] =$data->agent_id;
                  $saledData['reqQuote']=$data->reqQuote;
@@ -143,8 +150,10 @@ class SuccessController extends Controller{
                  $saledData['transaction_no'] =$_POST['txnid'];
                  $saledData['policy_no'] = $_POST['udf4'];
                  $saledData['amount'] = $_POST['amount'];
-                 
-                 $saledData['sp_id'] =0;
+                  $saledData['netAmt']=$data->netAmt;
+                 $saledData['taxAmt']=$data->taxAmt;
+                 $saledData['grossAmt']=$data->grossAmt;
+                 $saledData['sp_id'] =$data->sp_id;
                  $saledData['mobile_no'] =$data->customer_mobile;
                  $saledData['agent_id'] =$data->agent_id;
                 
@@ -235,13 +244,16 @@ class SuccessController extends Controller{
                          "customer_id"=>($enQ->customer_id)?$enQ->customer_id:0,
                          'agent_id'=>$enQ->agent_id,
                          'params'=>$enQ->params_request,
-                         'sp_id' =>0,
+                         'sp_id' =>$enQ->sp_id,
                         'startDate'=>$enQ->startDate,
                          'endDate'=>$enQ->endDate,
                          'enquiry_id' =>$enQ->enquiry_id,
                          'transaction_no'=>$enQ->token,
                          'policy_no'=>($pData['status'])?$pData['data']:"",
                          'amount'=>$enQ->premiumAmount,
+                         'netAmt'=>$enQ->netAmt,
+                         'taxAmt'=>$enQ->taxAmt,
+                          'grossAmt'=>$enQ->grossAmt,
                         'payment_status' => "Completed",
                         'policy_status'  => ($pData['status'])?"Completed":"Pending",
                         'reqQuote'=>$enQ->reqQuote,
@@ -266,8 +278,7 @@ class SuccessController extends Controller{
                           $url = config('custom.posp_site_url').'/policy/success/'.$enQ->provider.'/'.$enQ->enquiry_id;
                           return redirect($url);
                       }else{
-                          // echo "Yes";
-                           return redirect('policy/success/'.$enQ->provider.'/'.$enQ->enquiry_id);
+                          return redirect('policy/success/'.$enQ->provider.'/'.$enQ->enquiry_id);
                       }
                
            }else if($request->enquiryID!=""){
@@ -286,7 +297,7 @@ class SuccessController extends Controller{
                          "customer_id"=>($info->customer_id)?$info->customer_id:0,
                          'agent_id'=>$info->agent_id,
                          'params'=>$info->params_request,
-                         'sp_id' =>0,
+                         'sp_id' =>$info->sp_id,
                          'startDate'=>$info->startDate,
                          'endDate'=>$info->endDate,
                          'reqQuote'=>$info->reqQuote,
@@ -294,7 +305,10 @@ class SuccessController extends Controller{
                     	 'reqRecalculate'=>$info->reqRecalculate,
                     	 'respRecalculate'=>$info->respRecalculate,
                     	 'reqCreate'=>$info->reqCreate,
-                    	 'respCreate'=>$info->respCreate
+                    	 'respCreate'=>$info->respCreate,
+                    	 'netAmt'=>$info->netAmt,
+                         'taxAmt'=>$info->taxAmt,
+                         'grossAmt'=>$info->grossAmt,
                        ];
              if($info->provider=="DIGIT"){
                  $saledData['getway_response']= json_encode(["transactionNumber"=>$request->input('transactionNumber')]);
@@ -342,12 +356,12 @@ class SuccessController extends Controller{
     }
     
     function successPage(Request $request){
-         
+        
           $data = DB::table('policy_saled')->where('enquiry_id',$request->enquiryID)->first();
           $insurer = DB::table('our_partners')->where('shortName',$data->provider)->value('name');
           $isAgent = ($data->agent_id>0)?true:false;
          
-        
+         //echo  date('Y-m-d H:i:s');
           $template = ['title' => 'Super Finserv',"subtitle"=>"Policy success",'isAgent'=>$isAgent,'data'=>$data,'insurer'=>$insurer,
                         'policyno'=>$data->policy_no,'trno'=>$data->transaction_no,
                         'filename'=>$data->filename ,'scripts'=>[asset('page_js/success-page.js')]];
@@ -498,7 +512,7 @@ class SuccessController extends Controller{
     <body>
         <div class="flex-center position-ref full-height">
                <div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
-               <p style="text-align:center;color:#AC0F0B">Transaction is being updating ,please wait....</p>
+               <p style="text-align:center;color:#AC0F0B;font-weight:400">Transaction is being updating ,please wait....</p>
                <p style="text-align:center;color:#AC0F0B">Please do not hit refresh or back button or close this window.</p>
         </div>
      </body></html>';
@@ -770,7 +784,7 @@ class SuccessController extends Controller{
                         </div>
                     </div>
                 </div>
-               <p style="text-align:center;color:#AC0F0B">The transaction is being updated, please wait...</p>
+               <p style="text-align:center;color:#AC0F0B;font-weight: 400;">The transaction is being updated, please wait...</p>
                <p style="text-align:center;color:#AC0F0B">Please do not hit the refresh or back button or close this window.</p>
         </div>
      </body>

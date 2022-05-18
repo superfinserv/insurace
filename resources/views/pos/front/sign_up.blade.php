@@ -153,8 +153,7 @@ text-shadow: inherit;
                                     <div class="row no-gutters">
                                         <div class="col-12 col-sm">
                                             <div class="input-wrp">
-                                                <!--onkeypress="return /\d/.test(String.fromCharCode(((event||window.event).which||(event||window.event).which)));"-->
-                                                <input class="textfield word-uppercase textfield--grey" placeholder="PAN Number" name="panNo" maxlength="10" id="panNo"  autocomplete="off" />
+                                                <input class="textfield textfield--grey" placeholder="Mobile Number..." name="mobile" maxlength="10" id="mobile" onkeypress="return /\d/.test(String.fromCharCode(((event||window.event).which||(event||window.event).which)));" autocomplete="off" />
                                             </div>
                                         </div>
                                         <div class="col-12 col-sm-auto">

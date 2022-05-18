@@ -50,31 +50,28 @@ $(function(){
                 "processing": true,
                 "serverSide": true,
                "ajax": {
-                    "url": base_url+"/agents/getAgentsdatatable",
+                    "url": base_url+"/agents/datatable",
                      "type": "POST",
                 },
                 "columns": [
-                    { "data": "sno","orderable":false},
+                    { "data": "icon","orderable":false},
                     {"data" : "name","orderable":false},
-                    {"data" : "mobile","orderable":false},
-                    {"data" : "email","orderable":false},
-                    {"data" : "code","orderable":false},
+                    {"data" : "contact","orderable":false},
+                    {"data" : "city","orderable":false},
+                    {"data" : "state","orderable":false},
                     {"data" : "certificate_link","orderable":false},
-                    {"data" : "isTestAllow","orderable":false},
                     {"data" : "status","orderable":false},
                     { "data": "action" ,"orderable":false}
                 ],
                 "columnDefs": [
-                    { "width": "3%", "targets": 0 },
+                    { "width": "3%", "targets": 0 ,'className':'text-center'},
                     { "width": "15%", "targets": 1 },
-                    { "width": "7%", "targets": 2 },
-                    { "width": "20%", "targets": 3 },
-                    { "width": "10%", "targets": 4 },
-                    { "width": "10%", "targets": 5 },
-                    { "width": "10%", "targets": 6 },
-                    { "width": "10%", "targets": 7 },
-                    { "width": "10%", "targets": 8 },
-                 
+                    { "width": "12%", "targets": 2 },
+                    { "width": "10%", "targets": 3 ,'className':'text-center'},
+                    { "width": "15%", "targets": 4 ,'className':'text-center'},
+                    { "width": "10%", "targets": 5,'className':'text-center' },
+                    { "width": "10%", "targets": 6,'className':'text-center' },
+                    { "width": "10%", "targets": 7 ,'className':'text-center'},
                   ],
             } );
  
@@ -88,7 +85,61 @@ $(function(){
          $('[data-toggle="tooltip"]').tooltip({
             template: '<div class="tooltip" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>'
           });
-   })
+   });
+   
+   
+   if($('#agent-trash-datatable').length){
+      
+      var _agenttable = $('#agent-trash-datatable').DataTable( {
+        "scrollX": false,
+         bLengthChange: false,
+         responsive: true,
+        "autoWidth": false,
+                "processing": true,
+                "serverSide": true,
+               "ajax": {
+                    "url": base_url+"/agent/trash/datatable",
+                     "type": "POST",
+                },
+                "columns": [
+                    { "data": "icon","orderable":false},
+                    {"data" : "name","orderable":false},
+                    {"data" : "contact","orderable":false},
+                    {"data" : "city","orderable":false},
+                    {"data" : "state","orderable":false},
+                    {"data" : "certificate_link","orderable":false},
+                    {"data" : "status","orderable":false},
+                    { "data": "action" ,"orderable":false}
+                ],
+                "columnDefs": [
+                    { "width": "3%", "targets": 0 ,'className':'text-center'},
+                    { "width": "15%", "targets": 1 },
+                    { "width": "12%", "targets": 2 },
+                    { "width": "10%", "targets": 3 ,'className':'text-center'},
+                    { "width": "15%", "targets": 4 ,'className':'text-center'},
+                    { "width": "10%", "targets": 5,'className':'text-center' },
+                    { "width": "10%", "targets": 6,'className':'text-center' },
+                    { "width": "10%", "targets": 7 ,'className':'text-center'},
+                  ],
+            } );
+            
+            
+              $('.search-input-text').on( 'keyup change', function () {   // for text boxes
+                    var i =$(this).attr('data-column');  // getting column index
+                    var v =$(this).val();  // getting search input value
+                    _agenttable.columns(i).search(v).draw();
+               });
+               
+               _agenttable.on( 'draw', function () { 
+                     $('[data-toggle="tooltip"]').tooltip({
+                        template: '<div class="tooltip" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>'
+                      });
+               })
+               
+               
+      
+       
+   }
    
    
    $("#agentRegisterInfo").validate({
@@ -171,36 +222,29 @@ $(function(){
         $(this).find('i').removeClass('fa-spin');
    });
    
-   $(document).on('click', '.btn-testAllow', function (e) { 
-        var name =$(this).attr('data-name');
+   $('body').on('click', '.btn-app-status', function (e) { 
+        var param ="applicationStatus";
+        var status =$(this).attr('data-status');
         var id =$(this).attr('data-id');
-        var isTestAllow =$(this).attr('data-isTestAllow');
-        var msg ="";var status="";var typ="";
-        if(isTestAllow==1){
-          isTestAllow =0;typ="red";
-          msg = "<p style='color:red;'>Sure you want to <i> Disable certifiction for </i> <strong>"+name+"</strong>? </p>";
-        }else{
-          isTestAllow =1;typ="green";
-          msg = "<p style='color:green;'>Sure you want to <i>Enable certifiction for </i> <strong>"+name+"</strong>? </p>";
-        }
-
         $.confirm({
+          //icon:'icon ion-trash-a',
           title: 'Confirmation',
-          content: msg,
-          type: typ,
+          content: "Sure you want to update application status as " +status,
+          type: 'green',
           typeAnimated: true,
           buttons: {
               confirm: function () {
-                $.get(base_url+"/agents/allowTest/"+id+"/"+isTestAllow,function(resp) {
-                    if(resp.status=='success'){
-                             if(isTestAllow==1){
-                                $('.agent-list-notify')._success("Disabled certifiction for "+name); 
-                             }else{
-                               $('.agent-list-notify')._success("Enabled certifiction for "+name); 
-                             }
-                         agenttable.ajax.reload();
+                $.post(base_url+"/agent/internal/status/manage/",{id:id,'param':param,'status':status},function(resp) {
+                    if($.trim(resp.status)=='success'){
+                         notification($.trim(resp.status),resp.message);
+                         $('.Application-Status-Elem').empty();
+                         if($.trim(status)=="Approved"){
+                             $('.Application-Status-Elem').html('<button class="btn btn-success btn-sm">Approved</button>');
+                         }else{
+                             $('.Application-Status-Elem').html('<button class="btn btn-danger btn-sm">Declined</button>'); 
+                         }
                     }else{
-                      location.reload(true);
+                        notification($.trim(resp.status),resp.message);
                     }
                 },'json');
               },
@@ -211,33 +255,26 @@ $(function(){
       });
  
     });
-   
-   $(document).on('click', '.btn-markVerify', function (e) { 
+    
+    $('body').on('click', '.btn-trash', function (e) { 
         var name =$(this).attr('data-name');
         var id =$(this).attr('data-id');
-        var isVerified =$(this).attr('data-isVerified');
-        var msg ="";var status="";var typ="";
-        if(isVerified==1){
-          isVerified =0;typ="red";
-          msg = "<p style='color:red;'>Sure you want to <i> mark as un-verified to </i> <strong>"+name+"</strong>? </p>";
-        }else{
-          isVerified =1;typ="green";
-          msg = "<p style='color:green;'>Sure you want to <i> mark as verified to </i> <strong>"+name+"</strong>? </p>";
-        }
-
+         var status =$(this).attr('data-param');
         $.confirm({
+          icon:'icon ion-trash-a',
           title: 'Confirmation',
-          content: msg,
-          type: typ,
+          content: "Sure you want to undo trash to <strong>"+name+"</strong>?",
+          type: 'red',
           typeAnimated: true,
           buttons: {
               confirm: function () {
-                $.get(base_url+"/agents/agent-verification/"+id+"/"+isVerified,function(resp) {
-                    if(resp.status=='success'){
-                        if(isVerified==1){
-                            $('.agent-list-notify')._success("Marked as un-verified to "+name); 
+              $.post(base_url+"/agent/internal/status/manage/",{id:id,'param':'trashStatus','status':status},function(resp) {
+                    if($.trim(resp.status)=='success'){
+                         notification($.trim(resp.status),resp.message);
+                         if(status=="Yes"){
+                           agenttable.ajax.reload(null, false);
                          }else{
-                           $('.agent-list-notify')._success("Mark as verified to "+name); 
+                            _agenttable.ajax.reload(null, false);
                          }
                     }else{
                       location.reload(true);
@@ -252,33 +289,88 @@ $(function(){
  
     });
    
-    $('body').on('click', '.btn-trash', function (e) { 
-        var name =$(this).attr('data-name');
-        var id =$(this).attr('data-id');
-        $.confirm({
-          icon:'icon ion-trash-a',
-          title: 'Confirmation',
-          content: "Sure you want to Move trash to <strong>"+name+"</strong>?",
-          type: 'red',
-          typeAnimated: true,
-          buttons: {
-              confirm: function () {
-                $.post(base_url+"/agents/trash/process",{id:id,'param':'move'},function(resp) {
-                    if($.trim(resp.status)=='success'){
-                         notification($.trim(resp.status),resp.message);
-                         agenttable.ajax.reload(null, false);
-                    }else{
-                      location.reload(true);
-                    }
-                },'json');
-              },
-              cancel: function () {
-                  // $.alert('Canceled!');
-              }
-          }
-      });
+//   $(document).on('click', '.btn-testAllow', function (e) { 
+//         var name =$(this).attr('data-name');
+//         var id =$(this).attr('data-id');
+//         var isTestAllow =$(this).attr('data-isTestAllow');
+//         var msg ="";var status="";var typ="";
+//         if(isTestAllow==1){
+//           isTestAllow =0;typ="red";
+//           msg = "<p style='color:red;'>Sure you want to <i> Disable certifiction for </i> <strong>"+name+"</strong>? </p>";
+//         }else{
+//           isTestAllow =1;typ="green";
+//           msg = "<p style='color:green;'>Sure you want to <i>Enable certifiction for </i> <strong>"+name+"</strong>? </p>";
+//         }
+
+//         $.confirm({
+//           title: 'Confirmation',
+//           content: msg,
+//           type: typ,
+//           typeAnimated: true,
+//           buttons: {
+//               confirm: function () {
+//                 $.get(base_url+"/agents/allowTest/"+id+"/"+isTestAllow,function(resp) {
+//                     if(resp.status=='success'){
+//                              if(isTestAllow==1){
+//                                 $('.agent-list-notify')._success("Disabled certifiction for "+name); 
+//                              }else{
+//                               $('.agent-list-notify')._success("Enabled certifiction for "+name); 
+//                              }
+//                          agenttable.ajax.reload();
+//                     }else{
+//                       location.reload(true);
+//                     }
+//                 },'json');
+//               },
+//               cancel: function () {
+//                   // $.alert('Canceled!');
+//               }
+//           }
+//       });
  
-    });
+//     });
+   
+//   $(document).on('click', '.btn-markVerify', function (e) { 
+//         var name =$(this).attr('data-name');
+//         var id =$(this).attr('data-id');
+//         var isVerified =$(this).attr('data-isVerified');
+//         var msg ="";var status="";var typ="";
+//         if(isVerified==1){
+//           isVerified =0;typ="red";
+//           msg = "<p style='color:red;'>Sure you want to <i> mark as un-verified to </i> <strong>"+name+"</strong>? </p>";
+//         }else{
+//           isVerified =1;typ="green";
+//           msg = "<p style='color:green;'>Sure you want to <i> mark as verified to </i> <strong>"+name+"</strong>? </p>";
+//         }
+
+//         $.confirm({
+//           title: 'Confirmation',
+//           content: msg,
+//           type: typ,
+//           typeAnimated: true,
+//           buttons: {
+//               confirm: function () {
+//                 $.get(base_url+"/agents/agent-verification/"+id+"/"+isVerified,function(resp) {
+//                     if(resp.status=='success'){
+//                         if(isVerified==1){
+//                             $('.agent-list-notify')._success("Marked as un-verified to "+name); 
+//                          }else{
+//                           $('.agent-list-notify')._success("Mark as verified to "+name); 
+//                          }
+//                     }else{
+//                       location.reload(true);
+//                     }
+//                 },'json');
+//               },
+//               cancel: function () {
+//                   // $.alert('Canceled!');
+//               }
+//           }
+//       });
+ 
+//     });
+   
+  
    
     
  });

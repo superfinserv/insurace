@@ -12,6 +12,6 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-        'health-insurance/insured-success/*','moter-insurance/insured-success/*','insurance/policy/cancel/hdfcergo_motor',
+       'profile/video-upload', 'health-insurance/insured-success/*','moter-insurance/insured-success/*','insurance/policy/cancel/hdfcergo_motor',
     ];
 }

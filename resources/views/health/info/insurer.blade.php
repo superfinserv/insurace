@@ -59,7 +59,7 @@
                                     
                                     <option value="<?=$key;?>"
                                         <?=($insurer->type!="self"?((isset($insurer->mm) && $insurer->mm==$key)?"selected":""):(($param->selfmm==$key)?'selected':''));?>
-                                        ><?=strtoupper($val);?></option>
+                                        >{{strtoupper($val)}} ({{$key}})</option>
                                     <?php } ?>
                                 </select>
                             </li>
@@ -68,9 +68,9 @@
                                     <option value="">Year</option>
                                      <?php $cy=date('Y');
                                       if($insurer->type=="self" || $insurer->type=="wife" || $insurer->type=="husband"){
-                                          $sy = $cy-(18+77);
+                                          $sy = $cy-(18+81);
                                       }else if($insurer->type=="mother" || $insurer->type=="father"){
-                                          $sy = $cy-(18+77);
+                                          $sy = $cy-(18+81);
                                       }else if($insurer->type=="son" || $insurer->type=="daughter"){
                                           $sy = $cy-25;
                                       }

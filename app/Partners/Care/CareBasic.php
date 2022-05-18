@@ -138,7 +138,7 @@ class CareBasic{
                                            ->where(['supplier'=>'CARE','plan_val'=>'CARE-CARE_HELATH'])->get();
                        
                       $product = "CARE";
-                    //   $title = ($product=='CAREWITHNCB')?"Care - No Claim Bonus Super":"Care Health Insurance";
+                      
                       $mandatoryAddons = ($sumInsured<=5 && $maxAge<=45)?"CAREWITHNCB":"";
                       $title = ($postedField->outPutField=="ncbPremium")?"Care - No Claim Bonus Super":"Care Health Insurance"; 
                       $plan = array();
@@ -151,14 +151,18 @@ class CareBasic{
                       $plan['supp_name']=$partner->name;
                       $plan['supp_logo']=asset('assets/partners/'.$partner->logo_image);
                       $plan['id']=$quoteID;
+                      
+                      $actualPrice = ($amount*100)/(118);
+                      
                       $quoteData = ['short_sumInsured'=>$sumInsured,'long_sumInsured'=>$sumInsured*100000,'premiumAmount'=>$amount,'mandatoryAddons'=>$mandatoryAddons,
                                     'type'=>'HEALTH','policyType'=>$pTyp,'code'=>$abacusId,'product'=>$product,'title'=>$title,'device'=>$devicetoken,
                                     'provider'=>'CARE','call_type'=>"QUOTE",
                                     'reqQuote'=>json_encode($request),
                                     'respQuote'=>$result,
+                                    'netAmt'=>number_format((float)$actualPrice, 2, '.', ''),
+                                    'taxAmt'=>number_format((float)($amount-$actualPrice), 2, '.', ''),
+                                    'grossAmt'=>$amount,
                                     
-                                    //'response'=>($result),
-                                    //'json_quote'=>($result)
                                     ];
                       $quoteData['quote_id']=$quoteID;
                       $quoteData['req']= json_encode($request);
@@ -260,7 +264,7 @@ class CareBasic{
             $request->postedField = $postedField;
             $mandatoryAddons = ($sum<=5 && $maxAge<=45)?"CAREWITHNCB":"";
              $title = ($postedField->outPutField=="ncbPremium")?"Care - No Claim Bonus Super":"Care Health Insurance"; 
-            $jsonAmtArr = [];
+            $jsonAmtArr = [];$REQ="";$RESP="";
             for($Y=1;$Y<=3;$Y++){
                 $request->postedField->field_4 = $Y." Year";
                //echo json_encode($request);
@@ -337,20 +341,29 @@ class CareBasic{
                  $totalActualPrice = ($Total_Premium*100)/(118);
                  $totalTax = $Total_Premium - $totalActualPrice;//ceil(($basePremium*18)/100);
                  $jsonAmtArr[$Y]=['Addons'=>$Addons,'Addons_Total'=>$addonAmount,'Base_Premium'=>$actualPrice,'Total_Premium'=>$Total_Premium,'Total_Tax'=>$totalTax];
-              
+                 
+                 if($Y==$termYear){
+                     $REQ=json_encode($request);
+                     $RESP=$result;
+                 }
                   
               }
             }// Year loop 1-2-3
          
-           
+           $netAmt = ($jsonAmtArr[$termYear]['Total_Premium']*100)/(118);
             $quoteData = ["params_request->addOn" =>$addOn,
                           'amounts'=>json_encode($jsonAmtArr),
+                          'reqRecalculate'=>$REQ,
+                          'respRecalculate'=>$RESP,
                           "premiumAmount"=>number_format((float)$jsonAmtArr[$termYear]['Total_Premium'], 2, '.', ''),
+                          'netAmt'=>number_format((float)$netAmt, 2, '.', ''),
+                          'taxAmt'=>number_format((float)$jsonAmtArr[$termYear]['Total_Tax'], 2, '.', ''),
+                          'grossAmt'=>number_format((float)$jsonAmtArr[$termYear]['Total_Premium'], 2, '.', ''),
                           "json_data->amount"=>number_format((float)$jsonAmtArr[$termYear]['Total_Premium'], 2, '.', ''),
                           "json_data->quotation"=>number_format((float)$jsonAmtArr[$termYear]['Total_Premium'], 2, '.', ''),
                           "json_data->sumInsured"=>$sum,
                           'termYear'=>$termYear,
-                           'mandatoryAddons' =>$mandatoryAddons,
+                          'mandatoryAddons' =>$mandatoryAddons,
                           "title"=>$title,
                           'sumInsured->shortAmt'=>$sum,
                           'sumInsured->longAmt'=>($sum*100000)];
@@ -374,8 +387,8 @@ class CareBasic{
         $_city = explode("-",$params->address->city);
         $IdentitydocArr = ["PAN_CARD"=>"PAN","PASSPORT"=>"PASSPORT"];
         
-        $nomineeRelationArr= ['BROTHER'=>'BROTHER','FATHER'=>'FATHER','MOTHER'=>'MOTHER','SPOUSE'=>'SPSE','SISTER'=>'SISTER','SON'=>'SON','DAUGHTER'=>'DAUGHTER','WIFE'=>'WIFE','HUSBAND'=>'HUSBAND'];
-        
+        //$nomineeRelationArr= ['BROTHER'=>'BROTHER','FATHER'=>'FATHER','MOTHER'=>'MOTHER','SPOUSE'=>'SPSE','SISTER'=>'SISTER','SON'=>'SON','DAUGHTER'=>'DAUGHTER','WIFE'=>'WIFE','HUSBAND'=>'HUSBAND'];
+        $relation = DB::table('relations')->where('value',$params->nomineerelation)->value('CARE');
         
         $request = new \stdClass(); 
 
@@ -393,7 +406,7 @@ class CareBasic{
         $policyAdditionalFieldsDOList->fieldTc = "YES";
         $policyAdditionalFieldsDOList->field1 = "Partner_superfinserv";
         $policyAdditionalFieldsDOList->field10 =  isset($params->nomineename)?$params->nomineename:"";
-        $policyAdditionalFieldsDOList->field12 = $nomineeRelationArr[$params->nomineerelation];
+        $policyAdditionalFieldsDOList->field12 = $relation;//$nomineeRelationArr[$params->nomineerelation];
         
         if(isset(Auth::guard('agents')->user()->id)){
             //$policyAdditionalFieldsDOList->field1 = Auth::guard('agents')->user()->name;
@@ -663,17 +676,21 @@ class CareBasic{
                       $dataParam->quotation = $amt;//$output->intPolicyDataIO->policy->quotationPremium;
                       $dataParam->amount = $premium;//$output->intPolicyDataIO->policy->premium;
                       $dataParam->sumInsured = $shortSum;//$sumInsured;//$output->intPolicyDataIO->policy->sumInsuredValue;
+                      
+                       $totalActualPrice = ($premium*100)/(118);
+                       $totalTax = $premium - $totalActualPrice;//ceil(($basePremium*18)/100);
+                      
                       DB::table('app_quote')->where('type','HEALTH')
                                             ->where('enquiry_id',$enq)
                                             ->update(['proposalNumber'=>$output->intPolicyDataIO->policy->proposalNum,
                                                       'premiumAmount'=>$premium,
                                                       'reqCreate'=>json_encode($request),
                                                       'respCreate'=>$response,
-                                                      
                                                       'json_data'=>json_encode($dataParam),
-                                                      'req'=>json_encode($request), 'resp'=>$response
-                                                      //"json_create"=>json_encode($request),
-                                                      //"json_resp"=>$response
+                                                      'req'=>json_encode($request), 'resp'=>$response,
+                                                      'netAmt'=>number_format((float)$totalActualPrice, 2, '.', ''),
+                                                      'taxAmt'=>number_format((float)$totalTax, 2, '.', ''),
+                                                      'grossAmt'=>number_format((float)$premium, 2, '.', ''),
                                                       ]);
                       $data=['enq'=>$enq,
                               'amount'=> $premium,

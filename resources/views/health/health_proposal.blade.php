@@ -299,6 +299,13 @@ label.control.control--checkbox{
                                <table id="rightPlanSummaryTbl" class="table" style="margin-bottom:0px;">
                                 <tbody>
                                   <tr>
+                                    <td style="font-size: 13px;color: #000;padding: 15px 10px;font-family: 'Nunito Sans';">Members</td>
+                                    <?php $total_adult = $param->total_adult."A";
+                                          $total_child = ($param->total_child>0)?$param->total_child."C":"";
+                                          $mStr = $total_adult.$total_child;?>
+                                    <td style="font-weight: 700;font-size: 13px;color: #000;padding: 15px 10px;font-family: 'Nunito Sans';"><span id="<?=$data->enquiry_id;?>-mStr"><?=$mStr;?></span></td>
+                                  </tr>
+                                  <tr>
                                     <td style="font-size: 13px;color: #000;padding: 15px 10px;font-family: 'Nunito Sans';">Cover Amount</td>
                                     <td style="font-weight: 700;font-size: 13px;color: #000;padding: 15px 10px;font-family: 'Nunito Sans';">₹<span id="<?=$data->enquiry_id;?>-sumInsured"><?=$SUM->shortAmt;?> <?=($SUM->shortAmt<=1)?'Lakh':'Lakhs';?></span></td>
                                   </tr>
@@ -306,6 +313,18 @@ label.control.control--checkbox{
                                     <td style="font-size: 13px;color: #000;padding: 15px 10px;font-family: 'Nunito Sans';">Policy Period</td>
                                     <td style="font-weight: 700;font-size: 13px;color: #000;padding: 15px 10px;font-family: 'Nunito Sans';"><span id="<?=$data->enquiry_id;?>-termYear"><?=$data->termYear;?></span> Year</td>
                                   </tr>
+                                  <tr>
+                                    <td style="font-size: 13px;color: #000;padding: 15px 10px;font-family: 'Nunito Sans';">Cover Type</td>
+                                    <td style="font-weight: 700;font-size: 13px;color: #000;padding: 15px 10px;font-family: 'Nunito Sans';">
+                                        <span id="<?=$data->enquiry_id;?>-coverType"><?=($data->policyType=='FL')?'Floater':'Individual';?></span>
+                                    </td>
+                                  </tr>
+                                  @if($data->zone!="")
+                                  <tr>
+                                    <td style="font-size: 13px;color: #000;padding: 15px 10px;font-family: 'Nunito Sans';">Selected Zone</td>
+                                    <td style="font-weight: 700;font-size: 13px;color: #000;padding: 15px 10px;font-family: 'Nunito Sans';"><span id="<?=$data->enquiry_id;?>-zone"><?=$data->zone;?></span></td>
+                                  </tr>
+                                  @endif
                                   <?php $termYear = $data->termYear ;?>
                                   <tr>
                                     <td style="font-size: 13px;color: #000;padding: 15px 10px;font-family: 'Nunito Sans';">Base Plan</td>

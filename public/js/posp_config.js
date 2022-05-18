@@ -1,5 +1,6 @@
 $(document).ready(function() {
     'use strict';
+       $('[data-toggle="tooltip"]').tooltip();
     var TOKEN = Math.floor(1000000000 + Math.random() * 9000000000)+Math.random().toString(36).substring(2, 10) +"-"+ Math.random().toString(36).substring(2, 15) +"-"+ Math.random().toString(36).substring(2, 10);
      if(localStorage.getItem('deviceToken')==null){
        localStorage.setItem('deviceToken',TOKEN);
@@ -43,7 +44,15 @@ $(document).ready(function() {
                 return false;
             };
         }, 'Please Enter valid GSTIN');
-        
+       
+       jQuery.validator.addMethod("pan_no", function(value, element) {
+             var regex = /([A-Z]){3}(P){1}([A-Z]){1}([0-9]){4}([A-Z]){1}$/;
+            if (regex.test(value)) {
+                return true;
+            } else {
+                return false;
+            }
+        }, 'Please Enter valid PAN number');
       
     jQuery.validator.addMethod("strongpass", function(value, element) {
             var number = /([0-9])/;
@@ -68,7 +77,10 @@ $(document).ready(function() {
        
        $('.select2').select2();
        $('.single-select2').select2();
-       
+        $(".selectize-single").selectize({
+          create: true,
+          sortField: "text",
+        });
        $(".datepicker").datepicker({
           dateFormat: 'dd-mm-yy'
         });
@@ -150,7 +162,7 @@ function docIdvalid(elem,type,string){
         
          var string =  string.toUpperCase();
            //console.log('UPR',string);
-       var regex = /([A-Z]){5}([0-9]){4}([A-Z]){1}$/;
+       var regex = /([A-Z]){3}(P){1}([A-Z]){1}([0-9]){4}([A-Z]){1}$/;
         if(!regex.test(string)) { 
             elem.focus();
             elem.css('color','red');
@@ -230,6 +242,27 @@ $('body').on("keyup",".bikenumber",function(e) {
     $(this).val(validstr);
     return false;
 });
+
+function validatedPincode(_pincode,_city,_state) { 
+  var defer = $.Deferred(); 
+     var state = _state.split('-')[0];
+     var city = _city.split('-')[0];
+     var formdata = { pin:_pincode,ct:city,st:state};
+  $.ajax({ 
+    url: base_url + "/get-validated-pincode",
+    dataType: 'json', 
+    data:formdata,
+    success: function(response) { 
+      defer.resolve(response) 
+    }, 
+    error: function(req, status, err) { 
+      defer.reject(err); 
+    } 
+  }); 
+   //console.log(defer);
+  return defer.promise(); 
+} 
+
 
 $('body').on("keyup",".word-uppercase",function(e) {
         $(this).val($(this).val().toUpperCase()); 

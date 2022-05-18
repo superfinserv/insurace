@@ -2,79 +2,82 @@
 <html class="no-js" lang="en">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>{{config('custom.site_short_name')}} | {{ ($title)?$title:$subtitle }}</title>
         <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
         <meta http-equiv="Pragma" content="no-cache">
         <meta http-equiv="Expires" content="0">
-        <title>{{ ($title)?$title:$subtitle }} | {{ ($subtitle)?$subtitle:$title }}</title>
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
         <meta name="viewport" content="user-scalable=no, width=device-width, height=device-height, initial-scale=1, maximum-scale=1, minimum-scale=1, minimal-ui" />
+        
         <meta name="theme-color" content="#056EB9" />
         <meta name="msapplication-navbutton-color" content="#056EB9" />
         <meta name="apple-mobile-web-app-status-bar-style" content="#056EB9" />
+        <meta name="description" content="Super Finserv - Super Finserv Pvt. Ltd..."/>
+        <meta name="keywords"    content="Super Finserv, Finserv,Super Finserv Pvt. Ltd is a financial product distribution company that has been started by two seasoned insurance professionals. "/>
+        <meta name="viewport"    content="width=device-width"/>
         <link rel="shortcut icon" href="{{asset('site_assets/logo/ico/favicon.ico')}}"/>
         <link rel="apple-touch-icon" sizes="72x72" href="{{asset('site_assets/logo/ico/apple-icon-72x72.png')}}"/>
-          <link rel="stylesheet" href="{{asset('css/cdn/aos.css')}}" />
+      
+
+        <link rel="stylesheet" href="{{asset('css/cdn/aos.css')}}" />
         <link rel='stylesheet' href="{{asset('css/cdn/all.css')}}" >
-        <link href="{{asset('css/cdn/bootstrap-combined.no-icons.min.css')}}" rel="stylesheet"/>
-        <link rel="stylesheet" href="{{asset('css/animate.min.css')}}"/>'
-        <!--<link rel="stylesheet" href="{{asset('css/app.css')}}"/>-->
-         <link rel="stylesheet" href="{{asset('css/jquery-ui.css')}}"/>
-         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+        @if($subtitle!="Plan List" )
+          <link href="{{asset('css/cdn/bootstrap-combined.no-icons.min.css')}}" rel="stylesheet"/>
+        @endif
+        
+        <link href="{{asset('css/cdn/font-awesome.css')}}" rel="stylesheet"/>
+        <link rel="stylesheet" href="{{asset('css/jquery-ui.css')}}">
+  
+        <link rel="apple-touch-icon" sizes="114x114" href="{{asset('site_assets/logo/ico/apple-icon-114x114.png')}}"/>
+        <link rel="stylesheet" href="{{asset('js/confirm/css/jquery-confirm.css')}}" type="text/css"/>
+        <link rel="stylesheet" href="{{asset('css/animate.min.css')}}"/>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
         <link href="https://fonts.googleapis.com/css?family=Nunito:300,400,800" rel="stylesheet"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.css" type="text/css" media="all" />
+        <link rel="stylesheet" href="{{asset('js/src/loading.css')}}" type="text/css">
+        <link rel="stylesheet" href="{{asset('css/newupdates.css')}}" type="text/css">
         <link href="https://fonts.googleapis.com/css?family=Quicksand&display=swap" rel="stylesheet"/>
-        <!-- Critical styles================================================== -->
-        <link rel="stylesheet" href="{{asset('css/critical.min.css')}}" type="text/css"/>
-        <?php //if($title!='Home' && $title!='About Us' && $title!='Artical' && $title!='Contact Us'){ ?>
+        <link href="{{asset('css/cdn/font-awesome.min.css')}}" rel="stylesheet"/>
+        
+        <link href="{{asset('css/cdn/jquery.loading.min.css')}}" rel="stylesheet">
+        <link href="{{asset('js/toast/jquery.toast.css')}}" type="text/css" rel="stylesheet"/>
+        <link href="{{asset('js/toastr/toastr.min.css')}}" type="text/css" rel="stylesheet"/>
+
+        <link rel="stylesheet" href="{{asset('css/critical.min.css')}}" type="text/css">
+        <?php if($title!='Insurance' && $title!='About Us' && $title!='Artical' && $title!='Contact Us'){ ?>
             <link rel="stylesheet" href="{{asset('css/cdn/bootstrap.min.css')}}">
-            <link rel="stylesheet" href="{{asset('css/color-2.min.css')}}" type="text/css"/>
-        <?php //} if($title=='Home'){ ?>
-            <link rel="stylesheet" type="text/css" href="{{asset('css/posp/style.css')}}"/>
-        <?php //}else{ ?>
-            <link rel="stylesheet" href="{{asset('css/posp/style.min.css')}}" type="text/css"/> 
-        <?php //} ?>
-         <link rel="stylesheet" href="{{asset('css/newupdates.css')}}" type="text/css">
+            <link rel="stylesheet" href="{{asset('css/color-2.min.css')}}" type="text/css">
+        <?php } if($title=='Home'){ ?>
+            <link rel="stylesheet" type="text/css" href="{{asset('css/style.css')}}"/>
+        <?php }else{ ?>
+            <link rel="stylesheet" href="{{asset('css/style.min.css')}}" type="text/css"/> 
+        <?php }  ?>  <link rel="stylesheet" href="{{asset('css/posp/style.min.css')}}" type="text/css"/> 
+                   <link rel="stylesheet" href="{{asset('css/croppie.css')}}">
+         <link href="{{asset('css/jquery-ui.css')}}" type="text/css" rel="stylesheet"/>
         <link href="{{asset('css/cdn/select2.min.css')}}" rel="stylesheet" />
         <link rel="stylesheet" type="text/css" href="{{asset('css/responsive.css')}}"/>
         <link rel="stylesheet" href="{{asset('css/font-awesome.css')}}"/>
-        
-          <link href="{{asset('css/cdn/jquery.loading.min.css')}}" rel="stylesheet"/>
-        
-        <link href="{{asset('js/toast/jquery.toast.css')}}" type="text/css" rel="stylesheet"/>
-        <link href="{{asset('css/jquery-ui.css')}}" type="text/css" rel="stylesheet"/>
-      
-        <link rel="stylesheet" href="{{asset('js/confirm/css/jquery-confirm.css')}}" type="text/css"/>
-        <link rel="stylesheet" href="{{asset('js/src/loading.css')}}" type="text/css"/>
-        <link rel="stylesheet" href="{{asset('css/posp/jquery.steps.css')}}" type="text/css"/>
-        <link href="{{asset('js/toastr/toastr.min.css')}}" rel="stylesheet" type="text/css"/>
-         <link href="{{asset('js/DataTables/datatables.min.css')}}" rel="stylesheet" type="text/css"/>
-          <link href="{{asset('js/ion-rangeslider/css/ion.rangeSlider.css')}}" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Nunito:300,400,800" rel="stylesheet"/> 
+         <link rel="stylesheet" href="{{asset('css/posp/jquery.steps.css')}}" type="text/css"/>
+       
+        <link href="{{asset('js/ion-rangeslider/css/ion.rangeSlider.css')}}" rel="stylesheet">
         <link href="{{asset('js/ion-rangeslider/css/ion.rangeSlider.skinFlat.css')}}" rel="stylesheet">
-         <link href="https://fonts.googleapis.com/css?family=Nunito:300,400,800" rel="stylesheet"/>
-          <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.2/croppie.min.css">-->
-          
-           <link rel="stylesheet" href="{{asset('css/croppie.css')}}">
-           
-        <script type="text/javascript" src="{{asset('js/device.min.js')}}"></script>
-        <script type="text/javascript"  src="{{asset('js/jquery-3.6.0.min.js')}}"></script>
-        
-        
+        <link href="{{asset('css/preloader.css')}}" rel="stylesheet">
+        <!--<link rel="stylesheet" href="asset('plugins/selectize/css/selectize.css')">-->
+		 <link rel="stylesheet" href="{{asset('plugins/selectize/css/selectize.bootstrap4.css')}}">
+	  <link href="{{asset('js/DataTables/datatables.min.css')}}" rel="stylesheet" type="text/css"/>
         <style type="text/css">
-        
-          .error { color: red; border-color: red !important;}
-           #loading{ display: none;  }
-           .footer { position: inherit !important; }    
-           .loading-indicater-btn i{ font-size: 20px;}
-            @keyframes spinner {
-                to {transform: rotate(360deg);}
+            label .error {
+                color: #dc3545 !important;
+                border-color: #dc3545 !important;
+               letter-spacing: 0.8px;
+               font-weight: 500;
             }
             
-           .error {
-                color: red;
-                border-color: red !important;
+            #PlanListContainer{
+                margin-top: 35px;
             }
-            
-        
             td.new.day {
                 color: #000 !important;
             }
@@ -103,58 +106,10 @@
                 font-size: 12px;
                 margin-right: 12px;
             }
-            .spinner,
-            .spinner:before {
-                 width: 40px;
-                height: 40px;
-                box-sizing: border-box;
-            }
             
-            .spinner:before {
-                  content: '';
-                display: block;
-                border-radius: 50%;
-                border: 3px solid #ccc;
-                border-top-color: #ac0f0a;
-                animation: spinner .6s linear infinite;
-            }
 
-                .spinner-absolute {
-                  position: absolute;
-                  top: 40%;
-                  left: 45%;
-                  margin-top: -10px;
-                  margin-left: -10px;
-                }
-                
-                /* Animations */
-                
-                .spinner-add,
-                .spinner-remove {
-                  animation-fill-mode: both;
-                  animation-duration: .4s;
-                }
-                
-                .spinner-add {
-                  animation-name: spinner-add;
-                }
-                
-                @keyframes spinner-add {
-                  from {transform: scale(0);}
-                  to {transform: scale(1);}
-                }
-                
-                .spinner-remove {
-                  animation-name: spinner-remove;
-                }
-                
-                @keyframes spinner-remove {
-                  to {transform: scale(0);}
-                }
-                
-                
-                 
-         .inline-loader {
+         
+.inline-loader {
     height : 8px;
     width  : 36px; /* (6 * <margin: 2px>) + (3 * <width: 8px>) */
 }
@@ -164,6 +119,7 @@
     height                    : 8px;
     width                     : 8px;
     margin                    : 0px 2px;
+    border-radius: 50%;
     background-color          : rgb(172, 15, 11); 
     animation-name            : inlinefadeOutIn;
     animation-duration        : 500ms;
@@ -179,22 +135,68 @@
     0%   { background-color : rgb(231, 183, 181); }
     100% { background-color : rgb(172, 15, 11); }
 }
+
+body::-webkit-scrollbar {
+  width: 9px;               /* width of the entire scrollbar */
+}
+
+body::-webkit-scrollbar-track {
+  background: #0E3679;        /* color of the tracking area */
+}
+
+body::-webkit-scrollbar-thumb {
+    background-color: #a5150d;
+    border-radius: 40px;
+    border: 0px solid #a5150d  
+}
+
+.page-title{
+     color: #0E3679;
+    font-size: 20px;
+    font-weight: 600;
+}
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance:textfield;
+}
+
+
+
         </style>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans:400,400i,700,700i,800,800i,900,900i%7CQuicksand:300,400,700" media="all">
+        
+        
+<script type="text/javascript"> //<![CDATA[ 
+var tlJsHost = ((window.location.protocol == "https:") ? "https://secure.trust-provider.com/" : "http://www.trustlogo.com/");
+document.write(unescape("%3Cscript src='" + tlJsHost + "trustlogo/javascript/trustlogo.js' type='text/javascript'%3E%3C/script%3E"));
+//]]>
+</script>
+
+
     </head>
+
         <body>
+         @include('preloader')
         <div id="app">
             <!-- start header -->
-            @include('pos.layouts.header')
+            @if($uType=='customer')
+                @include('web.layout.header')
+            @else
+              @include('pos.layouts.header')
+            @endif
             <!-- start start screen -->
               @yield('content')
             <!-- end main -->
+
             <!-- start footer -->
-            <!--<div class="under-development" style="    margin-top: 20px;margin-bottom:12px;text-align: center;border: 1px dashed red;padding: 12px 12px;color: #f25353;background: #ffdada8c;">-->
-            <!--    <marquee><strong>Public Notice :</strong> The website is under development, till now we have not sourced any Insurance policy through this website.</marquee>-->
-            <!--</div>-->
-          <footer class="footer footer--s5 footer--color-dark">
-                <div class="footer__line footer__line--first">
+            
+           
+          <footer class="footer footer--s5 footer--color-dark" >
+                <div class="footer__line footer__line--first" style="background-color:#fff">
                     <div class="container">
                         <div class="row">
                             <div class="col-12 col-md-6 col-lg-4">
@@ -202,7 +204,7 @@
                                     <a class="footer__logo" href="{{url('/')}}">
                                         <img class="img-fluid lazy" 
                                              src="{{asset('site_assets/logo/'.config('custom.site_logo'))}}"
-                                             data-src="{{asset('site_assets/logo/'.config('custom.site_logo'))}}"   alt="{{config('custom.site_short_name')}}" />
+                                             data-src="{{asset('site_assets/logo/'.config('custom.site_logo'))}}" alt="{{config('custom.site_short_name')}}" />
                                     </a>
 
                                 </div>
@@ -210,9 +212,9 @@
                                  <div class="footer__item text-center">
                                     <div class="s-btns s-btns--md s-btns--dark s-btns--rounded">
                                          <ul class="d-flex flex-row flex-wrap align-items-center">
-                                            <li><a class="f" target="_blank" href="{{config('custom.facebook_url')}}"><i class="fontello-facebook"></i></a></li>
-                                            <li><a class="t" target="_blank" href="{{config('custom.twitter_url')}}"><i class="fontello-twitter"></i></a></li>
-                                            <li><a class="y" target="_blank" href="{{config('custom.linkedin_url')}}"><i class="fa fa-linkedin" style="font-size:18px;"></i></a></li>
+                                            <li><a class="f" target="_blank" href="{{config('custom.facebook_url')}}"><i class="fa fa-facebook" style="font-size: 18px;line-height: 2.1;"></i></a></li>
+                                            <li><a class="t" target="_blank" href="{{config('custom.twitter_url')}}"><i class="fa fa-twitter"  style="font-size: 18px;line-height: 2.1;"></i></a></li>
+                                            <li><a class="y" target="_blank" href="{{config('custom.linkedin_url')}}"><i  class="fa fa-linkedin" style="font-size:18px;line-height: 2.1;"></i></a></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -241,7 +243,6 @@
                                         <p style="margin-top:0px; color: #272727; font-size:16px; line-height: 27px;">{{config('custom.contact_address')}}</p>
                                     </address>
                                 </div>
-
                                
                             </div>
                         </div>
@@ -253,7 +254,7 @@
                         <p class="text-center">{{config('custom.site_name')}} (Previously Supersolutions Advisory Services Private Limited)</p>
                         <div class="row">
                             <div class="col-md-1 col-sm-12 wh-100">
-                                <img src="{{asset('site_assets/logo/irda-logo.png')}}" width="100%">
+                                <img src="{{asset('site_assets/logo/irda-logo-border.png')}}" width="100%">
                             </div>
                             <div class="col-md-4 col-sm-12 wh-100 bordrl">
                                 <p>IRDAI CORPORATE AGENCY REGISTRATION NUMBER: <br>{{config('custom.irda_reg_no')}} (License Category: Composite)</p>
@@ -301,139 +302,94 @@
             </footer>
             <!-- end footer -->
         </div>
+
         <div id="btn-to-top-wrap">
-            <a id="btn-to-top" class="circled" href="javascript:void(0);" data-visible-offset="800"></a>
+            <a id="btn-to-top" class="circled" href="javascript:void(0);" data-visible-offset="800" style=" background-image: url('{{asset('site_assets/img/Umbrella.png')}}');background-size: 60px;
+    background-position: center;">
+                
+            </a>
         </div>
-        <script type="text/javascript"  src="{{asset('js/bootstrap.min.js')}}"></script>
-        <script type="text/javascript" src="{{asset('js/validation/jquery.validate.min.js')}}"></script>
-        <script type="text/javascript" src="{{asset('js/main.min.js')}}"></script>
-        <script src="{{asset('js/jquery-ui.js')}}"></script>
-           <script src="{{asset('js/cdn/jquery.easing.min.js')}}"></script>
-        <script src="{{asset('js/cdn/popper.min.js')}}"></script>
-        <script src="{{asset('js/cdn/select2.min.js')}}"></script>
+         <script type="text/javascript" src="{{asset('js/device.min.js')}}"/></script>
+        <script src="{{asset('js/cdn/aos.js')}}"/></script>
+        <script type="text/javascript"  src="{{asset('js/jquery-3.6.0.min.js')}}"></script>
         
-        <script src="{{asset('js/cdn/bootstrap-datepicker.js')}}"></script>
-         <script type="text/javascript" src="{{asset('js/posp_config.js')}}"></script>
-          <script rel="stylesheet" href="{{asset('js/src/loading.js')}}" ></script>
-         <script src="{{asset('js/todolist.js')}}"></script>
-         <script src="{{asset('js/toastDemo.js')}}"></script>
-         <script type="text/javascript" src="https://checkout.razorpay.com/v1/razorpay.js"></script>
-        <script type="text/javascript" src="{{asset('js/confirm/js/jquery-confirm.js')}}"></script>
-       <script src="{{asset('js/loading-btn/jquery.loadButton.js')}}"></script>
-         <script src="{{asset('js/toastr/toastr.min.js')}}"  type="text/javascript"></script>
-         <script src="{{asset('js/input-mask/jquery.mask.js')}}"  type="text/javascript"></script>
-          <script src="{{asset('js/cdn/jquery.loading.min.js')}}"></script>
-            <script src="{{asset('js/DataTables/datatables.min.js')}}"></script>
-            <script src="{{asset('js/ion-rangeslider/js/ion.rangeSlider.min.js')}}"></script>
-          <script src="{{asset('js/croppie.js')}}"></script>
-   
-      <script src="{{asset('js/jquery-ui.min.js')}}"></script>
-         <script> var base_url = "{{url('/')}}"; </script>  
-            @isset($scripts)@foreach($scripts as $_script)<script src="{{$_script}}" ></script>@endforeach @endisset
-            <?php if(session()->has('message')): ?>
-                    <script type="text/javascript">
-                         $.toast({
-                              heading: 'Success',
-                              text: "Successfully Added Record",
-                              showHideTransition: 'slide',
-                              icon: 'success',
-                              loaderBg: '#f96868',
-                              position: 'top-right'
-                            })
-                   </script>
-    <?php endif ?>
-    <?php if(session()->has('updatemessage')): ?>
-        <script type="text/javascript">
-           $.toast({
-              heading: 'Success',
-              text: "Successfully Update Record",
-              showHideTransition: 'slide',
-              icon: 'success',
-              loaderBg: '#f96868',
-              position: 'top-right'
-            })
-        </script>
-    <?php endif ?>
-    <?php if(session()->has('mailsend')): ?>
-        <script type="text/javascript">
-            $.toast({
-                  heading: 'Success',
-                  text: "Successfully Mail Send",
-                  showHideTransition: 'slide',
-                  icon: 'success',
-                  loaderBg: '#f96868',
-                  position: 'top-right'
-                })
-        </script>
-    <?php endif ?>
-    <?php if(session()->has('delete')): ?>
-        <script type="text/javascript">
-            $.toast({
-                  heading: 'Success',
-                  text: "Successfully Deleted Record",
-                  showHideTransition: 'slide',
-                 icon: 'success',
-                  loaderBg: '#f96868',
-                  position: 'top-right'
-                })
-        </script>
-    <?php endif ?>
-    <?php if(session()->has('error')): ?>
-        <script type="text/javascript">
-             $.toast({
-                  heading: 'Success',
-                  text: "Somethink Issues",
-                  showHideTransition: 'slide',
-                  icon: 'success',
-                  loaderBg: '#f96868',
-                  position: 'top-right'
-                })
-        </script>
-    <?php endif ?>
-    <?php if(session()->has('emailexist')): ?>
-        <script type="text/javascript">
-             $.toast({
-                  heading: 'Success',
-                  text: "Email Aready exist",
-                  showHideTransition: 'slide',
-                 icon: 'success',
-                  loaderBg: '#f96868',
-                  position: 'top-right'
-                })
-        </script>
-    <?php endif ?>    
-        <script type="text/javascript">
-            var _html = document.documentElement,
-               isTouch = (('ontouchstart' in _html) || (navigator.msMaxTouchPoints > 0) || (navigator.maxTouchPoints));
-            _html.className = _html.className.replace("no-js","js");
-            _html.classList.add( isTouch ? "touch" : "no-touch");
-        </script>
+        <script rel="stylesheet" href="{{asset('js/src/loading.js')}}" ></script>
        
+        <script src="{{asset('js/cdn/jquery.easing.min.js')}}"></script>
+        <script src="{{asset('js/cdn/popper.min.js')}}"></script>
+        <script type="text/javascript" src="{{asset('js/validation/jquery.validate.min.js')}}"></script>
+         <script src="{{asset('js/jquery-ui.min.js')}}"></script>
+        <script type="text/javascript"  src="{{asset('js/bootstrap.min.js')}}"></script>
+        <script type="text/javascript"  src="{{asset('js/rengeslider.js')}}"></script>
+        <script src="{{asset('js/loading-btn/jquery.loadButton.js')}}"></script>
+        <script src="{{asset('js/toast/jquery.toast.js')}}"></script>
+        <script src="{{asset('js/toastr/toastr.min.js')}}"></script>
+        <script src="{{asset('plugins/selectize/js/standalone/selectize.js')}}"></script>
+        <script type="text/javascript" src="{{asset('js/main.min.js')}}"></script>
+        
+        <script src="{{asset('js/confirm/js/jquery-confirm.js')}}"></script>
+        
+        <script src="{{asset('js/config.js?v=0.01')}}"></script>
+        <script src="{{asset('page_js/mobileOtpForm.js')}}"></script>
+        <script type="text/javascript" src="{{asset('js/common.js')}}"></script>
+        <script src="{{asset('js/cdn/jquery.loading.min.js')}}"></script>
+        <script src="{{asset('js/input-mask/jquery.mask.js')}}"></script>
+        <script src="{{asset('js/ion-rangeslider/js/ion.rangeSlider.min.js')}}"></script>
+         <script src="{{asset('js/croppie.js')}}"></script>
+         <script src="{{asset('js/DataTables/datatables.min.js')}}"></script>
+       <script src="{{asset('js/cdn/select2.min.js')}}"></script>
+          <script>
+          
             
 
-<script type="text/javascript">
-    $(document).ready(function(){
-    $('.customer-logos').slick({
-        slidesToShow: 6,
-        slidesToScroll: 1,
-        autoplay: true,
-        autoplaySpeed: 1500,
-        arrows: false,
-        dots: false,
-        pauseOnHover: false,
-        responsive: [{ breakpoint: 768,settings: { slidesToShow: 4}}, 
-                    {breakpoint: 520, settings: { slidesToShow: 3}}]
-    });
-});
-</script>
-<script type="text/javascript">
-    $(document).ready(function () {
-    $(".datepicker").datepicker({
-        dateFormat: 'dd-mm-yy'
-    })
-});
-        </script>
-         <script type="text/javascript">
+                    (function (w, d) {
+                        var m = d.getElementsByTagName('main')[0],
+                                s = d.createElement("script"),
+                                v = !("IntersectionObserver" in w) ? "8.17.0" : "11.0.6",
+                                o = {
+                                    elements_selector: ".lazy",
+                                    threshold: 500,
+                                    callback_enter: function (element) {
+
+                                    },
+                                    callback_load: function (element) {
+
+                                    },
+                                    callback_set: function (element) {
+
+                                        oTimeout = setTimeout(function ()
+                                        {
+                                            clearTimeout(oTimeout);
+
+                                            AOS.refresh();
+                                        }, 1000);
+                                    },
+                                    callback_error: function (element) {
+                                        
+                                    }
+                                };
+                        s.type = 'text/javascript';
+                        s.async = false; 
+                      
+                        m.appendChild(s);
+                       
+                        w.lazyLoadOptions = o;
+                    }(window, document));
+                </script>
+      
+
+         <script> var base_url = "{{url('/')}}"; </script>  
+        @isset($scripts)
+            @foreach($scripts as $_script) <script src="{{$_script}}" ></script> @endforeach
+        @endisset
+        @isset($scriptss)
+            @foreach($scriptss as $_scripts) <script src="{{$_scripts}}" ></script>  @endforeach
+        @endisset
+         
+        <!-- start footer common -->
+            @include('web.layout.footer_common')
+        <!-- start footer common -->
+        <script type="text/javascript">
             var _html = document.documentElement,
                 isTouch = (('ontouchstart' in _html) || (navigator.msMaxTouchPoints > 0) || (navigator.maxTouchPoints));
                _html.className = _html.className.replace("no-js","js");
@@ -457,5 +413,13 @@
                 });
 
         </script>
+         
+         
+         
+         
+
+           
     </body>
+
+
 </html>

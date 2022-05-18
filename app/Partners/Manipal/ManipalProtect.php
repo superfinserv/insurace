@@ -128,12 +128,12 @@ class ManipalProtect{
                $quotationChargeDOList->chargeClassCd="";
                $quotationChangeDOList  =  new \stdClass();
                $quotationChangeDOList->alterationType = "";
-               $listofquotationTO[]= ["quoteId" => "","channelId"=>"325",
+               $listofquotationTO[]= ["quoteId" => "","channelId"=>config('mediclaim.MANIPAL.channelId'),
                                        "productId"=>$productId,
                                       "parentProductId"=> "NULL","parentProductVersion"=> 1,"noOfAdults"=>(int)$adult,"noOfKids"=>(int)$child,
                                       "tenure"=> 1,"productPlanOptionCd"=> $productPlanOptionCd,
                                       "policyType"=> $policyType,
-                                      "saveFl"=> "YES","quoteTypeCd"=> "INITIAL","quotationDt"=> date('d/m/Y'),"agentId"=> "1000015-01",
+                                      "saveFl"=> "YES","quoteTypeCd"=> "INITIAL","quotationDt"=> date('d/m/Y'),"agentId"=> config('mediclaim.MANIPAL.baseAgentId'),
                                       "campaignCd"=> "DEFCMP03","productFamilyCd"=> "","policyNum"=> "","inwardTypeCd"=> "NEWBUSINESS",
                                       "inwardSubTypeCd"=> "PROPOSALDOCUMENT","ppmcFl"=> "","uwFl"=> "","caseType"=> "","sezUnit"=> "",
                                       "stateCd"=> "", "srNum"=> "","migrationFlag"=> "","astpFlag"=>"NO",
@@ -146,7 +146,7 @@ class ManipalProtect{
            
               
            $client = new Client([
-                'headers' => [ 'Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKey'),"app_id"=>config('mediclaim.MANIPAL.appIdQuote')]
+                'headers' => [ 'Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKeyQuote'),"app_id"=>config('mediclaim.MANIPAL.appIdQuote')]
             ]);
             
             $clientResp = $client->post(config('mediclaim.MANIPAL.QuickQuote'),
@@ -169,7 +169,8 @@ class ManipalProtect{
                       
                       
                       $amount  = $result->listofquotationTO[0]->totPremium;
-                      //$plan['supplier_id']=17; 
+                      $actualPrice = number_format((float)(($amount*100)/(118)), 2, '.', '');
+                      $tax = number_format((float)($amount-$actualPrice), 2, '.', '');
                       $plan['supplier']="MANIPAL_CIGNA";
                       $plan['sumInsured'] = $sum;
                       $plan['features'] = $features;
@@ -183,8 +184,13 @@ class ManipalProtect{
                                     'quote_id'=>$quoteId,'type'=>'HEALTH','policyType'=>$policytyp,
                                     'code'=>$productPlanOptionCd,'product'=>$productId,'title'=>"ProHealth-Protect",
                                     'device'=>$devicetoken,'provider'=>'MANIPAL_CIGNA',
-                                    'call_type'=>"QUOTE",'response'=>($response),
-                                    'json_quote'=>($response),'req'=>json_encode($Request),'resp'=>($response)];
+                                    'call_type'=>"QUOTE",
+                                    'netAmt'=>$actualPrice,
+                                    'taxAmt'=>$tax,
+                                    'grossAmt'=>$amount,
+                                    'reqQuote'=>json_encode($Request),
+                                    'respQuote'=>$response,
+                                    'req'=>json_encode($Request),'resp'=>($response)];
                       DB::table('app_temp_quote')->insertGetId($quoteData);
                  
                 return  ['status'=>true,'data'=>$plan];
@@ -330,12 +336,12 @@ class ManipalProtect{
                $quotationChargeDOList->chargeClassCd="";
                $quotationChangeDOList  =  new \stdClass();
                $quotationChangeDOList->alterationType = "";
-               $listofquotationTO[]= ["quoteId" => "","channelId"=>"325",
+               $listofquotationTO[]= ["quoteId" => "","channelId"=>config('mediclaim.MANIPAL.channelId'),
                                        "productId"=>$productId,//"RPRT06SBSF",
                                       "parentProductId"=> "NULL","parentProductVersion"=> 1,"noOfAdults"=>(int)$adult,"noOfKids"=>(int)$child,
                                       "tenure"=> 1,"productPlanOptionCd"=>$productPlanOptionCd,// $pT.'-PRT'.$sum.'-HMB500',
                                       "policyType"=> $policyType,
-                                      "saveFl"=> "YES","quoteTypeCd"=> "INITIAL","quotationDt"=> date('d/m/Y'),"agentId"=> "1000015-01",
+                                      "saveFl"=> "YES","quoteTypeCd"=> "INITIAL","quotationDt"=> date('d/m/Y'),"agentId"=> config('mediclaim.MANIPAL.baseAgentId'),
                                       "campaignCd"=> "DEFCMP03","productFamilyCd"=> "","policyNum"=> "","inwardTypeCd"=> "NEWBUSINESS",
                                       "inwardSubTypeCd"=> "PROPOSALDOCUMENT","ppmcFl"=> "","uwFl"=> "","caseType"=> "","sezUnit"=> "",
                                       "stateCd"=> "", "srNum"=> "","migrationFlag"=> "","astpFlag"=>"NO",
@@ -356,7 +362,7 @@ class ManipalProtect{
            
           
             $client = new Client([
-                'headers' => [ 'Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKey'),"app_id"=>config('mediclaim.MANIPAL.appIdQuote')]
+                'headers' => [ 'Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKeyQuote'),"app_id"=>config('mediclaim.MANIPAL.appIdQuote')]
             ]);
             
             $clientResp = $client->post(config('mediclaim.MANIPAL.QuickQuote'),
@@ -408,6 +414,9 @@ class ManipalProtect{
                             'sumInsured->longAmt'=>($sum*100000),
                             'reqQuote'=>$reqQuote,
                             'respQuote'=>$respQuote,
+                            'netAmt'=>$jsonAmtArr[$termYear]['Base_Premium'],
+                            'taxAmt'=>$jsonAmtArr[$termYear]['Total_Tax'],
+                            'grossAmt'=>$jsonAmtArr[$termYear]['Total_Premium'],
                             'reqRecalculate'=>$reqQuote,
                             'respRecalculate'=>$respQuote,
                             'req'=>json_encode($REQARR),
@@ -710,10 +719,10 @@ class ManipalProtect{
             $req['proposalReceivedDt'] =date('d/m/Y');
             $req['proposalEntryDt'] =date('d/m/Y');
             //$req['proposalNum']="";
-            $req['baseAgentId'] ='1000015-01';//'1600099-01';
+            $req['baseAgentId'] =config('mediclaim.MANIPAL.baseAgentId');//'1600099-01';
             $req['parentAgencyId'] ='';
             $req['servicingBranchId'] ='';
-            $req['channelId'] ='325';
+            $req['channelId'] =config('mediclaim.MANIPAL.channelId');
             $req['shgName'] ='';
             $req['baseProductId'] =$dataParam->product;
             $req['baseProductVersion'] =1;
@@ -874,7 +883,7 @@ class ManipalProtect{
              $req['policyPortabilityDO'] =[$this->policyPortabilityDO_obj()];
              $req['policyProductDOList'] =[$ProductDOList];//[$this->policyProductDOList_obj()];
              $req['policyPaymentDOList'] =[['paymentMethodCd'=>'','paymentInstructionTypeCd'=>'','partyFinAccountSeq'=>null,'partyFinAccRefGuid'=>'','payerPartyId'=>'','payerPartyRefGuid'=>'',]];
-             $req['policyAgentDOList'] =[['agentId'=>'1000015-01','primaryAgentFl'=>'','yearFrom'=>null,'yearTo'=>null,'commPercent'=>null,'prodnPercent'=>null,]];
+             $req['policyAgentDOList'] =[['agentId'=>config('mediclaim.MANIPAL.baseAgentId'),'primaryAgentFl'=>'','yearFrom'=>null,'yearTo'=>null,'commPercent'=>null,'prodnPercent'=>null,]];
              $req['policyPartyRoleDOList'] =$_RoleDOList;//$this->policyPartyRoleDOList_obj();
              $req['partyDOList'] =$_partyDOList;//[$this->partyDOList_obj()];
              $req['inwardDOList'] =[];
@@ -938,7 +947,7 @@ class ManipalProtect{
            // print_r(json_encode($REQUEST));die;
             try{
                 $client = new Client([
-                    'headers' => [ 'Action-Type'=>'VALIDATE','Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKey'),"app_id"=>config('mediclaim.MANIPAL.appIdValidate')]
+                    'headers' => [ 'Action-Type'=>'VALIDATE','Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKeyValidate'),"app_id"=>config('mediclaim.MANIPAL.appIdValidate')]
                 ]);
                 
                 $clientResp = $client->post(config('mediclaim.MANIPAL.validateProposal'),
@@ -1645,7 +1654,7 @@ class ManipalProtect{
                $elem["payerTypeCd"]= "CLIENT";
                $elem["inwardDt"]= $period->startDate;//"08/09/2020";
                $elem["insurerBankCd"]= "DAUTSCHEBANK";
-               $elem["agentId"]= "1000015-01";
+               $elem["agentId"]=config('mediclaim.MANIPAL.baseAgentId');
                $elem["payerPartyId"]= "0062X0000106xGdQAI";
                $elem["receiptBranchId"]= "110060418433";
                $elem["parentBranchId"]= "";
@@ -2501,10 +2510,10 @@ class ManipalProtect{
             $req['proposalReceivedDt'] =date('d/m/Y');
             $req['proposalEntryDt'] =date('d/m/Y');
             //$req['proposalNum']="";
-            $req['baseAgentId'] ='1000015-01';//'1600099-01';
+            $req['baseAgentId'] =config('mediclaim.MANIPAL.baseAgentId');//'1600099-01';
             $req['parentAgencyId'] ='';
             $req['servicingBranchId'] ='';
-            $req['channelId'] ='325';
+            $req['channelId'] =config('mediclaim.MANIPAL.channelId');
             $req['shgName'] ='';
             $req['baseProductId'] =$dataParam->product;
             $req['baseProductVersion'] =1;
@@ -2665,7 +2674,7 @@ class ManipalProtect{
              $req['policyPortabilityDO'] =[$this->policyPortabilityDO_obj()];
              $req['policyProductDOList'] =[$ProductDOList];//[$this->policyProductDOList_obj()];
              $req['policyPaymentDOList'] =[['paymentMethodCd'=>'','paymentInstructionTypeCd'=>'','partyFinAccountSeq'=>null,'partyFinAccRefGuid'=>'','payerPartyId'=>'','payerPartyRefGuid'=>'',]];
-             $req['policyAgentDOList'] =[['agentId'=>'1000015-01','primaryAgentFl'=>'','yearFrom'=>null,'yearTo'=>null,'commPercent'=>null,'prodnPercent'=>null,]];
+             $req['policyAgentDOList'] =[['agentId'=>config('mediclaim.MANIPAL.baseAgentId'),'primaryAgentFl'=>'','yearFrom'=>null,'yearTo'=>null,'commPercent'=>null,'prodnPercent'=>null,]];
              $req['policyPartyRoleDOList'] =$_RoleDOList;//$this->policyPartyRoleDOList_obj();
              $req['partyDOList'] =$_partyDOList;//[$this->partyDOList_obj()];
              $req['inwardDOList'] =[$this->inwardDoList_obj($period,$proposalNum,$txnid,$amount)];
@@ -2730,7 +2739,7 @@ class ManipalProtect{
             
          
              $client = new Client([
-                'headers' => ['Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKey'),"app_id"=>config('mediclaim.MANIPAL.appIdSave')]
+                'headers' => ['Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKeySave'),"app_id"=>config('mediclaim.MANIPAL.appIdSave')]
             ]);
             
             $clientResp = $client->post(config('mediclaim.MANIPAL.saveProposal'),

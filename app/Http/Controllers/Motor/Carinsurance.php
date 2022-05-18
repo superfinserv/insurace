@@ -184,8 +184,8 @@ class Carinsurance extends Controller
                 $json_data = json_decode($temp->json_data);//$this->DigitCar->getJsonData($temp->response);
                 $json_data->enq = $enquiryId;
                 if(isset(Auth::guard('agents')->user()->id)){
-                  $customerID = _createCustomer(['mobile'=>$request->carInfo['customer']['mobile']]);
-                  $custMobile = $request->carInfo['customer']['mobile'];
+                  $customerID = 0;//_createCustomer(['mobile'=>$request->carInfo['customer']['mobile']]);
+                  $custMobile = "";//$request->carInfo['customer']['mobile'];
                   $agentID = Auth::guard('agents')->user()->id;
                 }else{
                   $customerID =Auth::guard('customers')->user()->id;
@@ -203,12 +203,13 @@ class Carinsurance extends Controller
                               'idv'=>$temp->idv,
                               'policyType'=>$temp->policyType,
                               'premiumAmount'=>$json_data->gross,
+                              'netAmt'=>$temp->netAmt,
+                              'taxAmt'=>$temp->taxAmt,
+                              'grossAmt'=>$temp->grossAmt,
                               'min_idv'=>$temp->min_idv,
                               'max_idv'=>$temp->max_idv,
                               'params_request'=>json_encode($request->carInfo),
                               'json_data'=>json_encode($json_data),
-                              //'json_resp'=>$temp->json_quote,
-                              //'json_recalculate'=>$temp->json_recalculate,
                                'reqQuote'=>$temp->reqQuote,
                                'respQuote'=>$temp->respQuote,
                                'reqRecalculate'=>$temp->reqRecalculate,
@@ -226,8 +227,8 @@ class Carinsurance extends Controller
                 $json_data = json_decode($temp->json_data);//$this->DigitCar->getJsonData($temp->response);
                 $json_data->enq = $temp->quote_id;
                 if(isset(Auth::guard('agents')->user()->id)){
-                  $customerID = _createCustomer(['mobile'=>$request->carInfo['customer']['mobile']]);
-                  $custMobile = $request->carInfo['customer']['mobile'];
+                  $customerID = 0;//_createCustomer(['mobile'=>$request->carInfo['customer']['mobile']]);
+                  $custMobile = "";//$request->carInfo['customer']['mobile'];
                   $agentID = Auth::guard('agents')->user()->id;
                 }else{
                   $customerID =Auth::guard('customers')->user()->id;
@@ -245,6 +246,9 @@ class Carinsurance extends Controller
                               'call_type'=>"QUOTE",
                               'idv'=>$temp->idv,
                               'premiumAmount'=>$json_data->gross,
+                              'netAmt'=>$temp->netAmt,
+                              'taxAmt'=>$temp->taxAmt,
+                              'grossAmt'=>$temp->grossAmt,
                               'min_idv'=>$temp->min_idv,
                               'max_idv'=>$temp->max_idv,
                               'params_request'=>json_encode($request->carInfo),
@@ -253,8 +257,7 @@ class Carinsurance extends Controller
                                'respQuote'=>$temp->respQuote,
                                'reqRecalculate'=>$temp->reqRecalculate,
                                'respRecalculate'=>$temp->respRecalculate
-                              //'json_resp'=>$temp->json_quote,
-                              //'json_recalculate'=>$temp->json_recalculate,
+                              
                              ];
                  $quoteData['enquiry_id'] =  $enquiryId;
                  $refID = DB::table('app_quote')->insertGetId($quoteData);

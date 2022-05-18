@@ -7,7 +7,7 @@ $(document).ready(function(){
         }
     });
     
-     $('.profile-input').on('change',function(e){
+    $('.profile-input').on('change',function(e){
         e.preventDefault();
         var _this = $(this);
         var _typ = "text";
@@ -82,7 +82,7 @@ $(document).ready(function(){
                              $('.'+refClass).html("").html('<span>Done</span>');  
                             }else{
                               $('.'+refClass).html("").html('<span class="required">Required</span>'); 
-                          }
+                           }
                             alertconfig(resp.data.iscomplete,"profile");
                          if(str == "success") {
                              if(resp.name!=""){
@@ -1228,26 +1228,27 @@ $(document).ready(function(){
     $.get(base_url+"/get-alert-notification/", function(res) {
         var st = $.trim(res.status);
         if(st=="success"){
-            if(res.data.iscomplete==0 && res.data.isProceedSign==0 && res.data.payment_status==0){
+            if(res.data.iscomplete==0 && res.data.isProceedSign=='No' && res.data.payment_status==='Pending'){
                    
                    $('.alert-section').html('<div class="myprofile alert-profile-complete"  style="background: #fff;border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">'+
                                           '<span><strong>Alert! </strong> Profile Information is not Complete. Fill all required details to get paid quickly.</span>'+
                                          '</div>'); 
             }
             
-            if(res.data.iscomplete==1 && res.data.isProceedSign==0 && res.data.payment_status==0){
+            if(res.data.iscomplete==1 && res.data.isProceedSign=='No' && res.data.payment_status=='Pending'){
               
                    $('.alert-section').html('<div class="myprofile alert-process-payment" style="background: #fff; border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">'+
-                                      '<span><strong>Congratulations! </strong> Profile Information is Complete. Proceed for the Payment of the Application fee.</span>'+
-                                     '<button type="submit" class="btn btn-primary"style=" background: #ac0f0b !important; float: right !important; padding: 5px 15px !important; border-radius: 3px !important; box-shadow: 0 16px 24px 2px rgba(0, 0, 0, .14), 0 6px 30px 5px rgba(0, 0, 0, .12), 0 8px 10px -5px rgba(0, 0, 0, .2) !important; margin-top: -4px !important; border: 0px !important; color: #fff !important; font-size: 14px !important; " id="payment_process">Paynow'+ 
-                                     '<span class="fa fa-arrow-right"></span></button>'+
+                                      '<span><strong>Congratulations! </strong> Profile Information is Complete. Proceed for the Payment of the Application fee. <i style="font-size: 16px;" class="fa fa-hand-o-right"></i></span>'+
+                                     '<button type="submit" class="btn btn-primary"style=" background: #2f3c46 !important; float: right !important; padding:8px 10px !important; border-radius: 3px !important; box-shadow: 0 16px 24px 2px rgba(0, 0, 0, .14), 0 6px 30px 5px rgba(0, 0, 0, .12), 0 8px 10px -5px rgba(0, 0, 0, .2) !important; margin-top: -10px !important; border: 0px !important; color: #fff !important; font-size: 15px !important;text-transform: uppercase;font-weight: bold; " id="payment_process">Pay now'+ 
+                                     ' <span class="fa fa-arrow-right"></span></button>'+
                                    '</div>');
+                    $('html, body').animate({ scrollTop: 0 }, 1200);
             }
             
-            if(res.data.iscomplete==1 && res.data.isProceedSign==0 && res.data.payment_status==1){
+            if(res.data.iscomplete==1 && res.data.isProceedSign=='No' && res.data.payment_status=='Paid'){
                 $('.alert-section').html('<div class="myprofile alert-process-verification" style="background: #fff; border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">'+
                                       '<span><strong>Congratulations! </strong>You have paid application fee successfully. please proceed for verification, after verification you can not  update any details.</span>'+
-                                     '<button type="submit" class="btn btn-primary"style=" background: #ac0f0b !important; float: right !important; padding:3px 10px !important; border-radius: 3px !important; box-shadow: 0 16px 24px 2px rgba(0, 0, 0, .14), 0 6px 30px 5px rgba(0, 0, 0, .12), 0 8px 10px -5px rgba(0, 0, 0, .2) !important; margin-top: -4px !important; border: 0px !important; color: #fff !important; font-size: 14px !important; " id="sing_process_video">Paynow'+ 
+                                     '<button type="submit" class="btn btn-primary"style=" background: #2f3c46 !important; float: right !important; padding:8px 10px !important; border-radius: 3px !important; box-shadow: 0 16px 24px 2px rgba(0, 0, 0, .14), 0 6px 30px 5px rgba(0, 0, 0, .12), 0 8px 10px -5px rgba(0, 0, 0, .2) !important; margin-top: -4px !important; border: 0px !important; color: #fff !important; font-size: 15px !important;text-transform: uppercase;font-weight: bold; " id="sing_process_video">Procced'+ 
                                      '<span class="fa fa-arrow-right"></span></button>'+
                                    '</div>');
             }
@@ -1656,6 +1657,7 @@ $('body').on('click',"#sing_process_video", function(){
         var myfile = $('#identityVideo').val();
             if(myfile == '') {
                 alert('Please enter file name and select file');
+                $(this).attr('disabled',false);$(this).prop('disabled',false);
                 return;
             }
             $('#myprogress-container').show();
@@ -1687,7 +1689,7 @@ $('body').on('click',"#sing_process_video", function(){
                     return xhr;
                 },
                 success: function (data) {
-                    console.log(data);
+                    //console.log(data);
                     
                      $('#myprogress-container').hide();
                     if($.trim(data.status)=="success"){

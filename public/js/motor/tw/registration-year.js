@@ -23,6 +23,7 @@ $(window).on('load', function(){
     }
 });
 $(document).ready(function() {
+     var monthMaxDay = [31,28,31,30,31,30,31,31,30,31,30,31];
    $("#regYearForm").validate({
     rules: {
         'regYear': {
@@ -52,18 +53,29 @@ $(document).ready(function() {
         
         var twInfo = JSON.parse(localStorage.getItem('twInfo'));
         var d = new Date();
-        var n = ("0" + (d.getDate())).slice(-2);
+        var n = "30";//("0" + (d.getDate())).slice(-2);
         
         if(twInfo.vehicle.isBrandNew=='false'){
             var regYear = $('#regYear').val();
             var regMonth = $('#regMonth').val();
+            
+            let tD =  parseInt(monthMaxDay[parseInt(regMonth-1)]);
+            if(parseInt(n)>tD){
+                n =  tD.toString();
+            }
+            
+           // console.log(monthMaxDay[parseInt(regMonth-1)]);
         }else{
             // var regYear = d.getFullYear();
             // var regMonth =d.getMonth()+1;
             
              var regYear = d.getFullYear();regYear=regYear.toString();
+             var mn = d.getMonth();
              var regMonth = ("0" + (d.getMonth() + 1)).slice(-2);
-            
+             let tD =  parseInt(monthMaxDay[parseInt(mn)]);
+             if(parseInt(n)>tD){
+                n = tD.toString();
+            }
         }
             
          twInfo.vehicle.regDate = n;

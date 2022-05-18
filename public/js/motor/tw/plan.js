@@ -480,7 +480,7 @@ $(function(){
              planLib.digit('recalculate');
              planLib.hdfcErgo('recalculate');
              planLib.fgi('recalculate');
-              planLib.fgi('recalculate');
+             
      });
      
      $('body').on('click','#btn-pa-owner-driver',function() {
@@ -492,6 +492,7 @@ $(function(){
         localStorage.setItem("twInfo", JSON.stringify(twInfo));
         planLib.digit('recalculate');
         planLib.hdfcErgo('recalculate');
+        planLib.fgi('recalculate');
     })
      
      // PA UNNAMED
@@ -531,20 +532,20 @@ $(function(){
          if(twInfo.vehicle.isBrandNew=="false"){
              if($('#isPartDepProCover').is(":checked")){ 
                   $.confirm({
-                    title: 'Confirm!',
+                    title: 'Zero Depreciation',
                     titleClass:'zerodep-title',
                     type:'red',
-                    content: '<h4 style="font-size: 13px;color: red;">Do you have Zero Depreciation cover in your Previous policy?</h4>',
+                    content: '<h4 style="font-size: 13px;">Do you have ❛Zero Depreciation❜ cover in your previous policy?</h4>',
                     btnClass: 'btn-red',
                     buttons: {
                         yes: {
                             text: 'Yes',
-                            btnClass: 'btn-green',
+                            btnClass: 'b-btn pagebtn',
                             action: function(){
                                // $('#'+elemName+'-elem').show();
                               twInfo = JSON.parse(localStorage.getItem('twInfo'));
                               twInfo.subcovers.isPartDepProCover =  "true";
-                              twInfo.coverValues.partDepCoverval = "Cover only 2 claims per year";
+                              twInfo.coverValues.partDepCoverval = "Cover Unlimited Claims";
                               localStorage.setItem("twInfo", JSON.stringify(twInfo));
                               planLib.digit('recalculate'); 
                               planLib.hdfcErgo('recalculate');
@@ -554,7 +555,7 @@ $(function(){
                         },
                         no: {
                             text: 'No',
-                            btnClass: 'btn-red',
+                            btnClass: 'r-btn pagebtn',
                             action: function(){
                               $("#isPartDepProCover").prop("checked", false);$("#isPartDepProCover").attr("checked", false);
                             }

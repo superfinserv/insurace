@@ -114,6 +114,11 @@ class Common extends Controller{
              ->orderBy('name','ASC')->limit(25)->get();
         return response()->json(['status'=>'success','message'=>'Financiers get successfully','data'=>$ff]);
     }
+    
+     public function getPlansByPartner(Request $request){
+        $cities = DB::table('plans')->select(DB::raw("id,plan_name as value"))->where('supplier',$request->partner)->orderBy('plan_name','asc')->get();
+        return response()->json(['status'=>'success','message'=>'Cities get successfully','data'=>$cities]);
+    }
      
     public function getFileDownloads(Request $request){
          if($request->type =='test-certificate'){
