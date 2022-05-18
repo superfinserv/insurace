@@ -740,8 +740,8 @@ class HdfcErgoCarResource extends AppResource{
                 )]
             );
             $result = $clientResp->getBody()->getContents();
-          // print_r(json_encode($request));
-         // print_r($result);die;
+        //   print_r(json_encode($request));
+           //print_r($result);die;
             $response = json_decode($result);
            
            DB::table('app_temp_quote')->where(['type'=>'CAR','device'=>$deviceToken,'provider'=>'HDFCERGO'])->delete();
@@ -766,8 +766,9 @@ class HdfcErgoCarResource extends AppResource{
                                 'respQuote'=>$result,
                                 'reqRecalculate'=>$result,
                                 'respRecalculate'=>$result,
-                                //'response'=>($result),
-                                //'json_quote'=>($result),
+                                'netAmt'=>str_replace(',','',str_replace('INR','',$response->Data[0]->NetPremiumAmount)),
+                                'taxAmt'=>str_replace(',','',str_replace('INR','',$response->Data[0]->TaxAmount)),
+                                'grossAmt'=>str_replace(',','',str_replace('INR','',$response->Data[0]->TotalPremiumAmount)),
                                 'json_data'=>json_encode($json_data),
                                 'req'=>json_encode($request),'resp'=>($result)];
               DB::table('app_temp_quote')->where(['type'=>'CAR','device'=>$deviceToken,'provider'=>'HDFCERGO'])->delete();
@@ -832,9 +833,10 @@ class HdfcErgoCarResource extends AppResource{
                                 'idv'    =>isset($response->Data[0]->VehicleIdv)?$response->Data[0]->VehicleIdv:0,
                                 'call_type'=>"QUOTE", 
                                 'reqRecalculate'=>json_encode($request),
-                                 'respRecalculate'=>$result,
-                                //'response'=>($result),
-                                //'json_quote'=>($result),
+                                'respRecalculate'=>$result,
+                                'netAmt'=>str_replace(',','',str_replace('INR','',$response->Data[0]->NetPremiumAmount)),
+                                'taxAmt'=>str_replace(',','',str_replace('INR','',$response->Data[0]->TaxAmount)),
+                                'grossAmt'=>str_replace(',','',str_replace('INR','',$response->Data[0]->TotalPremiumAmount)),
                                 'json_data'=>json_encode($json_data),
                                 'req'=>json_encode($request),'resp'=>($result)];
                                 
@@ -1010,9 +1012,9 @@ class HdfcErgoCarResource extends AppResource{
        $proposalDetails->RegistrationNo = $vehicleNo;
        $proposalDetails->EngineNo =  ($params->vehicle->engineNumber)?$params->vehicle->engineNumber:null;
        $proposalDetails->ChassisNo = ($params->vehicle->chassisNumber)?$params->vehicle->chassisNumber:null;
-       $proposalDetails->NetPremiumAmount = (int)$jData->net;
-       $proposalDetails->TotalPremiumAmount =(int)$jData->gross;
-       $proposalDetails->TaxAmount = (int)$jData->tax;
+       $proposalDetails->NetPremiumAmount = (int)$enQ->netAmt;
+       $proposalDetails->TotalPremiumAmount =(int)$enQ->grossAmt;
+       $proposalDetails->TaxAmount = (int)$enQ->taxAmt;
        $isNom = (isset($subcovr->isPA_OwnerDriverCover) && $subcovr->isPA_OwnerDriverCover=='true')?true:false;
        $nomineeRelation = ['BROTHER'=>'Sibling','HUSBAND'=>'Spouse','GRAND_FATHER'=>'','GRAND_MOTHER'=>'','FATHER_IN_LAW'=>'','MOTHER_IN_LAW'=>'Mother','MOTHER'=>'Mother','SISTER'=>'Sibling','SON'=>'Son','DAUGHTER'=>'Daughter','FATHER'=>'Father','SPOUSE'=>'Spouse'];
         if($params->vehicle->policyHolder=="IND" && $isNom){ 
@@ -1468,9 +1470,12 @@ class HdfcErgoCarResource extends AppResource{
        $proposalDetails->RegistrationNo = $vehicleNo;
        $proposalDetails->EngineNo =  ($options['vehicle']['engineNumber'])?$options['vehicle']['engineNumber']:null;
        $proposalDetails->ChassisNo = ($options['vehicle']['chassisNumber'])?$options['vehicle']['chassisNumber']:null;
-       $proposalDetails->NetPremiumAmount = (int)$jData->net;
-       $proposalDetails->TotalPremiumAmount =(int)$jData->gross;
-       $proposalDetails->TaxAmount = (int)$jData->tax;
+      // $proposalDetails->NetPremiumAmount = (int)$jData->net;
+      // $proposalDetails->TotalPremiumAmount =(int)$jData->gross;
+       //$proposalDetails->TaxAmount = (int)$jData->tax;
+       $proposalDetails->NetPremiumAmount = (int)$enQ->netAmt;
+       $proposalDetails->TotalPremiumAmount =(int)$enQ->grossAmt;
+       $proposalDetails->TaxAmount = (int)$enQ->taxAmt;
        $isNom = (isset($subcovr->isPA_OwnerDriverCover) && $subcovr->isPA_OwnerDriverCover=='true')?true:false;
        $nomineeRelation = ['BROTHER'=>'Sibling','HUSBAND'=>'Spouse','GRAND_FATHER'=>'','GRAND_MOTHER'=>'','FATHER_IN_LAW'=>'','MOTHER_IN_LAW'=>'Mother','MOTHER'=>'Mother','SISTER'=>'Sibling','SON'=>'Son','DAUGHTER'=>'Daughter','FATHER'=>'Father','SPOUSE'=>'Spouse'];
         if($options['vehicle']['policyHolder']=="IND" && $isNom){ 

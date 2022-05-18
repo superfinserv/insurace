@@ -9,7 +9,7 @@ $(function(){
                 "processing": true,
                 "serverSide": true,
                "ajax": {
-                    "url": base_url+"/agent/payments-datatable",
+                    "url": base_url+"/agent/payments/datatable",
                      "type": "POST",
                 },
                 "columns": [
@@ -24,9 +24,9 @@ $(function(){
                 ],
                 "columnDefs": [
                     { "width": "3%", "targets": 0 },
-                    { "width": "10%", "targets": 1 },
+                    { "width": "18%", "targets": 1 },
                     { "width": "10%", "targets": 2 },
-                    { "width": "20%", "targets": 3 },
+                    { "width": "15%", "targets": 3 },
                     { "width": "15%", "targets": 4 },
                     { "width": "10%", "targets": 5 },
                     { "width": "15%", "targets": 6 },

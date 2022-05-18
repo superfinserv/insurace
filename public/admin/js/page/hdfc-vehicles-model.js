@@ -22,8 +22,13 @@ $(function(){
     
 
 if($('#pvt-car-vehicles-datatable').length){
+     $('#pvt-car-vehicles-datatable thead #searchTR th').each( function () {
+        var title = $(this).text();
+        $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
+    } );
     $('#pvt-car-vehicles-datatable').DataTable( {
         "ajax": base_url+"/js/hdfc-car-model.json",
+          "pageLength": 50,
         "columns": [
             { "data": "ModelName" },
             { "data": "VariantName" },
@@ -31,13 +36,34 @@ if($('#pvt-car-vehicles-datatable').length){
             { "data": "ModelId" },
             { "data": "FuelType" },
             { "data": "CubicCapacity" }
-        ]
+        ],initComplete: function () {
+            // Apply the search
+            this.api().columns().every( function () {
+                var that = this;
+                 
+                $( 'input', this.header() ).on( 'keyup change clear', function () {
+                    if ( that.search() !== this.value ) {
+                        that
+                            .search( this.value )
+                            .draw();
+                    }
+                } );
+            } );
+        }
+        
     } );
 }
 
 if($('#2w-vehicles-datatable').length){
+    $('#2w-vehicles-datatable thead #searchTR th').each( function () {
+        var title = $(this).text();
+        $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
+    } );
+    
+    
     $('#2w-vehicles-datatable').DataTable( {
        "ajax": base_url+"/js/hdfc-2w-model.json",
+        "pageLength": 50,
         "columns": [
              { "data": "ModelName" },
             { "data": "VariantName" },
@@ -45,7 +71,21 @@ if($('#2w-vehicles-datatable').length){
             { "data": "ModelId" },
             { "data": "FuelType" },
             { "data": "CubicCapacity" }
-        ]
+        ],
+        initComplete: function () {
+            // Apply the search
+            this.api().columns().every( function () {
+                var that = this;
+                  console.log(this);
+                $( 'input', this.header() ).on( 'keyup change clear', function () {
+                    if ( that.search() !== this.value ) {
+                        that
+                            .search( this.value )
+                            .draw();
+                    }
+                } );
+            } );
+        }
     } );
 }
 

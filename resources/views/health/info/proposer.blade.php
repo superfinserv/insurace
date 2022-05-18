@@ -67,7 +67,7 @@
                                 <?php $month = array('01'=>'Jan', '02'=>'Feb','03'=>'Mar','04'=>'Apr','05'=>'May','06'=>'Jun','07'=>'Jul','08'=>'Aug','09'=>'Sep','10'=>'Oct','11'=>'Nov','12'=>'Dec');?>
                                 <option value="">Month</option>
                                 <?php foreach($month as $key=>$val){?>
-                                <option value="<?=$key;?>" <?=(isset($param->selfmm) && $param->selfmm==$key)?'selected':"";?>><?=strtoupper($val);?></option>
+                                <option value="<?=$key;?>" <?=(isset($param->selfmm) && $param->selfmm==$key)?'selected':"";?>>{{strtoupper($val)}} ({{$key}})</option>
                                 <?php } ?>
                             </select>
                         </li>
@@ -75,7 +75,7 @@
                             <select name="self_yy" id="self_yy">
                                 <option value="">Year</option>
                                 <?php $cy=date('Y');
-                                      $sy = $cy-95;
+                                      $sy = $cy-99;
                                   for($y=$cy;$y>=$sy;$y--){?> <option value="<?=$y;?>" <?=(isset($param->selfyy) && $param->selfyy==$y)?'selected':"";?>><?=$y;?></option> <?php } ?>
                             </select>
                         </li>
@@ -183,7 +183,7 @@
                                 <?php $month = array('01'=>'Jan', '02'=>'Feb','03'=>'Mar','04'=>'Apr','05'=>'May','06'=>'Jun','07'=>'Jul','08'=>'Aug','09'=>'Sep','10'=>'Oct','11'=>'Nov','12'=>'Dec');?>
                                 <option value="">Month</option>
                                 <?php foreach($month as $key=>$val){?>
-                                <option value="<?=$key;?>" <?=(isset($param->nomineemm) && $param->nomineemm==$key)?'selected':"";?>><?=strtoupper($val);?></option>
+                                <option value="<?=$key;?>" <?=(isset($param->nomineemm) && $param->nomineemm==$key)?'selected':"";?>>{{strtoupper($val)}} ({{$key}})</option>
                                 <?php } ?>
                             </select>
                         </li>

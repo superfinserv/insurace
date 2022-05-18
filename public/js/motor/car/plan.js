@@ -446,7 +446,7 @@ $(function(){
                                 $('#'+elemName+'-elem').show();
                               carInfo = JSON.parse(localStorage.getItem('carInfo'));
                               carInfo.subcovers.isPartDepProCover =  "true";
-                              carInfo.coverValues.partDepCoverval = "0";
+                              carInfo.coverValues.partDepCoverval = "2";
                               localStorage.setItem("carInfo", JSON.stringify(carInfo));
                               planLib.digit('recalculate'); 
                               planLib.hdfcErgo('recalculate');
@@ -477,7 +477,7 @@ $(function(){
              if($('#isPartDepProCover').is(":checked")){ 
               carInfo.subcovers.isPartDepProCover =  "true";
                 $('#'+elemName+'-elem').show();
-              carInfo.coverValues.partDepCoverval = "0";
+              carInfo.coverValues.partDepCoverval = "2";
              }else{
                   $('#'+elemName+'-elem').hide();
                  carInfo.subcovers.isPartDepProCover =  "false";
@@ -490,16 +490,16 @@ $(function(){
          
      });
      
-     $('body').on('click','#btn-zero-dep-claim',function() {
-        carInfo = JSON.parse(localStorage.getItem('carInfo'));
-        var val = $('#zero-dep-value').val();
-        var isPartDepProCover=($('input[name=isPartDepProCover]:checked').val()==1)?"true":"false"; 
-        carInfo.subcovers.isPartDepProCover =  isPartDepProCover;
-        carInfo.coverValues.partDepCoverval = val;
-        localStorage.setItem("carInfo", JSON.stringify(carInfo));
-        planLib.digit('recalculate');
-        //planLib.hdfcErgo('recalculate');
-    });
+    //  $('body').on('click','#btn-zero-dep-claim',function() {
+    //     carInfo = JSON.parse(localStorage.getItem('carInfo'));
+    //     var val = $('#zero-dep-value').val();
+    //     var isPartDepProCover=($('input[name=isPartDepProCover]:checked').val()==1)?"true":"false"; 
+    //     carInfo.subcovers.isPartDepProCover =  isPartDepProCover;
+    //     carInfo.coverValues.partDepCoverval = val;
+    //     localStorage.setItem("carInfo", JSON.stringify(carInfo));
+    //     planLib.digit('recalculate');
+    //     //planLib.hdfcErgo('recalculate');
+   // });
     
     $('body').on('click','.addonCover',function(e) {
         var isPA_OwnerDriverCover =  ($('input[name=PA_OwnerDriverCover]:checked').val()==1)?"true":"false"; 

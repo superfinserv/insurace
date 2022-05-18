@@ -19,7 +19,7 @@
   <?php $state = ($agentData->state!="")?DB::table('states_list')->where('id',$agentData->state)->first()->name:"";
         $city = ($agentData->city!="")?DB::table('cities_list')->where('id',$agentData->city)->first()->name:"";
         $address = $agentData->address.",".$city.",".$state."-".$agentData->pincode;
-       // $assetUrl = "https://supersolutions.in/insassets/agents/";
+       // $assetUrl = "https://supersoluti ons.in/insassets/agents/";
        
     ?>
   
@@ -27,7 +27,99 @@
             <div class="bg-white-1">
                 
                  <div class="row">
-                    <div class="col-lg-4 mg-t-30 mg-lg-t-0">
+                    <div class="col-lg-3 mg-t-30 mg-lg-t-0">
+                        <div class="card pd-20 pd-xs-30 shadow-base bd-0 text-center bg-white p-4 rounded">
+                                <img 
+                                   src="<?=($agentData->profile!="")?asset('assets/agents/profile/'.$agentData->profile):asset('assets/agents/profile/avatar.png');?>" class="rounded-circle shadow avatar avatar-md-md" alt="">
+                                <h5 class="mt-3 mb-0">{{$agentData->name}}</h5>
+                                <small class="text-muted">{{$agentData->application_no}}</small>
+                                <div class="row mt-4">
+                                    <div class="col-6 text-center">
+                                        <i class="ti ti-user-plus text-primary mb-2 fs-5"></i>
+                                        <h5 class="mb-0">2588</h5>
+                                        <p class="text-muted mb-0">Followers</p>
+                                    </div><!--end col-->
+                                    <div class="col-6 text-center">
+                                        <i class="ti ti-users text-primary mb-2 fs-5"></i>
+                                        <h5 class="mb-0">454</h5>
+                                        <p class="text-muted mb-0">Following</p>
+                                    </div><!--end col-->
+                                </div><!--end row-->
+                                
+
+                            </div>
+                           <div class="card border-0  mg-t-30  rounded shadow p-4">
+                                    <h5 class="mb-0">Personal Details :</h5>
+                                    <div class="mt-4">
+                                        <div class="d-flex align-items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-mail fea icon-ex-md text-muted mg-r-10"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                            <div class="flex-1">
+                                                <h6 class="text-primary mb-0">Email :</h6>
+                                                <a href="javascript:void(0)" class="text-muted">{{$agentData->email}}</a>
+                                            </div>
+                                            
+                                        </div>
+                                        
+                                        <div class="d-flex align-items-center mt-3">
+                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-phone fea icon-ex-md text-muted mg-r-10"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                             <div class="flex-1">
+                                                <h6 class="text-primary mb-0">Mobile :</h6>
+                                                <a href="javascript:void(0)" class="text-muted">{{$agentData->mobile}}</a>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="d-flex align-items-center mt-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin fea icon-ex-md text-muted mg-r-10"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                            <div class="flex-1">
+                                                <h6 class="text-primary mb-0">Address :</h6>
+                                                <a href="javascript:void(0)" class="text-muted">{{$agentData->address}}, {{$agentData->city_name}}, {{$agentData->state_name}}({{$agentData->pincode}})</a>
+                                              </div>
+                                        </div>
+                                        
+                                        
+                                    </div>
+                                </div>
+                                
+                                <div class="card border-0 rounded shadow p-4 mt-4 ">
+                                    <h5 class="mb-0 text-danger">Application Status:</h5>
+        
+                                    <div class="mt-4 Application-Status-Elem">
+                                        @if($agentData->application_status=="Pending")
+                                        <h6 class="mb-0" style="letter-spacing: 0.7px;font-weight: 300;">Do you want to <span class="text-success">Approved</span> or <span class="text-danger">Declined</span> the application? Please press below "Approve/Declined" button</h6>
+                                        <div class="mt-4">
+                                            <button class="btn btn-success btn-sm btn-app-status" data-id="{{$agentData->id}}" data-status="Approved">Approved</button>
+                                            <button class="btn btn-danger btn-sm btn-app-status" data-id="{{$agentData->id}}" data-status="Declined">Declined</button>
+                                        </div><!--end col-->
+                                         @elseif($agentData->application_status=="Approved")
+                                         <button class="btn btn-success btn-sm">Approved</button>
+                                         @elseif($agentData->application_status=="Declined")
+                                         <button class="btn btn-danger btn-sm ">Declined</button>
+                                         @endif
+                                    </div>
+                                </div>
+                                
+                                @if($agentData->application_status=="Approved")
+                                
+                                  <div class="card border-0 rounded shadow p-4 mt-4 ">
+                                    <h5 class="mb-0 text-danger">Posp Profile Status:</h5>
+        
+                                    <div class="mt-4 Application-Status-Elem">
+                                        @if($agentData->status=="Pending")
+                                         <button class="btn btn-primary btn-sm">Pending</button>
+                                        @elseif($agentData->status=="Inforce")
+                                         <button class="btn btn-success btn-sm">Inforce</button>
+                                        @elseif($agentData->status=="Declined")
+                                         <button class="btn btn-danger btn-sm ">Declined</button>
+                                        @elseif($agentData->status=="Suspended")
+                                         <h6 class="mb-0" style="letter-spacing: 0.7px;font-weight: 300;">Posp is  <span class="text-warning">Suspended</span> for some time due to internal reasons.</h6>
+                                         <button class="btn btn-warning btn-sm ">Suspended</button>
+                                        @endif
+                                    </div>
+                                </div>
+                                
+                                @endif
+                                
+                        <?php /*
                         <div class="card pd-20 pd-xs-30 shadow-base bd-0">
                          <a href="" class="mg-b-15 d-block text-center">
                                <img src="<?=($agentData->profile!="")?asset('assets/agents/profile/'.$agentData->profile):asset('assets/agents/profile/avatar.png');?>" 
@@ -59,30 +151,7 @@
                             <p class="tx-inverse mg-b-25"><?=$address;?></p>
             
                            <hr/>
-                           <?php /*
-                             <div class="card border-0 rounded shadow p-4 mt-4">
-                                    <h5 class="mb-0 text-danger">POSP Verification:</h5>
-                                    @if($agentData->isVerified==0)
-                                           @if($agentData->isProceedSign==0)
-                                              <div class="mt-4"><h6 class="mb-0">Posp did not process for verification.</h6></div>
-                                           @else
-                                                <div class="mt-4">
-                                                    <h6 class="mb-0">Do you want to mark as the verified account? Please press below "Vefity" button</h6>
-                                                    <div class="mt-4">
-                                                        <button class="btn btn-danger btn-markVerify" data-name="<?=$agentData->name;?>" 
-                                                                                        data-isVerified="<?=$agentData->isVerified;?>" 
-                                                                                        data-id="<?=$agentData->id;?>">Verify Account</button>
-                                                    </div><!--end col-->
-                                                </div>
-                                            @endif
-                                    @else
-                                               <div class="mt-4">
-                                                    <h6 class="mb-0">POSP is verified</h6>
-                                                </div>   
-                                                
-                                    @endif
-                                </div>
-                                  */?>
+                           
                           
                         <h6 class="tx-gray-800 tx-uppercase tx-semibold tx-13 mg-b-5">IS AGENT VERIFIED ?</h6>
         
@@ -136,8 +205,9 @@
                        
                         
                 </div><!-- card -->
+                */?>
                     </div>
-                    <div class="col-md-8 col-lg-8 pd-10">
+                    <div class="col-md-9 col-lg-8 pd-10">
                             <div class="row">
                                 <div class="col-md-12 col-lg-12 pd-10">
                                     <div class="card">

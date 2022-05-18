@@ -22,7 +22,7 @@ $(function(){
             return tbl;
         }  
     
-    var vehiclestable = $('#vehicles-datatable').DataTable( {
+    var vehiclestable = $('#vehicles-datatable').DataTable({
         "scrollX": false,
          bLengthChange: false,
          responsive: true,

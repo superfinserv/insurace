@@ -67,9 +67,9 @@
                             <div class="col-md-12">
                                 <img class="pay-icon" src="{{asset('site_assets/img/pay-success.png')}}"/>
                                 <h4 class="pay-heading success-pay">Payment successfull!</h4>
-                                <p class="line1">You have successfully paid POSP application fee of ₹<?=number_format((float)$info->total_amount, 2, '.', '');?>/- to <i>Super Finserv Pvt. Ltd.</i></p>
-                                <p class="linemore">Your Application fee payment reference no. <i class="trno">#<?=$info->invoice_no;?></i></p>
-                                <a href="{{url('/profile/details/')}}" class="btn btn-home">Continue to identity verification</a>
+                                <p class="line1">You have successfully paid POSP application fee of ₹<?=number_format((float)$info->total_amount, 2, '.', '');?>/- to <b style="color:#AC0F0B">{{config('custom.site_name')}}</b></p>
+                                <p class="linemore">Your Application fee payment reference no. <b class="trno">#<?=$info->invoice_no;?></b></p>
+                                <a href="{{url('/profile/details/')}}" class="btn btn-home">Continue for identity verification</a>
                                 <!--<a href="{{url('/profile')}}" class="btn btn-home">Profile</a>-->
                             </div>
                         </div>

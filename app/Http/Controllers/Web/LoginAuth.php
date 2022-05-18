@@ -23,8 +23,8 @@ class LoginAuth extends Controller
     public function index(){
       
      // if(Auth::guard('customers')){ return redirect('profile');}
-        $city = DB::table('cities_list')->get();
-        $template = ['title' => 'Sign In',"subtitle"=>"Sign In",'scripts'=>[asset('page_js/login.js')],'city'=>$city];  
+        
+        $template = ['title' => 'Sign In',"subtitle"=>"Sign In",'scripts'=>[asset('page_js/login.js')]];  
         return View::make('web.home.signIn')->with($template);
     }
     
@@ -163,6 +163,7 @@ class LoginAuth extends Controller
             	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             	$output = curl_exec($ch);
             	curl_close($ch);
+            //	print_r($output); die;
             	return $otp;
             
     }

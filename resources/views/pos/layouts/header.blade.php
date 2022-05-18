@@ -31,8 +31,10 @@
                                         <li class="has-submenu"> <a class="nav-link clr" href="javascript:void(0);">{{Auth::guard('agents')->user()->mobile}}</a>
                                             <ul class="submenu">
                                                 <li><a href="{{url('profile')}}" style="color:#fff !important;">My Profile</a></li>
+                                                @if(Auth::guard('agents')->user()->userType=="POSP")
                                                 <li><a href="{{url('profile-overview')}}" style="color:#fff !important;">Profile overview</a></li>
                                                 <li><a href="{{url('my-certification')}}" style="color:#fff !important;">My Certification</a></li>
+                                                @endif
                                                 <!-- <li><a href="become-adviser-role-insurance.html" style="color:#fff !important;">Refer and Earn</a></li>
                                                 <li><a href="become-students-selling-insurance.html" style="color:#fff !important;">Language</a></li> -->
                                                 <li><a href="{{url('logout')}}" style="color:#fff !important;">Logout</a></li>

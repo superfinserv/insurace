@@ -326,23 +326,18 @@ health_form > div.health_gender_radio {
                                     </div>
                                 </div>
                                 @else
-                                   <div class="row">
-                                    <div class="col-md-4 col-sm-12 col-xs-12">
+                                  <div class="row">
+                                    <div class="col-md-6 col-sm-12 col-xs-12">
                                         <div class="form-group">
                                          <label for="name">Your Name</label>
-                                         <input type="text" class="form-control" id="name"  placeholder="Full Name" name="name">
+                                         <input type="text" class="form-control" id="name"  placeholder="Full Name" name="name"  style="margin-bottom: 0px;">
                                         </div>
                                     </div>
-                                     <div class="col-md-4 col-sm-12 col-xs-12">
+                                   
+                                    <div class="col-md-6 col-sm-12 col-xs-12">
                                         <div class="form-group">
-                                         <label for="name">Customer Mobile</label>
-                                         <input type="text" class="form-control" id="mobile"  placeholder="Enter Mobile No." name="mobile">
-                                        </div>
-                                     </div>
-                                    <div class="col-md-4 col-sm-12 col-xs-12">
-                                        <div class="form-group">
-                                         <label for="name">Customer Email</label>
-                                         <input type="text" class="form-control" id="email"  placeholder="Your Email address" name="email">
+                                         <label for="name">Your Email</label>
+                                         <input type="text" class="form-control" id="email"  placeholder="Your Email address" name="email" style="margin-bottom: 0px;">
                                         </div>
                                     </div>
                                 </div>

@@ -26,7 +26,9 @@
     <link href="{{asset('admin/lib/toastr/toastr.min.css')}}" rel="stylesheet" type="text/css">
     <link href="{{asset('admin/lib/summernote/summernote-bs4.css')}}" rel="stylesheet">
     <link href="{{asset('admin/lib/spinkit/css/spinkit.css')}}" rel="stylesheet">
-     <link href="{{asset('admin/lib/chartist/chartist.min.css')}}" rel="stylesheet">
+    <link href="{{asset('admin/lib/chartist/chartist.min.css')}}" rel="stylesheet">
+    <!--<link href="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet"/>-->
+    
     <!-- Bracket CSS -->
     <link  href="{{asset('admin/css/bracket.css')}}" rel="stylesheet">
     <style>
@@ -51,14 +53,14 @@
   
 
 
-<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+<!--<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>-->
 <script>
-  window.OneSignal = window.OneSignal || [];
-  OneSignal.push(function() {
-    OneSignal.init({
-      appId: "4e1174c0-be7d-43d7-a934-b56456fd8668",
-    });
-  });
+//   window.OneSignal = window.OneSignal || [];
+//   OneSignal.push(function() {
+//     OneSignal.init({
+//       appId: "4e1174c0-be7d-43d7-a934-b56456fd8668",
+//     });
+//   });
 </script>
   </head>
 
@@ -128,7 +130,7 @@
     <script src="{{asset('admin/lib/summernote/summernote-bs4.min.js')}}"></script>
     <script src="{{asset('admin/lib/ion-rangeslider/js/ion.rangeSlider.min.js')}}"></script>
     <script src="{{asset('admin/lib/highlightjs/highlight.pack.min.js')}}"></script>
-    <script src="{{asset('admin/lib/datatables.net/js/jquery.dataTables.min.js')}}"></script>
+     <script src="{{asset('admin/lib/datatables.net/js/jquery.dataTables.min.js')}}"></script>
     <script src="{{asset('admin/lib/datatables.net-dt/js/dataTables.dataTables.min.js')}}"></script>
     <script src="{{asset('admin/lib/datatables.net-responsive/js/dataTables.responsive.min.js')}}"></script>
     <script src="{{asset('admin/lib/datatables.net-responsive-dt/js/responsive.dataTables.min.js')}}"></script>
@@ -142,7 +144,8 @@
     <script src="{{asset('admin/lib/loading-btn/jquery.loadButton.js')}}"  type="text/javascript"></script>
     <script src="{{asset('admin/lib/toastr/toastr.min.js')}}"  type="text/javascript"></script>
     <script src="{{asset('admin/lib/input-mask/jquery.mask.js')}}"  type="text/javascript"></script>
- 
+   <!--<script src="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/js/bootstrap-editable.min.js"></script>-->
+   
     <script> var base_url = "{{url('/')}}"; </script>  
     <script> var assetUrl = "https://supersolutions.in/insassets/agents/";</script>
        @isset($scripts)

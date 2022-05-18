@@ -12,6 +12,7 @@
       </div><!-- br-header-left -->
       <div class="br-header-right">
         <nav class="nav">
+            <?php /*
           <div class="dropdown">
             <a href="#" class="nav-link pd-x-7 pos-relative" data-toggle="dropdown">
               <i class="icon ion-ios-email-outline tx-24"></i>
@@ -140,6 +141,8 @@
               </div><!-- media-list -->
             </div><!-- dropdown-menu -->
           </div><!-- dropdown -->
+          
+          */?>
           <div class="dropdown">
             <a href="#" class="nav-link nav-link-profile" data-toggle="dropdown">
               <span class="logged-name hidden-md-down">{{Auth::guard('admin')->user()->userID}}</span>

@@ -13,11 +13,11 @@ use Illuminate\Support\Facades\Hash;
 use App\Model\Agents;
 use PDF;
 use Auth;
-use App\Resources\Posp;
+use App\Utils\Posp;
 class ProfileController extends Controller{
      
-     public function __construct(Posp $posp) { 
-         $this->Posp = $posp; 
+     public function __construct() { 
+         $this->posp = new Posp; 
         //$this->middleware('auth');
        
        
@@ -28,12 +28,12 @@ class ProfileController extends Controller{
     public function index(){
         
         $id    = Auth::guard('agents')->user()->id;
-        $template['data']  = $this->Posp->profileCompleteData($id);
-        $template['states'] = DB::table('states_list')->get();
+        $template['data']  = $this->posp->profileCompleteData($id);
+        $template['states'] = DB::table('states')->get();
         $template['banks'] = DB::table('banklist')->get();
         $agent = Agents::select('*')->where('id', $id)->first();
         if($agent->state!=""){
-          $template['cities']  = DB::table('cities_list')->where('state_id',$agent['state'])->get();
+          $template['cities']  = DB::table('cities')->where('state_id',$agent['state'])->get();
         }
         $template['agent'] = $agent;
         $count_bussness_info = DB::table('agent_bussness_info')->where('agent_id', $id)->count();
@@ -85,10 +85,10 @@ class ProfileController extends Controller{
                     }
                
                 if($agInfo->save()){ 
-                    $com = $this->Posp->profileCompleteData($id);
+                    $com = $this->posp->profileCompleteData($id);
                     return Response::json(['status'=>'success','name'=>$avatarName,'message'=>'Updated successfully','data'=>$com]);
                 }else{
-                     $com = $this->Posp->profileCompleteData($id);
+                     $com = $this->posp->profileCompleteData($id);
                     return Response::json(['status'=>'error','name'=>'','message'=>'Error while update information','data'=>$com]);
                 }
             }else{
@@ -97,22 +97,22 @@ class ProfileController extends Controller{
                 if($request->ref=='business-section'){
                    $colName = ($request->name=='experience')?'exp':$request->name;
                     DB::table('agent_bussness_info')->where('agent_id',$id)->update([$colName=>$request->val]);
-                     $com = $this->Posp->profileCompleteData($id);
+                     $com = $this->posp->profileCompleteData($id);
                     
                     return Response::json(['status'=>'success','message'=>$request->name.' updated successfully','data'=>$com]);
                 }else{
                     $agInfo->{$request->name}=$request->val;
                     if($agInfo->save()){ 
-                       $com = $this->Posp->profileCompleteData($id);
+                       $com = $this->posp->profileCompleteData($id);
                        return Response::json(['status'=>'success','message'=>$request->name.' updated successfully','data'=>$com]);
                     }else{
-                         $com = $this->Posp->profileCompleteData($id);
+                         $com = $this->posp->profileCompleteData($id);
                         return Response::json(['status'=>'error','message'=>'Error while update information','data'=>$com]);
                     }
                 }
             }
         }else{
-             $com = $this->Posp->profileCompleteData($id);
+             $com = $this->posp->profileCompleteData($id);
              return Response::json(['status'=>'error','message'=>'Your profile is complete, please contact your relationship manager to update any information','data'=>$com]);
         }
     }
@@ -163,8 +163,13 @@ class ProfileController extends Controller{
     
     public function getAlertNotification(Request $request){
         $id =Auth::guard('agents')->user()->id;
-        $com = $this->Posp->profileCompleteData($id);
-        return json_encode(['status'=>"success",'data'=>$com ]);
+        if(Auth::guard('agents')->user()->userType=="POSP"){
+          $com = $this->posp->profileCompleteData($id);
+           return json_encode(['status'=>"success",'data'=>$com ]);
+        }else{
+             return json_encode(['status'=>"error",'data'=>[] ]);
+        }
+       
         
     }
     
@@ -191,20 +196,20 @@ class ProfileController extends Controller{
              $Cust->marital_status=$request->marital_status;
              $Cust->pincode=$request->pincode;
             if($Cust->save()){ 
-                $com = $this->Posp->profileCompleteData($id);
+                $com = $this->posp->profileCompleteData($id);
                 return json_encode(['status'=>"success",
                                      'msg'=>'Personal Information updated successfully',
                                      'data'=>['iscomplete'=>$com['iscomplete'],'ispersonal'=>$com['ispersonal'],'personal'=>$com['personal']]
                                     ]);
             }else{ 
-                $com = $this->Posp->profileCompleteData($id);
+                $com = $this->posp->profileCompleteData($id);
                 return json_encode(['status'=>"error",
                                     'msg'=>"Internal error while updating Personal info",
                                     'data'=>['iscomplete'=>$com['iscomplete'],'ispersonal'=>$com['ispersonal'],'personal'=>$com['personal']]
                                     ]);
              }
          }else{
-            $com = $this->Posp->profileCompleteData($id);
+            $com = $this->posp->profileCompleteData($id);
             return json_encode(['statuse'=>"error",
                                  'msg'=>"Your Personal information completed .you can not update your Personal information !",
                                  'data'=>['iscomplete'=>$com['iscomplete'],'ispersonal'=>$com['ispersonal'],'personal'=>$com['personal']]
@@ -242,21 +247,21 @@ class ProfileController extends Controller{
               }
              
             if($Cust->save()){ 
-                $com = $this->Posp->profileCompleteData($id);
+                $com = $this->posp->profileCompleteData($id);
                 return json_encode(['status'=>"success",
                                      'msg'=>'Bank Information updated successfully',
                                      'name'=>$avatarName,
                                     'data'=>['iscomplete'=>$com['iscomplete'],'isbank'=>$com['isbank'],'bank'=>$com['bank']]
                                     ]);
             }else{ 
-                $com = $this->Posp->profileCompleteData($id);
+                $com = $this->posp->profileCompleteData($id);
                 return json_encode(['status'=>"error",
                                     'msg'=>"Internal error while updating bank info",
                                     'data'=>['iscomplete'=>$com['iscomplete'],'isbank'=>$com['isbank'],'bank'=>$com['bank']]
                                     ]);
              }
          }else{
-            $com = $this->Posp->profileCompleteData($id);
+            $com = $this->posp->profileCompleteData($id);
             return json_encode(['statuse'=>"error",
                                  'msg'=>"Your Bank information completed .you can not update your bank information !",
                                  'data'=>['iscomplete'=>$com['iscomplete'],'isbank'=>$com['isbank'],'bank'=>$com['bank']]
@@ -307,7 +312,7 @@ class ProfileController extends Controller{
             }
               
             if($Cust->save()){ 
-                $com = $this->Posp->profileCompleteData($id);
+                $com = $this->posp->profileCompleteData($id);
                 return json_encode(['status'=>"success",
                                      'msg'=>'Document Information updated successfully',
                                      'pan'=>$Cust->pan_card,
@@ -316,7 +321,7 @@ class ProfileController extends Controller{
                                     'data'=>['iscomplete'=>$com['iscomplete'],'isdocument'=>$com['isdocument'],'document'=>$com['document']]
                                     ]);
             }else{ 
-                $com = $this->Posp->profileCompleteData($id);
+                $com = $this->posp->profileCompleteData($id);
                 return json_encode(['status'=>"error",
                                     'msg'=>"Internal error while updating Document info",
                                     'data'=>['iscomplete'=>$com['iscomplete'],'isdocument'=>$com['isdocument'],'document'=>$com['document']]
@@ -324,7 +329,7 @@ class ProfileController extends Controller{
              }
              
          }else{
-            $com = $this->Posp->profileCompleteData($id);
+            $com = $this->posp->profileCompleteData($id);
                  return json_encode(['statuse'=>"error",
                                  'msg'=>"Your profile is complete, please contact your relationship manager to update any information",
                                  'data'=>['iscomplete'=>$com['iscomplete'],'isdocument'=>$com['isdocument'],'document'=>$com['document']]
@@ -357,21 +362,21 @@ class ProfileController extends Controller{
               }
             
             if($Cust->save()){  
-                $com = $this->Posp->profileCompleteData($id);
+                $com = $this->posp->profileCompleteData($id);
                 return json_encode(['status'=>"success",
                                      'msg'=>'Education detail is updated.',
                                      'name'=>$avatarName,
                                     'data'=>['iscomplete'=>$com['iscomplete'],'iseducation'=>$com['iseducation'],'education'=>$com['education']]
                                     ]);
             }else { 
-                $com = $this->Posp->profileCompleteData($id);
+                $com = $this->posp->profileCompleteData($id);
                return json_encode(['status'=>"success",
                                      'msg'=>'Education certificate removed',
                                     'data'=>['iscomplete'=>$com['iscomplete'],'iseducation'=>$com['iseducation'],'education'=>$com['education']]
                                     ]);
              }
         }else{
-            $com = $this->Posp->profileCompleteData($id);
+            $com = $this->posp->profileCompleteData($id);
                return json_encode(['statuse'=>"error",
                                  'msg'=>"Your profile is complete, please contact your relationship manager to update any information",
                                  'data'=>['iscomplete'=>$com['iscomplete'],'iseducation'=>$com['iseducation'],'education'=>$com['education']]
@@ -482,20 +487,20 @@ class ProfileController extends Controller{
                }
             $Cust->education_certificate=null;
             if($Cust->save()){ 
-                $com = $this->Posp->profileCompleteData($id);
+                $com = $this->posp->profileCompleteData($id);
                 return json_encode(['status'=>"success",
                                      'msg'=>'Education certificate removed',
                                     'data'=>['iscomplete'=>$com['iscomplete'],'iseducation'=>$com['iseducation'],'education'=>$com['education']]
                                     ]);
             }else { 
-                $com = $this->Posp->profileCompleteData($id);
+                $com = $this->posp->profileCompleteData($id);
                 return json_encode(['status'=>"error",
                                     'msg'=>"Internal error while remove certificate",
                                     'data'=>['iscomplete'=>$com['iscomplete'],'iseducation'=>$com['iseducation'],'education'=>$com['education']]
                                     ]);
              }
         }else{
-            $com = $this->Posp->profileCompleteData($id);
+            $com = $this->posp->profileCompleteData($id);
              return json_encode(['statuse'=>"error",
                                  'msg'=>"Your profile is complete, please contact your relationship manager to update any information",
                                  'data'=>['iscomplete'=>$com['iscomplete'],'iseducation'=>$com['iseducation'],'education'=>$com['education']]
@@ -516,20 +521,20 @@ class ProfileController extends Controller{
             if(File::exists($image_path)) { File::delete($image_path); }
             $Cust->passbook_statement=null;
             if($Cust->save()){ 
-                $com = $this->Posp->profileCompleteData($id);
+                $com = $this->posp->profileCompleteData($id);
                 return json_encode(['status'=>"success",
                                      'msg'=>'Passbook statment copy removed!',
                                     'data'=>['iscomplete'=>$com['iscomplete'],'isbank'=>$com['isbank'],'bank'=>$com['bank']]
                                     ]);
             }else{ 
-                $com = $this->Posp->profileCompleteData($id);
+                $com = $this->posp->profileCompleteData($id);
                 return json_encode(['status'=>"error",
                                     'msg'=>"Internal error while remove statment copy",
                                     'data'=>['iscomplete'=>$com['iscomplete'],'isbank'=>$com['isbank'],'bank'=>$com['bank']]
                                     ]);
              }
          }else{
-            $com = $this->Posp->profileCompleteData($id);
+            $com = $this->posp->profileCompleteData($id);
             return json_encode(['statuse'=>"error",
                                  'msg'=>"Your profile is complete, please contact your relationship manager to update any information",
                                  'data'=>['iscomplete'=>$com['iscomplete'],'isbank'=>$com['isbank'],'bank'=>$com['bank']]
@@ -550,20 +555,20 @@ class ProfileController extends Controller{
              
             $Cust->pan_card=null;
             if($Cust->save()){ 
-                $com = $this->Posp->profileCompleteData($id);
+                $com = $this->posp->profileCompleteData($id);
                 return json_encode(['status'=>"success",
                                      'msg'=>'Pan card copy removed!',
                                      'data'=>['iscomplete'=>$com['iscomplete'],'isdocument'=>$com['isdocument'],'document'=>$com['document']]
                                     ]);
             }else{ 
-                $com = $this->Posp->profileCompleteData($id);
+                $com = $this->posp->profileCompleteData($id);
                 return json_encode(['status'=>"error",
                                     'msg'=>"Internal error while remove Pan card copy",
                                     'data'=>['iscomplete'=>$com['iscomplete'],'isdocument'=>$com['isdocument'],'document'=>$com['document']]
                                     ]);
              }
          }else{
-            $com = $this->Posp->profileCompleteData($id);
+            $com = $this->posp->profileCompleteData($id);
             return json_encode(['statuse'=>"error",
                                  'msg'=>"Your profile is complete, please contact your relationship manager to update any information",
                                  'data'=>['iscomplete'=>$com['iscomplete'],'isdocument'=>$com['isdocument'],'document'=>$com['document']]
@@ -584,20 +589,20 @@ class ProfileController extends Controller{
              
             $Cust->adhaar_card=null;
             if($Cust->save()){ 
-                $com = $this->Posp->profileCompleteData($id);
+                $com = $this->posp->profileCompleteData($id);
                 return json_encode(['status'=>"success",
                                      'msg'=>'Address proof copy removed!',
                                      'data'=>['iscomplete'=>$com['iscomplete'],'isdocument'=>$com['isdocument'],'document'=>$com['document']]
                                     ]);
             }else{ 
-                $com = $this->Posp->profileCompleteData($id);
+                $com = $this->posp->profileCompleteData($id);
                 return json_encode(['status'=>"error",
                                     'msg'=>"Internal error while remove Address proof copy",
                                     'data'=>['iscomplete'=>$com['iscomplete'],'isdocument'=>$com['isdocument'],'document'=>$com['document']]
                                     ]);
              }
          }else{
-            $com = $this->Posp->profileCompleteData($id);
+            $com = $this->posp->profileCompleteData($id);
             return json_encode(['statuse'=>"error",
                                  'msg'=>"Your profile is complete, please contact your relationship manager to update any information",
                                  'data'=>['iscomplete'=>$com['iscomplete'],'isdocument'=>$com['isdocument'],'document'=>$com['document']]
@@ -618,20 +623,20 @@ class ProfileController extends Controller{
              
              $Cust->adhaar_card_back=null;
             if($Cust->save()){ 
-                $com = $this->Posp->profileCompleteData($id);
+                $com = $this->posp->profileCompleteData($id);
                 return json_encode(['status'=>"success",
                                      'msg'=>'Address proof copy removed!',
                                      'data'=>['iscomplete'=>$com['iscomplete'],'isdocument'=>$com['isdocument'],'document'=>$com['document']]
                                     ]);
             }else{ 
-                $com = $this->Posp->profileCompleteData($id);
+                $com = $this->posp->profileCompleteData($id);
                 return json_encode(['status'=>"error",
                                     'msg'=>"Internal error while remove Address proof copy",
                                     'data'=>['iscomplete'=>$com['iscomplete'],'isdocument'=>$com['isdocument'],'document'=>$com['document']]
                                     ]);
              }
          }else{
-            $com = $this->Posp->profileCompleteData($id);
+            $com = $this->posp->profileCompleteData($id);
             return json_encode(['statuse'=>"error",
                                  'msg'=>"Your profile is complete, please contact your relationship manager to update any information",
                                  'data'=>['iscomplete'=>$com['iscomplete'],'isdocument'=>$com['isdocument'],'document'=>$com['document']]
@@ -660,14 +665,14 @@ class ProfileController extends Controller{
                               unlink((public_path('assets/agents/profile/') . $oldfile));
                           }
                  }
-                 $com = $this->Posp->profileCompleteData($id);
+                 $com = $this->posp->profileCompleteData($id);
                   return json_encode(['status'=>"success",
                                         'msg'=>'profile image update successfully',
                                         'url'=>asset('assets/agents/profile/'.$fileName),
                                         'data'=>['iscomplete'=>$com['iscomplete'],'ispersonal'=>$com['ispersonal'],'personal'=>$com['personal']]
                                         ]);
                 }else { 
-                      $com = $this->Posp->profileCompleteData($id);
+                      $com = $this->posp->profileCompleteData($id);
                     return json_encode(['status'=>"error",
                                     'msg'=>"Internal error while updating profile image",
                                     'data'=>['iscomplete'=>$com['iscomplete'],'ispersonal'=>$com['ispersonal'],'personal'=>$com['personal']]
@@ -676,7 +681,7 @@ class ProfileController extends Controller{
             }
 
     }else{
-           $com = $this->Posp->profileCompleteData($id);
+           $com = $this->posp->profileCompleteData($id);
         return json_encode(['statuse'=>"error",
                                  'msg'=>"Your profile is complete, please contact your relationship manager to update any information",
                                  'data'=>['iscomplete'=>$com['iscomplete'],'ispersonal'=>$com['ispersonal'],'personal'=>$com['personal']]
@@ -706,11 +711,11 @@ class ProfileController extends Controller{
      
     public function profile_details(Request $request){
          $id =Auth::guard('agents')->user()->id;
-         $agent_info = DB::table('agents')->select('agents.*','states_list.name as state_name','cities_list.name as city_name')
-            ->leftJoin('states_list', 'states_list.id', '=', 'agents.state')
-             ->leftJoin('cities_list', 'cities_list.id', '=', 'agents.city')
-             ->where('agents.id',$id)
-            ->first();
+         $agent_info = DB::table('agents')->select('agents.*','states.name as state_name','cities.name as city_name')
+                                          ->leftJoin('states', 'states.id', '=', 'agents.state')
+                                          ->leftJoin('cities', 'cities.id', '=', 'agents.city')
+                                          ->where('agents.id',$id)
+                                          ->first();
             if($agent_info->isProceedSign==1){ return redirect('/profile'); }
         $template = ['title' => 'profile',"subtitle"=>"profile",
                      'scripts'=>[asset('site_assets/pospJs/profile.js')],'agent_info'=>$agent_info];
@@ -720,34 +725,68 @@ class ProfileController extends Controller{
      
     public function profile_video_uploads(Request $request){
         $id =Auth::guard('agents')->user()->id;
-        $agent_info = DB::table('agents')->select('agents.*','states_list.name as state_name','cities_list.name as city_name')
-            ->leftJoin('states_list', 'states_list.id', '=', 'agents.state')
-             ->leftJoin('cities_list', 'cities_list.id', '=', 'agents.city')
-             ->where('agents.id',$id)
-            ->first();
+        $agent_info = DB::table('agents')->where('agents.id',$id)->first();
         if($agent_info->isProceedSign==1){ return redirect('/profile'); }
         $template = ['title' => 'Profile',"subtitle"=>"Identity Verification",
-                     'scripts'=>[asset('page_js/pospJs/profile.js')],'agent_info'=>$id];
+                     'scripts'=>[
+                                 asset('page_js/pospJs/record-plugin/RecordRTC.js'),
+                                 asset('page_js/pospJs/record-plugin/gif-recorder.js'),
+                                 asset('page_js/pospJs/record-plugin/getScreenId.js'),
+                                 asset('page_js/pospJs/record-plugin/DetectRTC.js'),
+                                 asset('page_js/pospJs/identity-upload.js')
+                                ],
+                              'agent_info'=>$agent_info];
       
         return View::make('pos.identity.profile_video_upload')->with($template);
     }
      
     public function profile_video_uploads_save(Request $request) {
-            $id =Auth::guard('agents')->user()->id;
-             if(!empty($request->file('identityVideo'))) {
-                    $user = Agents::find($id);
-                    $fileName = "video-".uniqid().$id.'.'.request()->identityVideo->getClientOriginalExtension();
-                    $request->identityVideo->move('public/assets/agents/profile/', $fileName);
-                      
-                      $user->videoFile=$fileName;
-                      $user->isProceedSign=1;
-                       if($user->save()){ 
-  
-                           return json_encode(array('status'=>'success','msg'=>'sucess'));
+        
+         $id =Auth::guard('agents')->user()->id;
+        // print_r($request->file('video'));die;
+             if ($request->hasFile('video')) {
+                 
+                  $user = Agents::find($id);
+                                $file = $request->file('video');
+                                $path = 'assets/agents/profile/';
+                                $filenameWithExt = $file->getClientOriginalName();
+                                $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+                                $extension = 'webm';
+                                $fileNameToStore = preg_replace('/\s+/', '_', $filename . '_' . time() . '.' . $extension);
+                    
+                                \Storage::disk('assets')->putFileAs($path, $file, $fileNameToStore);
+                                   if($user->videoFile!=''){
+                                        $vPath = public_path('assets/agents/profile/'.$user->videoFile);
+                                        if(file_exists($vPath)){ 
+                                          unlink((public_path('assets/agents/profile/') . $user->videoFile));
+                                      }
+                                   }
+                                //$media = Media::create(['file_name' => $fileNameToStore]);
+                        $user->videoFile=$fileNameToStore;
+                       $user->isProceedSign='Yes';
+                        if($user->save()){ 
+                          userLog(['user_id'=>$user->id,'type'=>"POSP",'action'=>"POSP_IDENTITY_UPLOAD",'message'=>"Video Identity uploaded",'created_at'=>date('Y-m-d H:i:s')]);
+                          return json_encode(array('status'=>'success','msg'=>'sucess'));
                         } else { 
-                           return json_encode(array('status'=>'error','msg'=>"User details not updated"));
+                          return json_encode(array('status'=>'error','msg'=>"User details not updated"));
                          }
+                        // return  response()->json(['success' => ($media) ? 1 : 0, 'message' => ($media) ? 'Video uploaded successfully.' : "Some thing went wrong. Try again !."]);
+                            
         }
+        //     $id =Auth::guard('agents')->user()->id;
+        //      if(!empty($request->file('identityVideo'))) {
+        //               $user = Agents::find($id);
+        //               $fileName = "video-".uniqid().$id.'.'.request()->identityVideo->getClientOriginalExtension();
+        //               $request->identityVideo->move('public/assets/agents/profile/', $fileName);
+        //               $user->videoFile=$fileName;
+        //               $user->isProceedSign='Yes';
+        //               if($user->save()){ 
+        //                   userLog(['user_id'=>$user->id,'type'=>"POSP",'action'=>"POSP_IDENTITY_UPLOAD",'message'=>"Video Identity uploaded",'created_at'=>date('Y-m-d H:i:s')]);
+        //                   return json_encode(array('status'=>'success','msg'=>'sucess'));
+        //                 } else { 
+        //                   return json_encode(array('status'=>'error','msg'=>"User details not updated"));
+        //                  }
+        // }
 
     }
 }

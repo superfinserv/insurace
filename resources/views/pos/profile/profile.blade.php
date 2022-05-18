@@ -236,38 +236,41 @@ input[type="file" i]:after {
 }
       </style>
     <main role="main">
-        <?php $assetRoot = "https://supersolutions.in/insassets/agents/";?>
+ 
       <section class="become-an-insurance">
                <div class="container">
                   <div class="row ">
+                      @if(Auth::guard('agents')->user()->userType=="POSP")
                       <div class="col-12 alert-section" style="">
-                           <?php  if($data['iscomplete']==0 && $agent->isProceedSign==0 && $agent->payment_status==0){?> 
+                           <?php  if($data['iscomplete']==0 && $agent->isProceedSign=='No' && $agent->payment_status=='Pending'){?> 
                                <div class="myprofile alert-profile-complete"  style="background: #fff;border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">
                                   <span><strong>Alert! </strong> Profile Information is not Complete. Fill all required details to get paid quickly.</span>
                                </div>
                            <?php }?>
                            
-                           <?php  if($data['iscomplete']==1 && $agent->isProceedSign==0 && $agent->payment_status==0) { ?>
+                           <?php  if($data['iscomplete']==1 && $agent->isProceedSign=='No' && $agent->payment_status=='Pending') { ?>
                             <div class="myprofile alert-process-payment" style="background: #fff; border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">
-                              <span><strong>Congratulations! </strong> Profile Information is Complete. Proceed for the Payment of the Application fee.</span>
-                             <button type="submit" class="btn btn-primary"style=" background: #ac0f0b !important; float: right !important; padding: 4px 10px !important; border-radius: 3px !important; box-shadow: 0 16px 24px 2px rgba(0, 0, 0, .14), 0 6px 30px 5px rgba(0, 0, 0, .12), 0 8px 10px -5px rgba(0, 0, 0, .2) !important; margin-top:-4px !important; border: 0px !important; color: #fff !important; font-size: 14px !important; " id="payment_process">Paynow <span class="fa fa-arrow-right"></span></button>
+                              <span><strong>Congratulations! </strong> Profile Information is Complete. Proceed for the Payment of the Application fee. <i style="font-size: 16px;" class="fa fa-hand-o-right"></i></span>
+                             <button type="submit" class="btn btn-primary"style=" background:  #2f3c46 !important; float: right !important; padding: 8px 10px !important; border-radius: 3px !important; box-shadow: 0 16px 24px 2px rgba(0, 0, 0, .14), 0 6px 30px 5px rgba(0, 0, 0, .12), 0 8px 10px -5px rgba(0, 0, 0, .2) !important; margin-top:-10px !important; border: 0px !important; color: #fff !important; font-size: 15px !important;text-transform: uppercase;font-weight: bold;" id="payment_process">Pay now <span class="fa fa-arrow-right"></span></button>
                            </div>
+                           
                           <?php  } ?>
                        
-                        <?php  if($data['iscomplete']==1 && $agent->isProceedSign==0 && $agent->payment_status==1) {?>
+                        <?php  if($data['iscomplete']==1 && $agent->isProceedSign=='No' && $agent->payment_status=='Paid') {?>
                             <div class="myprofile alert-process-verification" style="background: #fff; border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">
                               <span><strong>Congratulations! </strong>You have paid application fee successfully. please proceed for verification, after verification you can not  update any details.</span>
-                             <button type="submit" class="btn btn-primary"style=" background: #ac0f0b !important; float: right !important; padding: 4px 10px !important; border-radius: 3px !important; box-shadow: 0 16px 24px 2px rgba(0, 0, 0, .14), 0 6px 30px 5px rgba(0, 0, 0, .12), 0 8px 10px -5px rgba(0, 0, 0, .2) !important; margin-top:-4px !important; border: 0px !important; color: #fff !important; font-size: 14px !important; " id="sing_process_video">Proceed <span class="fa fa-arrow-right"></span></button>
+                             <button type="submit" class="btn btn-primary"style=" background: #2f3c46 !important; float: right !important; padding: 8px 10px !important; border-radius: 3px !important; box-shadow: 0 16px 24px 2px rgba(0, 0, 0, .14), 0 6px 30px 5px rgba(0, 0, 0, .12), 0 8px 10px -5px rgba(0, 0, 0, .2) !important; margin-top:-4px !important; border: 0px !important; color: #fff !important; font-size: 15px !important;text-transform: uppercase;font-weight: bold; " id="sing_process_video">Proceed <span class="fa fa-arrow-right"></span></button>
                            </div>
                        <?php  } ?>
                        
-                        <?php  if($data['iscomplete']==1 && $agent->isProceedSign==1 && $agent->payment_status==1 && $agent->isVerified==0) {?>
+                        <?php  if($data['iscomplete']==1 && $agent->isProceedSign=='Yes' && $agent->payment_status=='Yes') {?>
                             <div class="myprofile alert-process-verification" style="background: #fff; border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">
                               <span><strong>Congratulations! </strong>You have completed the POSP Application with Super Finserv. We will check the records in IIB and will let you the the future course of action. We will refund your application & training fee in case we find your records in IIB with any other Insurer/Intermediary. Super Finserv reserves the right to select or reject the application..</span>
                             </div>
                        <?php  } ?>
                           
                      </div>
+                     @endif
                   <?php //print_r($data);?>
                      <div class="">
                          <div class="col-md-12 col-sm-12 myprofile">
@@ -327,9 +330,11 @@ input[type="file" i]:after {
                                       </div>
                                       <i class="fa fa-file <?=($data['document']==100)?'nav-done':'nav-required';?>"></i><span class="nav-title">Documents</span></a>
                                  </li>
+                                 <?php /*
                                   <li class="tab-nav__item">
                                     <a class="tab-nav__link" href="javascript:void(0);"><i class="fa fas fa-briefcase"></i> <span class="nav-title">Business information</span></a>
                                  </li>
+                                 */?>
                               </ul>
                               </div>
                                <div class=" col-md-9 col-sm-12">
@@ -366,13 +371,14 @@ input[type="file" i]:after {
                                         @include('pos.profile.agent_documentInfo')
                                     </div>
                                  </div>
-                                 
+                                 <?php /*
                                  <div class="tab-content__item">
                                     <div class="__item">
                                        <h3 class="h2"><i class="fa fa-briefcase" style="font-size: 20px;color: #ac0f0a; padding-right: 10px; "></i>Update Business information</h3>
                                         @include('pos.profile.agent_businessInfo')
                                     </div>
                                  </div>
+                                */ ?>
                               </div>
                            </div>
                         </div>

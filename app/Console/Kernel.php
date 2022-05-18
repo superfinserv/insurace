@@ -14,6 +14,9 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
          Commands\InspectionCron::class,
+         Commands\OrcCron::class,
+         Commands\PolicyMailCron::class,
+         Commands\PosphdfcErgoCodeGeneration::class,
     ];
 
     /**
@@ -25,7 +28,10 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command('inspection:cron')->everyMinute();
+        $schedule->command('inspection:cron')->hourly();
+        $schedule->command('orc:cron')->dailyAt('05:00');
+        $schedule->command('posphdfccode:cron')->daily();
+        $schedule->command('policymail:cron')->everyFiveMinutes();//hourly();
     }
 
     /**

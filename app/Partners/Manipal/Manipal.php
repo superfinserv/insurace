@@ -27,11 +27,11 @@ class Manipal {
     
      function generateApplicationNumber($enqID){
             $client = new Client([
-                'headers' => [ 'Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKey'),"app_id"=>config('mediclaim.MANIPAL.appIdAppNum')]
+                'headers' => [ 'Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKeyAppNum'),"app_id"=>config('mediclaim.MANIPAL.appIdAppNum')]
             ]);
             
              
-            $clientResp =  $client->get(config('mediclaim.MANIPAL.GetPolicyNum')."325");
+            $clientResp =  $client->get(config('mediclaim.MANIPAL.GetPolicyNum').config('mediclaim.MANIPAL.channelId'));
             
             $response = $clientResp->getBody()->getContents();   
             $result=json_decode($response);
@@ -82,8 +82,14 @@ class Manipal {
           
          if($range['start']==2){ $rangeARR = ['2'=>200000,'3'=>300000.0];}
          if(isset(Auth::guard('agents')->user()->posp_ID)){ 
-             if($range['start']==4){ $rangeARR = ['4.5'=>450000];}
-         }else{
+             if(Auth::guard('agents')->user()->userType=="POSP"){ //For POSP
+               if($range['start']==4){ $rangeARR = ['4.5'=>450000];}
+             }else{ // For SP
+                if($range['start']==4){ $rangeARR = ['4.5'=>450000,'5.5'=>550000,'7.5'=>750000];}
+                if($range['start']==10){ $rangeARR = ['10'=>1000000,'15'=>1500000];}
+                if($range['start']==16){ $rangeARR = ['20'=>2000000,'25'=>2500000];}
+             }
+         }else{ // For customer
                 if($range['start']==4){ $rangeARR = ['4.5'=>450000,'5.5'=>550000,'7.5'=>750000];}
                 if($range['start']==10){ $rangeARR = ['10'=>1000000,'15'=>1500000];}
                 if($range['start']==16){ $rangeARR = ['20'=>2000000,'25'=>2500000];}
@@ -125,7 +131,6 @@ class Manipal {
            }
       }
       
-      
     function saveProposalData($enqID,$quoteId,$proposalNum,$txnid,$amount){ 
               $enQproduct = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enqID)->value('product');
               if($enQproduct=="RPRT06SBSF"){
@@ -140,7 +145,7 @@ class Manipal {
          $REQUEST = ["listofPolicyDetailsTO"=>$listofPolicyDetailsTO];
         
           $client = new Client([
-                'headers' => ['Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKey'),"app_id"=>config('mediclaim.MANIPAL.appIdGetPolicy')]
+                'headers' => ['Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKeyGetPolicy'),"app_id"=>config('mediclaim.MANIPAL.appIdGetPolicy')]
             ]);
             
             $clientResp = $client->post(config('mediclaim.MANIPAL.GetPolicyDetails'),
@@ -179,8 +184,8 @@ class Manipal {
        $json = json_decode($data->json_data);
        $params = ($f)?json_decode($data->params):json_decode($data->params_request);
        $policyno = base64_encode($pno);
-       $username = base64_encode("1000015-01");//1607112-01
-       $password = base64_encode("Cigna@123");//15041995
+       $username = base64_encode(config('mediclaim.MANIPAL.baseAgentId'));//1607112-01
+       $password = base64_encode(config('mediclaim.MANIPAL.Password'));//15041995
        $email = base64_encode($params->selfEmail);
        $applicationID = base64_encode($json->applicationID);
        
@@ -188,7 +193,7 @@ class Manipal {
          if($policy['status']=='success'){
              $fileName = "MANIPAL_CIGNA_".$pno.".pdf";
              $client = new Client([
-                'headers' => [ 'Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKey'),"app_id"=>config('mediclaim.MANIPAL.appIdDocsModule')]
+                'headers' => [ 'Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKeyDocsModule'),"app_id"=>config('mediclaim.MANIPAL.appIdDocsModule')]
             ]);
             
              $_url  = config('mediclaim.MANIPAL.DocsModule')."?DocumentType=&RenewalId=&ApplicationNumber=".$applicationID."&PolicyNumber=".$policyno."&UserId=".$username."&Password=".$password."&EmailId=".$email;
@@ -219,8 +224,8 @@ class Manipal {
        
        $params = ($f)?json_decode($data->params):json_decode($data->params_request);
        $policyno = base64_encode($pno);
-       $username = base64_encode("1000015-01");//1607112-01
-       $password = base64_encode("Cigna@123");//15041995
+       $username = base64_encode(config('mediclaim.MANIPAL.baseAgentId'));//1607112-01
+       $password = base64_encode(config('mediclaim.MANIPAL.Password'));//15041995
        $email = base64_encode($params->selfEmail);
        $applicationID = base64_encode($json->applicationID);
        
@@ -230,7 +235,7 @@ class Manipal {
               $reciptId = base64_encode($policy['receipt']);
             
                 $client = new Client([
-                    'headers' => [ 'Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKey'),"app_id"=>config('mediclaim.MANIPAL.appIdDocsModule')]
+                    'headers' => [ 'Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKeyDocsModule'),"app_id"=>config('mediclaim.MANIPAL.appIdDocsModule')]
                 ]);
                 
                 $_url  = config('mediclaim.MANIPAL.DocsModule')."?ReceiptNo=".$reciptId."&UserId=".$username."&Password=".$password."&EmailId=".$email;

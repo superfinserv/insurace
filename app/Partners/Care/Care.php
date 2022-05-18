@@ -53,8 +53,15 @@ class Care {
           
           if($range['start']==2){  $rangeARR = ['3'];}
           if(isset(Auth::guard('agents')->user()->posp_ID)){
-              if($range['start']==4){ $rangeARR = ['5'];}
-          }else{
+              if(Auth::guard('agents')->user()->userType=="POSP"){ //For POSP
+                  if($range['start']==4){ $rangeARR = ['5'];}
+              }else{ //For SP
+                    if($range['start']==4){  $rangeARR = ['5','7'];}
+                    if($range['start']==10){ $rangeARR = ['10','15'];}
+                    if($range['start']==16){ $rangeARR = ['20','25'];}
+                    if($range['start']==26){ $rangeARR = ['30','40','50','60','75','100'];}
+              }
+          }else{ //For customer
             if($range['start']==4){  $rangeARR = ['5','7'];}
             if($range['start']==10){ $rangeARR = ['10','15'];}
             if($range['start']==16){ $rangeARR = ['20','25'];}
@@ -152,7 +159,7 @@ class Care {
                  
                   $response = $clientResp->getBody()->getContents();
                   $output = json_decode($response);
-              //print_r($response);die;
+                 print_r($response);die;
                   if(isset($output->responseData->status) && $output->responseData->status==1){
                       $decoded = base64_decode($output->intFaveoGetPolicyPDFIO->dataPDF);
                       //$file = dirname(getcwd())."/public_html/insurance/customers/policy/pdf/Religare_".$policyNumber.".pdf";
@@ -203,7 +210,7 @@ class Care {
                  
           $response = $clientResp->getBody()->getContents();
           $output = json_decode($response);
-         
+          
           
           try{
               

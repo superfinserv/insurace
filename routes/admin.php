@@ -24,7 +24,16 @@ Route::get('/clear-cache', function() {
         // TEMP
          
        //All the routes that belongs to the group goes here
+       Route::get('/get-plans-for-partner/{partner}', 'Common@getPlansByPartner');
        
+       
+        Route::get('/rules', 'Admin\RulesController@index');
+        Route::post('/rules/datatable', 'Admin\RulesController@getdatatable');
+        Route::get('/rules/model/{param}/{code?}', 'Admin\RulesController@curdRuleModel');
+        Route::post('/rules/manage/save/', 'Admin\RulesController@saveRules');
+        Route::post('/rules/manage/copy/rule/', 'Admin\RulesController@copyRule');
+        
+        
         Route::get('/home','Admin\HomeController@index')->name('home');
         Route::get('/get-posp-statistic/{tab?}','Admin\HomeController@getPOSPStatistic');
         Route::get('/get-nop-statistic/{tab?}','Admin\HomeController@getNOPStatistic');
@@ -133,20 +142,27 @@ Route::get('/clear-cache', function() {
         Route::get('/users/reset-password/modal/{id}', 'Admin\UsersController@resetPasswordModel');
         Route::post('/users/update/password/info/', 'Admin\UsersController@updatePassword');
         
-        
-        
+         Route::post('/agents/datatable', 'Admin\AgentTables@getAgentsdatatable');
+         Route::post('/agents/applications/datatable', 'Admin\AgentTables@getApplicationsdatatable');
+         Route::post('/agent/payments/datatable', 'Admin\AgentTables@getPaymentsdatatable');
+         Route::post('/agent/trash/datatable', 'Admin\AgentTables@getAgentsTrashdatatable');
+         
+        Route::get('agent/applications', 'Admin\AgentsController@applicationsList');
         Route::get('agents', 'Admin\AgentsController@index');
+        Route::get('agents/trash', 'Admin\AgentsController@trashList');
+        Route::get('agent/payments', 'Admin\AgentsController@paymentsList');
+        
         Route::get('agent/register', 'Admin\AgentsController@registerAgent');
         Route::post('/agent/new/saveInfo', 'Admin\AgentsController@savenewInfo');
         
-        Route::get('/agentinfo/{id}', 'Admin\AgentsController@agentinfo');
-        Route::post('/agents/getAgentsdatatable', 'Admin\AgentsController@getAgentsdatatable');
-        Route::get('/agents/allowTest/{id}/{isTestAllow}', 'Admin\AgentsController@allowTest');
-        Route::get('/agents/agent-verification/{id}/{isVerified}', 'Admin\AgentsController@updateVerificationStatus');
-        Route::post('/agents/trash/process', 'Admin\AgentsController@trashStatus');
+         Route::get('/agentinfo/{id}', 'Admin\AgentsController@agentinfo');
+         Route::post('/agent/internal/status/manage/', 'Admin\AgentsController@ManagePospStatus');
+         
+        // Route::get('/agents/allowTest/{id}/{isTestAllow}', 'Admin\AgentsController@allowTest');
+        // Route::get('/agents/agent-verification/{id}/{isVerified}', 'Admin\AgentsController@updateVerificationStatus');
+        // Route::post('/agents/trash/process', 'Admin\AgentsController@trashStatus');
         
-        Route::get('agents/trash', 'Admin\Agentstrash@index');
-        Route::post('/agents/trash/getAgentsdatatable', 'Admin\Agentstrash@getAgentsdatatable');
+      
         
         
         Route::get('/agent/edit/personal/{id}', 'Admin\AgentsController@editPersonal');
@@ -185,8 +201,8 @@ Route::get('/clear-cache', function() {
         
         Route::get('/agent/otherInfo/tranning-complete-status/{id}/{st}', 'Admin\AgentsController@tranningCompletestatus');
         
-        Route::get('/agent/payments', 'Admin\AgentsController@paymentsList');
-        Route::post('/agent/payments-datatable', 'Admin\AgentsController@getPaymentsdatatable');
+       
+       
         Route::get('/agent/get-tax-invoice/{agentID}', 'Admin\AgentsController@taxInvoiceDownload');
         Route::get('/agents/export', 'Admin\AgentsController@exportExcel');//expor  Excel
         
@@ -248,6 +264,14 @@ Route::get('/clear-cache', function() {
         Route::post('/sales/insured/getpdf', 'Admin\InsuredController@getPolicyPdf');
         Route::get('/sales/insured/get-policy-overview/{policyid}', 'Admin\InsuredController@policyOverviewModal');
         Route::get('/sales/insured/export', 'Admin\InsuredController@exportExcel');
+        Route::get('/sales/add/new/{param?}', 'Admin\InsuredController@addNewSoldPolicy');
+        
+        
+        Route::post('/sales/save/new/policy', 'Admin\InsuredController@saveNewPolicy');
+        
+        Route::get('/get/list/make/{param?}', 'Motor\MotorInsurance@GetMake');
+        Route::get('/get/list/model-with-varient/{make}/{param?}', 'Motor\MotorInsurance@GetModelVarientByMake');
+        
         
         
         Route::get('/sales/leads', 'Admin\LeadsController@index');

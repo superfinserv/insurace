@@ -3,7 +3,7 @@
  
        <style>
            .dataTables_filter {
-  display: block;
+  display: none;
 }
        </style>
        <div class="card shadow-base bd-0">
@@ -16,7 +16,16 @@
                     
                     <table id="{{$prm}}-vehicles-datatable" class="table table-bordered display">
                       <thead>
-                        <tr>
+                        <!--<tr>-->
+                          <!--<th>#</th>-->
+                        <!--  <th>Model Name</th>-->
+                        <!--  <th>Variant Name</th>-->
+                        <!--  <th>Make ID</th>-->
+                        <!--  <th>Model ID</th>-->
+                        <!--  <th>Fuel Type</th>-->
+                        <!--  <th>CubicCapacity</th>-->
+                        <!--</tr>-->
+                        <tr id="searchTR">
                           <!--<th>#</th>-->
                           <th>Model Name</th>
                           <th>Variant Name</th>
@@ -25,9 +34,19 @@
                           <th>Fuel Type</th>
                           <th>CubicCapacity</th>
                         </tr>
-                        
                       </thead>
+                       
                       <tbody></tbody>
+                      <tfoot>
+                    <tr>
+                      <th>Model Name</th>
+                      <th>Variant Name</th>
+                      <th>Make ID</th>
+                      <th>Model ID</th>
+                      <th>Fuel Type</th>
+                      <th>CubicCapacity</th>
+                    </tr>
+        </tfoot>
                     </table>
                 </div><!-- table-wrapper -->
             </div><!-- card-body -->

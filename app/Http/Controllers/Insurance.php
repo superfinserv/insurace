@@ -22,6 +22,8 @@ use App\Partners\Care\Care;
 use App\Partners\Manipal\Manipal;
 use App\Partners\Digit\DigitHealth;
     
+
+    
 class Insurance extends Controller{
     public $uniqueToken;
     public function __construct() { 
@@ -34,6 +36,8 @@ class Insurance extends Controller{
        $this->Care =   new Care;
        $this->Manipal  =  new Manipal;
        $this->DigitHealth  =  new DigitHealth;
+       
+       
    }
    
   

@@ -11,6 +11,8 @@ use File;
 use App\Resources\DigitBikeResource;
 use App\Resources\HdfcErgoTwResource;
 use App\Resources\FgiTwResource;
+use Carbon\Carbon;
+
 class Twinsurance extends Controller
 {
     public $uniqueToken;
@@ -110,8 +112,14 @@ class Twinsurance extends Controller
     }
     public function expiryDetail(){
      //$previous_insurer=DB::table('previous_insurer')->where(['status'=>'ACTIVE','type'=>'GENERAL'])->get();
-     $template = ['title' => 'Twowheeler',"subtitle"=>"Expiry Detail",'scripts'=>[asset('js/motor/tw/expiry_detail.js')]]; 
-      $template['makeList'] = DB::table('vehicle_make_tw')->get();
+     $exp['more_than_90']  = Carbon::now()->subDay(100)->format('d-m-Y');
+     $exp['btwn_45_to_90']  = Carbon::now()->subDay(60)->format('d-m-Y');
+     $exp['less_than_45']  = Carbon::now()->subDay(25)->format('d-m-Y');
+     $exp['note_sure']  = Carbon::now()->subDay(90)->format('d-m-Y');
+     $template = ['title' => 'Super Finserv',"subtitle"=>"2w - Expiry Details",'scripts'=>[asset('js/motor/tw/expiry_detail.js')]]; 
+     
+     $template['exp'] = $exp;
+     $template['makeList'] = DB::table('vehicle_make_tw')->get();
      return View::make('motor.tw.expiry_detail')->with($template);
 
     }
@@ -203,12 +211,13 @@ class Twinsurance extends Controller
                 $json_data = json_decode($temp->json_data);//$this->DigitTw->getJsonData($temp->response);
                 $json_data->enq = $enquiryId;
                 if(isset(Auth::guard('agents')->user()->id)){
-                  $customerID = _createCustomer(['mobile'=>$request->twInfo['customer']['mobile']]);
-                  $custMobile = $request->twInfo['customer']['mobile'];
+                  $customerID = 0;//_createCustomer(['mobile'=>$request->twInfo['customer']['mobile']]);
+                  $custMobile = "";//$request->twInfo['customer']['mobile'];
                   $agentID = Auth::guard('agents')->user()->id;
+                  $spID = (Auth::guard('agents')->user()->userType=="SP")?Auth::guard('agents')->user()->id:0;
                 }else{
                   $customerID =Auth::guard('customers')->user()->id;
-                  $agentID = 0;
+                  $agentID = 0;$spID=0;
                   $custMobile = Auth::guard('customers')->user()->mobile;
                 }
                 $quoteData = ['type'=>'BIKE',
@@ -216,6 +225,7 @@ class Twinsurance extends Controller
                               'device_id'=>$this->getToken(),
                               'termYear'=>$temp->tenure,
                               'agent_id'=>$agentID,
+                              'sp_id'=>$spID,
                               'customer_id'=>$customerID,
                               'customer_mobile'=>$custMobile,
                               'server'=>isset(Auth::guard('customers')->user()->id)?'USER_WEB':'AGENT_WEB',
@@ -223,12 +233,13 @@ class Twinsurance extends Controller
                               'idv'=>$temp->idv,
                               'policyType'=>$temp->policyType,
                               'premiumAmount'=>$json_data->gross,
+                              'netAmt'=>$temp->netAmt,
+                              'taxAmt'=>$temp->taxAmt,
+                              'grossAmt'=>$temp->grossAmt,
                               'min_idv'=>$temp->min_idv,
                               'max_idv'=>$temp->max_idv,
                               'params_request'=>json_encode($request->twInfo),
                               'json_data'=>json_encode($json_data),
-                             // 'json_resp'=>$temp->json_quote,
-                              //'json_recalculate'=>$temp->json_recalculate,
                                'reqQuote'=>$temp->reqQuote,
                                'respQuote'=>$temp->respQuote,
                                'reqRecalculate'=>$temp->reqRecalculate,
@@ -246,18 +257,20 @@ class Twinsurance extends Controller
                 $json_data = json_decode($temp->json_data);//$this->DigitTw->getJsonData($temp->response);
                 $json_data->enq = $temp->quote_id;
                 if(isset(Auth::guard('agents')->user()->id)){
-                  $customerID = _createCustomer(['mobile'=>$request->customerData['mobile']]);
-                  $custMobile = $request->customerData['mobile'];
+                  $customerID = 0;//_createCustomer(['mobile'=>$request->customerData['mobile']]);
+                  $custMobile = "";//$request->customerData['mobile'];
                   $agentID = Auth::guard('agents')->user()->id;
+                  $spID = (Auth::guard('agents')->user()->userType=="SP")?Auth::guard('agents')->user()->id:0;
                 }else{
                   $customerID =Auth::guard('customers')->user()->id;
-                  $agentID = 0;//Auth::guard('agents')->user()->id;
+                  $agentID = 0;$spID=0;
                   $custMobile = Auth::guard('customers')->user()->mobile;
                 }
                 $quoteData = ['type'=>'BIKE',
                               'provider'=>$temp->provider,
                               'device_id'=>$this->getToken(),
                               'agent_id'=>$agentID,
+                              'sp_id'=>$spID,
                               'customer_id'=>$customerID,
                               'customer_mobile'=>$custMobile,
                                 'policyType'=>$temp->policyType,
@@ -265,6 +278,9 @@ class Twinsurance extends Controller
                               'call_type'=>"ENQ",
                               'idv'=>$temp->idv,
                               'premiumAmount'=>$json_data->gross,
+                              'netAmt'=>$temp->netAmt,
+                              'taxAmt'=>$temp->taxAmt,
+                              'grossAmt'=>$temp->grossAmt,
                               'min_idv'=>$temp->min_idv,
                               'max_idv'=>$temp->max_idv,
                               'params_request'=>json_encode($request->twInfo),
@@ -325,7 +341,12 @@ class Twinsurance extends Controller
     
     public function updateInfo(Request $request){
         if($request->enqId!=""){
-            DB::table('app_quote')->where('enquiry_id', $request->enqId)->update(["params_request"=>json_encode($request->param)]);
+             
+            $arr =  ["params_request"=>json_encode($request->param)];
+            if(isset(Auth::guard('agents')->user()->id)){
+                  $arr['customer_mobile'] =  $request->param['customer']['mobile'];
+             }
+            DB::table('app_quote')->where('enquiry_id', $request->enqId)->update($arr);
             return response()->json(['status'=>'success','message'=>'Information updated successfully']);
         }else{
             return response()->json(['status'=>'error','message'=>'Something went wrong']);

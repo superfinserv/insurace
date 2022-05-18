@@ -76,15 +76,24 @@ width: 75px;
         <section class="become-an-insurance" style="background:unset";>
             <div class="container">
                 <div class="row ">
-                    
-                    @if($isPass===false)
-                    <div class="col-md-12 col-sm-12">
-                        <div class="myprofile alert-profile-complete"  style="background: #fff;border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">
-                          <span><strong>Alert! </strong> Please complete your POSP certification before start sale.</span>
-                       </div>
-                    </div>
+                      @if(Auth::guard('agents')->user()->userType=="POSP")
+                        @if($status!='Inforce')
+                        <div class="col-md-12 col-sm-12">
+                            <div class="myprofile alert-profile-complete"  style="background: #fff;border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">
+                              <span><strong>Alert! </strong> Please complete your POSP certification before start sale.</span>
+                           </div>
+                        </div>
+                        @endif
+                    @else
+                        @if($status!='Inforce')
+                            <div class="col-md-12 col-sm-12">
+                                <div class="myprofile alert-profile-complete"  style="background: #fff;border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">
+                                  <span><strong>Alert! </strong> Your profile is in {{$status}} state.</span>
+                               </div>
+                            </div>
+                            @endif
                     @endif
-                    <?php  $isPass =  true;?>
+                    <?php  $isPass =($status==='Inforce')?true:false;?>
                       <div class="col-12">
                          <div class="col-md-12 col-sm-12 myprofile section-heading">
                              <h2 style="color: #003379;font-size: 18px;margin-bottom: 0;letter-spacing: 0.5px;font-weight: 700;">Live Products</h2>
@@ -93,21 +102,21 @@ width: 75px;
                         <div class="steps steps--s2">
                           <div class="container ">
                             <div class="create row">
-                                  <a href="@if($isPass) {{url('/health-insurance/health-profile')}} @else {{url('#')}} @endif"  class="col-sm-4 col-md-2 mb-3 tx-center image-box" data-toggle="tooltip" data-placement="top" title="#">
+                                  <a href="@if($isPass) {{url('/health-insurance/health-profile')}} @else {{url('#')}} @endif"  class="col-sm-4 col-md-2 mb-3 tx-center image-box" data-toggle="tooltip" data-placement="top" title="Health Insurance">
                                         <div class="br-section-wrapper pd-10 bg-gray-100">
                                            <i class="fa fa-heartbeat" aria-hidden="true" style="color: #AC0F0B;"></i>
                                            <p>Mediclaim</p>
                                         </div><!-- br-section-wrapper -->
                                   </a>
                                   
-                                  <a href="@if($isPass) {{url('/twowheeler-insurance/registration-number')}} @else {{url('#')}} @endif"  class="col-sm-4 col-md-2 mb-3 tx-center image-box" data-toggle="tooltip" data-placement="top" title="#">
+                                  <a href="@if($isPass) {{url('/twowheeler-insurance/registration-number')}} @else {{url('#')}} @endif"  class="col-sm-4 col-md-2 mb-3 tx-center image-box" data-toggle="tooltip" data-placement="top" title="2w Insurance">
                                         <div class="br-section-wrapper pd-10 bg-gray-100">
                                            <i class="fa fa-motorcycle" aria-hidden="true" style="color: #AC0F0B;"></i>
                                            <p>2w</p>
                                         </div><!-- br-section-wrapper -->
                                   </a>
                                   
-                                  <a href="@if($isPass) {{url('/car-insurance/registration-number')}} @else {{url('#')}} @endif"  class="col-sm-4 col-md-2 mb-3 tx-center image-box" data-toggle="tooltip" data-placement="top" title="#">
+                                  <a href="@if($isPass) {{url('/car-insurance/registration-number')}} @else {{url('#')}} @endif"  class="col-sm-4 col-md-2 mb-3 tx-center image-box" data-toggle="tooltip" data-placement="top" title="Car Insurance">
                                         <div class="br-section-wrapper pd-10 bg-gray-100">
                                            <i class="fa fa-car" aria-hidden="true" style="color: #AC0F0B;"></i>
                                            <p>Car</p>
@@ -169,102 +178,6 @@ width: 75px;
                      
                      
                      
-                     <?php /*
-                    <div class="col-12">
-                         <div class="col-md-12 col-sm-12 myprofile section-heading">
-                             <h2>Create a quote for Life Insurance </h2>
-                        </div>
-
-                        <div class="steps steps--s2">
-                          <div class="container ">
-                            <div class="create row">
-                              <?php $i=1; foreach ($categories as $value) { if($value->type=="LIFE"){ //{url('/'.$value->slug.'/')}}?>
-                                 <a href="#"  class="col-sm-4 col-md-2 mb-3 tx-center image-box" data-toggle="tooltip" data-placement="top" title="{{$value->name}}">
-                                            <div class="br-section-wrapper pd-10 bg-gray-100">
-                                               <img src="{{asset('assets/agents/app_icons/category_icon/'.$value->mobile_icon)}}" class="ht-35 wd-35" alt="{{$value->name}}"/>
-                                               <p>{{$value->name}}</p>
-                                            </div><!-- br-section-wrapper -->
-                                       </a>
-                              <?php } $i++; } ?>
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- end steps -->
-                     </div>
-                     <div class="col-12">
-                        <div class="col-md-12 col-sm-12 myprofile section-heading">
-                           <h2>Create a quote for Health Insurance </h2>
-                        </div>
-                        <div class="steps steps--s2">
-                          <div class="container ">
-                            <div class="create row">
-                              <?php $i=1; foreach ($categories as $value) { if($value->type=="HEALTH_PLAN"){ 
-                                    $url  = url('/'.$value->slug.'/');
-                                   if($value->slug=="health-insurance" && $isPass==true){ $url  = url('/'.$value->slug.'/health-profile');}else{$url="#";}?>
-                                 
-                                     <a href="{{$url}}"  class="col-sm-4 col-md-2 mb-3 tx-center image-box" data-toggle="tooltip" data-placement="top" title="{{$value->name}}">
-                                          @if($value->name=="Mediclaim")
-                                           <div class="ribbon-wrapper-red">
-                                            <div class="ribbon-red">Live</div>
-                                          </div>
-                                          @endif
-                                           <div class="br-section-wrapper pd-10 bg-gray-100">
-                                               <img src="{{asset('assets/agents/app_icons/category_icon/'.$value->mobile_icon)}}" class="ht-35 wd-35" alt="{{$value->name}}"/>
-                                               <p>{{$value->name}}</p>
-                                            </div><!-- br-section-wrapper -->
-                                       </a>
-                                <?php } $i++; } ?>
-                            </div>
-                          </div>
-                        </div>
-                        <!-- end steps -->
-                     </div>
-                     
-                     <div class="col-12">
-                        <div class="col-md-12 col-sm-12 myprofile section-heading">
-
-                        <h2>Create a quote for General Insurance </h2>
-
-                        </div>
-
-                        <div class="steps steps--s2">
-
-                          <div class="container ">
-                             
-                            <div class="create row">
-                              <?php $i=1; foreach ($categories as $value) { if($value->type=="GENERAL"){
-                               $url  = url('/'.$value->slug.'/');
-                              if($value->slug=="car-insurance" && $isPass==true){$url  = url('/car-insurance/registration-number');}
-                              else  if($value->slug=="bike-insurance" && $isPass==true){$url  = url('/twowheeler-insurance/registration-number');}
-                               else { $url ="#";}
-                                ?>
-
-                                <a href="{{$url}}" class="col-sm-4 col-md-2 mb-3 tx-center image-box" data-toggle="tooltip" data-placement="top" title="{{$value->name}}">
-                                            <div class="br-section-wrapper pd-10 bg-gray-100">
-                                               <img src="{{asset('assets/agents/app_icons/category_icon/'.$value->mobile_icon)}}" class="ht-35 wd-35" alt="{{$value->name}}"/>
-                                               <p>{{$value->name}}</p>
-                                            </div><!-- br-section-wrapper -->
-                                       </a>
-                            
-                                  
-                                <?php } $i++; } ?>
-                                
-                             
-                            </div>
-                            
-                            
-                            
-                          </div>
-
-                        </div>
-
-                        <!-- end steps -->
-
-
-
-                     </div>
-                     */ ?>
                   </div>
 
                   </div>

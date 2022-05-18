@@ -9,7 +9,7 @@ $(function(){
                 "processing": true,
                 "serverSide": true,
                "ajax": {
-                    "url": base_url+"/agents/trash/getAgentsdatatable",
+                    "url": base_url+"/agent/trash/datatable",
                      "type": "POST",
                 },
                 "columns": [

@@ -2,6 +2,7 @@
 namespace App\Partners\Digit;
 use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Client;
 use Meng\AsyncSoap\Guzzle\Factory;
 use Auth;
@@ -107,11 +108,14 @@ class DigitGold{
                           
                           $quoteData = ['short_sumInsured'=>$sum,'long_sumInsured'=>$sumInsured,'premiumAmount'=>$amount,
                                         'quote_id'=>$resp->enquiryId,'type'=>'HEALTH','policyType'=>$pTyp,
-                                        'code'=>"DSO01",'product'=>'HLCP','title'=>"Digit Gold Health Care",
+                                        'code'=>"DGO01",'product'=>'HLCP','title'=>"Digit Gold Health Care",
                                         'device'=>$devicetoken,'provider'=>'DIGIT',
                                         'call_type'=>"QUOTE",
                                         'reqQuote'=>json_encode($request),
                                         'respQuote'=>$response,
+                                        'netAmt'=>str_replace(',','',str_replace('INR','',$resp->premium->netPremium)),
+                                        'taxAmt'=>str_replace(',','',str_replace('INR','',$resp->premium->totalTax)),
+                                        'grossAmt'=>str_replace(',','',str_replace('INR','',$resp->premium->grossPremium)),
                                         'req'=>json_encode($request),'resp'=>($response)];
                           DB::table('app_temp_quote')->insertGetId($quoteData);
                          return ['status'=>true,'data'=>$plan];
@@ -248,8 +252,13 @@ class DigitGold{
                           'amounts'=>json_encode($jsonAmtArr),
                           'termYear'=>$termYear,
                           'zone'=>$zone,
-                           'reqQuote'=>json_encode($request),
+                          'reqQuote'=>json_encode($request),
                           'respQuote'=>$response,
+                          'reqRecalculate'=>json_encode($request),
+                          'respRecalculate'=>$response,
+                          'netAmt'=>str_replace(',','',str_replace('INR','',$resp->premium->netPremium)),
+                          'taxAmt'=>str_replace(',','',str_replace('INR','',$resp->premium->totalTax)),
+                          'grossAmt'=>str_replace(',','',str_replace('INR','',$resp->premium->grossPremium)),
                           'sumInsured->shortAmt'=>$sum,
                           'sumInsured->longAmt'=>$sumInsured];
                         DB::table('app_quote')->where('enquiry_id', $enqData->enquiry_id)->update($quoteData);
@@ -513,7 +522,7 @@ class DigitGold{
             $params = json_decode($enqData->params_request);
             $json = json_decode($enqData->json_data);
            // echo json_encode($request);
-            
+           try {       
                    $client = new Client([
                         'headers' => ['Accept' => '*/*', 'Content-Type' => 'application/json','Authorization'=>config('mediclaim.DIGIT.ApiKey')]
                     ]);
@@ -523,7 +532,7 @@ class DigitGold{
                     );
                      $response = $clientResp->getBody()->getContents();
                      $resp = json_decode($response);
-             
+                 //print_r($response);
              if(isset($resp->error->errorCode)){
                 if(($resp->error->errorCode==200) && (isset($resp->paymentLink))){
                       $amt  = str_replace("INR","",$resp->premium->basePremiumWithTax);//$this->clean_str(str_replace("INR","",$resp->premium->basePremiumWithTax));
@@ -533,27 +542,66 @@ class DigitGold{
                       $json->paymentLink = $resp->paymentLink;
                       $json->amount = $amt;
                       $json->zone = $enqData->zone;
+                      $period = timePeriod('Y-m-d',$request->contract->policyPeriod,$request->contract->startDate);
                       DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enq)
                                             ->update([ 'proposalNumber'=>$resp->policyNumber,
                                                        'reqCreate'=>json_encode($request),
                                                        'respCreate'=>$response,
-                                                       'premiumAmount'=>$amt,'token'=>$resp->policyNumber,
+                                                       'startDate'=>$request->contract->startDate,
+                                                       'endDate'=>$period->endDate,
+                                                       'premiumAmount'=>$amt, 
+                                                       'netAmt'=>str_replace(',','',str_replace('INR','',$resp->premium->netPremium)),
+                                                       'taxAmt'=>str_replace(',','',str_replace('INR','',$resp->premium->totalTax)),
+                                                       'grossAmt'=>str_replace(',','',str_replace('INR','',$resp->premium->grossPremium)),
+                                                       'token'=>$resp->policyNumber,
                                                        'json_data'=>json_encode($json)]);
                       $result = ['status'=>'success','message'=>"Policy number generated",'data'=>$data];
                 }else{
                      DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enq)
-                                            ->update([ 'json_create'=>json_encode($request),
-                                                       'json_resp'=>$response,
+                                            ->update([ 'reqCreate'=>json_encode($request),
+                                                       'respCreate'=>$response,
                                                        ]);
                     $result = ['status'=>'error','message'=>$resp->error->errorMessage,'data'=>[]];
                 }
              }else{
                  DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enq)
-                                            ->update([ 'json_create'=>json_encode($request),
-                                                       'json_resp'=>$response,
+                                            ->update([ 'reqCreate'=>json_encode($request),
+                                                       'respCreate'=>$response,
                                                        ]);
                 $result = ['status'=>'error','message'=>"Somethig went wrong, try again",'data'=>[]]; 
              }
+             
+            }catch (ConnectException $e) {
+               $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $jsonRes = json_decode($responseBodyAsString);
+               //echo $responseBodyAsString;
+                  DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enq)
+                                            ->update([ 'reqCreate'=>json_encode($request),
+                                                       'respCreate'=>$responseBodyAsString,
+                                                       ]);
+                $result = ['status'=>'error','message'=>"Connect Exception occur",'data'=>[]]; 
+            }catch (RequestException $e) {
+                 $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $jsonRes = json_decode($responseBodyAsString);
+               //echo $responseBodyAsString;
+                  DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enq)
+                                            ->update([ 'reqCreate'=>json_encode($request),
+                                                       'respCreate'=>$responseBodyAsString,
+                                                       ]);
+                $result = ['status'=>'error','message'=>"Request Exception occur",'data'=>[]]; 
+            }catch (ClientException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $jsonRes = json_decode($responseBodyAsString);
+               // echo $responseBodyAsString;
+                  DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enq)
+                                            ->update([ 'reqCreate'=>json_encode($request),
+                                                       'respCreate'=>$responseBodyAsString,
+                                                       ]);
+                $result = ['status'=>'error','message'=>"Client Exception occur",'data'=>[]]; 
+            }
           return $result;
     }
 } 

@@ -120,9 +120,9 @@
                            <div class="form-group">
                                 <label for="name" class="h4">Financial  Year</label>
                                 <select class="form-control search-input-text" id="table-0" data-column="0" >
-                                    <option value="2021-2022" selected>2021-2022</option>
+                                    <option value="2022-2023" selected>2022-2023</option>
+                                    <option value="2021-2022">2021-2022</option>
                                     <option value="2020-2021">2020-2021</option>
-                                    <option value="2019-2020">2019-2020</option>
                                 </select>
                             </div>
                        </div>
@@ -131,10 +131,9 @@
                                 <label for="name" class="h4">Policy From</label>
                                 <select class="form-control search-input-text" id="table-1" data-column="1" >
                                     <option value="">ALL</option>
-                                    <option value="DIGIT">Go Digit General Insurance</option>
-                                     <option value="MANIPAL_CIGNA">Manipal Cigna Health Insurance</option>
-                                     <option value="FGI">Future Generali</option>
-                                     <option value="CARE">Care Health Insurance</option>
+                                    @foreach($partners as $partner)
+                                      <option value="{{$partner->shortName}}">{{$partner->name}}</option>
+                                    @endforeach
                                     
                                 </select>
                             </div>
@@ -164,7 +163,7 @@
 							<!-- Card -->
 							<div class="card mb-4 ">
 								<div class="p-4">
-									<span class="span-txt font-size-xs text-uppercase font-weight-semi-bold">Total Premium</span>
+									<span class="span-txt font-size-xs text-uppercase font-weight-semi-bold" style="margin-left:0px;">Total Premium</span>
 									<h2 class="mt-4  mb-1 d-flex align-items-center  lh-1">
 										₹<span id="TotalSale">{{($TotalSale)?$TotalSale:'0.00'}}</span>
 									</h2>
@@ -180,7 +179,7 @@
 							<!-- Card -->
 							<div class="card mb-4">
 								<div class="p-4">
-									<span class="span-txt font-size-xs text-uppercase font-weight-semi-bold">Premium for {{date('M-Y')}}</span>
+									<span class="span-txt font-size-xs text-uppercase font-weight-semi-bold" style="margin-left:0px;">Premium for {{date('M-Y')}}</span>
 									<h2 class="mt-4  mb-1 d-flex align-items-center lh-1">
 										₹<span id="MonthSale">{{($MonthSale)?$MonthSale:'0.00'}}</span>
 									</h2>
@@ -196,7 +195,7 @@
 							<!-- Card -->
 							<div class="card mb-4">
 								<div class="p-4">
-									<span class="span-txt font-size-xs text-uppercase font-weight-semi-bold">Total No. of Policies YTD/MTD</span>
+									<span class="span-txt font-size-xs text-uppercase font-weight-semi-bold" style="margin-left:0px;">Total No. of Policies YTD/MTD</span>
 									<h2 class="mt-4  mb-1 d-flex align-items-center lh-1">
 										<span id="TotalSalesCount">{{($TotalSalesCount>100)?'100+':$TotalSalesCount}}/{{$TotalSaleMonthCount}}</span>
 									</h2>

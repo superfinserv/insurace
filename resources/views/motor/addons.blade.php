@@ -23,6 +23,10 @@
       border: 1px solid #d40100;
       background: #d40100; 
     }
+    .zerodep-title .jconfirm-title{
+       color: #AC0F0B;
+       font-weight: 600;
+    }
 </style>
 
 <div class="filter-content checksbox ">
@@ -126,7 +130,7 @@
 		<div class="custom-control custom-checkbox plan_check">
 		  	<input type="checkbox" data-name="zero-dep" class="custom-control-input addonZeroDepCover moter-OD" id="isPartDepProCover" value="1" name="isPartDepProCover" data-filter-by="9">
 		  	<label class="custom-control-label" for="isPartDepProCover">Zero Dep</label>
-		  	<div id="zero-dep-elem" style="display:none;">
+		  	<?php /*<div id="zero-dep-elem" style="display:none;">
 		  	    <select class="" id="zero-dep-value" style="height: 25px;margin-left: 15px;border-radius: 0px;font-size: 12px;width: 60%;">
 			  	    <option value="0">Cover only 1 claims per year</option>
 			  	    <option value="1">Cover only 2 claims per year</option>
@@ -134,7 +138,8 @@
 			  	</select>
 			  	
 		  	    <button class="btn btn-small" id="btn-zero-dep-claim">UPDATE</button>
-		  	</div> 
+		  	    
+		  	</div> */?>
 		</div>
 		
 		<div class="custom-control custom-checkbox plan_check">

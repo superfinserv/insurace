@@ -499,7 +499,9 @@ $('body').on('click','.btn-SeeDetails',function(e){
                //window.location.href = base_url+"/health-insurance/proposal/"+resp.data.enq
                window.location.href = base_url+"/health-insurance/product-info/"+resp.data.enq
            }else{
-               $('.elem-'+str).loading('stop');
+              $('.elem-'+str).loading('stop');
+              // $('.elem-'+grp[0]+'_'+grp[1]).loading('stop');
+               toastr.error(resp.message);
            }
        });
    }
@@ -535,7 +537,9 @@ $('body').on('click','.create-enquiry',function(e){
                //window.location.href = base_url+"/health-insurance/proposal/"+resp.data.enq
               window.location.href = base_url+"/health-insurance/product-detail/"+resp.data.enq
            }else{
-               $('.elem-'+grp[0]+'_'+grp[1]).loading('stop');
+               $('.elem-'+str).loading('stop');
+              // $('.elem-'+grp[0]+'_'+grp[1]).loading('stop');
+               toastr.error(resp.message);
            }
        });
    }

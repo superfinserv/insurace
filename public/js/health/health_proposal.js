@@ -333,8 +333,8 @@ $('body').on('click','.btn-next-proposal',function(e){
             errorElement: 'span',
             errorClass: 'span-error error',
             rules: {
-                self_fname: { required: true,},
-                self_lname: { required: true,},
+                self_fname: { required: true,chars:true},
+                self_lname: { required: true,chars:true},
                 self_email: { required: true,},
                 self_mobile: { required: true,number:true,minlength:10,maxlength:10},
                 self_mstatus: { required: true,},
@@ -440,10 +440,11 @@ $('body').on('click','.btn-next-insurer',function(e){
                 }
              });
              $('.insurer-fname').each(function() {
-                 $(this).rules("add", {required: true, });
+                 $(this).rules("add", {required: true,chars: true});
+               
             });
              $('.insurer-lname').each(function() {
-                $(this).rules("add", {required: true, });
+                $(this).rules("add", {required: true,chars: true});
             });
              $('.insurer-dd').each(function() {
                 $(this).rules("add", { required: true, });
@@ -478,7 +479,7 @@ $('body').on('click','.btn-next-insurer',function(e){
                          //console.log(key,data)
                          if(data.type!="self"){
                              var _age = calculateAge($('#'+key+'_mm').val()+"/"+$('#'+key+'_dd').val()+"/"+$('#'+key+'_yy').val());
-                             if(_age<=90){
+                             if(_age<=99){
                                  healthInfo.members[key].age = _age;//$('#'+key+'_fname').val();
                                  healthInfo.members[key].fname = $('#'+key+'_fname').val();
                                  healthInfo.members[key].lname = $('#'+key+'_lname').val();
@@ -541,7 +542,7 @@ $('body').on('click','.btn-next-address',function(e){
                    }
              });
              $('#house_no').each(function() {
-                 $(this).rules("add", {required: true,maxlength:20 });
+                 $(this).rules("add", {required: true,maxlength:20});
             });
              $('#street').each(function() {
                 $(this).rules("add", {required: true,maxlength:40});

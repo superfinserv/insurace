@@ -10,22 +10,24 @@
               <div class="agent-identity-notify"></div>
               <div class="row mg-t-20">
                     <div class="col-sm-12 col=ms-12 col-lg-12">
-                       @if($agentData->isTestAllow==1)
+                       
                         <div class="card shadow-base bd-0">
                             
                             <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
                                 <h6 class="card-title tx-uppercase tx-12 mg-b-0">All attempted certificates</h6>
                               <div class="card-option tx-24">
-                                <?php $certification_count = DB::table('certification')->where('agent_id', $agentData->id)->orderBy('id', 'desc')->count();
-                                if($certification_count){
-                                    $certification = DB::table('certification')->where('agent_id', $agentData->id)->orderBy('id', 'desc')->first();
-                                    $certificate_link=url('/get/download/file/test-certificate/'.$certification->file);
-                                    echo (round($certification->obtained_marks)>=50)?'<a href="#" data-id="'.$agentData->id.'" id="regenerate_cert" class="btn btn-dark  btn-sm tx-white mg-l-10"><i class="fas fa-sync-alt lh-0"></i> Regenerate Certificate</a>
-                                                                                      <a href="#" class="btn btn-success btn-sm tx-white mg-l-10 ">Passed ('.$certification->obtained_marks.'%)</a>'
-                                                                                   :'<a href="#" class="btn btn-success  btn-sm tx-white mg-l-10 take-test" data-id="'.$agentData->id.'"><i class="icon ion-ios-bookmarks-outline lh-0"></i> Take a Test</a>';
-                                }else{
-                                   echo '<a href="#" class="btn btn-success take-test  btn-sm tx-white mg-l-10" data-id="'.$agentData->id.'"><i class="icon ion-ios-bookmarks-outline lh-0"></i> Take a Test</a>';
-                                } ?>
+                                <?php if($agentData->is_tranning_complete=='Yes'){ 
+                                        $certification_count = DB::table('certification')->where('agent_id', $agentData->id)->orderBy('id', 'desc')->count();
+                                        if($certification_count){
+                                            $certification = DB::table('certification')->where('agent_id', $agentData->id)->orderBy('id', 'desc')->first();
+                                            $certificate_link=url('/get/download/file/test-certificate/'.$certification->file);
+                                            echo (round($certification->obtained_marks)>=50)?'<a href="#" data-id="'.$agentData->id.'" id="regenerate_cert" class="btn btn-dark  btn-sm tx-white mg-l-10"><i class="fas fa-sync-alt lh-0"></i> Regenerate Certificate</a>
+                                                                                              <a href="#" class="btn btn-success btn-sm tx-white mg-l-10 ">Passed ('.$certification->obtained_marks.'%)</a>'
+                                                                                           :'<a href="#" class="btn btn-success  btn-sm tx-white mg-l-10 take-test" data-id="'.$agentData->id.'"><i class="icon ion-ios-bookmarks-outline lh-0"></i> Take a Test</a>';
+                                        }else{
+                                           echo '<a href="#" class="btn btn-success take-test  btn-sm tx-white mg-l-10" data-id="'.$agentData->id.'"><i class="icon ion-ios-bookmarks-outline lh-0"></i> Take a Test</a>';
+                                        }
+                                    }?>
                                
                               </div>
                             </div><!-- card-header -->
@@ -73,12 +75,7 @@
                               
                             </div><!-- card-body -->
                         </div><!-- card -->
-                        @else 
-                           <div class="bd-l bd-3 bd-danger bg-gray-200 pd-x-20 pd-y-25">
-                            <h5 class="tx-danger">Oh snap! now {{$agentData->name}} is not allowed to test.</h5>
-                            <p class="mg-b-0">First allow test for {{$agentData->name}} to take certifications.</p>
-                          </div>
-                        @endif
+                       
                       </div><!-- col6-->
                     </div>
             </div>

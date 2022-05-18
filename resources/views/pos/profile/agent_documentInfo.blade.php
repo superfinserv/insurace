@@ -5,7 +5,7 @@
                                                 <label for="inputEmail4" class="h4">PAN card number</label>
                                              </div>
                                              <div class="form-group col-md-6">
-                                                <input type="text" class="form-control profile-input" name="pan_card_number" id="pan_card_number" placeholder="PAN card number" value="{{$agent->pan_card_number}}">
+                                                <input type="text" style="text-transform: uppercase;" class="form-control profile-input" name="pan_card_number" id="pan_card_number" placeholder="PAN card number" value="{{$agent->pan_card_number}}">
                                               </div>
                                               <div class="form-group col-md-4">
                                                 <label for="inputPassword4" class="h4">Upload PAN card</label>

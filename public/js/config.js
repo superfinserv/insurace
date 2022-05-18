@@ -71,9 +71,17 @@ $(document).ready(function() {
             }
         }, 'Please Enter valid PAN number');
         
+        jQuery.validator.addMethod("ifsc", function(value, element) {
+          return this.optional(element) || /^[a-zA-Z]{4}[0-9]{7}$/.test(value);
+        }, 'valid IFSC code required.');  
         
+      jQuery.validator.addMethod("alphanumeric", function(value, element) {
+            return this.optional(element) || /^\w+$/i.test(value);
+        }, "Letters, numbers, and underscores only please");
     
     $('.select2').select2();
+      $('.single-select2').select2();
+    
     $(".selectize-single").selectize({
           create: true,
           sortField: "text",

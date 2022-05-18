@@ -63,24 +63,6 @@ if (!function_exists('get_site_settings')) {
     }
 }
 
-if (!function_exists('genratePOSPId')) {
- function genratePOSPId($agentId){
-            $agInfo = DB::table('agents')->where('id',$agentId)->first();
-            if($agInfo->cert_serial!="" && $agInfo->cert_serial>0){
-                 DB::table('agents')->where('id', $agentId)->update(['cert_serial' =>0]);
-            }
-            $serial = DB::table('agents')->max('cert_serial');
-            $num = $serial+1; 
-            $v = 10000+$num;
-            
-            $pospID  = (config('custom.pospID_prefix')!="")?config('custom.pospID_prefix').$v:"SS/POSP/A".$v;
-            //$pospID  = (get_site_settings('pospID_prefix')!="")?get_site_settings('pospID_prefix').$v:"SS/POSP/A".$v;
-             DB::table('agents')
-                ->where('id', $agentId)
-                ->update(['cert_serial' => $num,'posp_ID'=>$pospID]);
-            return $pospID;
-    }
-}
 
 if (!function_exists('createFormatDate')) {
 function createFormatDate($date, $format, $newformat) { 
@@ -287,7 +269,7 @@ if(!function_exists('sendNotification')) {
      }
 }
 
-if(!function_exists('getMailSmsInfo')) {
+if(!function_exists('getMailSmsInfo')){
      function getMailSmsInfo($agentId,$action){
        $is = DB::table("notification_template_settings")->where(['type'=>'POSP','action'=>$action])->count(); 
        $response = new \stdClass(); 
@@ -321,10 +303,10 @@ if(!function_exists('getMailSmsInfo')) {
                }
                if($action == "POSP_FEE_PAID"){
                    
-                     $pdf = taxInvoice($agentId);
-                     $attach->status = true;
-                     $attach->isRaw = true;
-                     $attach->attachments = [$pdf['name']=>$pdf['row']];
+                    //  $pdf = taxInvoice($agentId);
+                    //  $attach->status = true;
+                    //  $attach->isRaw = true;
+                    //  $attach->attachments = [$pdf['name']=>$pdf['row']];
             
                }
                if($action == "POSP_VERIFIED"){
@@ -410,144 +392,6 @@ if(!function_exists('getMailSmsInfo')) {
        }
        return $response;
      }
-}
-
-
-if(!function_exists('taxInvoice')){
-     function taxInvoice($agentID){
-            $user = DB::table('agents')->where('id',$agentID)->first();
-            $pay = DB::table('agent_payments')->where('agent_id', $agentID)->first();
-            $filename = "Invoice-".str_replace("/","",$user->posp_ID).".pdf";
-          
-            // $path = dirname(getcwd(),1)."/insassets/agents/pdf/taxinvoice";
-            // if(!File::exists($path)) {
-            //     File::makeDirectory($path, $mode = 0755, true, true);
-            // } 
-       
-            $logo = get_site_settings('site_logo');//"https://insurance.supersolutions.in/logo/logo_5.png";
-            $arrContextOptions=array(
-                            "ssl"=>array(
-                                "verify_peer"=>false,
-                                "verify_peer_name"=>false,
-                            ),
-                        );
-            $type = pathinfo($logo, PATHINFO_EXTENSION);
-            $avatarData = file_get_contents($logo, false, stream_context_create($arrContextOptions));
-            $avatarBase64Data = base64_encode($avatarData);
-            $data['logo'] = 'data:image/' . $type . ';base64,' . $avatarBase64Data;
-            
-            
-            //SIGN
-            $sign = public_path('site_assets/logo/tax-sign.png');//"https://insurance.supersolutions.in/logo/logo_5.png";
-            $SarrContextOptions=array(
-                            "ssl"=>array(
-                                "verify_peer"=>false,
-                                "verify_peer_name"=>false,
-                            ),
-                        );
-            $Stype = pathinfo($sign, PATHINFO_EXTENSION);
-            $SavatarData = file_get_contents($sign, false, stream_context_create($SarrContextOptions));
-            $SavatarBase64Data = base64_encode($SavatarData);
-            $data['sign'] = 'data:image/' . $Stype . ';base64,' . $SavatarBase64Data;
-            
-            
-            
-              $fee_amount = intval((float)get_site_settings('posp_application_fee'));
-              $tax1 = intval(($fee_amount*9)/100);
-              $tax2 = intval(($fee_amount*9)/100);
-              $tax = intval(($fee_amount*18)/100);
-              $total =  $fee_amount+$tax;
-               
-               if($user->state!="" && $user->state==33){
-                   $cgst = round($tax1);//round(($fee_amount*9)/100);
-                   $sgst = round($tax2);//round(($fee_amount*9)/100);
-                   $data['cgst']='₹'.number_format((float)$cgst, 2, '.', '').'/-';
-                   $data['sgst']='₹'.number_format((float)$sgst, 2, '.', '').'/-';
-                   $data['igst']='₹00.00/-';
-                   $data['total'] = '₹'.number_format((float)($fee_amount+$cgst+$sgst), 2, '.', '');
-                   $data['payble'] = number_format((float)($fee_amount+$cgst+$sgst), 2, '.', '');
-               }else{
-                   $igst = round($tax);
-                   $data['cgst']='₹00.00/-';
-                   $data['sgst']='₹00.00/-';
-                   $data['igst']='₹'.number_format((float)$igst, 2, '.', '').'/-';
-                   $data['total'] = '₹'.number_format((float)($fee_amount+$igst), 2, '.', '');
-                   $data['payble'] = number_format((float)($fee_amount+$igst), 2, '.', '');
-               }
-         $data['fee_payment'] = '₹'.number_format((float)($fee_amount), 2, '.', '');
-         $data['user'] = $user;
-         $data['user_city'] = ($user->city!="" && $user->city>0)?DB::table('cities_list')->where('id', $user->city)->value('name'):"";
-         $data['user_state'] = ($user->state!="" && $user->state>0)?DB::table('states_list')->where('id', $user->state)->value('name'):"";
-         $data['pay'] = $pay;
-         PDF::setOptions(['defaultFont' => 'sans-serif','defaultMediaType'=>'all','isFontSubsettingEnabled'=>true]);
-         $pdf = PDF::loadView('pos.feepayments.taxinvoice',$data);
-        
-        // return $pdf->stream();
-        // $headers =[
-                //     'Content-Description' => 'File Transfer',
-                //     'Content-Type' => 'application/pdf',
-                // ];
-         //$pdf->save('public/assets'.'/'.$filename.'.pdf',$filename.'.pdf',$headers);
-        
-       // return $pdf->download('public/assets'.'/'.$filename.'.pdf',$filename.'.pdf',$headers);
-       // return Response::download($path.'/'.$filename.'.pdf',$filename.'.pdf',$headers);
-        $pData = ['row'=>$pdf->output(),'name'=>$filename];
-        return  $pData;
-        
-        // $data["body"]="";
-        // Mail::send('templates.mail_freame', $data, function($message)use($data,$pdf) {
-        //             $message->to('praveen.patidar10@gmail.com', "Praveen Patidar")
-        //             ->subject('Test Attach')
-        //             ->attachData($pdf->output(), "invoice.pdf");
-        //             $message->from("care@supersolutions.in",'Supersolutions');
-        //             });
-        
-    }
-}
-
-if(!function_exists('pospVerifiedData')){
-    function pospVerifiedData($id){
-        $user = DB::table('agents')->where('id',$id)->first();
-       // $filename = str_replace("/","_",$user->posp_ID).uniqid();
-        $filename = "SF-".str_replace("/","",$user->posp_ID).".pdf";
-        // $path = "public/assets/agents/pdf/certificate";
-        // if(!File::exists($path)) {
-        //     File::makeDirectory($path, $mode = 0755, true, true);
-        // } 
-       
-            $logo = get_site_settings('site_logo');
-            $arrContextOptions=array(
-                            "ssl"=>array(
-                                "verify_peer"=>false,
-                                "verify_peer_name"=>false,
-                            ),
-                        );
-            $type = pathinfo($logo, PATHINFO_EXTENSION);
-            $avatarData = file_get_contents($logo, false, stream_context_create($arrContextOptions));
-            $avatarBase64Data = base64_encode($avatarData);
-            $data['logo'] = 'data:image/' . $type . ';base64,' . $avatarBase64Data;
-            
-            $profile = "public/assets/agents/profile/".$user->profile;
-            $arrContextOptions1=array(
-                            "ssl"=>array(
-                                "verify_peer"=>false,
-                                "verify_peer_name"=>false,
-                            ),
-                        );
-            $type1 = pathinfo($profile, PATHINFO_EXTENSION);
-            $avatarData1 = file_get_contents($profile, false, stream_context_create($arrContextOptions1));
-            $avatarBase64Data1 = base64_encode($avatarData1);
-            $data['profile'] = 'data:image/' . $type1 . ';base64,' . $avatarBase64Data1;
-         $data['user'] = $user;
-         $data['user_city'] = ($user->city!="" && $user->city>0)?DB::table('cities_list')->where('id',  $user->city)->value('name'):"";
-         $data['user_state'] = ($user->state!="" && $user->state>0)?DB::table('states_list')->where('id',  $user->state)->value('name'):"";
-         
-         PDF::setOptions(['defaultFont' => 'sans-serif','defaultMediaType'=>'all','isFontSubsettingEnabled'=>true]);
-         $pdf = PDF::loadView('admin.agents.posp_details_pdf',$data);
-       
-         $pData = ['row'=>$pdf->output(),'name'=>$filename];
-         return  $pData;
-    }
 }
 
 if(!function_exists('customerPolicyData')){

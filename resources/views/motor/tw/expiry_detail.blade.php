@@ -94,20 +94,20 @@
 										<div class="w--radio__label">When did it expire?</div>
 										<div class="w--radio__options">
 												<div class="custom-control custom-radio" style="width: 100%;margin-bottom: 10px;">
-												  <input data-date="<?=date('d-m-Y', strtotime('-100 days'));?>" type="radio" class="custom-control-input exp-radio" id="defaultChecked" name="expire_date" value="+90">
+												  <input data-date="<?=$exp['more_than_90'];?>" type="radio" class="custom-control-input exp-radio" id="defaultChecked" name="expire_date" value="+90">
 												  <label class="custom-control-label" for="defaultChecked">Expired, more than 90 days ago</label>
 											</div>
 											<div class="custom-control custom-radio " style="width: 100%;margin-bottom: 10px;">
-											      <input data-date="<?=date('d-m-Y', strtotime('-60 days'));?>" type="radio" class="custom-control-input" id="defaultChecked1" name="expire_date" value="45-90">
+											      <input data-date="<?=$exp['btwn_45_to_90'];?>" type="radio" class="custom-control-input" id="defaultChecked1" name="expire_date" value="45-90">
 												  <label class="custom-control-label" for="defaultChecked1">Expired, between 45 to 90 days ago</label>
 											</div>
 											<div class="custom-control custom-radio " style="width: 100%;margin-bottom: 10px;">
-											      <input data-date="<?=date('d-m-Y', strtotime('-25 days'));?>" type="radio" class="custom-control-input" id="defaultChecked2" name="expire_date" value="-45">
+											      <input data-date="<?=$exp['less_than_45'];?>" type="radio" class="custom-control-input" id="defaultChecked2" name="expire_date" value="-45">
 												  <label class="custom-control-label" for="defaultChecked2">Expired, less than 45 days ago</label>
 											</div>
 											
 											<div class="custom-control custom-radio" style="width: 100%;">
-											   	  <input data-date="<?=date('d-m-Y', strtotime('-90 days'));?>" type="radio" class="custom-control-input exp-radio" id="defaultChecked4" name="expire_date" value="0">
+											   	  <input data-date="<<?=$exp['note_sure'];?>" type="radio" class="custom-control-input exp-radio" id="defaultChecked4" name="expire_date" value="0">
 												  <label class="custom-control-label" for="defaultChecked4">I'm not sure when it expired</label>
 											</div>
 											

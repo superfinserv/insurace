@@ -23,13 +23,13 @@
 							<?php   if($result->percentage>=$result->required_marks){ ?>
                                       <div style="text-align: center;">
 
-                                         <img src="{{asset('img/achievement.png')}}" style=" height: 120px; /* width: 127px; */ margin-top: 40px; ">
+                                         <img src="{{asset('site_assets/logo/small-icon-logo.png')}}" style=" margin-top: 40px;border: 2px solid #ca322b;border-radius: 50%;padding: 10px;">
 
                                          <h2>You got {{$result->percentage}}% marks. </h2>
 
                                          <h1>Congrats!</h1>
 
-                                         <h2>You just pass the test level.</h2>
+                                         <h2>Congratulations for passing exam! Your patience and persistence have finally paid off. Now you are one step closer to your dream.</h2>
 
                                          <a  href="{{url('/profile')}}/" class="btn btn-default btn-lg btn-dfault-amt become-sign-btn " style=" font-weight:600; margin-top:30px;">Finish</a>
 
@@ -42,7 +42,7 @@
                                 <?php }else{ ?>
                                       <div style="text-align: center;">
 
-                                     <img src="{{asset('img/failed.png')}}" style=" height: 120px; /* width: 127px; */ margin-top: 40px; ">
+                                   <img src="{{asset('site_assets/logo/small-icon-logo.png')}}" style=" margin-top: 40px;border: 2px solid #ca322b;border-radius: 50%;padding: 10px;">
 
                                      <h2>You got {{$result->percentage}}% marks. </h2>
 

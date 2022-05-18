@@ -56,10 +56,17 @@ class InspectionCron extends Command
         */
          $cases = DB::table('app_quote')->where('isBreakInCase','YES')->whereIn('breakInStatus',['Pending', 'Initiated', 'Approved'])->get();
          foreach($cases as $each){
-            $breakIn =  json_decode($each->breakInJson,true);
-            $res = $this->HdfcErgoCar->GetBreakinDetails($breakIn['BreakinId'],$breakIn['QuoteId']);
-              DB::table('app_quote')->where('id',$each->id)->update(['breakInStatus'=>$res['BreakInStatus']]);
-              Log::channel('cronlog')->info($each->enquiry_id.'- Inspection status is : '.$res['BreakInStatus']);
+             if($each->provider=="DIGIT"){ 
+                    $breakIn =  json_decode($each->breakInJson,true);
+                    $res = $this->DigitCar->GetpolicyInfo($each->enquiry_id,$breakIn['QuoteId']);
+                    DB::table('app_quote')->where('id',$each->id)->update(['breakInStatus'=>$res['BreakInStatus']]);
+                    Log::channel('cronlog')->info($each->enquiry_id.'- Digit Inspection status is : '.$res['BreakInStatus']);
+             }else{
+                    $breakIn =  json_decode($each->breakInJson,true);
+                    $res = $this->HdfcErgoCar->GetBreakinDetails($breakIn['BreakinId'],$breakIn['QuoteId']);
+                    DB::table('app_quote')->where('id',$each->id)->update(['breakInStatus'=>$res['BreakInStatus']]);
+                    Log::channel('cronlog')->info($each->enquiry_id.'- HdfcErgo  Inspection status is : '.$res['BreakInStatus']);
+             }
          }
         //$this->info('Inspection:Cron Cummand Run successfully!');
     }
