@@ -9,9 +9,45 @@ use Carbon\Carbon;
 
 
 class ManipalPlus{
-
+    
+     function spCode(){
+        //  $SPCodes = ['9509530412' => '1664187-01','9309212895'  => '1664188-01','9828172010'  => '1674456-01','7080215757'  => '1674457-01'];
+        $SPCodes = ['9509530412' => '1000015-01','9309212895'  => '1000015-01','9828172010'  => '1000015-01','7080215757'  => '1000015-01'];
+        
+           if(isset(Auth::guard('customers')->user()->mobile)){ // IF CUSTOMER LOGIN
+                     $isPOSP = DB::table('agents')->where('mobile',Auth::guard('customers')->user()->mobile)->count();
+                     if($isPOSP){
+                         $agent = DB::table('agents')->where('mobile',Auth::guard('customers')->user()->mobile)->first();
+                         if($agent->userType=="POSP"){ 
+                                if($agent->mapped_sp){
+                                    $SPMOB = DB::table('agents')->where('id',$agent->mapped_sp)->value('mobile');
+                                    return isset($SPCodes[$SPMOB])?$SPCodes[$SPMOB]:'1000015-01';
+                                }else{ // SP NOT MAPPED
+                                      return '11000015-01';
+                                }
+                         }else if($agent->userType=="SP"){ 
+                                  return isset($SPCodes[Auth::guard('customers')->user()->mobile])?$SPCodes[Auth::guard('customers')->user()->mobile]:'1000015-01';
+                         }
+                     }else{
+                          return '1000015-01';
+                     }
+            }else{  // IF SP/POSP LOGIN
+                //$agent = DB::table('agents')->where('mobile',Auth::guard('agents')->user()->mobile)->first();
+                if(Auth::guard('agents')->user()=="POSP"){ 
+                    if($agent->mapped_sp){
+                        $SPMOB = DB::table('agents')->where('id',$agent->mapped_sp)->value('mobile');
+                        return isset($SPCodes[$SPMOB])?$SPCodes[$SPMOB]:'1000015-01';
+                     }else{ // SP NOT MAPPED
+                          return '1000015-01';
+                      }
+                }else if(Auth::guard('agents')->user()=="SP"){ 
+                      return isset($SPCodes[Auth::guard('customers')->user()->mobile])?$SPCodes[Auth::guard('customers')->user()->mobile]:'1000015-01';
+                }
+            }
+           
+      }
      function calculatePremium($params,$sum,$sumInsured,$devicetoken,$policytyp){ 
-         
+                 $baseAgentID = $this->spCode();
                 $productId = 'RPLS06SBSF';
                 $productPlanOptionCd = $policytyp.'-PLS'.$sum.'-HMB2K';
                 $_state = explode("-",$params['state']);
@@ -42,8 +78,8 @@ class ManipalPlus{
                                 "genderCd"=> $gender,
                                 "insuredTypeCd"=> $roleCd,
                                 "cityCd"=> $_city[1],
-                                "mobileNum"=> 9999999999,
-                                "emailAddress"=> "wesupport@superfinserv.com",
+                                "mobileNum"=> isset(Auth::guard('agents')->user()->id)?Auth::guard('agents')->user()->mobile:$params['selfMobile'],
+                                "emailAddress"=> $params['selfEmail'],
                                 "dob"=> $dob,
                                 "zoneCd"=> $zoneCd,
                                 "smokerStatusCd"=> "",
@@ -96,7 +132,7 @@ class ManipalPlus{
                                       "parentProductId"=> "NULL","parentProductVersion"=> 1,"noOfAdults"=>(int)$adult,"noOfKids"=>(int)$child,
                                       "tenure"=> 1,"productPlanOptionCd"=> $productPlanOptionCd,
                                       "policyType"=> $policyType,
-                                      "saveFl"=> "YES","quoteTypeCd"=> "INITIAL","quotationDt"=> date('d/m/Y'),"agentId"=> config('mediclaim.MANIPAL.baseAgentId'),
+                                      "saveFl"=> "YES","quoteTypeCd"=> "INITIAL","quotationDt"=> date('d/m/Y'),"agentId"=> $baseAgentID,
                                       "campaignCd"=> "DEFCMP03","productFamilyCd"=> "","policyNum"=> "","inwardTypeCd"=> "NEWBUSINESS",
                                       "inwardSubTypeCd"=> "PROPOSALDOCUMENT","ppmcFl"=> "","uwFl"=> "","caseType"=> "","sezUnit"=> "",
                                       "stateCd"=> "", "srNum"=> "","migrationFlag"=> "","astpFlag"=>"NO",
@@ -116,7 +152,7 @@ class ManipalPlus{
                 ['body' => json_encode($Request)]
             );
             $response = $clientResp->getBody()->getContents();   
-            //print_r($result);
+           // print_r($response);
             $result=json_decode($response);
              if(isset($result->errorList[0]->errProcessStatusCd)){
                  $_result =  ['status'=>false,'data'=>[]];
@@ -125,10 +161,12 @@ class ManipalPlus{
                   $quoteId  = $result->listofquotationTO[0]->quoteId;
                 
                  
-                  $features=DB::table('plans')->join('plans_features', 'plans.id', '=', 'plans_features.plan_id')
-                                                    ->join('plan_key_features', 'plan_key_features.key_features', '=', 'plans_features.features')
-                                           ->select('plans_features.features as _key','plans_features.val as _val','plan_key_features.description as _desc')
-                                           ->where(['supplier'=>'MANIPAL_CIGNA','plan_val'=>'MANIPAL_CIGNA-PROHEALTH_PLUS'])->get();
+                  $features = DB::table('plans_features') 
+                         ->select('plan_key_features.features as _key','plans_features.val as _val','plan_key_features.description as _desc')
+                          ->leftJoin('plans','plans.id','plans_features.plan_id')
+                          ->leftJoin('plan_key_features','plan_key_features.code','plans_features.featuresKey')
+                          ->where('plans.product','=',$productId)
+                          ->where('plans.supplier','=','MANIPAL_CIGNA')->limit(5)->get();
                       
                       
                       $amount  = $result->listofquotationTO[0]->totPremium;
@@ -164,7 +202,7 @@ class ManipalPlus{
      }
      
      function recalculatePremium($enqId,$termYear,$sum,$_zone,$addOn){ 
-          
+           $baseAgentID = $this->spCode();
          $enqData = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enqId)->first();
          $params = json_decode($enqData->params_request);
          $jd = json_decode($enqData->json_data);
@@ -208,8 +246,8 @@ class ManipalPlus{
                         "genderCd"=> $gender,
                         "insuredTypeCd"=> $roleCd,
                         "cityCd"=> $_city[1],
-                        "mobileNum"=> 9999999999,
-                        "emailAddress"=> "bankbazaar@bankbazaar.com",
+                        "mobileNum"=> isset(Auth::guard('agents')->user()->id)?Auth::guard('agents')->user()->mobile:$params->selfMobile,
+                        "emailAddress"=> $params->selfEmail,
                         "dob"=> $dob,
                         "zoneCd"=> $zoneCd,
                         "smokerStatusCd"=> "",
@@ -270,7 +308,7 @@ class ManipalPlus{
                                       "parentProductId"=> "NULL","parentProductVersion"=> 1,"noOfAdults"=>(int)$adult,"noOfKids"=>(int)$child,
                                       "tenure"=> 1,"productPlanOptionCd"=>$productPlanOptionCd,// $pT.'-PLS'.$sum.'-HMB2K',
                                       "policyType"=> $policyType,
-                                      "saveFl"=> "YES","quoteTypeCd"=> "INITIAL","quotationDt"=> date('d/m/Y'),"agentId"=>config('mediclaim.MANIPAL.baseAgentId'),
+                                      "saveFl"=> "YES","quoteTypeCd"=> "INITIAL","quotationDt"=> date('d/m/Y'),"agentId"=>$baseAgentID,
                                       "campaignCd"=> "DEFCMP03","productFamilyCd"=> "","policyNum"=> "","inwardTypeCd"=> "NEWBUSINESS",
                                       "inwardSubTypeCd"=> "PROPOSALDOCUMENT","ppmcFl"=> "","uwFl"=> "","caseType"=> "","sezUnit"=> "",
                                       "stateCd"=> "", "srNum"=> "","migrationFlag"=> "","astpFlag"=>"NO",
@@ -351,7 +389,8 @@ class ManipalPlus{
                DB::table('app_quote')->where('enquiry_id', $enqId)->update($quoteData);
      }
      
-       function validateProposal($enqID){
+     function validateProposal($enqID){
+            $baseAgentID = $this->spCode();
             $Querydata = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enqID)->first();
             $dataParam = json_decode($Querydata->json_data);
             $sumData = json_decode($Querydata->sumInsured);
@@ -624,7 +663,7 @@ class ManipalPlus{
             $req['proposalReceivedDt'] =date('d/m/Y');
             $req['proposalEntryDt'] =date('d/m/Y');
             //$req['proposalNum']="";
-            $req['baseAgentId'] =config('mediclaim.MANIPAL.baseAgentId');//'1600099-01';
+            $req['baseAgentId'] =$baseAgentID;//'1600099-01';
             $req['parentAgencyId'] ='';
             $req['servicingBranchId'] ='';
             $req['channelId'] =config('mediclaim.MANIPAL.channelId');
@@ -768,7 +807,7 @@ class ManipalPlus{
             $req['agencyId'] ='';
             $req['subagencyId'] ='';
             $req['employeeCd'] ='';
-            $req['partnerBranchId'] ='';
+            $req['partnerBranchId'] =config('mediclaim.MANIPAL.partnerBranchId');
             $req['refCodeA'] ='';
             $req['refCodeB'] ='';
             $req['refCodeC'] ='';
@@ -788,7 +827,7 @@ class ManipalPlus{
              $req['policyPortabilityDO'] =[$this->policyPortabilityDO_obj()];
              $req['policyProductDOList'] =[$ProductDOList];//[$this->policyProductDOList_obj()];
              $req['policyPaymentDOList'] =[['paymentMethodCd'=>'','paymentInstructionTypeCd'=>'','partyFinAccountSeq'=>null,'partyFinAccRefGuid'=>'','payerPartyId'=>'','payerPartyRefGuid'=>'',]];
-             $req['policyAgentDOList'] =[['agentId'=>config('mediclaim.MANIPAL.baseAgentId'),'primaryAgentFl'=>'','yearFrom'=>null,'yearTo'=>null,'commPercent'=>null,'prodnPercent'=>null,]];
+             $req['policyAgentDOList'] =[['agentId'=>$baseAgentID,'primaryAgentFl'=>'','yearFrom'=>null,'yearTo'=>null,'commPercent'=>null,'prodnPercent'=>null,]];
              $req['policyPartyRoleDOList'] =$_RoleDOList;//$this->policyPartyRoleDOList_obj();
              $req['partyDOList'] =$_partyDOList;//[$this->partyDOList_obj()];
              $req['inwardDOList'] =[];
@@ -963,7 +1002,7 @@ class ManipalPlus{
             return $elem; 
     }
     
-    function policyMandateDOList_obj(){
+     function policyMandateDOList_obj(){
         $elem['policyNum'] = '';//'PROTOP0500004';
         $elem['statusCd'] ='';
         $elem['recurringPaymentMethod'] = '';
@@ -1003,8 +1042,8 @@ class ManipalPlus{
                                                'branchCd'=>null,'relationCd'=>null]];
         return $elem; 
     }
-    
-    function policyPortabilityMemberDOList_obj(){
+     
+     function policyPortabilityMemberDOList_obj(){
         $elem['clientId'] ='';
         $elem['memberAttachmentDt'] ='';
         $elem['expPolicyCumulativeBonus']=null;
@@ -1027,7 +1066,7 @@ class ManipalPlus{
           return $elem; 
     }
     
-    function policyAdditionalFieldsDOList_obj(){
+     function policyAdditionalFieldsDOList_obj(){
         //$elem['appointeeage'] = null;
         $elem['AllInsIndNatResFlag'] = 'YES';
         $elem['IsNomSameAsCgFlag'] = 'NO';
@@ -1555,11 +1594,12 @@ class ManipalPlus{
     }
     
     function inwardDoList_obj($period,$praposalNum,$txnid,$amount){
+               $baseAgentID = $this->spCode();
                $elem["receiptId"]= "";
                $elem["payerTypeCd"]= "CLIENT";
                $elem["inwardDt"]= $period->startDate;//"08/09/2020";
                $elem["insurerBankCd"]= "DAUTSCHEBANK";
-               $elem["agentId"]= config('mediclaim.MANIPAL.baseAgentId');
+               $elem["agentId"]= $baseAgentID;
                $elem["payerPartyId"]= "0062X0000106xGdQAI";
                $elem["receiptBranchId"]= "110060418433";
                $elem["parentBranchId"]= "";
@@ -1678,497 +1718,6 @@ class ManipalPlus{
             }
             
            
-    }
-    
-    
-    
-    function _____saveProposal($enqID,$quoteId,$proposalNum,$txnid,$amount){
-            $Querydata = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enqID)->first();
-            
-            $sumData = json_decode($Querydata->sumInsured);
-            $sum = $sumData->shortAmt;
-            
-            $dataParam = json_decode($Querydata->json_data);
-            $params = json_decode($Querydata->params_request);
-            
-            
-            $termYear = $Querydata->termYear;
-            
-            $_amts = json_decode($Querydata->amounts);
-            
-            $quoteId = $_amts->$termYear->quoteId;
-            $quoteAmt = $_amts->$termYear->Total_Premium;
-            
-            
-            $child = $params->total_child;
-            $adult = $params->total_adult;
-            $pt = ($Querydata->policyType=='IN')?'INDIVIDUAL':"FAMILYFLOATER";
-            
-            $_state = explode("-",$params->address->state);
-            $_city = explode("-",$params->address->city); 
-            $pincode = $params->address->pincode;
-            $zoneCd = $Querydata->zone;//$this->getZone($pincode);                                                                                                                                                                        
-            $addressLine1 = $params->address->house_no;
-            $addressLine2 = $params->address->street;
-            $districtCd   = $_city[1];
-            $stateCd      = $_state[1];
-            $cityCd       = $_city[1];
-            $pinCode      = $params->address->pincode;
-            
-            $mobile = $params->selfMobile;
-            $email = $params->selfEmail;
-            
-            $nominee_name = isset($params->nomineename)?explode(" ",$params->nomineename):"NA NA";
-            $nomineeTitle = ($params->nomineerelation=="MOTHER" || $params->nomineerelation=="DAUGHTER" || $params->nomineerelation=="GRANT_MOTHER" || $params->nomineerelation=="MOTHER_IN_LAW" || $params->nomineerelation=="SISTER" || $params->nomineerelation=="SPOUSE")?"MRS":"MR";
-            $members  = $params->members;
-            
-            $docTypeArr = ['PAN_CARD'=>"PAN"];
-            $period = timePeriod('d/m/Y',$termYear);
-            $partyDOList =$this->partyDOList_obj();
-            $partyRoleDOList = $this->policyPartyRoleDOList_obj(); 
-            $ProductInsuredDOList =  $this->policyProductInsuredDOList_obj();
-            $QuestionSet = $this->policyQuestionSetDOList_obj();
-            $Document = $this->policyDocumentDOList_obj();
-           // print_r($QuestionSet);
-            $ProductDOList =  $this->policyProductDOList_obj();
-            $_partyDOList =[];$_RoleDOList = [];$_ProductInsuredDOList =[];$_Document=[];$refGuid=1;$i=0;$WSPolicyAdditionalMedicalDtlsDOLst=[];
-            foreach($members as $member){ 
-                   $_QuestionSet =[];
-                   $chrList = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-                   $chrRepeatMin = 1; $chrRepeatMax = 10; $chrRandomLength = 10;
-                   $str = substr(str_shuffle(str_repeat($chrList, mt_rand($chrRepeatMin,$chrRepeatMax))), 1, $chrRandomLength);
-                   //$InsuredDOList = "";$RoleDOList=""; $partyList = "";
-                   $weight  = ($member->type=="self")?$params->selfWeight:$member->weight;
-                   $height  = ($member->type=="self")?(($params->selfFeet*12)+($params->selfInch)):(($member->feet*12)+($member->inch));
-                   $Fname   = ($member->type=="self")?$params->selfFname:$member->fname;
-                   $Lname   = ($member->type=="self")?$params->selfLname:$member->lname;
-                   $birthDt = ($member->type=="self")?$params->selfdd."/".$params->selfmm."/".$params->selfyy:$member->dd."/".$member->mm."/".$member->yy;
-                   $genderCd= ($member->type=="self")?$params->gender:$member->gender;
-                   $roleCd  = ($member->type=="self")?"PROPOSER":"PRIMARY";
-                   $marital = ($member->type=="self")?strtoupper($params->selfMstatus)
-                                                     :((in_array($member->type,["wife","husband","father","mother"]))?"MARRIED":"SINGLE");
-                   $titleCd = ($member->type=="self" && $params->gender=="MALE")?"MR"
-                                                                                :(($member->type=="self" && $params->gender=="FEMALE")?"MRS"
-                                                                                                                                      :((in_array($member->type,["wife","mother","daughter"])?"MRS"
-                                                                                                                                                                                             :"MR")));
-                     
-                    if($member->type=="self"){ $relationCd = "SELF";}
-                    else if($member->type=="daughter"){  $relationCd = "UDTR"; }
-                    else if($member->type=="son")     {  $relationCd = "SON";}
-                    else if($member->type=="wife")    {  $relationCd = "WIFE"; }
-                    else if($member->type=="husband") {  $relationCd = "HUSBAND";}
-                    else if($member->type=="father")  {  $relationCd = "FATH";}
-                    else if($member->type=="mother")  {  $relationCd = "MOTH";} 
-                    
-                    $Document['partyId'] = $params->plan.$refGuid;
-                    $_Document[] = $Document;
-                    
-                    
-                    $ProductInsuredDOList['refGuid']=$params->plan.$refGuid;//"00".$str.$refGuid;
-                    $ProductInsuredDOList['partyId']=$params->plan.$refGuid;//"00".$str.$refGuid;
-                    $ProductInsuredDOList['weight']=floatval($weight);
-                    $ProductInsuredDOList['height']=round($height*2.54);
-                    $ProductInsuredDOList['zoneCd']= $zoneCd;
-                    
-                    $ProductInsuredDOList['productPlanOptionCd']=$dataParam->code;
-                    $ProductInsuredDOList['baseSumAssured']=floatval($sum*100000);
-                    $ProductInsuredDOList['sumInsured']=($sum*100000);
-                    
-                    
-                    $lvl802 =  ['Lvl02_O802_01','Lvl02_O802_02','Lvl02_O802_03','Lvl02_O802_04','Lvl02_O802_05','Lvl02_O802_06','Lvl02_O802_07','Lvl02_O802_08','Lvl02_O802_09','Lvl02_O802_10','Lvl02_O802_11','Lvl02_O802_12','Lvl02_O802_13','Lvl02_O802_14'];
-                    $arrNotIn =[];$hasMedicle =false;
-                    if(isset($member->medical)){
-                     $hasMedicle = true;
-                    foreach($member->medical as $mediSet){
-                                array_push($arrNotIn,$mediSet->queId);
-                                $_set =   DB::table('medical_questions')->where(['supplier'=>'MANIPAL_CIGNA','id'=>$mediSet->queId])->first();
-                                $Q['policyQuestionSetSeq'] = null;
-                                $Q['questionCd'] = $_set->code;
-                                $Q['dataElementCd'] =$_set->code;
-                                $Q['policyQuestionResponseDOList'] = [['policyQuestionSeq'=>null,'responseValue'=> 'YES','rowGuid'=>$params->plan.$refGuid]];
-                                $QuestionSet['questionSetCd'] =$_set->code;
-                                $QuestionSet['policySeq'] = null;
-                                $QuestionSet['policyProductSeq'] =null; 
-                                $QuestionSet['policyProductInsuredseq'] =null;
-                                $QuestionSet['partyGuid'] = $params->plan.$refGuid;
-                                $QuestionSet['policyQuestionDOList'] =[$Q];
-                                $_QuestionSet[]=$QuestionSet;
-                                
-                                if(in_array($_set->code,$lvl802)){
-                                    
-                                      if($mediSet->hasChildQuestions==true){
-                                        $additionalMedi = ["partyGuid"=>$params->plan.$refGuid,'adMedComments'=>""];
-                                        foreach($mediSet->childQuestions as $ch){
-                                           $childSet =   DB::table('medical_questions')->where(['supplier'=>'MANIPAL_CIGNA','parentId'=>$ch->parentId,'id'=>$ch->Qid])->first();
-                                          // print_r($childSet);
-                                           $additionalMedi['questionSetCd'] = $childSet->code;
-                                           $ansswer = $ch->answer;
-                                          if($childSet->setparam=="illness"){
-                                               $ansswer = $_set->title;
-                                           }
-                                           $additionalMedi[$childSet->setparam] = $ansswer; 
-                                           
-                                        }
-                                        
-                                       // print_r($additionalMedi);die;
-                                        $WSPolicyAdditionalMedicalDtlsDOLst[] = $additionalMedi;
-                                      }
-                                    
-                                }
-                    }
-                    }
-                    
-                    $QSet =   DB::table('medical_questions')
-                                   ->where(['supplier'=>'MANIPAL_CIGNA','parentId'=>0])
-                                   ->when($arrNotIn, function ($query, $arrNotIn) { 
-                                               return  $query->whereNotIn('id',$arrNotIn);
-                                         })->get();
-                                   //->whereNotIn('id',$arrNotIn)->get();
-                    foreach($QSet as $_otherSet){
-                               $Q['policyQuestionSetSeq'] = null;
-                                $Q['questionCd'] = $_otherSet->code;
-                                $Q['dataElementCd'] =$_otherSet->code;
-                                $Q['policyQuestionResponseDOList'] = [['policyQuestionSeq'=>null,'responseValue'=> 'NO','rowGuid'=>$params->plan.$refGuid]];
-                                $QuestionSet['questionSetCd'] =$_otherSet->code;
-                                $QuestionSet['policySeq'] = null;
-                                $QuestionSet['policyProductSeq'] =null; 
-                                $QuestionSet['policyProductInsuredseq'] =null;
-                                $QuestionSet['partyGuid'] = $params->plan.$refGuid;
-                                $QuestionSet['policyQuestionDOList'] =[$Q];
-                                $_QuestionSet[]=$QuestionSet;
-                    }
-                    
-                    
-                    //$_QuestionSet[]=$QuestionSet;
-                    $ProductInsuredDOList['policyQuestionSetDOList']=$_QuestionSet;
-                    $_ProductInsuredDOList[] = $ProductInsuredDOList;
-                    
-                   
-                   $partyDOList['partyId']  = $params->plan.$refGuid;//"00".$str.$refGuid;
-                   $partyDOList['partyGuid']  = $params->plan.$refGuid;//"00".$str.$refGuid;
-                   //$partyDOList['relationCd'] = $relationCd;
-                   $partyDOList['firstName1'] = $Fname;
-                   $partyDOList['lastName1'] = $Lname;
-                   $partyDOList['birthDt'] = $birthDt;
-                   $partyDOList['genderCd'] = $genderCd;
-                   $partyDOList['maritalStatusCd'] = $marital;
-                   $partyDOList['titleCd'] = $titleCd;
-                   $partyDOList['roleCd'] = $roleCd;
-                   $partyDOList['nomineeTitleCd']   = $nomineeTitle;
-                   $partyDOList['nomineeFirstName'] = $nominee_name[0];
-                   $partyDOList['nomineeLastName'] = $nominee_name[1];
-                   $partyDOList['zoneCd'] = $zoneCd;
-                   
-                    $partyDOList['partyAddressDOList'][0]['addressLine1Lang1'] = $partyDOList['partyAddressDOList'][1]['addressLine1Lang1'] = $addressLine1;
-                    $partyDOList['partyAddressDOList'][0]['addressLine2Lang1'] = $partyDOList['partyAddressDOList'][1]['addressLine2Lang1']= $addressLine2;
-                   // $partyDOList['partyAddressDOList'][0]['districtCd'] = $partyDOList['partyAddressDOList'][1]['districtCd'] = $stateCd;//$districtCd;
-                    $partyDOList['partyAddressDOList'][0]['stateCd'] = $partyDOList['partyAddressDOList'][1]['stateCd'] = $stateCd;
-                    $partyDOList['partyAddressDOList'][0]['cityCd'] = $partyDOList['partyAddressDOList'][1]['cityCd'] = $cityCd;
-                    $partyDOList['partyAddressDOList'][0]['pinCode'] =$partyDOList['partyAddressDOList'][1]['pinCode'] = $pinCode;
-                    $partyDOList['partyAddressDOList'][0]['postalZone'] = $partyDOList['partyAddressDOList'][1]['postalZone'] = $zoneCd;
-                
-                    $partyDOList['partyIdentityDOList'][0]['identityTypeCd'] = $docTypeArr[$params->document->documentType];
-                    $partyDOList['partyIdentityDOList'][0]['identityNum'] = $params->document->documentId;
-                    
-                    $partyDOList['partyContactDOList'][0]['contactNum'] = intval($mobile);
-                    $partyDOList['partyEmailDOList'][0]['emailAddress'] = $email;
-                    $partyDOList['partyEducationDOList'][0]['educationLevelCd']='HSC'; 
-                    
-                    $partyDOList['partyRelationDOList'][0]['relatedToPartyId'] = $params->plan.$refGuid;
-                    $partyDOList['partyRelationDOList'][0]['relationCd'] = $relationCd;
-                    $_partyDOList[] = $partyDOList;
-                   
-                   $partyRoleDOList['refGuid']  =$params->plan.$refGuid;//"00".$str.$refGuid;
-                   $partyRoleDOList['partyId']  =$params->plan.$refGuid;//"00".$str.$refGuid;
-                   $partyRoleDOList['roleCd']   =$roleCd;
-                   $partyRoleDOList['age']  = intval($member->age);
-                   $_RoleDOList[]=$partyRoleDOList;
-                   if($roleCd=='PROPOSER'){ 
-                     $partyRoleDOList['refGuid']  =$params->plan.$refGuid;//"00".$str.$refGuid;
-                     $partyRoleDOList['partyId']  =$params->plan.$refGuid;//"00".$str.$refGuid;
-                     $partyRoleDOList['roleCd']   ="PRIMARY";
-                     $partyRoleDOList['age']  = intval($member->age);
-                     $_RoleDOList[]=$partyRoleDOList;
-                   }
-                   
-                 $refGuid++; $i++;  
-             }//members foreach;
-            
-            $ProductDOList['productPlanOptionCd'] = $dataParam->code; 
-            $ProductDOList['coverTypeCd'] = $pt; 
-            $ProductDOList['baseSumAssured']  = floatval($sum*100000);
-            $ProductDOList['policyProductInsuredDOList']  = $_ProductInsuredDOList;
-            $ProductDOList['productId'] = $dataParam->product;
-            
-            if(isset($params->addOn) && $params->addOn!=""){
-                $adddonns = explode(',',$params->addOn);
-                $policyProductAddOnsDOList =[];
-                foreach($adddonns as $addd){
-                   $policyProductAddOnsDOList[]   = ['productSeq'=>null,'productId'=>$addd,'productFamilyCd'=>'','baseSumAssured'=>null,'baseAnnualPremium'=>null,
-                                            'modalPremium'=>null,'productPlanOptionCd'=>'','benefitStructureOptionCd'=>'','extraPremium'=>null,'discount'=>null,
-                                            'productName'=>'','deleteFl'=>'','refGuid'=>''];
-                }
-                
-                $ProductDOList['policyProductAddOnsDOList'] = $policyProductAddOnsDOList;
-            }
-            
-            $req['policySeq'] =null;//date('YmdHis');//$dataParam->applicationID;
-            $req['policyNum'] =$dataParam->applicationID;
-            $req['applicationID'] =$dataParam->applicationID;//$req['proposalNum'] =$dataParam->applicationID;
-            $req['applicationRefNum'] ='';//date('dmY').$dataParam->applicationID;
-            $req['proposalSignedDt'] =date('d/m/Y');
-            $req['proposalRejectDt'] ='';
-            $req['proposalReceivedDt'] =date('d/m/Y');
-            $req['proposalEntryDt'] =date('d/m/Y');
-            //$req['proposalNum']="";
-            $req['baseAgentId'] =config('mediclaim.MANIPAL.baseAgentId');//'1600099-01';
-            $req['parentAgencyId'] ='';
-            $req['servicingBranchId'] ='';
-            $req['channelId'] =config('mediclaim.MANIPAL.channelId');
-            $req['shgName'] ='';
-            $req['baseProductId'] =$dataParam->product;
-            $req['baseProductVersion'] =1;
-            $req['baseProductTypeCd'] ='SUBPLAN';
-            $req['baseProductFamilyCd'] ='HEALTHREVISED';
-            $req['policyInsuredCatgCd'] ='';
-            $req['groupCd'] ='';
-            $req['schemeCd'] ='';
-            $req['policyIssueDt'] ='';
-            $req['policyMaturityDt'] ="";//$period->endDate;//'18/08/2023';
-            $req['policyCommencementDt'] =null;//date('d/m/Y');
-            $req['riskCommencementDt'] ='';
-            $req['policyDispatchDt'] ='';
-            $req['firstPremiumReceiptDt'] ='';
-            $req['statusCd'] ='';
-            $req['totSumAssured'] =null;
-            $req['totAnnualPremium'] =null;
-            $req['totModalPremium'] =0;//floatval($dataParam->quotation);
-            $req['totalRiderPremium'] =null;
-            $req['totExtraPremium'] =null;
-            $req['totTax'] =null;
-            $req['totCharge'] =null;
-            $req['totDiscount'] =null;
-            $req['signatureCd'] ='';
-            $req['signatureInVernacularFl'] ='';
-            $req['agentSignatureFl'] ='';
-            $req['witnessSignatureFl'] ='';
-            $req['statusDt'] ='';
-            $req['stageCd'] ='';
-            $req['stageLevel'] ='';
-            $req['processStatusCd'] ='PENDING';
-            $req['applicationMode'] ='';
-            $req['quotationRefNum'] ='';
-            $req['imageName'] ='';
-            $req['accountNum'] ='';
-            $req['missingInfoCd'] ='';
-            $req['branchCd'] ='033';
-            $req['parentBranchCd'] ='';
-            $req['uwDecisionCd'] ='';
-            $req['dispatchDt'] ='';
-            $req['dispatchModeCd'] ='';
-            $req['courierName'] ='';
-            $req['courierRecvDt'] ='';
-            $req['consignmentNum'] ='';
-            $req['reason'] ='';
-            $req['uwDecisionValue'] ='';
-            $req['deferPeriodUnit'] ='';
-            $req['remarks'] ='';
-            $req['purposeOfInsuranceCd'] ='';
-            $req['intimationSourceCd'] ='PORTAL';
-            $req['batchDispatchDt'] ='';
-            $req['batchReceivedDt'] ='';
-            $req['batchCourierRefNum'] ='';
-            $req['batchId'] ='';
-            $req['counterOfferDecisionCd'] ='';
-            $req['counterOfferReasonCd'] ='';
-            $req['counterOfferAcceptDt'] ='';
-            $req['counterOfferRemarks'] ='';
-            $req['iteration'] =null;
-            $req['subStageCd'] ='';
-            $req['policyStatusCd'] ='';
-            $req['leadGenerationCd'] ='';
-            $req['statCd'] ='';
-            $req['productPlanOptionCd'] =$dataParam->code;//'IN-PLS5.5-HMB2K';
-            $req['leadGeneratorRemarks'] ='';
-            $req['medicalStatusCd'] ='';
-            $req['lastModifiedDt'] ='';
-            $req['workFlow'] ='';
-            $req['productTerm'] =(int)$termYear;
-            $req['productTermUnitCd'] ='YEARS';
-            $req['monitoringStaffId'] ='';
-            $req['subChannelId'] ='';
-            $req['monitoringOfficeId'] ='';
-            $req['monitoringLocationId'] ='';
-            $req['paymentTypeCd'] ='';//CREDITCARD
-            $req['paymentFrequencyCd'] ='';
-            $req['numberOfAdult'] =($adult>0)?intval($adult):null;;
-            $req['numberOfChildren'] =($child>0)?intval($child):null;;
-            $req['ageBand1Count'] =null;
-            $req['ageBand2Count'] =null;
-            $req['ageBand3Count'] =null;
-            $req['maxTripPeriod'] =null;
-            $req['travelGeographyCd'] ='';
-            $req['ageGroupOfEldestMember'] = '';
-            $req['sumInsured'] =strval($sum*100000);//'550000';
-            $req['coverType'] =$pt;//'INDIVIDUAL';
-            $req['quoteAmount'] =floatval($quoteAmt);//'18289.32';
-            $req['lastPaymentDt'] ='';
-            $req['nextPremiumDueDt'] ='';
-            $req['alterationEffectiveDt'] ='';
-            $req['oldPremium'] =null;
-            $req['serviceTax'] =null;
-            $req['eduCess'] =null;
-            $req['endorsementEffectiveDt'] ='';
-            $req['noOfAdultDependents'] =null;
-            $req['noOfChildDependents'] =null;
-            $req['noOfSRAdultDependents'] =null;
-            $req['noOfLives'] =null;
-            $req['masterPolicySeq'] =null;
-            $req['quoteId'] =$quoteId;//'SSQ'.date('dmYHis');//'Q119531405';
-            $req['inwardTypeCd'] ='NEWBUSINESS';
-            $req['inwardSubTypeCd'] ='PROPOSALDOCUMENT';
-            $req['receivedFrom'] ='ONLINE';
-            $req['zoneCd'] =$zoneCd;
-            $req['planId'] ="RPRT04";//$dataParam->product;
-            $req['higherEduCess'] =null;
-            $req['uwReqFl'] ='NO';
-            $req['ppmcFl'] ='NO';
-            $req['isManualFl'] ='';
-            $req['policyExpiryDt'] =$period->endDate;//'18/08/2023';
-            $req['workflowInwardNum'] ='';
-            $req['contents'] ='';
-            $req['modalPremium'] =null;
-            $req['initialPremium'] =null;
-            $req['caseType'] ='';
-            $req['previousPolicyExpiryDt'] ='';
-            $req['renewalNoticeSentFl'] ='';
-            $req['renewalDate'] ='';
-            $req['renewalYear'] =null;
-            $req['cummulativeBonusAmt'] =null;
-            $req['prevCummulativeBonus'] =null;
-            $req['actualCummulativeBonus'] =null;
-            $req['cummulativeBonusPerc'] =null;
-            $req['claims'] ='';
-            $req['renewalDueStatus'] ='';
-            $req['totUWLoadingAmount'] =null;
-            $req['renewalFl'] ='';
-            $req['portOutFl'] ='';
-            $req['retentionFl'] ='';
-            $req['premiumToBeCollected'] =null;
-            $req['premiumSuspenseAmount'] =null;
-            $req['uwLoadingPerc'] =null;
-            $req['totUWLoadingInclOfTaxes'] =null;
-            $req['totPremiumBeforeTaxes'] =null;
-            $req['pointsOnPremiumPaid'] =null;
-            $req['totalRewardPoints'] =null;
-            $req['pointsFromWellnessPrograms'] =null;
-            $req['agencyId'] ='';
-            $req['subagencyId'] ='';
-            $req['employeeCd'] ='';
-            $req['partnerBranchId'] ='';
-            $req['refCodeA'] ='';
-            $req['refCodeB'] ='';
-            $req['refCodeC'] ='';
-            $req['gst'] =null;
-            $req['gstCess'] =null;
-            $req['uwLoadGST'] =null;
-            $req['uwLoadGSTCess'] =null;
-            $req['utilizeHMBForPremium'] ='';
-            $req['hmbUtilizedTowardPremium'] =null;
-            $req['splitPolicyDO'] =[['splitCustomerId'=>"",'splitPolicyNum'=>"" ]];
-            
-            $req['migrationFlag'] ='';
-            $req['splitType'] ='';
-            $req['splitPolicy'] ='';
-            
-             
-             $req['policyPortabilityDO'] =[$this->policyPortabilityDO_obj()];
-             $req['policyProductDOList'] =[$ProductDOList];//[$this->policyProductDOList_obj()];
-             $req['policyPaymentDOList'] =[['paymentMethodCd'=>'','paymentInstructionTypeCd'=>'','partyFinAccountSeq'=>null,'partyFinAccRefGuid'=>'','payerPartyId'=>'','payerPartyRefGuid'=>'',]];
-             $req['policyAgentDOList'] =[['agentId'=>config('mediclaim.MANIPAL.baseAgentId'),'primaryAgentFl'=>'','yearFrom'=>null,'yearTo'=>null,'commPercent'=>null,'prodnPercent'=>null,]];
-             $req['policyPartyRoleDOList'] =$_RoleDOList;//$this->policyPartyRoleDOList_obj();
-             $req['partyDOList'] =$_partyDOList;//[$this->partyDOList_obj()];
-             $req['inwardDOList'] =[$this->inwardDoList_obj($period,$proposalNum,$txnid,$amount)];
-             $req['policyDocumentDOList'] =$_Document;//[$this->policyDocumentDOList_obj(),$this->policyDocumentDOList_obj()];
-             $req['policyQuestionSetDOList'] =$this->QpolicyQuestionSetDOList_obj($params->plan);//[$this->policyQuestionSetDOList_obj()];
-             $req['policyAdditionalFieldsDOList']  = [$this->policyAdditionalFieldsDOList_obj()];
-             $req['policyPortabilityMemberDOList'] = [$this->policyPortabilityMemberDOList_obj()];
-             $req['policyPortabilityMemberClaimDOList'] =[   
-                                                            [
-                                                            'clientId'=> '',
-                                                            'previousClaimNum'=>'',
-                                                            'visitDt'=>'',
-                                                            'hospitalId'=>'',
-                                                            'otherHospital'=>'',
-                                                            'amountPaid'=>null,
-                                                            'paymentDt'=>'',
-                                                            'claimOutstandingFl'=>'',
-                                                            'coPayments'=>null,
-                                                            'claimReason'=>'',
-                                                           ]
-                                                        ];
-             $req['WSPolicyAdditionalMedicalDtlsDOList'] = $this->WSPolicyAdditionalMedicalDtlsDOList($WSPolicyAdditionalMedicalDtlsDOLst);
-           
-             $req['WSPolicyPreviousInsuranceDtlsDOList'] =[
-                                                             [
-                                                                'partyGuid'=>'',
-                                                                'policyNum'=>'',
-                                                                'fromDt'=>'',
-                                                                'toDt'=>'',
-                                                                'baseSumAssured'=>null,
-                                                                'claimNum'=>'',
-                                                                'claimAmount'=>null,
-                                                                'ailment'=>'',
-                                                               // 'sumassured'=>null,
-                                                                'bonusPercentage'=>null,
-                                                                'bonusAmount'=>null,
-                                                                'insurerName'=>'',
-                                                                'typeOfPolicy'=>'',
-                                                                'portabilityFl'=>'',
-                                                                'prevAddOnRidersTakenFlag'=>'',
-                                                                'propCBConvToEnhSIFlag'=>'',
-                                                                'portReasonCd'=>'', 
-                                                                'prevPolDeclinedFlag'=>'',
-                                                            ]
-                                                         ];
-             $req['policyChangeDOList'] =[['alterationType'=>'','policyChangeDetailTOList'=>[['refGuid'=>null,'customerId'=>null]]]];
-             $req['policyMandateDOList'] =[$this->policyMandateDOList_obj()];
-            
-            if(isset(Auth::guard('agents')->user()->id)){
-                   
-                     $req['subIntermediaryName'] =Auth::guard('agents')->user()->name;;
-                     $req['subIntermediaryPAN'] =Auth::guard('agents')->user()->pan_card_number;
-                }else{
-                     $req['subIntermediaryName'] ='';
-                     $req['subIntermediaryPAN'] ='';
-                }
-            $req['others'] ='';
-            $req['classificationCd'] ='';
-            $req['modalLoadingPremium'] =null;
-            $listofPolicyTO[]  = $req;
-            $REQUEST = ["listofPolicyTO"=>$listofPolicyTO];
-            
-         
-             $client = new Client([
-                'headers' => ['Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKeySave'),"app_id"=>config('mediclaim.MANIPAL.appIdSave')]
-            ]);
-            
-            $clientResp = $client->post(config('mediclaim.MANIPAL.saveProposal'),
-                ['body' => json_encode($REQUEST)]
-            );
-            
-            $response = $clientResp->getBody()->getContents();   
-            $result=json_decode($response);
-            
-            if(empty($result->errorList)){
-                $receiptId = isset($result->listofPolicyTO[0]->inwardDOList[0]->receiptId)?$result->listofPolicyTO[0]->inwardDOList[0]->receiptId:"";
-                DB::table('app_quote')->where('enquiry_id',$enqID)->update(['json_data->receiptId'=>$receiptId]);
-                return ['status'=>true, 'message'=>"save proposal successfully!",'data'=>['receiptId'=>$receiptId]];
-                
-            }else{
-              return ['status'=>false, 'message'=>$result->errorList[0]->errDescription]; 
-            }
-            
     }
     
     

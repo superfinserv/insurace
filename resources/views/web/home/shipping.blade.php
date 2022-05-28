@@ -15,7 +15,7 @@
 								<div>
 									<p class="animated slideInRight" style=" text-align: justify;font-size: smaller;">
 									
-										For any insurance product purchased via www.insurance.supersolutions.in a soft copy of the policy will be emailed to the email id provided at the time of buying the product. The soft copy will be emailed to you by supersolutions, the insurance provider /company or both.</p>
+										For any insurance product purchased via <a href="https://superfinserv.in">www.superfinserv.in</a> a soft copy of the policy will be emailed to the email id provided at the time of buying the product. The soft copy will be emailed to you by Super Finserv, the insurance provider /company or both.</p>
 									
 										</div>
 										

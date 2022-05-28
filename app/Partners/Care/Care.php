@@ -82,10 +82,10 @@ class Care {
                   $careBasic = $this->basic->calculatePremium(json_decode(json_encode($params)),$authToken,$sumInsured,$devicetoken,$policytyp);
                   if($careBasic['status']){$count++; $_plans[] =$careBasic['data'];}
                 }
-                if($sumInsured<41){
-                   $careSmart = $this->smart->calculatePremium(json_decode(json_encode($params)),$authToken,$sumInsured,$devicetoken,$policytyp);
-                   if($careSmart['status']){$count++; $_plans[] =$careSmart['data'];}
-                }
+                // if($sumInsured<41){
+                //   $careSmart = $this->smart->calculatePremium(json_decode(json_encode($params)),$authToken,$sumInsured,$devicetoken,$policytyp);
+                //   if($careSmart['status']){$count++; $_plans[] =$careSmart['data'];}
+                // }
                 
                if(in_array($sumInsured, ['25','50','100']) && (($policytyp=="FL") || (($adult+$child)==1 && $policytyp=="IN"))){
                 $careAdv = $this->adv->calculatePremium(json_decode(json_encode($params)),$authToken,$sumInsured,$devicetoken,$policytyp);

@@ -20,8 +20,12 @@
     display: table;
     margin-bottom: 0px;
 }
-.media-box-container .mediabox li{
-   display:table-cell;width:50%;
+.media-box-container .mediabox li.li-left{
+   display:table-cell;width:45%;
+}
+
+.media-box-container .mediabox li.li-right{
+   display:table-cell;width:55%;
 }
 
 .media-box-container .mediabox li select.age-selector{

@@ -1,5 +1,5 @@
 
-            <header id="top-bar" class="top-bar top-bar--dark" data-nav-anchor="true"><meta http-equiv="Content-Type" content="text/html; charset=utf-8" >
+            <header id="top-bar" class="top-bar top-bar--dark is-sticky" data-nav-anchor="true"><meta http-equiv="Content-Type" content="text/html; charset=utf-8" >
               
                 <div class="top-bar__inner">
                     <div class="container-fluid">
@@ -31,6 +31,8 @@
                                         <li>
                                             <a class="nav-link" href="{{url('claims')}}">Claims</a>
                                         </li>
+                                        
+                                        
 
                                     </ul>
                                 </nav>
@@ -39,7 +41,7 @@
                                     <div class="d-xl-flex flex-xl-row flex-xl-wrap align-items-xl-center">
                                         <div class="top-bar__auth-btns">
                                             @if(Auth::guard('customers')->user())
-                                             <a href="{{url('/profile')}}" >{{Auth::guard('customers')->user()->mobile}}</a>
+                                             <a href="{{url('/my-policies')}}" >{{Auth::guard('customers')->user()->mobile}}</a>
                                              <a href="{{url('/logout')}}" >Logout</a>
                                             @else
                                              <a href="{{url('/sign-in')}}" >Sign In</a>

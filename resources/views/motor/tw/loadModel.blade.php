@@ -13,22 +13,25 @@
 </div>
 
 <div class="row mt-3 text-center">
- 
-	<?php if($count){
-	    $rs =0; 
-	     foreach ($models10 as $value) { 
-    	     if($rs==0){ echo'<div class="col-md-1"></div>'; }?>
-             	<div class="col-md-2 col-sm-2 model choose-model" data-animation="fadeInDown" data-delay="100" data-name="{{ucwords(strtolower($value->modal))}}" data-id="{{$value->id}}">
-             	    <a  class="Chevrolet-pro br-all" style="border-radius: 8px;border: 1px solid #AC0F0B;" data-toggle="tooltip" data-placement="top"  title="{{ucwords(strtolower($value->modal))}}">  
-                        <h4 style="font-weight: 700;">{{ucwords(strtolower($value->modal))}}</h4>
-              	        <span class="hidden-xs"></span>
-                     </a>
-                </div>
-             <?php  $rs++; if($rs==5){ echo'<div class="col-md-1"></div>';  $rs=0; }
-         }
-   ?>
-   
- 
+   <div class="col-md-1"></div>
+   <div class="col-md-10">
+       <div class="row mt-3 text-center">
+            	<?php if($count){
+            	    $rs =0; 
+            	     foreach ($models10 as $value) { 
+                	     //if($rs==0){ echo'<div class="col-md-1"></div>'; }?>
+                         	<div class="col-md-4 col-sm-4 model choose-model" data-animation="fadeInDown" data-delay="100" data-name="{{ucwords(strtolower($value->modal))}}" data-id="{{$value->id}}">
+                         	    <a  class="Chevrolet-pro br-all" style="border-radius: 8px;border: 1px solid #AC0F0B;" data-toggle="tooltip" data-placement="top"  title="{{ucwords(strtolower($value->modal))}}">  
+                                    <h4 style="font-weight: 700;">{{ucwords(strtolower($value->modal))}}</h4>
+                          	        <span class="hidden-xs"></span>
+                                 </a>
+                            </div>
+                         <?php  $rs++; //if($rs==5){ echo'<div class="col-md-1"></div>';  $rs=0; }
+                     }
+               ?>
+        </div>
+   </div>
+ <div class="col-md-1"></div>
 </div>
 
 

@@ -55,7 +55,12 @@
          <div class="table-wrapper">
             <table class="table table-bordered filter-table ">
                 <tr>
-                    <td style="width:20%"> </td>
+                    <td style="width:20%">
+                        <div class="input-group">
+                         <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-date"></i></span></div>
+                           <input id="table-4" class="form-control search-input-text" data-column="4" type="text" placeholder="Date" data-original-title="" title="">
+                        </div>
+                    </td>
                     <td style="width:20%">
                         <div class="input-group">
                          <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-search"></i></span></div>

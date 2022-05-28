@@ -42,7 +42,7 @@ if (!function_exists('updateCustomConfig')){
  if (!function_exists('setMoneyFormat')) {
  function setMoneyFormat($digit){
      setlocale(LC_MONETARY,"en_IN");
-     return money_format(" %n", $digit);
+     return str_replace(" ","",(money_format("%n", $digit)));
   }
 }
 

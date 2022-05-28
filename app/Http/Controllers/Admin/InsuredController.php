@@ -500,6 +500,7 @@ class InsuredController extends Controller{
                 ->when($customer, function ($query, $customer) {
                     return $query->where('policy_saled.mobile_no','LIKE', "%{$customer}%")->orWhere('policy_saled.customer_name', 'LIKE', "%{$customer}%");
                 });
+                
         $totalFiltered = $query->count();
         //$query->orderBy($order, $dir)
         $users = $query->orderBy("id", "DESC")

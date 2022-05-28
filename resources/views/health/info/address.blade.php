@@ -9,7 +9,7 @@
         <div class="media-input-container">
              <ul class="mediainput input-single" style="">
               <li>
-                <input type="text" name="house_no" id="house_no" class="form-control" placeholder="Enter House No./Building" value="<?=isset($address->house_no)?$address->house_no:'';?>">
+                <input type="text" name="house_no" id="house_no" class="form-control address-valid" placeholder="Enter House No./Building" value="<?=isset($address->house_no)?$address->house_no:'';?>">
                </li>
             </ul>
         </div>
@@ -19,7 +19,7 @@
         <div class="media-input-container">
              <ul class="mediainput input-single" style="">
               <li>
-                <input type="text" name="street" id="street" class="form-control" placeholder="Enter Area/Locallity" value="<?=isset($address->street)?$address->street:'';?>">
+                <input type="text" name="street" id="street" class="form-control address-valid" placeholder="Enter Area/Locallity" value="<?=isset($address->street)?$address->street:'';?>">
               </li>
                 
             </ul>

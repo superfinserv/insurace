@@ -82,8 +82,8 @@
                             <input name="_token" type="hidden" value="{{ csrf_token() }}"  />
                               <div class="row mt-3 wrapper-policy-type">
         
-    						    <div class="col-md-4 col-sm-12 col-12 "></div>
-    						    <div class="col-md-2 col-sm-6 col-6">
+    						    <div class="col-lg-4 col-xl-4 col-md-3 col-sm-12 col-12 "></div>
+    						    <div class="col-lg-4 col-xl-2 col-md-3 col-sm-6 col-6">
     						        <input type="radio" value="IND"  name="policyHolderType" id="option-1" checked>
                                        <label for="option-1" class="option option-1">
                                          <div class="dot"></div>
@@ -91,7 +91,7 @@
                                         </label>
                                 
     						    </div>
-        						<div class="col-md-2 col-sm-6 col-6">
+        						<div class="col-lg-4 col-xl-2 col-md-3 col-sm-6 col-6">
         						      <input type="radio" value="COR" name="policyHolderType" id="option-2">
                                         <label for="option-2" class="option option-2">
                                          <div class="dot"></div>
@@ -101,7 +101,7 @@
         							
         						</div>
         					
-        						<div class="col-md-4 col-sm-12 col-12"></div>
+        						<div class="col-lg-4 col-xl-4 col-md-3 col-sm-12 col-12"></div>
 						     </div>
         					 <div class="row mt-5 reg-dmy-elem" >
         						<div class="col-md-3 col-sm-12 col-12"></div>
@@ -125,14 +125,16 @@
         						</div>
         						<div class="col-md-3 col-sm-3"></div>
 						</div>
-						<div class="row text-center term-iso-mt health-pro-a">
-			              <div class="col-md-6 col-sm-6">
-			                <a href="#" id="backmodelYear" class="smoke-annual">Back</a>
-			              </div>
-			              <div class="col-md-6 col-sm-6">
-			                <button class="smoke-annual2">Next</button>
-			              </div>
-			            </div>
+						<div class="row mt-3">
+                              <div class="col-lg-4 col-xl-3 col-md-3 col-sm-12"></div>
+    			              <div class="col-lg-4 col-xl-3 col-md-3 col-sm-6 mb-4">
+            			         <a href="#" id="backmodelYear" class="btnSF btn-blue">Back</a>
+            			      </div>
+    			              <div class="col-lg-4 col-xl-3 col-md-3 col-sm-6">
+    			                <button type="submit"  class="btnSF btn-blue" style="margin-top:0px;">Next</button>
+    			              </div>
+            			       <div class="col-lg-4 col-xl-3 col-md-3 col-sm-12"></div>
+    			            </div>
 			        </form>
 					</div>
 				</section>

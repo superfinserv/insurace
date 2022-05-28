@@ -5,7 +5,7 @@
 # RewriteRule ^(.*)$ index.php/$1 [L,QSA] 
 <IfModule mod_headers.c>
     Header set Access-Control-Allow-Origin "superfinserv.co.in,*.superfinserv.co.in"
-    Header always set X-Frame-Options "SAMEORIGIN"
+    #Header always set X-Frame-Options "SAMEORIGIN"
     Header set X-Content-Type-Options nosniff
     Header set Cache-Control "no-cache, no-store, must-revalidate"
     Header set Pragma "no-cache"

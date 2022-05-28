@@ -36,6 +36,7 @@ class RulesController extends Controller{
         $typeTerm = ($request->input('columns.1.search.value'))?:"";
         $payTerm = ($request->input('columns.2.search.value'))?:"";
         $pTypTerm = ($request->input('columns.3.search.value'))?:"";
+        $DateTerm = ($request->input('columns.4.search.value'))?:"";
         $query = DB::query();
         $query = DB::table('policy_rule_sheet')->select('policy_rule_sheet.*','our_partners.name as partnerName')
                         ->leftJoin('our_partners', 'our_partners.shortName', '=', 'policy_rule_sheet.insurer')
@@ -50,8 +51,15 @@ class RulesController extends Controller{
                         })
                         ->when($pTypTerm, function ($query, $pTypTerm) {
                           return $query->where(['policy_rule_sheet.policyType'=>$pTypTerm]);
+                        })
+                        ->when($DateTerm, function ($query, $DateTerm) {
+                           $DateTerm =  Carbon::CreateFromFormat('d/m/Y',$DateTerm)->format('Y-m-d');
+                           return $query->whereDate('fromDate', '<=', $DateTerm)->whereDate('toDate','>=', $DateTerm);
                         });
-              
+                        
+                        
+               
+                
         $totalFiltered = $query->count();
         //$query->orderBy($order, $dir)
         $users = $query->orderBy("id", "ASC")
@@ -107,7 +115,7 @@ class RulesController extends Controller{
         echo json_encode($json_data); 
    }
    
-   public function curdRuleModel(Request $request){
+     public function curdRuleModel(Request $request){
          $template['param'] =$request->param;
          if(isset($request->code) && $request->param=="edit"){
             $template['data'] = DB::table("policy_rule_sheet")->where('ruleCode',$request->code)->first();
@@ -117,7 +125,8 @@ class RulesController extends Controller{
           $template['partners'] = DB::table("our_partners")->get();
          return View::make('admin.rules.model_create_edit')->with($template);
      }
-      public function saveRules(Request $request){
+     
+     public function saveRules(Request $request){
             $validMessage = ['insurer.required'=>'Insurer is required',
                               'instype.required'=>'Insurance type is required',
                               'policyType.required'=>'Policy Type is required',
@@ -167,6 +176,7 @@ class RulesController extends Controller{
                  $dt['totalIn'] = $request->totalOut;
                  $dt['pospIn'] = $request->pospOut;
                  $dt['spIn'] = $request->spOut;
+                 $dt['onAmt'] = $request->onAmt;
                  $dt['fromDate'] = Carbon::CreateFromFormat('d/m/Y',$request->fromDate)->format('Y-m-d');
                  $dt['toDate'] = Carbon::CreateFromFormat('d/m/Y',$request->toDate)->format('Y-m-d');
                  $dt['ruleDesc'] = $request->cTyp." Payout";
@@ -195,7 +205,7 @@ class RulesController extends Controller{
             }
       }
     
-      public function copyRule(Request $request){ 
+     public function copyRule(Request $request){ 
          $validator = Validator::make($request->all(),['code'=>'required'] ,['code.required']);
          if($validator->fails()){
                  return response()->json(['status'=>'error','message'=> $validator->errors()->first()]);

@@ -20,7 +20,7 @@
                     <div class="col-lg-3 col-md-3">
                             <div class="form-group">
                               <label class="form-control-label">Supplier: <span class="tx-danger">*</span></label>
-                              <input class="form-control" type="text" id="supp_name" name="supp_name" value="<?=$supp->name;?>" placeholder="Supplier name" readonly>
+                              <input class="form-control" type="text" id="supp_name" name="supp_name" value="<?=$plan->partnerName;?>" placeholder="Supplier name" readonly>
                             </div>
                        </div>
                        <div class="col-lg-3 col-md-3">
@@ -64,24 +64,16 @@
                               </tr>  
                         </thead>
                         <tbody>
-                            @php $kcnt = 1;@endphp
-                              @foreach($planKeys as $pk)
-                              @php 
-                                $val="";
-                                $cnt = DB::table('plans_features')->where('plan_id',$plan->id)->where('features',$pk->key_features)->count();
-                              @endphp
-                              @if($cnt)
-                                  @php
-                                     $val = DB::table('plans_features')->where('plan_id',$plan->id)->where('features',$pk->key_features)->value('val');
-                                  @endphp
-                              @endif
-                             
+                            
+                           @foreach($features as $pk)
+                             <?php    $pfff = DB::table('plans_features')->where('plan_id',$plan->id)->where('featuresKey',$pk->code)->value('val');
+                                     $VAL = ($pfff)?$pfff:""; ?>
+            
                                 <tr>
-                                    <th style="vertical-align: middle;text-align: center;">{{$pk->key_features}}</th>
-                                    <td><input class="form-control input-fields pk-fields" name="{{$plan->id}}-pk-{{$pk->id}}" id="{{$plan->id}}-pk-{{$pk->id}}" value="{{$val}}"/></td>
+                                    <th style="vertical-align: middle;text-align: center;">{{$pk->features}}</th>
+                                    <td><input class="form-control input-fields pk-fields" name="{{$plan->id}}-{{$pk->code}}" id="{{$plan->id}}-{{$pk->code}}" value="{{$VAL}}"/></td>
                                     
                                 </tr>
-                              @php $kcnt++; @endphp
                            @endforeach
                         </tbody>
                     </table>

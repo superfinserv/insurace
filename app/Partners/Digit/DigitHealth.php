@@ -36,12 +36,12 @@ class DigitHealth{
                 if(Auth::guard('agents')->user()->userType=="POSP"){ //For POSP
                   if($range['start']==4){ $rangeARR = ['4'=>400000,'5'=>500000];}
                 }else{ //FOR SP
-                    if($range['start']==4){ $rangeARR = ['4'=>400000,'5'=>500000,'6'=>600000,'7'=>800000,'9'=>900000];}
+                    if($range['start']==4){ $rangeARR = ['4'=>400000,'5'=>500000,'6'=>600000,'7'=>700000,'9'=>900000];}
                     if($range['start']==10){ $rangeARR = ['10'=>1000000,'15'=>1500000];}
                     if($range['start']==16){ $rangeARR = ['20'=>2000000,'25'=>2500000];}
                 }
             }else{ // For customer
-                if($range['start']==4){ $rangeARR = ['4'=>400000,'5'=>500000,'6'=>600000,'7'=>800000,'9'=>900000];}
+                if($range['start']==4){ $rangeARR = ['4'=>400000,'5'=>500000,'6'=>600000,'7'=>700000,'9'=>900000];}
                 if($range['start']==10){ $rangeARR = ['10'=>1000000,'15'=>1500000];}
                 if($range['start']==16){ $rangeARR = ['20'=>2000000,'25'=>2500000];}
             }
@@ -227,6 +227,7 @@ class DigitHealth{
              $saledData['respSaveGenPolicy']=$data->respSaveGenPolicy;
              $saledData['startDate']=$data->startDate;
              $saledData['endDate']=$data->endDate;
+             $saledData['server']=$data->server;
             if(!$isExist){
                 $saledData['enquiry_id'] =$tr->enquiry_id;
                 $refID = DB::table('policy_saled')->insertGetId($saledData);

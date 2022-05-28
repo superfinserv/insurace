@@ -11,6 +11,7 @@ use File;
 use App\Resources\DigitCarResource;
 use App\Resources\HdfcErgoCarResource;
 use Symfony\Component\HttpFoundation\Cookie;
+use App\Utils\UserManager;
 class Carinsurance extends Controller
 {
     public $uniqueToken;
@@ -18,6 +19,7 @@ class Carinsurance extends Controller
     public function __construct(DigitCarResource $DigitCarResource ,HdfcErgoCarResource $HdfcErgoCarResource) { 
            $this->DigitCar   = $DigitCarResource; 
            $this->HdfcErgoCar= $HdfcErgoCarResource; 
+           $this->usermanger =  new UserManager;
     }
     
     function getToken(){
@@ -174,8 +176,8 @@ class Carinsurance extends Controller
     }
     
     public function createEnquiry(Request $request){
-        $Q =   DB::table('app_temp_quote')->where('quote_id',$request->id)->first();
-        
+         $Q =   DB::table('app_temp_quote')->where('quote_id',$request->id)->first();
+         $cust = $this->usermanger->GetPolicySoldBy();
         if($Q->provider=="DIGIT"){
             $recalculate = $this->DigitCar->getSingleRecalulateQuote($Q->quote_id,$this->getToken(),$request->carInfo);
             if($recalculate['status']){
@@ -183,21 +185,13 @@ class Carinsurance extends Controller
                 $temp =   DB::table('app_temp_quote')->where('quote_id',$recalculate['quote_id'])->first();
                 $json_data = json_decode($temp->json_data);//$this->DigitCar->getJsonData($temp->response);
                 $json_data->enq = $enquiryId;
-                if(isset(Auth::guard('agents')->user()->id)){
-                  $customerID = 0;//_createCustomer(['mobile'=>$request->carInfo['customer']['mobile']]);
-                  $custMobile = "";//$request->carInfo['customer']['mobile'];
-                  $agentID = Auth::guard('agents')->user()->id;
-                }else{
-                  $customerID =Auth::guard('customers')->user()->id;
-                  $agentID = 0;
-                  $custMobile = Auth::guard('customers')->user()->mobile;
-                }
                 $quoteData = ['type'=>'CAR',
                               'provider'=>$temp->provider,
                               'device_id'=>$this->getToken(),
-                              'agent_id'=>$agentID,
-                              'customer_id'=>$customerID,
-                              'customer_mobile'=>$custMobile,
+                              'agent_id'=>$cust->agent_id,//$agentID,
+                              'sp_id'=>$cust->sp_id,//$spID,
+                              'customer_id'=>$cust->customer_id,//$customerID,
+                              'customer_mobile'=>$cust->customer_mobile,//$custMobile,
                               'server'=>isset(Auth::guard('customers')->user()->id)?'USER_WEB':'AGENT_WEB',
                               'call_type'=>"QUOTE",
                               'idv'=>$temp->idv,
@@ -210,10 +204,10 @@ class Carinsurance extends Controller
                               'max_idv'=>$temp->max_idv,
                               'params_request'=>json_encode($request->carInfo),
                               'json_data'=>json_encode($json_data),
-                               'reqQuote'=>$temp->reqQuote,
-                               'respQuote'=>$temp->respQuote,
-                               'reqRecalculate'=>$temp->reqRecalculate,
-                               'respRecalculate'=>$temp->respRecalculate
+                              'reqQuote'=>$temp->reqQuote,
+                              'respQuote'=>$temp->respQuote,
+                              'reqRecalculate'=>$temp->reqRecalculate,
+                              'respRecalculate'=>$temp->respRecalculate
                              ];
                  $quoteData['enquiry_id'] =  $enquiryId;
                  $refID = DB::table('app_quote')->insertGetId($quoteData);
@@ -226,21 +220,14 @@ class Carinsurance extends Controller
                 $temp =   DB::table('app_temp_quote')->where('quote_id',$request->id)->first();
                 $json_data = json_decode($temp->json_data);//$this->DigitCar->getJsonData($temp->response);
                 $json_data->enq = $temp->quote_id;
-                if(isset(Auth::guard('agents')->user()->id)){
-                  $customerID = 0;//_createCustomer(['mobile'=>$request->carInfo['customer']['mobile']]);
-                  $custMobile = "";//$request->carInfo['customer']['mobile'];
-                  $agentID = Auth::guard('agents')->user()->id;
-                }else{
-                  $customerID =Auth::guard('customers')->user()->id;
-                  $agentID = 0;
-                  $custMobile = Auth::guard('customers')->user()->mobile;
-                }
+                  
                 $quoteData = ['type'=>'CAR',
                               'provider'=>$temp->provider,
                               'device_id'=>$this->getToken(),
-                              'agent_id'=>$agentID,
-                              'customer_id'=>$customerID,
-                              'customer_mobile'=>$custMobile,
+                              'agent_id'=>$cust->agent_id,//$agentID,
+                              'sp_id'=>$cust->sp_id,//$spID,
+                              'customer_id'=>$cust->customer_id,//$customerID,
+                              'customer_mobile'=>$cust->customer_mobile,//$custMobile,
                                'policyType'=>$temp->policyType,
                               'server'=>isset(Auth::guard('customers')->user()->id)?'USER_WEB':'AGENT_WEB',
                               'call_type'=>"QUOTE",
@@ -308,7 +295,28 @@ class Carinsurance extends Controller
     
     public function updateInfo(Request $request){
         if($request->enqId!=""){
-            DB::table('app_quote')->where('enquiry_id', $request->enqId)->update(["params_request"=>json_encode($request->param)]);
+             $arr =  ["params_request"=>json_encode($request->param)];
+             $arr['customer_mobile'] =  $request->param['customer']['mobile'];
+             $arr['customer_name'] =  $request->param['customer']['first_name']." ".$request->param['customer']['last_name'];
+             $arr['customer_id'] = $this->usermanger->createCustomer([
+                                                    'mobile'=>$request->param['customer']['mobile'],
+                                                    'name'=>$request->param['customer']['first_name']." ".$request->param['customer']['last_name'],
+                                                    'email'=>$request->param['customer']['email'],
+                                                    //'address'=>$request->param['address']['addressLineOne'].",".$request->param['address']['addressLineTwo'],
+                                                    //'city'=>explode('-',$request->param['address']['city'])[0],
+                                                    //'state'=>explode('-',$request->param['address']['state'])[0],
+                                                    //'pincode'=>$request->param['address']['pincode'],
+                                               ]);
+             
+                // if(isset(Auth::guard('customers')->user()->mobile)){
+                //      $isPOSP = DB::table('agents')->where('mobile',Auth::guard('customers')->user()->mobile)->count();
+                //      if($isPOSP){
+                //          $agent = DB::table('agents')->where('mobile',Auth::guard('customers')->user()->mobile)->first();
+                //          if($agent->userType=="POSP"){ $arr['agent_id'] = $agent->id;$arr['sp_id'] = ($agent->mapped_sp)?$agent->mapped_sp:0;}
+                //          if($agent->userType=="SP"){ $arr['agent_id'] = $agent->id;$arr['sp_id'] = $agent->id;}
+                //      }
+                // }
+            DB::table('app_quote')->where('enquiry_id', $request->enqId)->update($arr);
             return response()->json(['status'=>'success','message'=>'Information updated successfully']);
         }else{
             return response()->json(['status'=>'error','message'=>'Something went wrong']);

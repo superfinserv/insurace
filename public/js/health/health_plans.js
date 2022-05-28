@@ -56,10 +56,10 @@ function getPlans(range,pt){
      getCareHealthPlans(range,pt,postData,customer,deviceToken);
      getFgiPlans(range,pt,postData,customer,deviceToken);
      getManipalCignaPlans(range,pt,postData,customer,deviceToken);
-     getHdfcErgoSPlans(range,pt,postData,customer,deviceToken);
-     getHdfcErgoSSPlans(range,pt,postData,customer,deviceToken);
-     getHdfcErgoGSPlans(range,pt,postData,customer,deviceToken);
-     getHdfcErgoPSPlans(range,pt,postData,customer,deviceToken);
+     getHdfcErgoOptimaSecure(range,pt,postData,customer,deviceToken);
+     //getHdfcErgoSSPlans(range,pt,postData,customer,deviceToken);
+     //getHdfcErgoGSPlans(range,pt,postData,customer,deviceToken);
+    // getHdfcErgoPSPlans(range,pt,postData,customer,deviceToken);
    //  getReligareCareAdvPlans(pt,postData);
     
 }
@@ -90,9 +90,9 @@ function loadHeading(res){
       $('#listMembersHead').append('&nbsp;&nbsp;<a href="'+base_url+'/health-insurance/health-members-age">Edit</a>');
 }
 
-function getHdfcErgoSPlans(range,pt,postData,customer,deviceToken){
+function getHdfcErgoOptimaSecure(range,pt,postData,customer,deviceToken){
    
-   XHRhdfcErgo = $.post(base_url+"/health-insurance/get-health-plans",{supp:'HDFCERGO',range:range,policytyp:pt,params:postData,customer:customer,deviceToken:deviceToken,pln:"Silver"},function(result){
+   XHRhdfcErgo = $.post(base_url+"/health-insurance/get-health-plans",{supp:'HDFCERGO',range:range,policytyp:pt,params:postData,customer:customer,deviceToken:deviceToken,pln:"OptimaSecure"},function(result){
         //console.log(result);
         if($.trim(result.status)=='success' && result.plans.length>0){
             var i=0;
@@ -107,56 +107,56 @@ function getHdfcErgoSPlans(range,pt,postData,customer,deviceToken){
     },'json');
 }
 
-function getHdfcErgoSSPlans(range,pt,postData,customer,deviceToken){
+// function getHdfcErgoSSPlans(range,pt,postData,customer,deviceToken){
    
-   XHRhdfcErgo = $.post(base_url+"/health-insurance/get-health-plans",{supp:'HDFCERGO',range:range,policytyp:pt,params:postData,customer:customer,deviceToken:deviceToken,pln:"SilverSmart"},function(result){
-        //console.log(result);
-        if($.trim(result.status)=='success' && result.plans.length>0){
-            var i=0;
-            $.each(result.plans, function(key,data){
-                setTimeout(function(){
-                    addElements(key,data)
-              }, 1000 * i);
-              i++; 
+//   XHRhdfcErgo = $.post(base_url+"/health-insurance/get-health-plans",{supp:'HDFCERGO',range:range,policytyp:pt,params:postData,customer:customer,deviceToken:deviceToken,pln:"SilverSmart"},function(result){
+//         //console.log(result);
+//         if($.trim(result.status)=='success' && result.plans.length>0){
+//             var i=0;
+//             $.each(result.plans, function(key,data){
+//                 setTimeout(function(){
+//                     addElements(key,data)
+//               }, 1000 * i);
+//               i++; 
               
-             });
-        }
-    },'json');
-}
+//              });
+//         }
+//     },'json');
+// }
 
-function getHdfcErgoGSPlans(range,pt,postData,customer,deviceToken){
+// function getHdfcErgoGSPlans(range,pt,postData,customer,deviceToken){
    
-   XHRhdfcErgo = $.post(base_url+"/health-insurance/get-health-plans",{supp:'HDFCERGO',range:range,policytyp:pt,params:postData,customer:customer,deviceToken:deviceToken,pln:"GoldSmart"},function(result){
-        //console.log(result);
-        if($.trim(result.status)=='success' && result.plans.length>0){
-            var i=0;
-            $.each(result.plans, function(key,data){
-                setTimeout(function(){
-                    addElements(key,data)
-              }, 1000 * i);
-              i++; 
+//   XHRhdfcErgo = $.post(base_url+"/health-insurance/get-health-plans",{supp:'HDFCERGO',range:range,policytyp:pt,params:postData,customer:customer,deviceToken:deviceToken,pln:"GoldSmart"},function(result){
+//         //console.log(result);
+//         if($.trim(result.status)=='success' && result.plans.length>0){
+//             var i=0;
+//             $.each(result.plans, function(key,data){
+//                 setTimeout(function(){
+//                     addElements(key,data)
+//               }, 1000 * i);
+//               i++; 
               
-             });
-        }
-    },'json');
-}
+//              });
+//         }
+//     },'json');
+// }
 
-function getHdfcErgoPSPlans(range,pt,postData,customer,deviceToken){
+// function getHdfcErgoPSPlans(range,pt,postData,customer,deviceToken){
     
-   XHRhdfcErgo = $.post(base_url+"/health-insurance/get-health-plans",{supp:'HDFCERGO',range:range,policytyp:pt,params:postData,customer:customer,deviceToken:deviceToken,pln:"PlatinumSmart"},function(result){
-        //console.log(result);
-        if($.trim(result.status)=='success' && result.plans.length>0){
-            var i=0;
-            $.each(result.plans, function(key,data){
-                setTimeout(function(){
-                    addElements(key,data)
-              }, 1000 * i);
-              i++; 
+//   XHRhdfcErgo = $.post(base_url+"/health-insurance/get-health-plans",{supp:'HDFCERGO',range:range,policytyp:pt,params:postData,customer:customer,deviceToken:deviceToken,pln:"PlatinumSmart"},function(result){
+//         //console.log(result);
+//         if($.trim(result.status)=='success' && result.plans.length>0){
+//             var i=0;
+//             $.each(result.plans, function(key,data){
+//                 setTimeout(function(){
+//                     addElements(key,data)
+//               }, 1000 * i);
+//               i++; 
               
-             });
-        }
-    },'json');
-}
+//              });
+//         }
+//     },'json');
+// }
 
 function getCareHealthPlans(range,pt,postData,customer,deviceToken){
    

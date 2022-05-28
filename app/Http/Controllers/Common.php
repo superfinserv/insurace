@@ -3,6 +3,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Client;
+use Meng\AsyncSoap\Guzzle\Factory;
 use Response;
 use View;
 use Session; 
@@ -67,10 +70,11 @@ class Common extends Controller{
         
         
         
-       $searchTerm=  $request->term;
-       // echo  $request->city;
-       $ct = explode('-',$request->city)[0];
-       $pincodes = DB::table('pincode_masters')->select('pincode')->where('city_id',$ct)
+      $searchTerm=  $request->term;
+      // echo  $request->city;
+      $ct = explode('-',$request->city)[0];
+      $ctName = explode('-',$request->city)[1];
+      $pincodes = DB::table('pincode_masters')->select('pincode')->where('District',"LIKE", "%".$ctName."%")
               ->when($searchTerm, function ($query, $searchTerm) {
                     return $query->where('pincode',"LIKE", "%".$searchTerm."%");
                 })

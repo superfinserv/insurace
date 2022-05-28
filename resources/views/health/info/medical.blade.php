@@ -23,6 +23,11 @@
 	 padding: 5px 20px;
 	 margin-bottom:0px;
 }
+ @media (min-width:768px) { 
+     label.input-radio-label{
+             padding: 5px 12px;
+     }
+ }
  .input-radio:checked + label.input-radio-label {
 	color: #fff;
     background: #AC0F0B;
@@ -136,7 +141,7 @@
                                                 <div class="media-input-container">
                                                     <ul class="mediainput input-single" style="">
                                                         <li style="width:95%;">
-                                                            <input type="text" data-id="<?=$childQue->id;?>" data-type="{{$childQue->inputType}}" value="<?=$textDesc;?>" class="dmy-mask medi_text form-control child-input-{{$que->id}}-{{$ins}}" placeholder="d/m/Y" name="medi_{{$childQue->inputType}}_<?=$childQue->id;?>_<?=$ins;?>" id="medi_{{$childQue->inputType}}_<?=$childQue->id;?>_<?=$ins;?>">
+                                                            <input type="text" data-dob="{{$insurer->dob}}" data-id="<?=$childQue->id;?>" data-type="{{$childQue->inputType}}" value="<?=$textDesc;?>" class="dmy-mask medi_text form-control child-input-{{$que->id}}-{{$ins}}" placeholder="d/m/Y" name="medi_{{$childQue->inputType}}_<?=$childQue->id;?>_<?=$ins;?>" id="medi_{{$childQue->inputType}}_<?=$childQue->id;?>_<?=$ins;?>">
                                                         </li>
                                                     </ul>
                                                 </div>

@@ -1,6 +1,9 @@
 $(function(){
     'use strict'
-    
+       $("#table-4").keypress(function(event) {event.preventDefault();});
+       $('#table-4').datepicker({
+           changeMonth: true,changeYear: true,dateFormat: 'dd/mm/yy',
+        });
      var Rtable = $('#rules-datatable').DataTable({
         "scrollX": false,
          bLengthChange: false,

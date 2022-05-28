@@ -132,10 +132,12 @@ class CareBasic{
                                 //if($outField->fieldName=="ncbPremium"){}
                            }
                        }
-                       $features=DB::table('plans')->join('plans_features', 'plans.id', '=', 'plans_features.plan_id')
-                                                    ->join('plan_key_features', 'plan_key_features.key_features', '=', 'plans_features.features')
-                                           ->select('plans_features.features as _key','plans_features.val as _val','plan_key_features.description as _desc')
-                                           ->where(['supplier'=>'CARE','plan_val'=>'CARE-CARE_HELATH'])->get();
+                       $features = DB::table('plans_features')
+                          ->select('plan_key_features.features as _key','plans_features.val as _val','plan_key_features.description as _desc')
+                          ->leftJoin('plans','plans.id','plans_features.plan_id')
+                          ->leftJoin('plan_key_features','plan_key_features.code','plans_features.featuresKey')
+                          ->where('plans.product','=','CARE')
+                          ->where('plans.supplier','=','CARE')->limit(5)->get();
                        
                       $product = "CARE";
                       

@@ -215,18 +215,18 @@ class Posp {
                                 <soap:Body>
                                     <MapPospPortal xmlns="http://tempuri.org/">
                                         <objposp>
-                                            <DAT_END_DATE>9/05/2022</DAT_END_DATE>
+                                            <DAT_END_DATE>23/08/2024</DAT_END_DATE>
                                             <NUM_MOBILE_NO>'.$row->mobile.'</NUM_MOBILE_NO>
                                             <VC_ADHAAR_CARD>'.$row->adhaar_card_number.'</VC_ADHAAR_CARD>
-                                            <VC_BRANCH_CODE>Mumbai</VC_BRANCH_CODE>
+                                            <VC_BRANCH_CODE>1000</VC_BRANCH_CODE>
                                             <VC_EMAILID>'.$row->email.'</VC_EMAILID>
-                                            <VC_INTERMEDIARY_CODE>202042688368</VC_INTERMEDIARY_CODE>
+                                            <VC_INTERMEDIARY_CODE>201249941609</VC_INTERMEDIARY_CODE>
                                             <VC_LANDLINE>8918154084</VC_LANDLINE>
                                             <VC_LOCATION>Mumbai</VC_LOCATION>
                                             <VC_NAME>'.$row->name.'</VC_NAME>
                                             <VC_PAN_CARD>'.$row->pan_card_number.'</VC_PAN_CARD>
                                             <VC_REG_NO>'.$row->application_no.'</VC_REG_NO>
-                                            <VC_STATE>Karnataka</VC_STATE>
+                                            <VC_STATE>Maharastra</VC_STATE>
                                             <VC_TYPE>'.$row->userType.'</VC_TYPE>
                                             <VC_UNIQUE_CODE>'.$VC_UNIQUE_CODE.'</VC_UNIQUE_CODE>
                                         </objposp>

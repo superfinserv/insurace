@@ -1097,6 +1097,7 @@ class FgiTwResource extends AppResource{
         $XML = str_replace("{{RegistrationNo}}",$licensePlateNumber,$XML);
         
         $idv = isset($params['vehicle']['idv']['value'])?$params['vehicle']['idv']['value']:0;
+        
         $XML = str_replace("{{IDV}}",$idv,$XML);
         
         $PA_UNNAMED_PASS = (isset($options['isPA_UNPassCover']) && $options['isPA_UNPassCover']=='true')?$params['coverValues']['PA_UNPassCoverval']:'';

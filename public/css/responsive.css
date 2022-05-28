@@ -162,7 +162,7 @@
 	color: #333 !important;
 }
 .start-screen__content__item.align-items-center {
-	background: none !important;
+	/*background: none !important;*/
 }
 div#side-menu .col-md-2 {
     width: 15%;
@@ -170,19 +170,6 @@ div#side-menu .col-md-2 {
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -509,7 +496,7 @@ div#side-menu .col-md-2 {
 /*	height:500px !important;*/
 /*}*/
 .start-screen__content__item.align-items-center {
-    background: none !important;
+    /*background: none !important;*/
 }
 #side-menu .col-md-4 {
     border: none !important;
@@ -810,7 +797,7 @@ a.get_quo {
 	font-size: 13px;
 }
 .section.section--bg-img.jarallax .col-md-6 {
-	width: ;
+
 	width: 50% !important;
 	float: left;
 }
@@ -1609,7 +1596,7 @@ display: none !important;
  }
  @media (max-width:1024px) {
  		.start-screen--full-height .start-screen__content__item {
-	min-height: 700px!important;
+min-height: 560px!important;
 	   
 }
 .start-screen--full-height .start-screen__content__item h2 {
@@ -1649,11 +1636,11 @@ section.bg-gredint {
     margin-top:0;
 }
 .start-screen__content__item.align-items-center {
-    background: #1A2C39 !important;
-    padding-top: 0px !important;
+    /*background: #1A2C39 !important;*/
+    padding-top: 100px !important;
 }
 
-.circle{width:85px;height:85px;}
+.circle{width:85px;height:85px;  padding: 10px 0 0 0;}
 body{padding-left:0 !important;padding-right:0 !important;}
 
 
@@ -1769,8 +1756,9 @@ body{padding-left:0 !important;padding-right:0 !important;}
 	font-size: 10px !important;
 }
 .top-bar__logo.site-logo img {
-    height: 47px;
-       width: 240px;
+    /*height: 47px;*/
+       /*width: 240px;*/
+    width: 86%;
 }
 .col-md-4.smoke-n.col-sm-4.bdr {
 	width: 50%;
@@ -2009,10 +1997,6 @@ body[data-aos-delay='100'] [data-aos].aos-animate {
 
 
 
-
-
-
-
  @media (max-width:359px) {
 .container {
 	max-width: 320px;
@@ -2118,7 +2102,9 @@ input#mobile {
 .__item.__item--shadow.itemBox.circle.circle1 {
     width: 85px;
     height: 85px;
+    padding: 16px 6px 16px 6px;
 }
+
 .inputGroup label:after {
     width: 22px;
     height: 22px;
@@ -2155,5 +2141,8 @@ div#traveller-contain a {padding-left:20px !important;}
 	padding-top: 0px;
 }
 
-
+.premium-info .col-md-3{
+    padding-right: 8px;
+    padding-left: 8px;
+}
 }

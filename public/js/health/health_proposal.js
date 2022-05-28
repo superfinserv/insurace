@@ -27,7 +27,30 @@ $(window).on('load', function(){
 //     });
 
 $('.dmy-mask').mask('00/00/0000');
-$(".dmy-mask").datepicker({changeMonth: true, changeYear: true,dateFormat: 'dd/mm/yy', autoclose: true});
+$(".dmy-mask").datepicker({
+                   changeMonth: true,
+                   changeYear: true,
+                   dateFormat: 'dd/mm/yy',
+                   //autoclose: true,
+                   onSelect: function(dateText, inst) {
+                         console.log(dateText, inst);
+                         alert('Hii');
+                    }
+    
+});
+//$(".dmy-mask").keypress(function(event) {event.preventDefault();});
+$('body').on('keypress','.dmy-mask',function(e){ event.preventDefault(); });
+// $('body').on('click','.dmy-mask',function(e){ 
+//      let  dob = $(this).attr('data-dob');
+//      let DT = dob.split('-');
+//      let Y = parseInt(DT[2]);
+//      let M = parseInt(DT[1]);
+//      let D = parseInt(DT[0]);
+     
+//       let _dt = new Date(Y, M, D);
+//       $('.dmy-mask').datepicker('option', 'minDate',_dt);
+
+//     });
 function _setProgressBar(step){
   for(var i=1;i<=5;i++){
       if(i<=step){
@@ -159,8 +182,26 @@ function _loadNextStep(step,enq){
                $('.proposalFooter').find('.btn-pre').addClass('btn-pre-medical');
                $('.proposalFooter').find('.btn-next').removeClass('btn-next-address');
                $('.proposalFooter').find('.btn-next').addClass('btn-next-medical');
-               $('.dmy-mask').mask('00/00/0000');
-                $(".dmy-mask").datepicker({changeMonth: true, changeYear: true,dateFormat: 'dd/mm/yy', autoclose: true,maxDate:0});
+                $('.dmy-mask').mask('00/00/0000');
+                $(".dmy-mask").datepicker({changeMonth: true, changeYear: true,dateFormat: 'dd/mm/yy', autoclose: true,maxDate:0,
+                      onSelect: function(dateText, inst) {
+                         //console.log(dateText, inst);
+                        // alert('Hii');
+                    },
+                    beforeShow : function(dateText, inst) {
+                        console.log("beforeShow", inst);
+                        let  dob = $('#'+inst.id).attr('data-dob');
+                        let DT = dob.split('-');
+                        let Y = parseInt(DT[0]);
+                        let M = parseInt(DT[1]-1);
+                        let D = parseInt(DT[2]);
+                        
+                        let _dt = new Date(Y, M, D);
+                       $(this).datepicker('option', 'minDate',_dt);
+                       $(this).datepicker('option', 'macDate',0);
+                    },
+                    
+                });
             }else if(step=='reviewInfo'){
                $(".btn-next-medical").loadButton('off');
                $('.proposalFooter').find('.btn-pre').removeClass('btn-pre-medical');
@@ -180,7 +221,7 @@ function _loadPreStep(step,enq){
     }else if(step=='insurerInfo'){  url = base_url+"/health-insurance/table-insurer/"+enq; _setProgressBar(2);
     }else if(step=='addressInfo'){  url = base_url+"/health-insurance/table-address/"+enq; _setProgressBar(3);
     }else if(step=='medicalInfo'){  url = base_url+"/health-insurance/table-medical/"+enq; _setProgressBar(4);
-    }else if(step=='reviewInfo'){  url = base_url+"/health-insurance/table-review/"+enq;   _setProgressBar(5);
+    }else if(step=='reviewInfo'){   url = base_url+"/health-insurance/table-review/"+enq;   _setProgressBar(5);
     }
     
     if(url!=""){
@@ -335,8 +376,8 @@ $('body').on('click','.btn-next-proposal',function(e){
             rules: {
                 self_fname: { required: true,chars:true},
                 self_lname: { required: true,chars:true},
-                self_email: { required: true,},
-                self_mobile: { required: true,number:true,minlength:10,maxlength:10},
+                self_email: { required: true,email:true,emailFormat:true},
+                self_mobile: { required: true,number:true,mobile:true,minlength:10,maxlength:10},
                 self_mstatus: { required: true,},
                 self_gender: { required: true,},
                 self_dd: { required: true,},
@@ -542,10 +583,10 @@ $('body').on('click','.btn-next-address',function(e){
                    }
              });
              $('#house_no').each(function() {
-                 $(this).rules("add", {required: true,maxlength:20});
+                 $(this).rules("add", {required: true,maxlength:20,alphanumeric:true});
             });
              $('#street').each(function() {
-                $(this).rules("add", {required: true,maxlength:40});
+                $(this).rules("add", {required: true,maxlength:40,alphanumeric:true});
             });
              $('#pincode').each(function() {
                 $(this).rules("add", { required: true,number:true,minlength:6,maxlength:6 });
@@ -592,7 +633,7 @@ $('body').on('click','.btn-next-address',function(e){
                             address.city = $('#city_id').val();
                             address.state = $('#state_id').val();
                            
-                     var _document = {}
+                    var _document = {}
                         _document.documentType = $('#documentType').val();
                         _document.documentId   =  docid;
                         _document.documentdd   = $('#docIssue_dd').val(); 
@@ -607,7 +648,6 @@ $('body').on('click','.btn-next-address',function(e){
                     $.post(base_url+"/health-insurance/update-proposal",{enqId:enqId,param:postData,step:'address'},function(result){ 
                         if($.trim(result.status)=='success'){
                             _loadNextStep('medicalInfo',enqId);
-                            
                         }
                     }); 
              }else{
@@ -615,7 +655,8 @@ $('body').on('click','.btn-next-address',function(e){
                  toastr.error("Invalid Document issue Date");
              }
         }else{
-            toastr.error("Invalid PAN Number");
+            var dTyp=  ($('#documentId'),$('#documentType').val()=="PAN_CARD")?"Pan Card":"Passport";
+            toastr.error("Invalid "+dTyp+" Number");
             
         }
      }        

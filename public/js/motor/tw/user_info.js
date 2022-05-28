@@ -21,7 +21,7 @@ function createPolicy(enQId){
                         window.location.href=base_url+"/twowheeler-insurance/plan-summary/"+enc;
                      }else{
                          $('#btn-step-3').loadButton('off');
-                         toastr.error(resp.message,'Error',);
+                         toastr.error(resp.message,'Error');
                          
                      }
               }).fail(function() {
