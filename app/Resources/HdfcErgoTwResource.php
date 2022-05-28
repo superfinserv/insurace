@@ -864,7 +864,7 @@ class HdfcErgoTwResource extends AppResource{
         $customerDetails->MobileNumber= (int)$params->customer->mobile;
         $customerDetails->PanCard= "";
        
-        $customerDetails->PospCode= (isset(Auth::guard('agents')->user()->id))?Auth::guard('agents')->user()->posp_ID:"";
+        $customerDetails->PospCode= (isset(Auth::guard('agents')->user()->id))?Auth::guard('agents')->user()->hdfcErgoCode:"";
         $customerDetails->IsCustomerAuthenticated= "YES";
         $customerDetails->UidNo= "";
         $customerDetails->AuthentificationType= "";
@@ -909,8 +909,9 @@ class HdfcErgoTwResource extends AppResource{
      
         //   echo json_encode($request);
         //   die;
-         // print_r($result);die;
+        // print_r($result->Message);die;
            $response = json_decode($result);
+         
            if($response->Status==200){
                $txId = $response->Data->TransactionNo;
                 $cust = isset($params->customer->first_name)?$params->customer->first_name." ".$params->customer->last_name:$params->customer->company;
@@ -923,8 +924,11 @@ class HdfcErgoTwResource extends AppResource{
                 DB::table('app_quote')->where('enquiry_id',$enquiry_id)->update(['reqCreate'=>json_encode($request),'respCreate'=>$result,'req'=>json_encode($request),'resp'=>($result)]);
                 return ['status'=>false,'message'=>$response->Message];
            }else if($response->Status==400){
-               // $rsp = json_decode($response);
-                $msg = $response->Message;
+               $msg ="";
+              if(is_object($response->Message)){
+                 $msg =  current(($response->Message));
+              }
+               // $msg = $response->Message;
               //  print_r($msgs);
                // $msg = "";//current($msgs);
                  DB::table('app_quote')->where('enquiry_id',$enquiry_id)->update(['reqCreate'=>json_encode($request),'respCreate'=>$result,'req'=>json_encode($request),'resp'=>($result)]);
@@ -1001,7 +1005,7 @@ class HdfcErgoTwResource extends AppResource{
             $result = $clientResp->getBody()->getContents();
           
                 
-          $response = json_decode($result);
+          $response = json_decode($result);print_r($response);
           if($response->status==200){
                 //$PolicyNumber = $response->Data->PolicyNumber;
                 $fileName = "HDFCERGO_".$policyno.".pdf";
@@ -1012,13 +1016,13 @@ class HdfcErgoTwResource extends AppResource{
           }else if($response->status==500){
                 return ['status'=>false,'message'=>$response->ErrMsg];
           }else {
-                 return ['status'=>false,'message'=>'Internal error while get policy copy'];
+                 return ['status'=>false,'message'=>'Internal error while generate policy copy'];
           }
     } 
     
    function bugReport(){
         $request =  new \stdClass(); 
-        $request->MasterKey = "MAKE";
+        $request->MasterKey = "RTOCODE";
         $request->PolicyType ="ALL"; 
         $request->AgentCode ="TWD22020";
         $client = new Client([

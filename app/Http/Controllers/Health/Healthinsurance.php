@@ -18,15 +18,21 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 
 use App\Partners\Care\Care;
-use App\Partners\Manipal\Manipal;
+use App\Partners\Manipal\Manipal;   
 use App\Partners\Digit\DigitHealth;
+use App\Partners\HdfcErgo\HdfcErgoHealth;
+
+use App\Utils\UserManager;
 
 class Healthinsurance extends Controller{
    public $uniqueToken;
-   public function __construct(Care $care,DigitHealth $digit,Manipal $manipal) { 
-       $this->Care =  $care;
-       $this->DigitHealth = $digit;
-       $this->Manipal =  $manipal;
+   public function __construct() { 
+       $this->Care =  new Care;
+       $this->DigitHealth = new DigitHealth;
+       $this->Manipal =  new Manipal;
+       $this->HdfcErgoHealth =  new HdfcErgoHealth;
+       
+       $this->usermanger =  new UserManager;
    }
    
  
@@ -83,14 +89,6 @@ class Healthinsurance extends Controller{
         //return $response;
     }
     
-    
-
-   
-   function testJson(){
-        $template = ['title' => 'Health Insurance Detail',"subtitle"=>"Health Plans",'scripts'=>[asset('js/health/health_plans.js')]];  
-        return View::make('health.new_health_plans')->with($template);
-   }
-   
    function getToken(){
            if(isset(Auth::guard('agents')->user()->id)){
                 $this->uniqueToken  = Auth::guard('agents')->user()->posp_ID;
@@ -100,7 +98,6 @@ class Healthinsurance extends Controller{
             return $this->uniqueToken;
     }
    
-    
     public function index(){
         
         //print_r(Auth::guard('customers')->user());
@@ -112,10 +109,9 @@ class Healthinsurance extends Controller{
            return View::make('health.health_insurance')->with($template);
         }
     }
+    
     public function health_insurance_detail(){
-        
-          
-     
+    
          $template = ['title' => 'Health-Insurance',"subtitle"=>"Health-Insurance"];  
          return View::make('health.health_insurance_detail')->with($template);
     }
@@ -194,6 +190,24 @@ class Healthinsurance extends Controller{
              return response()->json($result);
          }
          
+         if($request->supp=="HDFCERGO" && config('mediclaim.HDFCERGO.status')===true){
+              $plans =[];
+              if(config('mediclaim.HDFCERGO.OptimaSecure.status')===true){
+                 $OSPlans = $this->HdfcErgoHealth->getQuickPlans($range,$request->params,$this->getToken(),$request->pln,$request->policytyp);
+                 if($OSPlans['status']=='success'){ 
+                      foreach($OSPlans['plans'] as $pln){
+                          array_push($plans,$pln);
+                        }
+                    $result = ['status' => 'success','supp'=>'HDFCERGO','plans' => $plans];
+                 }else{
+                    $result = ['status' => 'success','supp'=>'HDFCERGO','plans' => []]; 
+                 }
+              }else{
+                  $result = ['status' => 'success','supp'=>'HDFCERGO','plans' => []]; 
+              }
+             return response()->json($result);
+         }
+         
     }
     
     public function createEnquiry(Request $request){
@@ -201,11 +215,7 @@ class Healthinsurance extends Controller{
         $sup = DB::table('our_partners')->where('shortName',$request->provider)->first();
         $sumInsured = str_replace(" ","",str_replace("Lakhs","",$request->insurerInfo['sumInsured']));
              if(isset(Auth::guard('agents')->user()->id)){
-                  $customerID = 0;//_createCustomer(['mobile'=>$request->carInfo['customer']['mobile']]);
-                  $custMobile = "";//$request->carInfo['customer']['mobile'];
-                  $agentID = Auth::guard('agents')->user()->id;
-                  $spID = (Auth::guard('agents')->user()->userType=="SP")?Auth::guard('agents')->user()->id:0;
-                  $status = DB::table('agents')->where('id',$agentID)->value('status');
+                  $status = DB::table('agents')->where('id',Auth::guard('agents')->user()->id)->value('status');
                   if($status!="Inforce"){
                        $result = ['status'=>'error','message'=>"You can't create policy. Please contact to your nearest branch.",'data'=>['enq'=>""]];
                        return response()->json($result);
@@ -213,18 +223,16 @@ class Healthinsurance extends Controller{
                       $result = ['status'=>'error','message'=>"We can't allow you to sell policy >5 Lahks. Please contact to your nearest branch.",'data'=>['enq'=>""]];
                        return response()->json($result);
                   }
-                }else{
-                  $customerID =Auth::guard('customers')->user()->id;
-                  $agentID = 0;$spID=0;
-                  $custMobile = Auth::guard('customers')->user()->mobile;
-                }                                        
+                }
+                 
+        $cust = $this->usermanger->GetPolicySoldBy();
         $quoteData = ['type'=>'HEALTH',
                       'provider'=>$sup->shortName,
                       'device_id'=>$this->getToken(),
-                      'agent_id'=>$agentID,
-                      'sp_id'=>$spID,
-                      'customer_id'=>$customerID,
-                      'customer_mobile'=>$custMobile,
+                      'agent_id'=>$cust->agent_id,//$agentID,
+                      'sp_id'=>$cust->sp_id,//$spID,
+                      'customer_id'=>$cust->customer_id,//$customerID,
+                      'customer_mobile'=>$cust->customer_mobile,//$custMobile,
                       'customer_name'=>$request->insurerInfo['selfName'],
                       'server'=>isset(Auth::guard('customers')->user()->id)?'USER_WEB':'AGENT_WEB',
                       'call_type'=>"ENQ",
@@ -244,14 +252,13 @@ class Healthinsurance extends Controller{
         }else if($sup->shortName=="MANIPAL_CIGNA"){
             $json_data['zone'] = $this->Manipal->getZone($request->insurerInfo['address']['pincode']);//"ZONE1"
         }else if($sup->shortName=="HDFCERGO"){
-            $json_data['zone'] = 3;
+            $json_data['zone'] = "";
         }
         $params = $request->insurerInfo;
         $ad = "";
         if($temp->product=='CARECLASSIC'){
            $params['addOn'] =  "AHCCC1126"; 
            $ad = "AHCCC1126";
-           
         }
         $quoteData['netAmt']=$temp->netAmt;
         $quoteData['taxAmt']=$temp->taxAmt;
@@ -285,6 +292,8 @@ class Healthinsurance extends Controller{
               $this->Care->recalculateQuickPlan($enquiryId,1,$temp->short_sumInsured,"");
             }else if($sup->shortName=="MANIPAL_CIGNA"){
               $this->Manipal->recalculateQuickPlan($enquiryId,1,$temp->short_sumInsured,$json_data['zone'],"");
+            }else if($sup->shortName=="HDFCERGO"){
+                $this->HdfcErgoHealth->recalculateQuickPlan($enquiryId,1,$temp->short_sumInsured,"");
             }
             
         }
@@ -308,6 +317,8 @@ class Healthinsurance extends Controller{
                  $resp = $this->Care->recalculateQuickPlan($request->enqId,$request->termYear,$request->sumInsured,$request->addons);
              }else if($enQ->provider=="MANIPAL_CIGNA"){
                  $resp = $this->Manipal->recalculateQuickPlan($request->enqId,$request->termYear,$request->sumInsured,$request->zoneType,$request->addons);
+             }else if($enQ->provider=="HDFCERGO"){
+                $this->HdfcErgoHealth->recalculateQuickPlan($request->enqId,$request->termYear,$request->sumInsured,"");
              }
              $enq = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$request->enqId)->first();
              $sum = json_decode($enq->sumInsured);
@@ -352,53 +363,13 @@ class Healthinsurance extends Controller{
                     if($maxAge==0){$maxAge =  intval($dt->age);}  
                     else if($dt->age>$maxAge){ $maxAge =  intval($age);}
               }
-              $supp = DB::table('our_partners')->where('shortName','=',$data->provider)->first();
-              $planInfo = new \stdClass(); 
-              $planInfo->supp_logo = asset('assets/partners/'.$supp->logo_image);
-              $planInfo->sp = $supp->shortName;
-              $planInfo->supp_name = $supp->name;
-              $planInfo->sumInsured = str_replace("Lakhs","",$jd->sumInsured);
-              $planInfo->amount = $jd->amount;
-              $planInfo->zone = $jd->zone;
               
-                  $plan_val ="";
-                 if($data->provider=='CARE'){
-                     if($data->product=='CAREWITHNCB'){
-                         $plan_val = 'CARE-NCB_SUPER';
-                     }else if($data->product=='CARESMART'){
-                         $plan_val = 'CARE-SMART';
-                     }else if($data->product=='CARE'){
-                         $plan_val = 'CARE-CARE_HELATH';
-                     }else if($data->product=='CAREFREEDOM'){
-                         $plan_val = 'CARE-FREEDOM';
-                     }else if($data->product=='CARECLASSIC'){
-                         $plan_val = 'CARE-CLASSIC';
-                     }else if($data->product=='CAREADVANTAGE'){
-                         $plan_val = 'CARE-ADV';
-                     }
-                     
-                 }else if($data->provider=='DIGIT'){
-                     if($data->code=='DSO01'){
-                         $plan_val = 'DIGIT-SILVER';
-                     }else if($data->code=='DGO01'){
-                         $plan_val = 'DIGIT-GOLD';
-                     }else if($data->code=='DDO01'){
-                         $plan_val = 'DIGIT-DIAMOND';
-                     }
-                     
-                 }else if($data->provider=='MANIPAL_CIGNA'){
-                     if($data->product=='RPRT06SBSF'){
-                         $plan_val = 'MANIPAL_CIGNA-PROHEALTH_PROTECT';
-                     }else if($data->product=='RPLS06SBSF'){
-                         $plan_val = 'MANIPAL_CIGNA-PROHEALTH_PLUS';
-                     }
-                     
-                 }
-              $pData = DB::table('plans')->select('*')->where('plan_val','=',$plan_val)->first();
-              
-              
-              $template = ['title' => 'Health Insurance Detail',"subtitle"=>"Health Product Details",'maxAge' =>$maxAge,
-                          'plan'=>$planInfo,'param'=>$params,'data'=>$data,'pData'=>$pData,
+              $product = DB::table('plans')->select('plans.*','our_partners.logo_image as partnerLogo','our_partners.name as partnerName')
+                         ->leftJoin('our_partners','our_partners.shortName','plans.supplier')
+                         ->where('plans.product',$data->product)->where('plans.supplier',$data->provider)->first();
+                         
+              $template = ['title' => 'Health Insurance Detail',"subtitle"=>$product->partnerName."|".$product->plan_name,'maxAge' =>$maxAge,
+                          'param'=>$params,'data'=>$data,'product'=>$product,
                           'scripts'=>[asset('js/health/health_product-details.js?v=0.4')]];  
             
              return View::make('health.health_product_details')->with($template);
@@ -408,51 +379,49 @@ class Healthinsurance extends Controller{
     public function productInfo(Request $request){
              $enquiryID = $request->enquiryID;
              $enQ = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enquiryID)->first();
-             $plan_val ="";
-             if($enQ->provider=='CARE'){
-                 if($enQ->product=='CAREWITHNCB'){
-                     $plan_val = 'CARE-NCB_SUPER';
-                 }else if($enQ->product=='CARESMART'){
-                     $plan_val = 'CARE-SMART_NCB_SUPER';
-                 }else if($enQ->product=='CARE'){
-                     $plan_val = 'CARE-CARE_HELATH';
-                 }else if($enQ->product=='CAREADVANTAGE'){
-                      $plan_val = 'CARE-ADV';
-                 }
-                 
-             }else if($enQ->provider=='DIGIT'){
-                 if($enQ->code=='DSO01'){
-                     $plan_val = 'DIGIT-SILVER';
-                 }else if($enQ->code=='DGO01'){
-                     $plan_val = 'DIGIT-GOLD';
-                 }else if($enQ->code=='DDO01'){
-                     $plan_val = 'DIGIT-DIAMOND';
-                 }
-                 
-             }else if($enQ->provider=='MANIPAL_CIGNA'){
-                     if($enQ->product=='RPRT04SBSF'){
-                         $plan_val = 'MANIPAL_CIGNA-PROHEALTH_PROTECT';
-                     }else if($enQ->product=='RPLS04SBSF'){
-                         $plan_val = 'MANIPAL_CIGNA-PROHEALTH_PLUS';
-                     }
-                     
-                 }
-            //  $supp = DB::table('suppliers')
-            //          ->select('suppliers.name as supp_name','suppliers.short as sp','suppliers.logo as supp_logo')
-            //          ->where('suppliers.short','=',$enQ->provider)->first();
-             $supp = DB::table('our_partners')->where('shortName','=',$enQ->provider)->first();
-              $planInfo = new \stdClass(); 
-              $planInfo->supp_logo = asset('assets/partners/'.$supp->logo_image);
-              $planInfo->sp = $supp->shortName;
-              $planInfo->supp_name = $supp->name;
-              $data = DB::table('plans')->select('*')->where('plan_val','=',$plan_val)->first();
-              $features = DB::table('plans_features')->select('*')->where('plan_id','=',$data->id)->get();
-              $template = ['title' => 'Health Insurance Detail',"subtitle"=>"Health Product Details",'features'=>$features,'data'=>$data,
-                          'enquiryID'=>$enquiryID,'plan'=>$planInfo,'enQ'=>$enQ,
+             
+              $features = DB::table('plans_features')->select('plans_features.*','plan_key_features.features')
+                          ->leftJoin('plans','plans.id','plans_features.plan_id')
+                          ->leftJoin('plan_key_features','plan_key_features.code','plans_features.featuresKey')
+                          ->where('plans.product','=',$enQ->product)
+                          ->where('plans.supplier','=',$enQ->provider)->get();
+              $product = DB::table('plans')->select('plans.*','our_partners.logo_image as partnerLogo','our_partners.name as partnerName')
+                         ->leftJoin('our_partners','our_partners.shortName','plans.supplier')
+                         ->where('plans.product',$enQ->product)->where('plans.supplier',$enQ->provider)->first();
+                         
+              $template = ['title' => 'Health Insurance Detail',"subtitle"=>$product->partnerName."|".$product->plan_name,'features'=>$features,
+                          'enquiryID'=>$enquiryID,'product'=>$product,'enQ'=>$enQ,
                           'scripts'=>[asset('js/health/health_product-details.js?v=0.4')]];  
             
-             return View::make('health.health_product_info')->with($template);
-         
+             
+         return View::make('health.health_product_info')->with($template);
+          //return View::make('health.health_comparison_chart')->with($template);
+     }
+     
+      public function campareChart(Request $request){
+              $InArr =[]; 
+              if($request->planA){
+                  array_push($InArr,$request->planA);
+              }
+              if($request->planB){
+                   array_push($InArr,$request->planB);
+              }
+              if($request->planC){
+                  array_push($InArr,$request->planC);
+              }
+              if($request->planD){
+                  array_push($InArr,$request->planD);
+              }
+              if($request->planE){
+                  array_push($InArr,$request->planE);
+              }
+              $key_features = DB::table('plan_key_features')->get();
+              $plans = DB::table('plans')->select('plans.*','our_partners.logo_image as partnerLogo','our_partners.name as partnerName')
+                           ->leftJoin('our_partners','our_partners.shortName','plans.supplier')
+                           ->whereIn('plans.product',$InArr)->get();
+            
+              $template = ['title' => 'Health Insurance',"subtitle"=>"Compare Product",'plans'=>$plans,'key_features'=>$key_features];  
+              return View::make('health.health_comparison_chart')->with($template);
      }
     
     public function proposalDetails(Request $request){
@@ -471,9 +440,7 @@ class Healthinsurance extends Controller{
               $params = json_decode($data->params_request);
               $jd = json_decode($data->json_data);
               $params->selfMobile = isset($params->selfMobile)?$params->selfMobile:$jd->cust_mobile;
-            //   $supp = DB::table('suppliers')
-            //          ->select('suppliers.name as supp_name','suppliers.short as sp','suppliers.logo as supp_logo')
-            //          ->where('suppliers.id','=',$params->supplier)->first();
+            
               $supp = DB::table('our_partners')->where('shortName','=',$data->provider)->first();
               $planInfo = new \stdClass(); 
               $planInfo->supp_logo = asset('assets/partners/'.$supp->logo_image);
@@ -483,7 +450,7 @@ class Healthinsurance extends Controller{
               $planInfo->amount = $jd->amount;
               $planInfo->zone = $jd->zone;
               
-              $template = ['title' => 'Health Insurance Detail',"subtitle"=>"Health Proposal","relations"=>$relations,'plan'=>$planInfo,'param'=>$params,'data'=>$data,'scripts'=>[asset('js/health/health_proposal.js')]];  
+              $template = ['title' => 'Health Insurance Detail',"subtitle"=>"Health Proposal","relations"=>$relations,'plan'=>$planInfo,'param'=>$params,'data'=>$data,'scripts'=>[asset('js/health/health_proposal.js?v=0.0.1')]];  
             
              return View::make('health.health_proposal')->with($template);
          }
@@ -572,9 +539,30 @@ class Healthinsurance extends Controller{
                             "params_request->nomineemm" => $param['nomineemm'],
                             "params_request->nomineeyy" => $param['nomineeyy']
                             ];
-            if(isset(Auth::guard('agents')->user()->id)){
-                  $arr['customer_mobile'] =  $param['selfMobile'];
-             }
+            
+              //$arr['customer_mobile'] =  $param['selfMobile'];
+              
+            //   if(isset(Auth::guard('customers')->user()->mobile)){
+            //          $isPOSP = DB::table('agents')->where('mobile',Auth::guard('customers')->user()->mobile)->count();
+            //          if($isPOSP){
+            //              $agent = DB::table('agents')->where('mobile',Auth::guard('customers')->user()->mobile)->first();
+            //              if($agent->userType=="POSP"){ $arr['agent_id'] = $agent->id;$arr['sp_id'] = ($agent->mapped_sp)?$agent->mapped_sp:0;}
+            //              if($agent->userType=="SP"){ $arr['agent_id'] = $agent->id;$arr['sp_id'] = $agent->id;}
+            //          }
+            //  }
+            
+            
+             $arr['customer_mobile'] =  $param['selfMobile'];
+             $arr['customer_name']   =  $param['selfFname']." ".$param['selfLname'];
+             $arr['customer_id']     =  $this->usermanger->createCustomer([
+                                                    'mobile'=>$param['selfMobile'],
+                                                    'name'=>$param['selfFname']." ".$param['selfLname'],
+                                                    'email'=>$param['selfEmail'],
+                                                    //'address'=>$request->param['address']['addressLineOne'].",".$request->param['address']['addressLineTwo'],
+                                                    //'city'=>explode('-',$request->param['address']['city'])[0],
+                                                    //'state'=>explode('-',$request->param['address']['state'])[0],
+                                                    //'pincode'=>$request->param['address']['pincode'],
+                                               ]);
              DB::table('app_quote')->where('enquiry_id', $enquiryID)->update($arr);
     }
     

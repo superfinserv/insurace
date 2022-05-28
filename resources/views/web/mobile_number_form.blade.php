@@ -4,7 +4,8 @@
 					 <input name="_token" type="hidden" value="{{ csrf_token() }}" /> 
                     <div class="card-body row no-gutters ">
                         <div class="col">
-                            <input class="form-control form-control-lg form-control-borderless integer-mobile" style="height: 50px!important;font-size: 15px !important;font-weight: bold;" 
+                            <input class="form-control form-control-lg form-control-borderless integer-mobile" 
+                            style="height: 50px!important;font-size: 15px !important;font-weight: bold;" 
                                    type="number" placeholder="Mobile Number..." 
                                    name="mobile" id="mobile" autocomplete="off">
                         </div>

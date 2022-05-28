@@ -27,8 +27,8 @@ $(window).on('load', function(){
                           $('.listing-members').append('<div class="col-md-6 col-sm-12 col-xs-12">'
                                     +'<div class="media-box-container">'
                                          +'<ul class="mediabox" style="">'
-                                          +'<li><label>'+str+'</label></li>'
-                                         +' <li class="text-right">'
+                                          +'<li class="li-left"><label>'+str+'</label></li>'
+                                         +' <li class="text-right li-right">'
                                               +'<select tabindex="'+indx+'" id="'+_typ+'-age-'+key+'" name="'+_typ+'-age-'+key+'" style="font-size: 16px;border: none;width: 100%;">'+options+'</select>'
                                          +'</li>'
                                         +'</ul>'
@@ -110,24 +110,32 @@ $("body").on('click','.btnTable3',function(e){
         
         
         if(valid){
+            healthInfo.total_child = child;
+            healthInfo.total_adult = adult;
+            healthInfo.document = {documentType:"",documentId:"",documentmm:"",documentdd:"",documentyy:""};
+            healthInfo.address ={house_no:"",street:"",city:$('#city_id').val(),state:$('#state_id').val(),pincode:$('#pincode').val()};
+            localStorage.setItem("healthInfo", JSON.stringify(healthInfo));
+            window.location.href = base_url + "/health-insurance/health-plans"; 
             
-              var _isvalid = validatedPincode($('#pincode').val(),$('#city_id').val(),$('#state_id').val()) 
-                                .then(function(response) { 
-                                    if(response.status===true){
-                                        //console.log(response.status,response.status)
-                                        healthInfo.total_child = child;
-                                        healthInfo.total_adult = adult;
-                                        healthInfo.document = {documentType:"",documentId:"",documentmm:"",documentdd:"",documentyy:""};
-                                        healthInfo.address ={house_no:"",street:"",city:$('#city_id').val(),state:$('#state_id').val(),pincode:$('#pincode').val()};
-                                        localStorage.setItem("healthInfo", JSON.stringify(healthInfo));
-                                        window.location.href = base_url + "/health-insurance/health-plans"; 
-                                    }else{
-                                        $('#pincode').parent().after("<span class='select2-error'>Invalid pincode for city.</span>"); 
-                                    }
-                                }) 
-                                .fail(function(err) { 
-                                  return false;
-                                });
+            
+            
+            //   var _isvalid = validatedPincode($('#pincode').val(),$('#city_id').val(),$('#state_id').val()) 
+            //                     .then(function(response) { 
+            //                         if(response.status===true){
+            //                             //console.log(response.status,response.status)
+            //                             healthInfo.total_child = child;
+            //                             healthInfo.total_adult = adult;
+            //                             healthInfo.document = {documentType:"",documentId:"",documentmm:"",documentdd:"",documentyy:""};
+            //                             healthInfo.address ={house_no:"",street:"",city:$('#city_id').val(),state:$('#state_id').val(),pincode:$('#pincode').val()};
+            //                             localStorage.setItem("healthInfo", JSON.stringify(healthInfo));
+            //                             window.location.href = base_url + "/health-insurance/health-plans"; 
+            //                         }else{
+            //                             $('#pincode').parent().after("<span class='select2-error'>Invalid pincode for city.</span>"); 
+            //                         }
+            //                     }) 
+            //                     .fail(function(err) { 
+            //                       return false;
+            //                     });
             
             
            

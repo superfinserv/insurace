@@ -140,11 +140,19 @@ class Ourpartners extends Controller
    }
    
      public function managePlans(Request $request){
-         $plan = DB::table('plans')->where('id',$request->id)->first();
-         $planKeys  =  DB::table('plan_key_features')->get();
-         $kbs  =  DB::table('plans_features')->where('plan_id',$plan->id)->get();
-         $supp  =  DB::table('suppliers')->where('short',$plan->supplier)->first();
-         $template = ['title' => 'Supersolutions :: Manage Plans',"subtitle"=>"Manage Health Plans",'plan'=>$plan,'planKeys'=>$planKeys,'supp'=>$supp,
+         $plan = DB::table('plans')->select('plans.*','our_partners.logo_image as partnerLogo','our_partners.name as partnerName')
+                         ->leftJoin('our_partners','our_partners.shortName','plans.supplier')
+                         ->where('plans.id',$request->id)->first();
+                         
+        //   $features = DB::table('plan_key_features') 
+        //                  ->select('plan_key_features.code','plan_key_features.features as _key','plans_features.val as _val','plan_key_features.description as _desc')
+        //                   //->leftJoin('plans','plans.id','plans_features.plan_id')
+        //                   ->leftJoin('plans_features','plan_key_features.code','plans_features.featuresKey')
+        //                   ->where('plans_features.plan_id','=',$request->id)
+        //                   ->get();
+         $features  =  DB::table('plan_key_features')->get();
+        
+         $template = ['title' => 'SuperFinserv :: Manage Plans',"subtitle"=>"Manage Health Plans",'plan'=>$plan,'features'=>$features,
                      'scripts'=>[asset('admin/js/page/manage-plans.js')]];
         return View::make('admin.ourpartners.plans.manage')->with($template);
     }
@@ -182,11 +190,13 @@ class Ourpartners extends Controller
         $is = DB::table('plans')->where('id',$request->planID)->update($data);
         $planKeys  =  DB::table('plan_key_features')->get();
         foreach($planKeys as $pks){
-            $cnt = DB::table('plans_features')->where('plan_id',$request->planID)->where('features',$pks->key_features)->count();
-            if($cnt){
-                DB::table('plans_features')->where('features',$pks->key_features)->where('plan_id',$request->planID)->update(['val'=>$_POST[$request->planID.'-pk-'.$pks->id]]);
-            }else{
-              DB::table('plans_features')->insertGetId(['features'=>$pks->key_features,'val'=>$_POST[$request->planID.'-pk-'.$pks->id],'plan_id'=>$request->planID]);  
+            if($_POST[$request->planID.'-'.$pks->code]!=""){
+                    $cnt = DB::table('plans_features')->where('plan_id',$request->planID)->where('featuresKey',$pks->code)->count();
+                    if($cnt){
+                       DB::table('plans_features')->where('featuresKey',$pks->code)->where('plan_id',$request->planID)->update(['val'=>$_POST[$request->planID.'-'.$pks->code]]);
+                    }else{
+                      DB::table('plans_features')->insertGetId(['featuresKey'=>$pks->code,'val'=>$_POST[$request->planID.'-'.$pks->code],'plan_id'=>$request->planID]);  
+                    }
             }
         }
         return response()->json(['status'=>'success','message'=>'Plan updated successfully','data'=>['file1'=>$fileName1,'file2'=>$fileName2]]);

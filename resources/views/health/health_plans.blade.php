@@ -205,7 +205,16 @@
           display:inline;
         }
         .plan-filter-ul li select.plan-filter{
-          padding: 12px 12px 12px 12px;height: auto;font-size: 12px;border-radius: 0px;font-weight: 600;
+              padding: 12px 12px 12px 12px;
+    height: auto;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 0 2px #ac0f0b;
+    border: 1px solid #ac0f0b;
+    border-radius: 12px;
+    margin-bottom: 7px;
+    background: #fff;
+    color: #ac0f0b;
         }
         
    @media only screen and (max-width: 600px) { 
@@ -229,8 +238,8 @@
                     <div class="filters-plans">
                         <ul >
                             <li style="display:inline;">
-                                <i style="font-size: 20px;" class="fa fa-bars" aria-hidden="true"></i>
-                                <span style="font-weight: 700;color: #000;">Best Match plans for </span>
+                                <!--<i style="font-size: 20px;" class="fa fa-bars" aria-hidden="true"></i>-->
+                                <span style="font-weight: 700;color: #000;font-size:14px;"> Age </span>
                             </li>
                             <li style="display:inline;"><span style="font-size:12px;" id="listMembersHead">You(31 Yrs) | Spouse( 28Yrs) | Son(14 Yrs) | Daughter(10 Yrs)</span></li>
                            

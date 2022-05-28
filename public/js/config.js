@@ -46,6 +46,14 @@ $(document).ready(function() {
                 return false;
             }
         }, 'Please Enter valid fullname');
+     jQuery.validator.addMethod("emailFormat", function(value, element) {
+         var regex = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        if (/^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/.test(value)) {
+            return true;
+        } else {
+            return false;
+        }
+    }, 'Please Enter valid email address');
         
     jQuery.validator.addMethod("rtono", function(value, element) {
           return this.optional(element) || /^[a-zA-Z]{2}[0-9]{2}[a-zA-Z]{2}[0-9]{4}$/.test(value);
@@ -76,9 +84,21 @@ $(document).ready(function() {
         }, 'valid IFSC code required.');  
         
       jQuery.validator.addMethod("alphanumeric", function(value, element) {
-            return this.optional(element) || /^\w+$/i.test(value);
-        }, "Letters, numbers, and underscores only please");
+            return this.optional(element) || /^[a-zA-Z0-9\-\s]+$/i.test(value);
+        }, "Special chars not allowed");
     
+    
+//     $('body').on('input','.address-valid', function() {
+//   var c = this.selectionStart,
+//       //r = /[^a-z0-9]/gi,
+//       r = /^[a-zA-Z]([\w -]*[a-zA-Z])?$/,
+//       v = $(this).val();
+//   if(r.test(v)) {
+//     $(this).val(v.replace(r, ''));
+//     c--;
+//   }
+//   this.setSelectionRange(c, c);
+// });
     $('.select2').select2();
       $('.single-select2').select2();
     

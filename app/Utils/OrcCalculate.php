@@ -52,7 +52,9 @@ class OrcCalculate {
             }else{
                 $SQL->where('vehicleType',"CAR");
             }
-            $SQL->where('insurer',$policy->provider)->where('type','MOTOR')->where('policyType',$policy->policyType);
+            $SQL->where('insurer',$policy->provider)->where('type','MOTOR')->where('policyType',$policy->policyType)
+                ->whereDate('fromDate', '<=', $policy->date)
+                ->whereDate('toDate','>=', $policy->date);
             
             $row =  $SQL->first();  
             
@@ -75,6 +77,9 @@ class OrcCalculate {
                       $spCommission = ($policy->sp_id)?$row->spIn:0.00;
                       $totalCommission = $row->totalIn;
                 }
+                $calc['onAmt']= $CommissionablePremium;
+                $calc['onAmtType']= $row->onAmt;
+                
                 $calc['pospDst']= $pospCommission;
                 $calc['spDst']= $spCommission; 
                 $calc['totalDst']  = $totalCommission;
@@ -89,7 +94,10 @@ class OrcCalculate {
         $row =  DB::table('policy_rule_sheet')
                     ->where('insurer',$policy->provider)
                     ->where('type','HEALTH')
-                    ->where('policyType',$policy->policyType)->first();
+                    ->where('policyType',$policy->policyType)
+                    ->whereDate('fromDate', '<=', $policy->date)
+                    ->whereDate('toDate','>=', $policy->date)
+                    ->first();
         $CommissionablePremium = $policy->netAmt;
         $pospCommission = 0.00;
         $spCommission = 0.00;
@@ -106,7 +114,9 @@ class OrcCalculate {
                       $spCommission = ($policy->sp_id)?$row->spIn:0.00;
                       $totalCommission = $row->totalIn;
                 }
-         
+        $calc['onAmt']= $CommissionablePremium;
+        $calc['onAmtType']= $row->onAmt;
+        
         $calc['pospDst']= $pospCommission;
         $calc['spDst']= $spCommission; 
         $calc['totalDst']  = $totalCommission;

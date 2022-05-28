@@ -2,14 +2,14 @@
     @section('content')
        <main role="main">
         <section class="invest-long page-heading-h2">
-			<div class="container invest-long-bg text-center">
+			<div class="container invest-long-bg">
                 <h2> Just one more step to view quotes </h2>
                  	<!-- <p>Select Years</p> -->
 					<form class="form-group"  enctype="multipart/form-data"  id="registrationdetailsForm" method="post" >
                         <input name="_token" type="hidden" value="{{ csrf_token() }}"  />
 						<div class="row mt-3">
-						   <div class="col-md-1 col-sm-1"></div>
-						   <div class="col-md-4 col-sm-4">
+						   <div class="col-lg-1 col-xl-1 col-md-12 col-sm-12"></div>
+						   <div class="col-lg-4 col-xl-4 col-md-5 col-sm-12">
 						 <!--    <h2> Your <span style="color:#C52118;font-weight:600" >2W</span></h2>-->
 							<!--<p></p>-->
 							<!--<img src="{{asset('site_assets/img/icon/bike.png')}}" width="200px">-->
@@ -72,14 +72,14 @@
 							         
 							    </div>
 						</div>
-						<div class="col-md-5 col-sm-5">
-							<h3 class="mt-3" style="letter-spacing: 1px;">Tell us if your previous policy has expired:</h3>
+						   <div class="col-lg-5 col-xl-5 col-md-7 col-sm-12">
+							<h3 class="mt-3" style="letter-spacing: 1px;text-align: center;">Tell us if your previous policy has expired:</h3>
 							<div class="row ">
-								<div class="col-md-6 col-sm-6">
+								 <div class="col-md-6 col-sm-6">
 									<div class="inputGroup br-all alig-20">
 									<input id="isExp" name="previousInsurerInfo" class="invest-selector " type="radio" data-rowid="row-year" data-text="per year" value="Expired">
 									<label for="isExp" class="f-12">Expired</label>
-								</div>
+								  </div>
 								</div>
 								<div class="col-md-6 col-sm-6">
 									<div class="inputGroup br-all alig-20">
@@ -165,26 +165,21 @@
 								<input type="hidden" class="custom-control-input" id="product_code" name="product_code" value="20201">
 							</div>
 
+						    </div>
+                           <div class="col-lg-2 col-xl-2 col-md-12 col-sm-12"></div>
+
 						</div>
 
-						<div class="col-md-2 col-sm-2"></div>
-
-						</div>
-
-						<div class="row text-center term-iso-mt health-pro-a">
-
-			              <div class="col-md-6 col-sm-6">
-
-			                <a href="{{url('twowheeler-insurance/registration-year/')}}" class="smoke-annual">Back</a>
-
+						<div class="row mt-3">
+                         <div class="col-lg-4 col-xl-3 col-md-3 col-sm-12"></div>
+			              <div class="col-lg-4 col-xl-3 col-md-3 col-sm-6 mb-4">
+			                <a href="{{url('twowheeler-insurance/registration-year/')}}" class="btnSF btn-blue">Back</a>
 			              </div>
 
-			              <div class="col-md-6 col-sm-6">
-
-			                <button  class="smoke-annual2">Next</button>
-
-			              </div>
-
+			             <div class="col-lg-4 col-xl-3 col-md-3 col-sm-6">
+			                 <button type="submit" class="btnSF btn-blue" style="margin-top:0px;">Next</button>
+			             </div>
+                          <div class="col-lg-4 col-xl-3 col-md-3 col-sm-12"></div>
 			            </div>
 
 			        </form>
@@ -237,27 +232,7 @@
 
 					}
 
-					button{
-
-                  		background: #30435e;
-
-			           /* float: right; */
-
-			           width: 20% !important;
-
-			           padding: 5px 0px;
-
-			           border-radius: 3px;
-
-			           box-shadow: 0 16px 24px 2px rgba(0, 0, 0, .14), 0 6px 30px 5px rgba(0, 0, 0, .12), 0 8px 10px -5px rgba(0, 0, 0, .2);
-
-			             margin-top: 0px !important;
-
-			           border: 0px;
-
-			           color: #fff;
-
-			       }
+				
 			      .error {
 					    text-align: left !important;
 					    color: red !important;

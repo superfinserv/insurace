@@ -1734,7 +1734,7 @@ class HdfcErgoCarResource extends AppResource{
     
       function bugReport(){
         $request =  new \stdClass(); 
-        $request->MasterKey = "MAKE";
+        $request->MasterKey = "RTOCODE";
         $request->PolicyType ="ALL"; 
         $request->AgentCode ="FWD22000";
         $client = new Client([

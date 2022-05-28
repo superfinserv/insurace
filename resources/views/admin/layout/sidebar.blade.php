@@ -24,6 +24,17 @@
             <li class="sub-item"><a href="{{url('/sales/insured')}}" class="sub-link">Sold</a></li>
           </ul>
         </li>
+        
+         <li class="br-menu-item">
+          <a href="#" class="br-menu-link with-sub">
+            <i class="menu-item-icon icon ion-android-notifications tx-24"></i>
+            <span class="menu-item-label">ORC</span>
+          </a><!-- br-menu-link -->
+          <ul class="br-menu-sub">
+            <li class="sub-item"><a href="{{url('/policy-orc')}}" class="sub-link">Policy wise</a></li>
+            <li class="sub-item"><a href="{{url('/our-partners/plans-list')}}" class="sub-link">Partners Plans</a></li>
+          </ul>
+        </li>
         <?php /*
         <li class="br-menu-item">
           <a href="{{url('/regions')}}" class="br-menu-link">

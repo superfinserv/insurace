@@ -11,7 +11,7 @@
 
 						<div class="row btnfr">
 
-							<a href="{{url('bike-insurance')}}" class="term-back-btn animated slideInRight"><i class="fa fa-long-arrow-left" aria-hidden="true"></i> Back</a>
+							<a href="{{url('twowheeler-insurance')}}" class="term-back-btn animated slideInRight"><i class="fa fa-long-arrow-left" aria-hidden="true"></i> Back</a>
 
 						</div>
 

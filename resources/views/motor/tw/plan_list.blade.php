@@ -212,7 +212,7 @@ padding: 4px 1px 4px 1px;
             	    <div class="card-body">
             	        
                          <div class="row" id="data_alll--">
-                                <div class="col-12 col-lg-4 prodct_fillter" style="">
+                                <div class="col-12 col-lg-4 col-xl-4 col-md-5 col-sm-12 prodct_fillter" style="">
                 					
                 	                	<nav class="navbar navbar-expand-md navbar-light shadow-sm mb-4 mb-lg-0 sidenav">
                     						<!-- Menu -->
@@ -251,17 +251,17 @@ padding: 4px 1px 4px 1px;
                     				   
                 				</div> 
                 			
-                				<div class="col-12 col-lg-8 col-xl-8 text-center" >
+                				<div class="col-12 col-lg-8 col-xl-8 col-md-7 col-sm-12 text-center" >
                 				   <div style="width: 100%;text-align: right;font-size: 12px;color: #AC0F0B;cursor: pointer;text-decoration: underline;display:none;" id="ODdetails" ><i style="font-size: 12px;" class="fa fa-pencil"></i> Change Current TP details</div>
                                    <div id="PlanListContainer">
                                         @if(config('motor.DIGIT.tw.status'))
                                          <div class="card plan-card plan-card-digit_m cart-empty">
                                             <div class="card-body">
                                                 <div class="row">
-                                                    <div class="provider-logo col-md-4 col-lg-3 col-xs-12">
+                                                    <div class="provider-logo col-lg-3 col-xl-3 col-md-3 col-xs-6 col-sm-6">
                                                         <img src="{{asset('assets/partners/digit-insurance.png')}}" />
                                                     </div>
-                                                    <div class="col-md-3 col-lg-3 col-xs-12">
+                                                    <div class="col-lg-3 col-xl-3 col-md-3  col-xs-6">
                                                         <div class="column-2" style="display:none;">
                                                             <h5 class="idv">IDV:337,092/-</h5>
                                                             <h5 class="plan-deatil-link">
@@ -269,13 +269,13 @@ padding: 4px 1px 4px 1px;
                                                             </h5>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-3 col-lg-3 col-xs-12">
+                                                    <div class="col-lg-3 col-xl-3 col-md-3 col-xs-6 col-sm-6">
                                                         <div class="column-3" style="display:none;">
                                                             <h3 class="Premium-PAcover" style="font-size: 13px;font-weight: bolder;color: #AC0F0B;margin-bottom: 5px;" data-toggle="tooltip" title="PA Owner Driver Cover (Personal Accident)">PA Cover</h3>
                                                             <h5 class="Premium-PAcover"><span class="paCoverStatus-txt">Added</span></h5>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-3 col-lg-3 col-xs-12">
+                                                    <div class="col-lg-3 col-xl-3 col-md-3 col-xs-6">
                                                         <div class="column-4">
                                                             <!--<h5 style="" class="grosspremium"><span class="fa fa-inr"></span> ----</h5>-->
                                                                 <button class="btn btn-netpremiumn selectPlan" style="height: 40px;" data-provider="DIGIT_M" data-ref="">
@@ -293,10 +293,10 @@ padding: 4px 1px 4px 1px;
                                          <div class="card plan-card plan-card-hdfcergo_m cart-empty" >
                                             <div class="card-body">
                                                 <div class="row">
-                                                    <div class="provider-logo col-md-4 col-lg-3 col-xs-12">
+                                                    <div class="provider-logo col-lg-3 col-xl-3 col-md-3  col-xs-12">
                                                         <img class="cart-empty" src="{{asset('assets/partners/HDFC-Ergo-logo.png')}}" >
                                                     </div>
-                                                    <div class="col-md-3 col-lg-3 col-xs-12">
+                                                    <div class="col-lg-3 col-xl-3 col-md-3  col-xs-12">
                                                         <div class="column-2" style="display:none;">
                                                             <h5 class="idv">IDV:#/-</h5>
                                                             <h5 class="plan-deatil-link">
@@ -304,13 +304,13 @@ padding: 4px 1px 4px 1px;
                                                             </h5>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-3 col-lg-3 col-xs-12">
+                                                    <div class="col-lg-3 col-xl-3 col-md-3  col-xs-12">
                                                        <div class="column-3" style="display:none;">
                                                             <h3 class="Premium-PAcover" style="font-size: 13px;font-weight: bolder;color: #AC0F0B;margin-bottom: 5px;" data-toggle="tooltip" title="PA Owner Driver Cover (Personal Accident)">PA Cover</h3>
                                                             <h5 class="Premium-PAcover"><span class="paCoverStatus-txt">Added</span></h5>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-3 col-lg-3 col-xs-12">
+                                                    <div class="col-lg-3 col-xl-3 col-md-3  col-xs-12">
                                                         <div class="column-4">
                                                             <!--<h5 style="" class="grosspremium"><span class="fa fa-inr"></span> ----</h5>-->
                                                                 <button class="btn btn-netpremiumn selectPlan" style="height: 40px;" data-provider="" data-ref="#">
@@ -328,10 +328,10 @@ padding: 4px 1px 4px 1px;
                                           <div class="card plan-card plan-card-fgi_m cart-empty">
                                             <div class="card-body">
                                                 <div class="row">
-                                                    <div class="provider-logo col-md-4 col-lg-3 col-xs-12">
+                                                    <div class="provider-logo col-lg-3 col-xs-1col-lg-3 col-xl-3 col-md-3  col-xs-122">
                                                         <img src="{{asset('assets/partners/FutureGenerali_60a250f2bf870.png')}}" />
                                                     </div>
-                                                    <div class="col-md-3 col-lg-3 col-xs-12">
+                                                    <div class="col-lg-3 col-xl-3 col-md-3  col-xs-12">
                                                         <div class="column-2" style="display:none;">
                                                             <h5 class="idv">IDV:337,092/-</h5>
                                                             <h5 class="plan-deatil-link">
@@ -339,13 +339,13 @@ padding: 4px 1px 4px 1px;
                                                             </h5>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-3 col-lg-3 col-xs-12">
+                                                    <div class="col-lg-3 col-xl-3 col-md-3  col-xs-12">
                                                         <div class="column-3" style="display:none;">
                                                             <h3 class="Premium-PAcover" style="font-size: 13px;font-weight: bolder;color: #AC0F0B;margin-bottom: 5px;" data-toggle="tooltip" title="PA Owner Driver Cover (Personal Accident)">PA Cover</h3>
                                                             <h5 class="Premium-PAcover"><span class="paCoverStatus-txt">Added</span></h5>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-3 col-lg-3 col-xs-12">
+                                                    <div class="col-lg-3 col-xl-3 col-md-3  col-xs-12">
                                                         <div class="column-4">
                                                             <!--<h5 style="" class="grosspremium"><span class="fa fa-inr"></span> ----</h5>-->
                                                                 <button disabled class="btn btn-netpremiumn selectPlan" style="height: 40px;" data-provider="fgi_m" data-ref="">

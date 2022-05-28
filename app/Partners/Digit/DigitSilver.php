@@ -90,10 +90,12 @@ class DigitSilver{
                      $response = $clientResp->getBody()->getContents();
                      $resp = json_decode($response);
                       if(isset($resp->error) && isset($resp->error->errorCode) && $resp->error->errorCode==200 && $resp->error->errorMessage =='Success'){
-                         $features=DB::table('plans')->join('plans_features', 'plans.id', '=', 'plans_features.plan_id')
-                                                     ->join('plan_key_features', 'plan_key_features.key_features', '=', 'plans_features.features')
-                                               ->select('plans_features.features as _key','plans_features.val as _val','plan_key_features.description as _desc')
-                                               ->where(['supplier'=>'DIGIT','plan_val'=>'DIGIT-SILVER'])->get();
+                         $features = DB::table('plans_features') 
+                         ->select('plan_key_features.features as _key','plans_features.val as _val','plan_key_features.description as _desc')
+                          ->leftJoin('plans','plans.id','plans_features.plan_id')
+                          ->leftJoin('plan_key_features','plan_key_features.code','plans_features.featuresKey')
+                          ->where('plans.product','=','DIGIT_SILVER')
+                          ->where('plans.supplier','=','DIGIT')->limit(5)->get();
                           $amount  = str_replace(" ","",str_replace("INR","",$resp->premium->basePremiumWithTax));
                           $partner = DB::table('our_partners')->where('shortName','DIGIT')->first();          
                           $plan['supplier']="DIGIT";
@@ -107,7 +109,7 @@ class DigitSilver{
                           
                           $quoteData = ['short_sumInsured'=>$sum,'long_sumInsured'=>$sumInsured,'premiumAmount'=>$amount,
                                         'quote_id'=>$resp->enquiryId,'type'=>'HEALTH','policyType'=>$pTyp,
-                                        'code'=>"DSO01",'product'=>'HLCP','title'=>"Digit Silver Health Care",
+                                        'code'=>"DSO01",'product'=>'DIGIT_SILVER','title'=>"Digit Silver Health Care",
                                         'device'=>$devicetoken,'provider'=>'DIGIT',
                                         'call_type'=>"QUOTE",
                                         'reqQuote'=>json_encode($request),
@@ -474,7 +476,7 @@ class DigitSilver{
         $contract->startDate = $policyStartDate;//date("Y-m-d", strtotime(date("Y-m-d", strtotime(date('Y-m-d')))));
         
         $contract->policyNumber = null;
-        $contract->subInsuranceProductCode = $jsonData->product;//"HRO03";
+        $contract->subInsuranceProductCode ="HLCP";
         $contract->nonAbsProductCode= $jsonData->code;//"HRO03";
         $contract->policyPeriod = $termYear;
         $contract->zone =$zone;
@@ -526,7 +528,7 @@ class DigitSilver{
             $json = json_decode($enqData->json_data);
            // echo json_encode($request);
             
-                  $client = new Client([
+                   $client = new Client([
                         'headers' => ['Accept' => '*/*', 'Content-Type' => 'application/json','Authorization'=>config('mediclaim.DIGIT.ApiKey')]
                     ]);
                     

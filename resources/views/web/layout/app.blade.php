@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <title>{{config('custom.site_short_name')}} | {{ ($title)?$title:$subtitle }}</title>
+        <title>{{ ($title)?$title:$subtitle }} | {{ ($subtitle)?$subtitle:$title }}</title>
         <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
         <meta http-equiv="Pragma" content="no-cache">
         <meta http-equiv="Expires" content="0">
@@ -60,7 +60,8 @@
         <link rel="stylesheet" href="{{asset('css/font-awesome.css')}}"/>
         <link href="https://fonts.googleapis.com/css?family=Nunito:300,400,800" rel="stylesheet"/> 
         
-       
+        <link href="https://cdn.datatables.net/1.12.0/css/jquery.dataTables.min.css" rel="stylesheet">
+      <link href="https://cdn.datatables.net/fixedcolumns/4.1.0/css/fixedColumns.dataTables.min.css" rel="stylesheet">
         <link href="{{asset('js/ion-rangeslider/css/ion.rangeSlider.css')}}" rel="stylesheet">
         <link href="{{asset('js/ion-rangeslider/css/ion.rangeSlider.skinFlat.css')}}" rel="stylesheet">
         <link href="{{asset('css/preloader.css')}}" rel="stylesheet">
@@ -223,7 +224,9 @@ document.write(unescape("%3Cscript src='" + tlJsHost + "trustlogo/javascript/tru
                                     <h4 class="footer__item__title">Contact Info</h4>
 
                                     <address class="footer__address footer__address--s3">
-                                        <p style="margin-top:0px; color: #272727; font-size:16px; text-align:justify;"><strong>Phone:</strong>{{config('custom.contact_phone')}}</a></p>
+                                        <p style="margin-top:0px; color: #272727; font-size:16px; text-align:justify;"><strong>Phone:</strong>
+                                        <a href="tel:{{config('custom.contact_phone')}}">{{config('custom.contact_phone')}}</a>
+                                        </p>
                                         
                                         <p style="margin-top:0px; color: #272727; font-size:16px; text-align:justify;"><strong>Email:</strong> <a href="mailto:{{config('custom.contact_email')}}">{{config('custom.contact_email')}}</a></p>
                                     </address>
@@ -245,8 +248,8 @@ document.write(unescape("%3Cscript src='" + tlJsHost + "trustlogo/javascript/tru
                         </div>
                     </div>
                 </div>
-            
-                    <section class="footer-end fep">
+                <?php /*
+                 <section class="footer-end fep">
                     <div class="container">
                         <p class="text-center">{{config('custom.site_name')}} (Previously Supersolutions Advisory Services Private Limited)</p>
                         <div class="row">
@@ -265,6 +268,32 @@ document.write(unescape("%3Cscript src='" + tlJsHost + "trustlogo/javascript/tru
                                     <br>{{config('custom.corporate_identity_no')}}</p>
                             </div>
                             <div class="col-md-2 col-sm-12 wh-100 bordrl">
+                                <p>PRINCIPAL OFFICER<br> {{config('custom.principal_officer')}}  </p>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </section> */?>
+                
+                 <section class="footer-end fep">
+                    <div class="container">
+                        <p class="text-center">{{config('custom.site_name')}} (Previously Supersolutions Advisory Services Private Limited)</p>
+                        <div class="row">
+                            <div class="col-xl-1 col-lg-1 col-md-6 col-sm-12 col-xs-12 col-12 wh-100">
+                                <img src="{{asset('site_assets/logo/irda-logo-border.png')}}" width="100%">
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 wh-100 bordrl">
+                                <p>IRDAI CORPORATE AGENCY REGISTRATION NUMBER: <br>{{config('custom.irda_reg_no')}} (License Category: Composite)</p>
+                            </div>
+                            
+                            <div class="col-xl-2 col-lg-2 col-md-6 col-sm-12 col-xs-12 col-12 wh-100 bordrl">
+                                <p>VALID TILL:<br>{{config('custom.irda_valid_till')}}</p>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 col-12 wh-100 bordrl">
+                                <p>CORPORATE IDENTITY NUMBER (CIN):
+                                    <br>{{config('custom.corporate_identity_no')}}</p>
+                            </div>
+                            <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-xs-12 col-12 wh-100 bordrl">
                                 <p>PRINCIPAL OFFICER<br> {{config('custom.principal_officer')}}  </p>
                             </div>
                         </div>
@@ -332,7 +361,9 @@ document.write(unescape("%3Cscript src='" + tlJsHost + "trustlogo/javascript/tru
         <script src="{{asset('js/cdn/jquery.loading.min.js')}}"></script>
         <script src="{{asset('js/input-mask/jquery.mask.js')}}"></script>
         <script src="{{asset('js/ion-rangeslider/js/ion.rangeSlider.min.js')}}"></script>
-       <script src="{{asset('js/cdn/select2.min.js')}}"></script>
+        <script src="{{asset('js/cdn/select2.min.js')}}"></script>
+       <script src="https://cdn.datatables.net/1.12.0/js/jquery.dataTables.min.js"></script>
+       <script src="https://cdn.datatables.net/fixedcolumns/4.1.0/js/dataTables.fixedColumns.min.js"></script>
           <script>
           
             
@@ -407,6 +438,44 @@ document.write(unescape("%3Cscript src='" + tlJsHost + "trustlogo/javascript/tru
                     });
                 });
 
+
+
+
+
+
+
+
+
+
+
+$(document).ready(function() {
+    var table = $('#example').DataTable( {
+        scrollY:        "100vh",
+        scrollX:        true,
+        scrollCollapse: true,
+        fixedHeader: true,
+        paging:         false,
+        ordering: false,
+        searching: false, 
+        info: false,
+        bInfo : false,
+        // columnDefs: [
+            
+        //     { width:  "20%", targets: 0 },
+        //     { width:  "20%", targets: 1 },
+        //     { width:  "20%", targets: 2 },
+        //     { width:  "20%", targets: 3 },
+        //     { width:  "20%", targets: 4 },
+        // ],
+        //fixedColumns: true
+        fixedColumns:   {
+            left: 1,
+        },
+        oLanguage: {
+        "sEmptyTable": "Comparison Points"
+      }
+    } );
+} );
         </script>
          
          

@@ -322,24 +322,24 @@ input[name='planYear']:checked + label.label-planYear::after {
                         <div class="card-header">
                              <ul  style="list-style-type: none;margin-bottom:0px">
                               <li style="display: inline-block;width:20%;vertical-align: bottom;">
-                                  <img style="width: 100px;max-height: 100%;max-width: 100%;margin: auto;" src="{{$plan->supp_logo}}">
+                                  <img style="width: 100px;max-height: 100%;max-width: 100%;margin: auto;" src="{{asset('assets/partners/'.$product->partnerLogo)}}">
                                 </li>
                               <li style="display: inline-block;width:65%;vertical-align: top;padding-left:12px;">
-                                  <span class="plan-title" style="font-weight: 700;font-family: 'Nunito Sans';"><?=$data->title;?></span>
+                                  <span class="plan-title" style="font-weight: 700;font-family: 'Nunito Sans';"><?=$product->plan_name;?></span>
                                   <p style="margin:0;padding:1px;"></p>
                                     <span  class="key-span key-see-details" style="">
                                        <i class="fa fa-circle" style="font-size: 10px;vertical-align: middle;margin-right: 5px;"></i><a href="{{url('/health-insurance/product-info/'.$data->enquiry_id)}}" style="color: #AC0F0B;">See Details</a>
                                     </span>
-                                    @if($pData->policy_wording!="")
+                                    @if($product->policy_wording!="")
                                     <span class="key-span key-policy-word" style="">
                                       <i class="fa fa-circle" style="font-size: 10px;vertical-align: middle;margin-right: 5px;"></i>
-                                      <a href="{{url('/get/download/file/policy-word/'.$pData->policy_wording)}}" style="color: #AC0F0B;">Policy Wording</a>
+                                      <a href="{{url('/get/download/file/policy-word/'.$product->policy_wording)}}" style="color: #AC0F0B;">Policy Wording</a>
                                     </span>
                                     @endif
-                                     @if($pData->policy_brochure!="")
+                                     @if($product->policy_brochure!="")
                                     <span class="key-span key-policy-brochure"  style="">
                                       <i class="fa fa-circle" style="font-size: 10px;vertical-align: middle;margin-right: 5px;"></i>
-                                      <a href="{{url('/get/download/file/policy-word/'.$pData->policy_brochure)}}" style="color: #AC0F0B;">Policy Brochure</a>
+                                      <a href="{{url('/get/download/file/policy-word/'.$product->policy_brochure)}}" style="color: #AC0F0B;">Policy Brochure</a>
                                     </span>
                                     @endif
                               </li>
@@ -364,7 +364,7 @@ input[name='planYear']:checked + label.label-planYear::after {
                                         </div>
                                     </div>
                             </div>
-                            <?php  if($plan->sp=='DIGIT'){?>
+                            <?php  if($data->provider=='DIGIT'){?>
                             <div style="margin-top:12px;box-shadow: 0px 5px 6px #ccc;border: 1px solid #ccc;padding: 12px;  border-radius: 12px;">
                                 <h4 style="font-weight: 700;font-size: 16px;">Zone</h4>
                                 <p style="margin-top: 0px;font-size: 13px;">
@@ -410,7 +410,7 @@ input[name='planYear']:checked + label.label-planYear::after {
                             </div>
                             <?php } ?>
                             
-                             <?php  if($plan->sp=='MANIPAL_CIGNA'){?>
+                             <?php  if($data->provider=='MANIPAL_CIGNA'){?>
                               <?php $actualZone = $data->actualZone;?>
                             <div style="margin-top:12px;box-shadow: 0px 5px 6px #ccc;border: 1px solid #ccc;padding: 12px;  border-radius: 12px;">
                                 <h4 style="font-weight: 700;font-size: 16px;">Zone</h4>
@@ -470,16 +470,16 @@ input[name='planYear']:checked + label.label-planYear::after {
                                                   <label class="label-planYear" for="planYear_1">
                                                     <h2 class="cover-year" style="color:#000 !important">1 Year</h2>
                                                     <?php $one="1";?>
-                                                    <p>Premium  <b><span id="<?=$data->enquiry_id;?>-planYear_1">{{setMoneyFormat($amts->$one->Base_Premium)}}</span></b></p>
+                                                    <p>Premium  <b><span id="<?=$data->enquiry_id;?>-planYear_1">{{trim(setMoneyFormat($amts->$one->Base_Premium))}}</span></b></p>
                                              </label>
                                         </div>
-                                        <?php  if($plan->sp!='DIGIT'){?>
+                                        <?php  if($data->provider!='DIGIT'){?>
                                         <div class="col-12 col-md-4 col-lg-4 col-sm-12 section-planYear">
                                             <input type="radio" class="updateQuote" name="planYear" id="planYear_2"  value="2" {{ $data->termYear==2? "checked":"" }}>
                                                   <label class="label-planYear" for="planYear_2">
                                                     <h2  class="cover-year" style="color:#000 !important">2 Year</h2>
                                                     <?php $two="2";?>
-                                                    <p>Premium <b><span id="<?=$data->enquiry_id;?>-planYear_2">{{setMoneyFormat($amts->$two->Base_Premium)}}</span></b></p>
+                                                    <p>Premium <b><span id="<?=$data->enquiry_id;?>-planYear_2">{{trim(setMoneyFormat($amts->$two->Base_Premium))}}</span></b></p>
                                              </label>
                                         </div>
                                         
@@ -488,7 +488,7 @@ input[name='planYear']:checked + label.label-planYear::after {
                                                   <label class="label-planYear" for="planYear_3">
                                                     <h2  class="cover-year" style="color:#000 !important">3 Year</h2>
                                                     <?php $three="3";?>
-                                                    <p>Premium <b><span id="<?=$data->enquiry_id;?>-planYear_3">{{setMoneyFormat($amts->$three->Base_Premium)}}</span></b></p>
+                                                    <p>Premium <b><span id="<?=$data->enquiry_id;?>-planYear_3">{{trim(setMoneyFormat($amts->$three->Base_Premium))}}</span></b></p>
                                              </label>
                                         </div>
                                         <?php } ?>
@@ -670,7 +670,7 @@ input[name='planYear']:checked + label.label-planYear::after {
                                   <tr >
                                     <td style="font-size: 16px;color: #000;text-align: center;font-weight: 700;font-family: 'Nunito Sans';" colspan="2">Selected Add-ons</td>
                                   </tr>
-                                 
+                                
                                   <?php if(sizeof($amts->$termYear->Addons)){ 
                                      foreach($amts->$termYear->Addons as $eachAd){ ?>
                                      <tr class="TRaddonElem">
@@ -684,8 +684,8 @@ input[name='planYear']:checked + label.label-planYear::after {
                                     <td style="font-size: 13px;color: #000;padding: 15px 10px;font-family: 'Nunito Sans';">No-addons selected</td>
                                     <td style="font-weight: 700;font-size: 13px;color: #000;padding: 15px 10px;font-family: 'Nunito Sans';"><span id="<?=$data->enquiry_id;?>-Addons_Total ">{{setMoneyFormat('00')}}</span></td>
                                   </tr>
-                                  <?php }
-                                   }?>
+                                  <?php } } ?>
+                                   
                                     <?php  if($data->provider=="DIGIT"){?>
                                      <tr >
                                        <td style="font-size: 16px;color: #000;text-align: center;font-weight: 700;font-family: 'Nunito Sans';" colspan="2">Selected Add-ons</td>
@@ -729,12 +729,14 @@ input[name='planYear']:checked + label.label-planYear::after {
                                                  <i class="fa fa-whatsapp" style="font-size:17px"></i> Share</button>
                                          </td>
                                    </tr>
+                                   <?php /*
                                     <tr id="whatsAppElemInit">
                                          <td colspan="2">
                                              <button id="shareOnWp" style="width: 100%;padding: 12px;background-color: #4dc247;color: #fff;font-size: 17px;font-weight: 700;font-family: 'Nunito Sans';border: 1px solid #4dc247;">
                                                  <i class="fa fa-whatsapp" style="font-size:17px"></i> Share on WhatsApp</button>
                                          </td>
                                      </tr>
+                                     */?>
                                      <tr>
                                          <td colspan="2"><button class="{{$data->enquiry_id}}" id="proceed-proposal" style="width: 100%;padding: 12px;background-color: #C52118;color: #fff;font-size: 17px;font-weight: 700;font-family: 'Nunito Sans';border: 1px solid #C52118;">PROCEED</button></td>
                                      </tr>

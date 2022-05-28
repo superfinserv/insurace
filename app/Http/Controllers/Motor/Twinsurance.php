@@ -12,7 +12,7 @@ use App\Resources\DigitBikeResource;
 use App\Resources\HdfcErgoTwResource;
 use App\Resources\FgiTwResource;
 use Carbon\Carbon;
-
+use App\Utils\UserManager;
 class Twinsurance extends Controller
 {
     public $uniqueToken;
@@ -21,6 +21,7 @@ class Twinsurance extends Controller
            $this->DigitTw   = new DigitBikeResource; 
            $this->HdfcErgo  = new HdfcErgoTwResource; 
            $this->FgiTw =  new FgiTwResource;
+           $this->usermanger =  new UserManager;
     }
     
     function getToken(){
@@ -202,6 +203,7 @@ class Twinsurance extends Controller
     
     public function createEnquiry(Request $request){
         $Q =   DB::table('app_temp_quote')->where('quote_id',$request->id)->first();
+        $cust = $this->usermanger->GetPolicySoldBy();
         
         if($Q->provider=="DIGIT"){
             $recalculate = $this->DigitTw->getSingleRecalulateQuote($Q->quote_id,$this->getToken(),$request->twInfo);
@@ -210,24 +212,14 @@ class Twinsurance extends Controller
                 $temp =   DB::table('app_temp_quote')->where('quote_id',$recalculate['quote_id'])->first();
                 $json_data = json_decode($temp->json_data);//$this->DigitTw->getJsonData($temp->response);
                 $json_data->enq = $enquiryId;
-                if(isset(Auth::guard('agents')->user()->id)){
-                  $customerID = 0;//_createCustomer(['mobile'=>$request->twInfo['customer']['mobile']]);
-                  $custMobile = "";//$request->twInfo['customer']['mobile'];
-                  $agentID = Auth::guard('agents')->user()->id;
-                  $spID = (Auth::guard('agents')->user()->userType=="SP")?Auth::guard('agents')->user()->id:0;
-                }else{
-                  $customerID =Auth::guard('customers')->user()->id;
-                  $agentID = 0;$spID=0;
-                  $custMobile = Auth::guard('customers')->user()->mobile;
-                }
                 $quoteData = ['type'=>'BIKE',
                               'provider'=>$temp->provider,
                               'device_id'=>$this->getToken(),
                               'termYear'=>$temp->tenure,
-                              'agent_id'=>$agentID,
-                              'sp_id'=>$spID,
-                              'customer_id'=>$customerID,
-                              'customer_mobile'=>$custMobile,
+                              'agent_id'=>$cust->agent_id,//$agentID,
+                              'sp_id'=>$cust->sp_id,//$spID,
+                              'customer_id'=>$cust->customer_id,//$customerID,
+                              'customer_mobile'=>$cust->customer_mobile,//$custMobile,
                               'server'=>isset(Auth::guard('customers')->user()->id)?'USER_WEB':'AGENT_WEB',
                               'call_type'=>"ENQ",
                               'idv'=>$temp->idv,
@@ -256,24 +248,14 @@ class Twinsurance extends Controller
                 $temp =   DB::table('app_temp_quote')->where('quote_id',$request->id)->first();
                 $json_data = json_decode($temp->json_data);//$this->DigitTw->getJsonData($temp->response);
                 $json_data->enq = $temp->quote_id;
-                if(isset(Auth::guard('agents')->user()->id)){
-                  $customerID = 0;//_createCustomer(['mobile'=>$request->customerData['mobile']]);
-                  $custMobile = "";//$request->customerData['mobile'];
-                  $agentID = Auth::guard('agents')->user()->id;
-                  $spID = (Auth::guard('agents')->user()->userType=="SP")?Auth::guard('agents')->user()->id:0;
-                }else{
-                  $customerID =Auth::guard('customers')->user()->id;
-                  $agentID = 0;$spID=0;
-                  $custMobile = Auth::guard('customers')->user()->mobile;
-                }
                 $quoteData = ['type'=>'BIKE',
                               'provider'=>$temp->provider,
                               'device_id'=>$this->getToken(),
-                              'agent_id'=>$agentID,
-                              'sp_id'=>$spID,
-                              'customer_id'=>$customerID,
-                              'customer_mobile'=>$custMobile,
-                                'policyType'=>$temp->policyType,
+                              'agent_id'=>$cust->agent_id,//$agentID,
+                              'sp_id'=>$cust->sp_id,//$spID,
+                              'customer_id'=>$cust->customer_id,//$customerID,
+                              'customer_mobile'=>$cust->customer_mobile,//$custMobile,
+                               'policyType'=>$temp->policyType,
                               'server'=>isset(Auth::guard('customers')->user()->id)?'USER_WEB':'AGENT_WEB',
                               'call_type'=>"ENQ",
                               'idv'=>$temp->idv,
@@ -342,18 +324,34 @@ class Twinsurance extends Controller
     public function updateInfo(Request $request){
         if($request->enqId!=""){
              
-            $arr =  ["params_request"=>json_encode($request->param)];
-            if(isset(Auth::guard('agents')->user()->id)){
-                  $arr['customer_mobile'] =  $request->param['customer']['mobile'];
-             }
-            DB::table('app_quote')->where('enquiry_id', $request->enqId)->update($arr);
+             $arr =  ["params_request"=>json_encode($request->param)];
+             $arr['customer_mobile'] =  $request->param['customer']['mobile'];
+             $arr['customer_name'] =  $request->param['customer']['first_name']." ".$request->param['customer']['last_name'];
+             $arr['customer_id'] = $this->usermanger->createCustomer([
+                                                    'mobile'=>$request->param['customer']['mobile'],
+                                                    'name'=>$request->param['customer']['first_name']." ".$request->param['customer']['last_name'],
+                                                    'email'=>$request->param['customer']['email'],
+                                                    //'address'=>$request->param['address']['addressLineOne'].",".$request->param['address']['addressLineTwo'],
+                                                    //'city'=>explode('-',$request->param['address']['city'])[0],
+                                                    //'state'=>explode('-',$request->param['address']['state'])[0],
+                                                    //'pincode'=>$request->param['address']['pincode'],
+                                               ]);
+                // if(isset(Auth::guard('customers')->user()->mobile)){
+                //      $isPOSP = DB::table('agents')->where('mobile',Auth::guard('customers')->user()->mobile)->count();
+                //      if($isPOSP){
+                //          $agent = DB::table('agents')->where('mobile',Auth::guard('customers')->user()->mobile)->first();
+                //          if($agent->userType=="POSP"){ $arr['agent_id'] = $agent->id;$arr['sp_id'] = ($agent->mapped_sp)?$agent->mapped_sp:0;}
+                //          if($agent->userType=="SP"){ $arr['agent_id'] = $agent->id;$arr['sp_id'] = $agent->id;}
+                //      }
+                // }
+             DB::table('app_quote')->where('enquiry_id', $request->enqId)->update($arr);
             return response()->json(['status'=>'success','message'=>'Information updated successfully']);
         }else{
             return response()->json(['status'=>'error','message'=>'Something went wrong']);
         }
     }
     
-     public function createProposal(Request $request){
+    public function createProposal(Request $request){
       if($request->enc){
          $count = DB::table('app_quote')->where('enquiry_id',$request->enc)->count();
          if($count){

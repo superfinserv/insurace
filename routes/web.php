@@ -60,7 +60,10 @@ use Illuminate\Support\Facades\Route;
     Route::get('/logout', 'Web\Profile@logout');
    
     Route::group(['middleware' => 'auth:customers'], function() { 
-         Route::get('/profile', 'Web\Profile@index');
+         //Route::get('/profile', 'Web\Profile@index');
+         Route::get('/my-policies', 'Web\Profile@myPolicies');
+         Route::get('/my-applications', 'Web\Profile@myApplications');
+         
          Route::post('/get-vehicle-registerinfo', 'Motor\MotorInsurance@GetVehicleRegistrationDetails');
     });
    
@@ -194,6 +197,7 @@ use Illuminate\Support\Facades\Route;
         
         Route::get('health-insurance/product-detail/{enquiryID}', 'Health\Healthinsurance@productDetails');
         Route::get('health-insurance/product-info/{enquiryID}', 'Health\Healthinsurance@productInfo');
+        Route::get('health-insurance/compare-products', 'Health\Healthinsurance@campareChart');
         Route::get('health-insurance/proposal/{enquiryID}', 'Health\Healthinsurance@proposalDetails');
         Route::post('health-insurance/update-proposal', 'Health\Healthinsurance@updateProposal');
         

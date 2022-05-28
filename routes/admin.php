@@ -26,7 +26,9 @@ Route::get('/clear-cache', function() {
        //All the routes that belongs to the group goes here
        Route::get('/get-plans-for-partner/{partner}', 'Common@getPlansByPartner');
        
-       
+        Route::get('/policy-orc', 'Admin\OrcsController@index');
+        Route::post('/policies-orc/datatable', 'Admin\OrcsController@getdatatable');
+        
         Route::get('/rules', 'Admin\RulesController@index');
         Route::post('/rules/datatable', 'Admin\RulesController@getdatatable');
         Route::get('/rules/model/{param}/{code?}', 'Admin\RulesController@curdRuleModel');

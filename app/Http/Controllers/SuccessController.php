@@ -85,9 +85,10 @@ class SuccessController extends Controller{
                      $saledData['payment_status'] = "Completed";
                      $saledData['policy_status'] = "Completed";
                      $saledData['amount'] = $json_data->amount;
-                      $saledData['netAmt']=$data->netAmt;
-                      $saledData['taxAmt']=$data->taxAmt;
+                     $saledData['netAmt']=$data->netAmt;
+                     $saledData['taxAmt']=$data->taxAmt;
                      $saledData['grossAmt']=$data->grossAmt;
+                     $saledData['server']=$data->server;
                     // $saledData['filename'] = ($pdfData->status)?$pdfData->filename:"";
                         if(!$isExist){
                             $saledData['enquiry_id'] =$data->enquiry_id;
@@ -111,7 +112,7 @@ class SuccessController extends Controller{
              $data = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$request->enquiryID)->first();
              $saledData = ['type'=>'HEALTH','provider'=>$data->provider,'policyType'=>$data->policyType,
                           'mobile_no'=>$data->customer_mobile,'customer_name' =>$data->customer_name,'getway_response'=>json_encode($_REQUEST),
-                          "customer_id"=>$data->customer_id,'params'=>$data->params_request,
+                          "customer_id"=>$data->customer_id,'params'=>$data->params_request,'server'=>$data->server
                           ];
             $jsonData = json_decode($data->json_data);
              if($data->provider=="CARE"){
@@ -130,7 +131,7 @@ class SuccessController extends Controller{
                  $saledData['sumInsured'] = $json_data->sumInsured;
                  $saledData['product_info'] = json_encode(['title'=>$data->title,'code'=>$data->code,'code'=>$data->code,'product'=>$data->product,'policyType'=>$data->policyType,'zone'=>$data->zone]);
                  $saledData['premium_info'] = json_encode($premium->{$data->termYear});
-                  $saledData['netAmt']=$data->netAmt;
+                 $saledData['netAmt']=$data->netAmt;
                  $saledData['taxAmt']=$data->taxAmt;
                  $saledData['grossAmt']=$data->grossAmt;
                  $saledData['sp_id'] =$data->sp_id;
@@ -159,8 +160,7 @@ class SuccessController extends Controller{
                 
                  $saledData['payment_status'] = "Completed";
                  $saledData['policy_status'] = "Completed";
-                 
-                 
+                
                  $SUM = json_decode($data->sumInsured);
                  $replace = array("Lakhs", "INR", "Lakh", " ");
                  $sumInsured = str_replace($replace, "", $SUM->shortAmt);
@@ -234,8 +234,7 @@ class SuccessController extends Controller{
                                ->latest('id')->first();
                $enqID  =  $enQ->enquiry_id;             
                $pData =  ($enQ->type=='BIKE')?$this->HdfcErgoTwResource->policyGeneration($enQ->enquiry_id):$this->HdfcErgoCarResource->policyGeneration($enQ->enquiry_id);
-            //   print_r($pData);
-               //if($pData['status']){
+            
                    $saledData = [
                          'type'=>strtoupper($enQ->type),'provider'=>$enQ->provider,'policyType'=>$enQ->policyType,
                          'json_data'=>$enQ->json_data,
@@ -253,7 +252,8 @@ class SuccessController extends Controller{
                          'amount'=>$enQ->premiumAmount,
                          'netAmt'=>$enQ->netAmt,
                          'taxAmt'=>$enQ->taxAmt,
-                          'grossAmt'=>$enQ->grossAmt,
+                         'grossAmt'=>$enQ->grossAmt,
+                         
                         'payment_status' => "Completed",
                         'policy_status'  => ($pData['status'])?"Completed":"Pending",
                         'reqQuote'=>$enQ->reqQuote,
@@ -266,8 +266,8 @@ class SuccessController extends Controller{
                     	'respSaveGenPolicy'=>$enQ->respSaveGenPolicy,
                        ];
                        
-                      
-                       $isExist = DB::table('policy_saled')->where('enquiry_id',$request->enquiry_id)->count();
+                       $saledData['server']=$enQ->server;
+                       $isExist = DB::table('policy_saled')->where('enquiry_id',$enqID)->count();
                            if(!$isExist){
                               $refID = DB::table('policy_saled')->insertGetId($saledData);
                            }else{
@@ -289,7 +289,7 @@ class SuccessController extends Controller{
              // print_r($info);die;
              $json = json_decode($info->json_data);
           
-             $saledData = [
+              $saledData = [
                          'type'=>strtoupper($request->type),'provider'=>$info->provider,'policyType'=>$info->policyType,
                          'json_data'=>$info->json_data,
                          'mobile_no'=>$info->customer_mobile,
@@ -310,6 +310,7 @@ class SuccessController extends Controller{
                          'taxAmt'=>$info->taxAmt,
                          'grossAmt'=>$info->grossAmt,
                        ];
+              $saledData['server']=$info->server;
              if($info->provider=="DIGIT"){
                  $saledData['getway_response']= json_encode(["transactionNumber"=>$request->input('transactionNumber')]);
                  $saledData['transaction_no'] = $request->input('transactionNumber');
@@ -793,10 +794,7 @@ class SuccessController extends Controller{
        /// $this->savePolicyPDF_Digit("D400265600","bus");
      }
      
-    function testIssue(Request $request){
-        
-        $this->HdfcErgoTwResource->bugReport();
-    }
+ 
     
     
     

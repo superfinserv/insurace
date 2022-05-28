@@ -156,7 +156,7 @@
      <h4 style="color: #AC0F0B;font-weight: 600;">Nominee Details:</h4>
     <div class="row" style="margin-bottom: 10px;">
         
-        <div class="col-md-4 col-sm-12 col-xs-12">
+        <div class="col-lg-4 col-xl-4 col-md-6 col-sm-12 col-xs-12">
             <label style="color:#000">Nominee Name</label>
             <div class="media-input-container">
                  <ul class="mediainput input-single" style="">
@@ -166,7 +166,7 @@
                 </ul>
             </div>
         </div>
-        <div class="col-md-5 col-sm-12 col-xs-12">
+        <div class="col-lg-5 col-xl-5 col-md-6 col-sm-12 col-xs-12">
             <label style="color:#000">Date of birth</label>
             <div class="media-input-container">
                  <ul class="mediainput input-multi" style="">
@@ -199,7 +199,7 @@
                 </ul>
             </div>
         </div>
-        <div class="col-md-3 col-sm-12 col-xs-12">
+        <div class="col-lg-3 col-xl-3 col-md-6 col-sm-12 col-xs-12">
             <label style="color:#000">Nominee Relation</label>
 
             <div class="media-input-container">

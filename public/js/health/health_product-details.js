@@ -197,7 +197,7 @@ function getPlanData(act){
                                     style: 'currency', 
                                     currency: 'INR' 
                                 }).format(val);
-                              $('#'+resp.data.enq +'-'+str).text(x);
+                              $('#'+resp.data.enq +'-'+str).text($.trim(x));
                             }
                     }) 
                 }

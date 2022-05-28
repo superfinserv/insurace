@@ -339,12 +339,30 @@ class MotorInsurance extends Controller
     
       
     function loadidvModal(Request $request){
-         $data = DB::table('app_temp_quote')
-                     ->select(DB::raw('MIN(min_idv) as minval,MAX(max_idv) as maxval'))
-                     ->where(['device'=>Auth::guard('customers')->user()->uniqueToken,'type'=>$request->type])->first();
-         //print_r($data);
+         $SQL = DB::table('app_temp_quote')
+                     ->select('idv','min_idv','max_idv','provider')
+                     ->where(['device'=>Auth::guard('customers')->user()->uniqueToken,'type'=>$request->type])->orderBy('id','DESC');
+             if(strtolower($request->type)=='car'){
+                 $SQL->limit(2);
+             }else{
+                 $SQL->limit(3);
+             }        
+         $data =  $SQL->get();
+         $MIN=0;$MAX = 0;
+         foreach($data as $dt){
+               if($MIN==0){$MIN =   $dt->min_idv;}
+                 else if($dt->min_idv<$MIN){ $MIN =  intval($dt->min_idv);}
+                 
+                if($MAX==0){$MAX =  intval($dt->max_idv);}  
+                else if($dt->max_idv>$MAX){ $MAX =  intval($dt->max_idv);}
+         }
+          //$data = DB::table('app_temp_quote')->select('idv','min_idv','max_idv','provider')->where(['device'=>Auth::guard('customers')->user()->uniqueToken,'type'=>$request->type])->orderBy('id', 'DESC')->get();
+         
+         $D =  new \stdClass();
+         $D->minval = $MIN; 
+         $D->maxval = $MAX;
          $temp['typ'] = $request->type;
-         $temp['idv'] = $data;//['min'=> $data->minval,'max'=>$data->maxval];
+         $temp['idv'] = $D;//['min'=> $data->minval,'max'=>$data->maxval];
          return View::make('motor.idv_modal')->with($temp);
     }
     

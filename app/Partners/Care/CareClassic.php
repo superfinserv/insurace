@@ -99,10 +99,12 @@ class CareClassic{
              if(isset($res->status) && isset($res->responseMsg) && $res->responseMsg=="OK"){
                         $amount = clean_str($res->data->grandTotal->selectedValue);//$this->clean_str($res->data->outputFields[0]->premium);
                         $product = "CARECLASSIC";
-                        $features=DB::table('plans')->join('plans_features', 'plans.id', '=', 'plans_features.plan_id')
-                                           ->join('plan_key_features', 'plan_key_features.key_features', '=', 'plans_features.features')
-                                           ->select('plans_features.features as _key','plans_features.val as _val','plan_key_features.description as _desc')
-                                          ->where(['supplier'=>'CARE','plan_val'=>'CARE-NCB_SUPER'])->get();
+                         $features = DB::table('plans_features')
+                           ->select('plan_key_features.features as _key','plans_features.val as _val','plan_key_features.description as _desc')
+                          ->leftJoin('plans','plans.id','plans_features.plan_id')
+                          ->leftJoin('plan_key_features','plan_key_features.code','plans_features.featuresKey')
+                          ->where('plans.product','=',$product)
+                          ->where('plans.supplier','=','CARE')->limit(5)->get();
                         $partner = DB::table('our_partners')->where('shortName','CARE')->first();                  
                      
                       

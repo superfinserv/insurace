@@ -154,4 +154,44 @@ $("#personalinfo").validate({
             return false;
         }
     });
+    
+    $('body').on('click','.getPolicyPdf',function(e){
+         var _this = $(this);
+         var loader = '<span class="inline-loader"><span class="inline-loader-box"></span><span class="inline-loader-box"></span><span class="inline-loader-box"></span></span>';
+         var clone = $(this).clone();
+         _this.html(loader);
+         var policyid = $(this).attr('data-id');
+         //_this.find('div').find('.fa').removeClass('fa-globe').addClass('fa-spinner fa-spin');
+         
+          $.post(base_url+"/get-policy-document",{id:policyid,opt:""},function(result){
+              var st = $.trim(result.status);
+              if(st=="success"){
+                 _this.html('Download')
+                 _this.attr('href',result.data.path);
+                  _this.removeAttr("data-id");
+                  //notification('success',result.message); 
+                }else{
+                  _this.html('Get Pdf')
+                 //_this.find('div').find('.fa').removeClass('fa-spinner fa-spin').addClass('fa-globe');
+                 // notification('error',result.message); 
+                }
+          },'json')
+    });
+    
+    
+    
  });
+  $(document).ready(function() {
+      var table = $('#myBusinessTable').DataTable({ordering:false});
+//     var table = $('#myBusinessTable').DataTable( {
+//         scrollY:        "50vh",
+//         scrollX:        true,
+//         scrollCollapse: true,
+//         paging:         false,
+//         ordering:false,
+//         fixedColumns:   {
+//             left: 1,
+//             right: 1
+//         }
+  //  } );
+} );

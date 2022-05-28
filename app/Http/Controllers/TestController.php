@@ -3,6 +3,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ErrorException;
+use GuzzleHttp\Client;
+use Meng\AsyncSoap\Guzzle\Factory;
+use Artisaninweb\SoapWrapper\SoapWrapper;
 use Response;
 use View;
 use Session; 
@@ -42,60 +48,138 @@ class TestController extends Controller{
    }
      
      function testPartnerBug(Request $request){
-        header('Content-Type: application/json');
-        $this->HdfcErgoTwResource->bugReport();
+         header('Content-Type: application/json');
+       //$this->HdfcErgoTwResource->bugReport();
+        $this->HdfcErgoCarResource->bugReport();
+        die;
+        $resp = new \stdClass(); 
+             $resp->status = false;$resp->code = ""; $resp->message = "";
+        $row = DB::table('agents')->where('id',13)->first();  
+        $VC_UNIQUE_CODE =$row->posp_ID;
+        $xml_post_string = '<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                                <soap:Body>
+                                    <MapPospPortal xmlns="http://tempuri.org/">
+                                        <objposp>
+                                            <DAT_END_DATE>23/08/2024</DAT_END_DATE>
+                                            <NUM_MOBILE_NO>'.$row->mobile.'</NUM_MOBILE_NO>
+                                            <VC_ADHAAR_CARD>'.$row->adhaar_card_number.'</VC_ADHAAR_CARD>
+                                            <VC_BRANCH_CODE>1000</VC_BRANCH_CODE>
+                                            <VC_EMAILID>'.$row->email.'</VC_EMAILID>
+                                            <VC_INTERMEDIARY_CODE>201249941609</VC_INTERMEDIARY_CODE>
+                                            <VC_LANDLINE>8918154084</VC_LANDLINE>
+                                            <VC_LOCATION>Mumbai</VC_LOCATION>
+                                            <VC_NAME>'.$row->name.'</VC_NAME>
+                                            <VC_PAN_CARD>'.$row->pan_card_number.'</VC_PAN_CARD>
+                                            <VC_REG_NO>'.$row->application_no.'</VC_REG_NO>
+                                            <VC_STATE>Maharastra</VC_STATE>
+                                            <VC_TYPE>'.$row->userType.'</VC_TYPE>
+                                            <VC_UNIQUE_CODE>'.$VC_UNIQUE_CODE.'</VC_UNIQUE_CODE>
+                                        </objposp>
+                                    </MapPospPortal>
+                                </soap:Body>
+                            </soap:Envelope>';
+             
+            $url = 'http://202.191.196.210/UAT/OnlineProducts/PospCreation/PospService.asmx';  // WSDL web service url for request method/function
+             
+             
+            $client = new Client([
+                'headers' => ["charset"=> "utf-8", 'Content-Type' => 'text/xml',]
+             ]);
+             $clientResp = $client->post($url,
+                ['body' => $xml_post_string]
+             );
+            $result = $clientResp->getBody()->getContents();
+            
+             $xmmll =  $result;
+                        $doc = new \DOMDocument();
+                        $doc->preserveWhiteSpace = true;
+                        $doc->loadXML($xmmll);
+                        $doc->save('pospxml.xml');
+                    
+                        $xmlfile  = file_get_contents('pospxml.xml');
+                        $parseObj = str_replace($doc->lastChild->prefix.':',"",$xmlfile);
+                        $ob       = simplexml_load_string($parseObj);
+                        $data     = json_decode(json_encode($ob), true);
+                    
+                   print_r($data);
+                  if(isset($data['Body']['MapPospPortalResponse']['MapPospPortalResult'])){
+                      if($data['Body']['MapPospPortalResponse']['MapPospPortalResult']=="SUCCESS"){
+                             $resp->status = true;
+                             $resp->code = $VC_UNIQUE_CODE;
+                             $resp->message = "Posp unique code created successfully.";
+                      }else{
+                         $resp->message = $xml_post_string;//$data['Body']['MapPospPortalResponse']['MapPospPortalResult']; 
+                      }
+                  }else{
+                      $resp->message = "Internal error";
+                  }
+                //  return $resp;
+             echo '<pre>', htmlentities($xml_post_string), '</pre>';
     }
     
     
      public function testany(){
        
-          die;
-                 $sql= DB::table('policy_saled')->select('sp_id','agent_id','policy_no','date')
-                              ->whereMonth('date', 05)->whereYear('date', 2022);
+          
+                //  $sql= DB::table('policy_saled')->select('sp_id','agent_id','policy_no','date')
+                //               ->whereMonth('date', 05)->whereYear('date', 2022);
                
                      
-                      $Sales = $sql->get();
-                         foreach($Sales as $each){
-                             print_r($each);
-                             echo "<br/><hr/><br/>";
-                             $amts = $this->orc->calculateAndSave($each->policy_no);
-                         }
+                //       $Sales = $sql->get();
+                //          foreach($Sales as $each){
+                //              print_r($each);
+                //              echo "<br/><hr/><br/>";
+                //              $amts = $this->orc->calculateAndSave($each->policy_no);
+                //          }
                          
-                        $agents = DB::table('agents')->where('status', 'Inforce')->get();
-                        foreach($agents as $posp){
-                            $SUM = 0;$ID = $posp->id;
-                            if($posp->userType=="SP"){
-                                 // SELECT sum(if(pospId = spId,(pospDst+spDst),0)) as Amount1, sum(if(pospId != spId,(spDst),0)) as Amount2 FROM `policy_payouts`  WHERE (pospId = 19 && spId =19) OR  (pospId != 19 && spId =19)
-                                 $sm = DB::table('policy_payouts')->select(DB::raw('sum(if(pospId = spId,(pospDst+spDst),0)) as Amount1, sum(if(pospId != spId,(spDst),0)) as Amount2'))
-                                            ->where(function($query) use ($ID){
-                                                 $query->where('pospId', '=', $ID);
-                                                 $query->where('spId', '=', $ID);
-                                             })
-                                             ->orWhere(function($query) use ($ID){
-                                                 $query->where('pospId', '!=', $ID);
-                                                 $query->where('spId', '=', $ID);
-                                             })->first();
+                       // $agents = DB::table('agents')->where('status', 'Inforce')->get();
+                        // foreach($agents as $posp){
+                        //     $SUM = 0;$ID = $posp->id;
+                        //     if($posp->userType=="SP"){
+                        //          // SELECT sum(if(pospId = spId,(pospDst+spDst),0)) as Amount1, sum(if(pospId != spId,(spDst),0)) as Amount2 FROM `policy_payouts`  WHERE (pospId = 19 && spId =19) OR  (pospId != 19 && spId =19)
+                        //          $sm = DB::table('policy_payouts')->select(DB::raw('sum(if(pospId = spId,(pospDst+spDst),0)) as Amount1, sum(if(pospId != spId,(spDst),0)) as Amount2'))
+                        //                     ->where(function($query) use ($ID){
+                        //                          $query->where('pospId', '=', $ID);
+                        //                          $query->where('spId', '=', $ID);
+                        //                      })
+                        //                      ->orWhere(function($query) use ($ID){
+                        //                          $query->where('pospId', '!=', $ID);
+                        //                          $query->where('spId', '=', $ID);
+                        //                      })->first();
                                              
-                                $Amt1 = ($sm->Amount1)?$sm->Amount1:0;
-                                $Amt2 = ($sm->Amount2)?$sm->Amount2:0;
-                                $SUM = ($Amt1 + $Amt2);
-                            }else{
-                                 $SUM = DB::table('policy_payouts')->where('pospId',$posp->id)->sum('pospDst');
-                            }
+                        //         $Amt1 = ($sm->Amount1)?$sm->Amount1:0;
+                        //         $Amt2 = ($sm->Amount2)?$sm->Amount2:0;
+                        //         $SUM = ($Amt1 + $Amt2);
+                        //     }else{
+                        //          $SUM = DB::table('policy_payouts')->where('pospId',$posp->id)->sum('pospDst');
+                        //     }
                             
-                            $ps = explode('/',$posp->posp_ID);
-                            $ppiArr = ['invoiceNo'=>'INV'.date('Ym').$ps[2],
-                                      'spId'=>($posp->userType=="SP")?$posp->id:0,
-                                      'pospId'=>($posp->userType=="POSP")?$posp->id:0,
-                                      'invoiceDate'=>date('Y-m-d H:i:s'),
-                                      'totalAmount'=>$SUM,
-                                      'invMonth'=>'05', 
-                                      'invYear'=>'2022'];
-                            DB::table('policy_payout_invoice')->insertGetId($ppiArr); 
-                         }
+                        //     $ps = explode('/',$posp->posp_ID);
+                        //     $ppiArr = ['invoiceNo'=>'INV'.date('Ym').$ps[2],
+                        //               'spId'=>($posp->userType=="SP")?$posp->id:0,
+                        //               'pospId'=>($posp->userType=="POSP")?$posp->id:0,
+                        //               'invoiceDate'=>date('Y-m-d H:i:s'),
+                        //               'totalAmount'=>$SUM,
+                        //               'invMonth'=>'05', 
+                        //               'invYear'=>'2022'];
+                        //     DB::table('policy_payout_invoice')->insertGetId($ppiArr); 
+                        //  }
                          
-                       
-         
+            $plllannsn =  DB::table('temp_plan_key_features')->get();
+               die;       
+          foreach($plllannsn as $rr){
+                  $INSERT = [];
+                  $INSERT[]=['featuresKey'=>$rr->key_code,'val'=>$rr->DIGIT_SILVER,'plan_id'=>3];
+                  $INSERT[] =['featuresKey'=>$rr->key_code,'val'=>$rr->DIGIT_GOLD,'plan_id'=>2];
+                  $INSERT[] =['featuresKey'=>$rr->key_code,'val'=>$rr->DIGIT_DIAMOND,'plan_id'=>1];
+                  $INSERT[] = ['featuresKey'=>$rr->key_code,'val'=>$rr->OptimaSecure,'plan_id'=>5];
+                  $INSERT[] =['featuresKey'=>$rr->key_code,'val'=>$rr->CARE,'plan_id'=>6];
+                  $INSERT[]=['featuresKey'=>$rr->key_code,'val'=>$rr->CAREADVANTAGE,'plan_id'=>17];
+                  $INSERT[]=['featuresKey'=>$rr->key_code,'val'=>$rr->RPRT06SBSF,'plan_id'=>10];
+                  $INSERT[]=['featuresKey'=>$rr->key_code,'val'=>$rr->RPLS06SBSF,'plan_id'=>9];
+                  DB::table('plans_features')->insert($INSERT);
+                  echo "<br/><hr/><br/>";
+              }
          
         //  $Sales = DB::table('policy_saled')
         //               ->where('MailStatus', 'No')

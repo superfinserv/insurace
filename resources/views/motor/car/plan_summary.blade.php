@@ -31,7 +31,7 @@
             <div class="container ">
                 <div class="row">
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 section-heading">
-                       <h2 class="__title" style=" padding-top: 20px; padding-bottom: 20px; ">IMPORTANT DETAILS TO REVIEW BEFORE PAYMENT</h2>
+                       <h2 class="__title" style=" padding-top: 20px; padding-bottom: 20px; ">{{ucfirst(strtolower("IMPORTANT DETAILS TO REVIEW BEFORE PAYMENT"))}}</h2>
                     </div>
                     <div class="col-lg-7 col-md-7 col-sm-7 col-xs-12" style="background: #fff;padding: 12px 25px;">
                         
