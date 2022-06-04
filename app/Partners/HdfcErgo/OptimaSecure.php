@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Client;
+use Carbon\Carbon;
+
 class OptimaSecure{
      function calculatePremium($params,$sum,$sumInsured,$devicetoken,$pTyp){
           $persons = [];
@@ -272,7 +274,25 @@ class OptimaSecure{
      
     function createPolicy($enq){
             $enqData = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enq)->first();
+            $termYear = $enqData->termYear;
             $params = json_decode($enqData->params_request);
+            $json_data = json_decode($enqData->json_data);
+            $Amts = json_decode($enqData->amounts);
+            $amt =  $Amts->$termYear;
+            $SI = json_decode($enqData->sumInsured);
+            $sumInsured =  $SI->longAmt;
+            $child = $params->total_child;
+            $adult = $params->total_adult;
+           
+             $totalMem = $child+$adult;
+             if($totalMem>1){
+                 $policyType = ($pTyp=="FL")?"Family":"Individual";
+             }else{
+                 $policyType = "Individual";
+                 $pTyp  = "IN";
+             }
+            
+            
             $request =  new \stdClass();
             $configurationParam = new \stdClass();
             $configurationParam->AgentCode = config('mediclaim.HDFCERGO.OptimaSecure.agentCode');
@@ -280,21 +300,21 @@ class OptimaSecure{
             $request->PlanName= "OptimaSecure";
             $request->PlanType=$policyType;
             $request->PinCode=(int)$params->address->pincode;
-            $request->PolicyTenure= 1;
+            $request->PolicyTenure= $termYear;
             $request->SumInsured=$sumInsured;
             $request->Deductible= 0;
             $request->IsLoyaltyDiscountOpted=false;
-            $request->QuoteNo = '34122052731714';
+            $request->QuoteNo = $amt->quoteNo;
             
             $PremiumDetails =  new \stdClass();
                 
-            $PremiumDetails->quoteId = "quote-28";
-            $PremiumDetails->BasePremium= 67800.0;
+            $PremiumDetails->quoteId = $amt->quoteId;
+            $PremiumDetails->BasePremium= ($amt->Base_Premium+$amt->Discount);
             $PremiumDetails->TaxPercentage=18.0;
-            $PremiumDetails->TaxAmount= 7208.0;
-            $PremiumDetails->TotalDiscount= 27755.6;
-            $PremiumDetails->TotalFinalPremium= 47252.0;
-            $PremiumDetails->GrossPremium= 40044.39;
+            $PremiumDetails->TaxAmount= $amt->Total_Tax;
+            $PremiumDetails->TotalDiscount= $amt->Discount;
+            $PremiumDetails->TotalFinalPremium= $amt->Total_Premium;
+            $PremiumDetails->GrossPremium= $amt->Base_Premium;
             
             $request->PremiumDetails = $PremiumDetails;
             
@@ -315,7 +335,36 @@ class OptimaSecure{
                  $HeightInFt = ($data->type=="self")?$params->selfFeet:$data->feet;
                  $HeightInInc = ($data->type=="self")?$params->selfInch:$data->inch;
                  $Weight = ($data->type=="self")?$params->selfWeight:$data->weight;
-                $person = [
+                 $Medi =[];
+                 if(isset($data->medical) && $params->hasMedical=="YES"){ 
+                     
+                      foreach($data->medical as $q){ 
+                          $Que =  new \stdClass();
+                          $Q =  DB::table('medical_questions')->where('id', $q->queId)->first();
+                          $Que->QuestionId =$Q->code;
+                          $Que->QuestionText =$Q->title;
+                          $ch = $q->childQuestions[0];
+                          //$chQ =  DB::table('medical_questions')->where('id', $ch->Qid)->first();
+                          $ANS = explode("@@",$ch->answer);
+                          $opt =[
+                                    "OptionId"=>$ANS[0],
+                                    "OptionText"=> $ANS[1],
+                                   // "ExactDiagnosis"=>"High Blood Pressure",
+                                   // "ConsultationDate"=> "2020-03-29",
+                                   // "DiagnosisDate"=> "2020-03-29",
+                                   // "CurrentStatus"=> "Cured",
+                                   // "LineOfManagement"=> "Medical Management",
+                                    //"TreatmentDetails"=> "Medical Checkup"
+                                 ];
+                          $options =[];
+                          array_push($options,$opt);
+                          $Que->Options = $options;
+                          
+                         array_push($Medi,$Que);
+                      }
+                 }
+                 
+                 $person = [
                         "Relation"=> $relationCd,
                         "FullName"=> $FullName,
                         "HeightInFt"=> $HeightInFt,
@@ -324,7 +373,7 @@ class OptimaSecure{
                         "Gender"=> $gender,
                         "Salutation"=> $Salutation,
                         "DateofBirth"=> $DateofBirth,
-                        "MedicalQuestionDetails"=> []
+                        "MedicalQuestionDetails"=> $Medi
                         ];
                   array_push($persons,$person);
                 }
@@ -358,12 +407,18 @@ class OptimaSecure{
             $ProposerDetails->GstInNo= null;
             $request->ProposerDetails = $ProposerDetails;
             
-            
+            if($params->nomineerelation=="SPOUSE"){
+                 $RelationWithProposer = ($params->gender=='MALE')?"Wife":"Husband";
+            }else{
+               $RelationWithProposer = ucfirst(strtolower(str_replace('_','-',$params->nomineerelation)));
+            }
             $NomineeDetails =  new \stdClass();
-        
+            $nDob  = $params->nomineeyy."-".$params->nomineemm."-".$params->nomineedd;
+            $NomineeDoB = Carbon::createFromFormat('Y-m-d', $nDob)->format('Y-m-d');
+            $NomineeAge = calulateAge($NomineeDoB);
             $NomineeDetails->FullName =  $params->nomineename;
-            $NomineeDetails->Age= 20;
-            $NomineeDetails->RelationWithProposer= ucfirst(strtolower($params->nomineerelation));//"Son"
+            $NomineeDetails->Age= $NomineeAge;
+            $NomineeDetails->RelationWithProposer= $RelationWithProposer;//"Son"
             $NomineeDetails->AddressSameAsProposer= true;
             $NomineeDetails->Address1= $params->address->house_no;
             $NomineeDetails->Address2= $params->address->street;
@@ -383,8 +438,10 @@ class OptimaSecure{
             }else if($NomineeAge<18 && ($params->nomineerelation=="BROTHER" || $params->nomineerelation=="SISTER")){ 
                 $NomineeDetails->AddressSameAsApointee= true;
                 $RelationWithNominee = ($params->gender=='MALE')?"Brother":"Sister";
+            }else if($params->nomineerelation=="SPOUSE"){
+                 $RelationWithNominee = ($params->gender=='MALE')?"Wife":"Husband";
             }else{
-               $RelationWithNominee = null;
+                $RelationWithNominee = null;
             }
                 $ApointeeDetails->FullName= $params->selfFname." ".$params->selfLname;
                 $ApointeeDetails->RelationWithNominee =  $RelationWithNominee;//"Mother";
@@ -416,6 +473,80 @@ class OptimaSecure{
              );
              $response = $clientResp->getBody()->getContents();
              $resp = json_decode($response);
-    
+           //  print_r($response);
+             if(isset($resp->Status) && $resp->Status==200 ){ 
+                    $data=['enq'=>$enq,
+                              'amount'=> $amt->Total_Premium,
+                              'proposalNum'=> $amt->quoteNo,
+                              'quotationPremium'=>$amt->Total_Premium
+                              ];
+                              
+                      DB::table('app_quote')->where('type','HEALTH')
+                                            ->where('enquiry_id',$enq)
+                                            ->update(['token'=>$resp->Data->PaymentTransactionNo,
+                                                      'proposalNumber'=>$amt->quoteNo,
+                                                      'premiumAmount'=>$amt->Total_Premium,
+                                                      'reqCreate'=>json_encode($request),
+                                                      'respCreate'=>$response,
+                                                      'json_data->enq'=>$resp->UniqueRequestID,
+                                                      'req'=>json_encode($request), 'resp'=>$response,
+                                                      'netAmt'=>number_format((float)$amt->Base_Premium, 2, '.', ''),
+                                                      'taxAmt'=>number_format((float)$amt->Total_Tax, 2, '.', ''),
+                                                      'grossAmt'=>number_format((float)$amt->Total_Premium, 2, '.', ''),
+                                                      ]);
+                    return ['status'=>'success','message'=>'Proposal created successfully','data'=>$data];
+             }else if($resp->Status==406){
+                  $DT = $resp->Data;
+                  $msg = current($DT);
+                  $data=['enq'=>$enq,
+                              'amount'=> $amt->Total_Premium,
+                              'proposalNum'=> $amt->quoteNo,
+                              'quotationPremium'=>$amt->Total_Premium
+                              ];
+                  return ['status'=>'success','message'=>'Proposal created successfully','data'=>$data];
+                 // return ['status'=>'error','message'=>$msg->Message,'data'=>[]];
+             }else{
+                 return ['status'=>'error','message'=>$output->responseData->message,'data'=>[]];
+             }
+             
+             
     }
+    
+    function policyGen($enquiry_id){
+        $enQ = DB::table('app_quote')->where('enquiry_id', $enquiry_id)->first();
+        $jData = json_decode($enQ->json_data);
+        
+        $request =  new \stdClass(); 
+        $request->AgentCode =config('mediclaim.HDFCERGO.OptimaSecure.agentCode');
+        $request->ProductCode= "OS";
+        $request->TransactionNo =$enQ->token; 
+        $request->PaymentStatus= "SUCCESSFUL";
+        $request->UniqueRequestID = $jData->enq;
+          
+           $client = new Client([
+                'headers' => [ 'Content-Type' => 'application/json','MerchantKey'=>config('mediclaim.HDFCERGO.OptimaSecure.mKey'),'SecretToken'=>config('mediclaim.HDFCERGO.OptimaSecure.secretToken')]
+            ]);
+            
+            $clientResp = $client->post(config('mediclaim.HDFCERGO.OptimaSecure.policyGeneration'),
+                ['body' => json_encode(
+                    $request
+                )]
+            );
+            $result = $clientResp->getBody()->getContents();
+          
+          // print_r($result);
+           $response = json_decode($result);
+           
+            DB::table('app_quote')->where('enquiry_id', $enquiry_id)->update(['reqSaveGenPolicy'=>json_encode($request),'respSaveGenPolicy'=>$result]);
+           if($response->Status==200){
+                $PolicyNumber = $response->Data->PolicyNumber;
+                $status = ($response->Data->PaymentStatus=="UPD")?true:true;
+                $msg = "Policy Generated successfully";
+                return ['status'=>$status,'message'=>$msg,'PolicyNumber'=>$PolicyNumber];
+           }else if($response->Status==500){
+                return ['status'=>false,'message'=>$response->Message];
+           }else {
+                 return ['status'=>false,'message'=>'Internal error while create proposal'];
+           }
+    } 
 }

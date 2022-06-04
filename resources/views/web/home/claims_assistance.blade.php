@@ -1,6 +1,10 @@
  @extends('web.layout.app')
     @section('content')
-    
+    <style>
+        i.fa-spin {
+              font-size: 18px;
+       }
+    </style>
     
             <main role="main">
             	<section class="becom-agen">
@@ -26,7 +30,7 @@
 										  
 										 <div class="form-group col-md-6">
     						                 <label for="Pin code" class="text-white">Policy Number</label>
-    						                 <input type="text" class="form-control integer-mobile" id="PolicyNumber" name="PolicyNumber" placeholder="Policy Number">
+    						                 <input type="text" class="form-control" id="PolicyNumber" name="PolicyNumber" placeholder="Policy Number" style="text-transform: uppercase;">
 						                </div>
 										 <div class="form-group col-md-6">
 						                 <label for="Pin code" class="text-white">Your Name</label>

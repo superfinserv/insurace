@@ -70,18 +70,17 @@ class HdfcErgoHealth{
     function createProposal($enqId){
           
           $enQCode = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enqId)->value('code');
-           if($enQ->code=="OptimaSecure"){
+           if($enQCode=="OptimaSecure"){
               $Silver = $this->optimasecure->createPolicy($enqId);
               return $Silver;
-          }else if($enQCode=="DGO01"){
-              $Gold = $this->gold->createPolicy($enqId);
-              return  $Gold;
-          }else if($enQCode=="DDO01"){
-              $Diamond = $this->diamond->createPolicy($enqId);
-              return  $Diamond;
-          }else{
-              $Silver = $this->silver->createPolicy($enqId);
-              return  $Silver;
+          }
+    }
+    
+     function policyGeneration($enqId){
+           $enQCode = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enqId)->value('code');
+           if($enQCode=="OptimaSecure"){
+              $Silver = $this->optimasecure->policyGen($enqId);
+              return $Silver;
           }
     }
     

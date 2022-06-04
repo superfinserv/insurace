@@ -71,6 +71,12 @@ $(document).ready(function(){
              }  
         },
         submitHandler: function (form) {
+            $('#formClaimAssistance').find('button').loadButton('on',{
+                faClass:'fa',
+                faIcon:'fa-spinner',
+                doSpin:true,
+                loadingText:'Submitting...',
+              });
             $.ajax({
                 type: "POST",
                 url: base_url + "/request-my-claim/",
@@ -81,11 +87,15 @@ $(document).ready(function(){
                      //console.log(data);
                      if($.trim(result.status)=='success'){
                         toastr.success(result.message, 'Success'); 
+                        $('#formClaimAssistance')[0].reset();
+                        $('#formClaimAssistance').find('button').loadButton('off');
                      }else{
+                       $('#formClaimAssistance').find('button').loadButton('off');
                         toastr.error(result.message, 'Error');
                      }
                 },
                 error: function () {
+                    $('#formClaimAssistance').find('button').loadButton('off');
                      toastr.error('Something went wrong', 'Error');}
             });
             return false;

@@ -13,6 +13,7 @@ public/assets/agents/pdf/taxinvoice
 public/assets/agents/profile
 public/assets/agents/tranning_certificates
 public/assets/customers/policy/pdf
+public/assets/partners
 
 config/mediclaim.php
 config/motor.php

@@ -21,7 +21,7 @@ use App\Resources\FgiTwResource;
 use App\Partners\Care\Care;
 use App\Partners\Manipal\Manipal;
 use App\Partners\Digit\DigitHealth;
-
+use App\Partners\HdfcErgo\HdfcErgoHealth;
 
 
 class SuccessController extends Controller{
@@ -32,10 +32,11 @@ class SuccessController extends Controller{
        $this->HdfcErgoTwResource =  new HdfcErgoTwResource;
        $this->HdfcErgoCarResource =  new HdfcErgoCarResource;
        $this->FgiTw =  new FgiTwResource;
-        
+       
        $this->Care =   new Care;
        $this->Manipal  =  new Manipal;
        $this->DigitHealth  =  new DigitHealth;
+       $this->HdfcErgoHealth   = new HdfcErgoHealth;
        
    }
    
@@ -66,43 +67,49 @@ class SuccessController extends Controller{
                 
                 
             }else if(strtolower($request->enquiryID)=='hdfcergo_health'){
-                if(isset($_REQUEST['Msg']) && $_REQUEST['Msg']=='Successfull'){ 
-                     $data =  DB::table('app_quote')->where(['type'=>'HEALTH','token'=>$_REQUEST['ProposalNo']])->first();
-                     $isExist = DB::table('policy_saled')->where('type','HEALTH')->where('enquiry_id',$data->enquiry_id)->count();
-                     $json_data = json_decode($data->json_data);
+                if(isset($_REQUEST['hdmsg'])){ 
+                     $data =    DB::table('app_quote')
+                               ->where('token',$_REQUEST['hdmsg'])
+                               ->latest('id')->first();
+                    
                      $saledData = ['type'=>'HEALTH','provider'=>$data->provider,'policyType'=>$data->policyType,
-                                  'json_data'=>$data->json_data,'mobile_no'=>"",'getway_response'=>json_encode($_REQUEST),
-                                  "customer_id"=>$data->customer_id,'params'=>$data->params_request,
+                                   'json_data'=>$data->json_data,'mobile_no'=>"",'getway_response'=>json_encode($_REQUEST),
+                                    "customer_id"=>$data->customer_id,'params'=>$data->params_request,
                                   ];
-                     $saledData['transaction_no'] =$_REQUEST['ProposalNo'];
-                     $saledData['policy_no'] =$_REQUEST['PolicyNo'];
+                     $saledData['transaction_no'] =$_REQUEST['hdmsg'];
+                     //$saledData['policy_no'] =$_REQUEST['PolicyNo'];
                      $saledData['startDate']=$data->startDate;
                      $saledData['endDate']=$data->endDate;
                      $saledData['sp_id'] =$data->sp_id;
                      $saledData['mobile_no'] =$data->customer_mobile;
                      $saledData['agent_id'] =$data->agent_id;
-                    
                      $saledData['payment_status'] = "Completed";
                      $saledData['policy_status'] = "Completed";
-                     $saledData['amount'] = $json_data->amount;
+                     $saledData['amount'] = $data->grossAmt;
                      $saledData['netAmt']=$data->netAmt;
                      $saledData['taxAmt']=$data->taxAmt;
                      $saledData['grossAmt']=$data->grossAmt;
                      $saledData['server']=$data->server;
-                    // $saledData['filename'] = ($pdfData->status)?$pdfData->filename:"";
-                        if(!$isExist){
-                            $saledData['enquiry_id'] =$data->enquiry_id;
-                            $refID = DB::table('policy_saled')->insertGetId($saledData);
-                         }else{
-                            $refID = DB::table('policy_saled')->where(['enquiry_id'=>$data->enquiry_id])->update($saledData);
-                         }
-                           DB::table('app_quote')->where('enquiry_id', '=', $data->enquiry_id)->update(['status'=>'SOLD']);
-                          if($info->server=='AGENT_WEB'){
-                              $url = config('custom.posp_site_url').'/policy/success/'.$data->provider.'/'.$data->enquiryID;
-                              return redirect($url);
-                          }else{
-                               return redirect('policy/success/'.$data->provider.'/'.$data->enquiry_id);
-                          }
+                     $pData = $this->HdfcErgoHealth->policyGeneration($data->enquiry_id);
+                     if($pData['status']){
+                         $saledData['policy_no']=$pData['PolicyNumber'];
+                         $saledData['policy_status']="Pending";
+                     }
+                     $isExist = DB::table('policy_saled')->where('type','HEALTH')->where('enquiry_id',$data->enquiry_id)->count();
+                     $json_data = json_decode($data->json_data);
+                     if(!$isExist){
+                        $saledData['enquiry_id'] =$data->enquiry_id;
+                        $refID = DB::table('policy_saled')->insertGetId($saledData);
+                     }else{
+                        $refID = DB::table('policy_saled')->where(['enquiry_id'=>$data->enquiry_id])->update($saledData);
+                     }
+                      DB::table('app_quote')->where('enquiry_id', '=', $data->enquiry_id)->update(['status'=>'SOLD']);
+                      if($data->server=='AGENT_WEB'){
+                          $url = config('custom.posp_site_url').'/policy/success/'.$data->provider.'/'.$data->enquiryID;
+                          return redirect($url);
+                      }else{
+                           return redirect('policy/success/'.$data->provider.'/'.$data->enquiry_id);
+                      }
                 }else{
                     echo "Invalid Proposal number";
                 }

@@ -650,7 +650,7 @@ class Healthinsurance extends Controller{
        }else if($enqData->provider=="DIGIT"){
             $resp = $this->DigitHealth->createProposal($request->enq);
        }else if($enqData->provider=="HDFCERGO"){
-          //  $resp = $this->HdfcErgoResource->createPolicy($request->enq);
+            $resp = $this->HdfcErgoHealth->createProposal($request->enq);
        }
      return response()->json($resp);
     }
@@ -844,32 +844,27 @@ class Healthinsurance extends Controller{
                   $pageData->returnURL = config('custom.site_url')."/health-insurance/insured-success/".$enquiryID;
                  
              }else if($data->provider=='HDFCERGO'){
-                 
+                     $SI =    json_decode($data->sumInsured);
                       $plan = DB::table('our_partners')->where('shortName','=',$data->provider)->first();
                       $planInfo = new \stdClass(); 
                       $planInfo->supp_logo = asset('assets/partners/'.$plan->logo_image);
                       $planInfo->sp = $plan->shortName;
                       $planInfo->supp_name = $plan->name;
-                      $planInfo->sumInsured = $jd->sumInsured;
-                      $planInfo->amount = $jd->amount;
+                      $planInfo->sumInsured = $SI->longAmt;
+                      $planInfo->amount = $quoteAmt;
                   $include = 'health.declarationPages.hdfcErgo';
-                  $pageData->formAction = "http://202.191.196.210/UAT/OnlineProducts/HealthSurakshaOnline/tim.aspx";
+                  $pageData->formAction = config('mediclaim.HDFCERGO.OptimaSecure.paymentGateway');
                   $formData = new \stdClass(); 
                   
-                  $txid = substr(hash('sha256', mt_rand() . microtime()), 0, 20);
-                  $amt = $params->amount;
-                  $productInfo = "HDFC ERGO health insurance from supersolutions";
+                 
+                
+                  
                   $returnURL = config('custom.site_url')."/health-insurance/insured-success/".$enquiryID;
-                  $formData->CustomerId = $data->proposalNumber;
-                  $formData->TxnAmount = $jd->amount; 
-                  $formData->AdditionalInfo1 ='NB';
-                  $formData->AdditionalInfo2 = 'HSP';
-                  $formData->AdditionalInfo3 =  1;
-                  $formData->hdnPayMode = "DD";//$params->selfFname.$params->selfMobile;
-                  $formData->UserName = $params->selfFname." ".$params->selfLname;
-                  $formData->UserMailId = $params->selfEmail;
-                  $formData->ProductCd = 'HSP';
-                  $formData->ProducerCd ='MHC00140';
+                  $formData->Trnsno = $data->token; 
+                  $formData->FeatureID ='S001';
+                 
+                  $hashSequence = config('mediclaim.HDFCERGO.OptimaSecure.mKey')."|".$data->token."|".config('mediclaim.HDFCERGO.OptimaSecure.secretToken')."|S001";
+                  $formData->Checksum = strtoupper(hash('sha512', $hashSequence));
                   $pageData->formData = $formData;
              }
              
