@@ -27,7 +27,8 @@ use Illuminate\Support\Facades\Route;
     
     //comming-soon
     Route::get('term-insurance', function () {
-       return view('web.comming-soon.index', ['text' => 'Term-Insurance is under development.']);
+       //return view('web.comming-soon.index', ['text' => 'Term-Insurance is under development.']);
+       return view('termInsurance.index', ['title' => 'Term insurance','subtitle'=>'Term insurance']);
     });
     Route::get('investment-plan', function () {
        return view('web.comming-soon.index', ['text' => 'Investment-Plan is under development.']);

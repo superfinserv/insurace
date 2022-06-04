@@ -11,9 +11,8 @@ use Carbon\Carbon;
 
 class ManipalProtect{
       
-     function spCode(){
-        //  $SPCodes = ['9509530412' => '1664187-01','9309212895'  => '1664188-01','9828172010'  => '1674456-01','7080215757'  => '1674457-01'];
-        $SPCodes = ['9509530412' => '1000015-01','9309212895'  => '1000015-01','9828172010'  => '1000015-01','7080215757'  => '1000015-01'];
+function spCode(){
+        $SPCodes = config('mediclaim.MANIPAL.SPCODE');
         
            if(isset(Auth::guard('customers')->user()->mobile)){ // IF CUSTOMER LOGIN
                      $isPOSP = DB::table('agents')->where('mobile',Auth::guard('customers')->user()->mobile)->count();
@@ -22,27 +21,27 @@ class ManipalProtect{
                          if($agent->userType=="POSP"){ 
                                 if($agent->mapped_sp){
                                     $SPMOB = DB::table('agents')->where('id',$agent->mapped_sp)->value('mobile');
-                                    return isset($SPCodes[$SPMOB])?$SPCodes[$SPMOB]:'1000015-01';
+                                    return isset($SPCodes[$SPMOB])?$SPCodes[$SPMOB]:config('mediclaim.MANIPAL.baseAgentId');
                                 }else{ // SP NOT MAPPED
-                                      return '11000015-01';
+                                      return config('mediclaim.MANIPAL.baseAgentId');
                                 }
                          }else if($agent->userType=="SP"){ 
-                                  return isset($SPCodes[Auth::guard('customers')->user()->mobile])?$SPCodes[Auth::guard('customers')->user()->mobile]:'1000015-01';
+                                  return isset($SPCodes[Auth::guard('customers')->user()->mobile])?$SPCodes[Auth::guard('customers')->user()->mobile]:config('mediclaim.MANIPAL.baseAgentId');
                          }
                      }else{
-                          return '1000015-01';
+                          return config('mediclaim.MANIPAL.baseAgentId');
                      }
             }else{  // IF SP/POSP LOGIN
                 //$agent = DB::table('agents')->where('mobile',Auth::guard('agents')->user()->mobile)->first();
                 if(Auth::guard('agents')->user()=="POSP"){ 
                     if($agent->mapped_sp){
                         $SPMOB = DB::table('agents')->where('id',$agent->mapped_sp)->value('mobile');
-                        return isset($SPCodes[$SPMOB])?$SPCodes[$SPMOB]:'1000015-01';
+                        return isset($SPCodes[$SPMOB])?$SPCodes[$SPMOB]:config('mediclaim.MANIPAL.baseAgentId');
                      }else{ // SP NOT MAPPED
-                          return '1000015-01';
+                          return config('mediclaim.MANIPAL.baseAgentId');
                       }
                 }else if(Auth::guard('agents')->user()=="SP"){ 
-                      return isset($SPCodes[Auth::guard('customers')->user()->mobile])?$SPCodes[Auth::guard('customers')->user()->mobile]:'1000015-01';
+                      return isset($SPCodes[Auth::guard('customers')->user()->mobile])?$SPCodes[Auth::guard('customers')->user()->mobile]:config('mediclaim.MANIPAL.baseAgentId');
                 }
             }
            

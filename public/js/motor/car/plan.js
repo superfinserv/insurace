@@ -128,7 +128,74 @@ $(function(){
                     });
               }
            
+          },
+          
+          fgi: function(callTyp){
+               var fgiCard = $('.plan-card-fgi_m');
+             if(fgiCard.length){
+                $('.plan-card-fgi_m').find('button.btn-netpremiumn').html(loader).attr('disabled',false);
+                $('.plan-card-fgi_m').find('button.btn-netpremiumn').html(loader);
+                $('.plan-card-fgi_m').find('.error-span').remove();
+            
+                 var carInfo = JSON.parse(localStorage.getItem('carInfo'));
+                 var url =  (callTyp=='recalculate')?"/car-insurance/load-plans-recalculate/":"/car-insurance/load-plans/";
+                 $.ajax({
+                  url: base_url + url,
+                  type: "POST",
+                  dataType: "json",
+                  data:{supp:'FGI',carInfo:carInfo},
+                  success: function (data, status, jqXHR) {
+                      var result = data.data;
+                      if($.trim(data.status)=="success"){
+                        $('.idv-edit-th').attr('id','open-idv-modal');
+                        $('.plan-card-fgi_m').show();
+                        
+                       
+                        fgiCard.removeClass('cart-empty');
+                        fgiCard.find('a.Premium-Breakup').attr('data-ref',result.id);
+                        if(twInfo.planType=="TP"){ fgiCard.find('h5.idv').hide();}else{  fgiCard.find('h5.idv').show(); fgiCard.find('h5.idv').html('IDV:'+result.idv+'/-');}
+                        fgiCard.find('.column-2').attr('style',"");
+                        fgiCard.find('.column-3').attr('style',"");
+                        fgiCard.find('button.btn-netpremiumn').attr('data-ref',result.id);
+                        if(twInfo.subcovers.isPA_OwnerDriverCover=="true"){
+                           fgiCard.find('span.paCoverStatus-txt').text('Added');
+                        }else{
+                            fgiCard.find('span.paCoverStatus-txt').text('N/A');
+                        }
+                        fgiCard.find('button.btn-netpremiumn').html('<span class="fa fa-inr"></span> '+result.grossamount+' <i style="" class="fa fa-angle-double-right" aria-hidden="true"></i>');
+                        var addon =  result.addons.covers.addons;
+                         if( addon.length){
+                            var addonHtm = "";
+                            $.each(addon, function (adkey, ad) {
+                               
+                               addonHtm +='<span class="addon-badge">'+ad.title+'</span>';
+                            });
+                            
+                            $('.fgi_m_addon').html(addonHtm);
+                        }else{
+                           $('.fgi_m_addon').empty().text('No addon cover selected');  
+                        }
+                    
+                      }else{
+                           fgiCard.addClass('cart-empty');
+                           $('.plan-card-fgi_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
+                           $('.plan-card-fgi_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                          
+                      }
+                   },
+                  error: function (jqXHR, status, err) {
+                        
+                       $('.plan-card-fgi_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
+                       $('.plan-card-fgi_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                        
+                      
+                  },
+                  complete: function (jqXHR, status) {}
+                });
+              }
+           
           }
+          
         
         };
         
@@ -265,7 +332,7 @@ $(function(){
         
         planLib.digit('first-call');
         planLib.hdfcErgo('first-call');
-        
+        planLib.fgi('first-call');
     }
     
     
@@ -337,8 +404,9 @@ $(function(){
             
             jcModal.close();
             $('#ODdetails').show();
-            planLib.digit('firstCall');
+             planLib.digit('firstCall');
              planLib.hdfcErgo('firstCall');
+             planLib.fgi('firstCall');
         }
     });
     
@@ -359,6 +427,7 @@ $(function(){
                configSetting.coverSetup(cover);
                planLib.digit('firstCall');
                planLib.hdfcErgo('firstCall');
+               planLib.fgi('firstCall');
             }
             // if(cover=='SAOD'){
             //   // if(typeof(carInfo.TP)!= "undefined" && carInfo.TP!== null) { loadPlans('firstCall'); }else{TPModal();}
@@ -385,6 +454,7 @@ $(function(){
             localStorage.setItem("carInfo", JSON.stringify(carInfo));
              planLib.digit('recalculate');
              planLib.hdfcErgo('recalculate');
+             planLib.fgi('recalculate');
      });
      
      $('body').on('click','#btn-pa-owner-driver',function() {
@@ -396,6 +466,7 @@ $(function(){
         localStorage.setItem("carInfo", JSON.stringify(carInfo));
         planLib.digit('recalculate');
         planLib.hdfcErgo('recalculate');
+        planLib.fgi('recalculate');
     })
      
      // PA UNNAMED
@@ -411,6 +482,7 @@ $(function(){
              localStorage.setItem("carInfo", JSON.stringify(carInfo));
              planLib.digit('recalculate');
              planLib.hdfcErgo('recalculate');
+             planLib.fgi('recalculate');
         }
         
      });
@@ -424,6 +496,7 @@ $(function(){
         localStorage.setItem("carInfo", JSON.stringify(carInfo));
         planLib.digit('recalculate');
         planLib.hdfcErgo('recalculate');
+        planLib.fgi('recalculate');
     })
     
     //Zero Dep
@@ -450,6 +523,7 @@ $(function(){
                               localStorage.setItem("carInfo", JSON.stringify(carInfo));
                               planLib.digit('recalculate'); 
                               planLib.hdfcErgo('recalculate');
+                              planLib.fgi('recalculate');
                                 
                             }
                         },
@@ -471,6 +545,7 @@ $(function(){
                  $('#'+elemName+'-elem').hide();
                 planLib.digit('recalculate');
                 planLib.hdfcErgo('recalculate');
+                 planLib.fgi('recalculate');
              }
          }else{
             carInfo = JSON.parse(localStorage.getItem('carInfo'));
@@ -486,6 +561,7 @@ $(function(){
               
               planLib.digit('recalculate'); 
               planLib.hdfcErgo('recalculate');
+               planLib.fgi('recalculate');
          }
          
      });
@@ -558,7 +634,7 @@ $(function(){
         localStorage.setItem("carInfo", JSON.stringify(carInfo));
        planLib.digit('recalculate');
        planLib.hdfcErgo('recalculate');
-       
+        planLib.fgi('recalculate');  
     });
     
     $('body').on('click','.Premium-Breakup', function(e){
@@ -653,7 +729,7 @@ $(function(){
            idvModal.close();
            planLib.digit('recalculate');
            planLib.hdfcErgo('recalculate');
-                
+            planLib.fgi('recalculate');       
         }
     });
     
@@ -682,6 +758,7 @@ $(function(){
                 localStorage.setItem("carInfo", JSON.stringify(carInfo));
                 planLib.digit('recalculate');
                 planLib.hdfcErgo('recalculate');
+                   planLib.fgi('recalculate');
             }else{
                 carInfo.subcovers.isCngKitCover=isCngKitCover;
                 carInfo.subcovers.isElecAccCover=isElecAccCover;
@@ -689,6 +766,7 @@ $(function(){
                 localStorage.setItem("carInfo", JSON.stringify(carInfo));
                 planLib.digit('recalculate');
                 planLib.hdfcErgo('recalculate');
+                   planLib.fgi('recalculate');
                 $('#'+ID+'-elem').hide();
                 $('#'+ID+'-txt-val').hide();
             }
@@ -744,6 +822,7 @@ $(function(){
         localStorage.setItem("carInfo", JSON.stringify(carInfo));
         planLib.digit('recalculate');
         planLib.hdfcErgo('recalculate');
+           planLib.fgi('recalculate');
       }
     });
    // $( "#isCngKitCover-txt-val" ).text( "₹" + $( "#slider-range-cng" ).slider( "value" ) );
@@ -766,6 +845,7 @@ $(function(){
         localStorage.setItem("carInfo", JSON.stringify(carInfo));
         planLib.digit('recalculate');
         planLib.hdfcErgo('recalculate');
+           planLib.fgi('recalculate');
       }
     });
   //  $( "#isElecAccCover-txt-val" ).text( "₹" + $( "#slider-range-electric" ).slider( "value" ) );
@@ -788,6 +868,7 @@ $(function(){
         localStorage.setItem("carInfo", JSON.stringify(carInfo));
         planLib.digit('recalculate');
         planLib.hdfcErgo('recalculate');
+           planLib.fgi('recalculate');
       }
     });
    // $( "#isNonElecAccCover-txt-val" ).text( "₹" + $( "#slider-range-nonelectric" ).slider( "value" ) );

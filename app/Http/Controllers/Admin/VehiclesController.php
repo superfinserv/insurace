@@ -261,7 +261,7 @@ class VehiclesController extends Controller
                  $eachData['cc']          = '<sapn style="font-size:12px;color:black;">'.$each->cubic_capacity.'</span>';
                 $eachData['fuel_type']    = $each->fuel_type;
                 $eachData['digit_code']   = '<sapn style="font-size:13px;color:black;">'.$each->digit_code.'</span>';
-                $eachData['fgi_code']     = '<input data-supp="fgi_code"    readonly disabled class="text-vcode" type="text" data-id="'.$each->id.'" id="fgi_code'.$each->id.'" name="fgi_code'.$each->id.'"   value="'.$each->fgi_code.'">';//$each->fgi_code;
+                $eachData['fgi_code']     = '<input data-supp="fgi_code" class="text-vcode" type="text" data-id="'.$each->id.'" id="fgi_code'.$each->id.'" name="fgi_code'.$each->id.'"   value="'.$each->fgi_code.'">';//$each->fgi_code;
                  $eachData['hdfc_code']   = '<input data-supp="hdfcErgo_code" class="text-vcode" type="text" data-id="'.$each->id.'" id="hdfc_code'.$each->id.'" name="hdfc_code'.$each->id.'" value="'.$each->hdfcErgo_code.'">';//$each->hdfcErgo_code;
                 $eachData['make_id']      = $each->make_id;
                 $eachData['modal_id']     = $each->modal_id;

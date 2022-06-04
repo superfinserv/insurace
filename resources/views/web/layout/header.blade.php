@@ -5,7 +5,7 @@
                     <div class="container-fluid">
                         <div class="row align-items-center no-gutters">
 
-                            <a class="top-bar__logo site-logo" href="{{url('/')}}">
+                            <a class="top-bar__logo site-logo" href="https://superfinserv.com/">
                                 <img class="img-fluid" src="{{asset('site_assets/logo/'.config('custom.site_logo'))}}"  alt="{{config('custom.site_name')}}" />
                             </a>
 

@@ -40,7 +40,18 @@
           </a>
     </div>
     
-    
+     <div class="resp  col-sm-4 col-lg-3 col-xl-3 col-xs-4  col-4 pt-3 animate animated slideRight" style="padding-right: 10px;padding-left: 10px;">
+         <a href="{{url('/term-insurance')}}" class="home-box">
+           <div class="__item __item--shadow itemBox circle circle1" style="border-radius:10%">  
+                <div class="_header">
+                    <i class="fa fa-shield" aria-hidden="true"></i> 
+                </div>
+                <div class="_body">
+                   <h3 class="__title" style="font-size: 11px;line-height: 14px;letter-spacing: 1px;font-weight: 600 !important;">Term Plan</h3>
+                </div>
+            </div> 
+          </a>
+    </div>
 </div>
 <br/>
 <h3 style="color: #fff;font-size: 18px;margin-bottom: 0;letter-spacing: 0.5px;font-weight: 700;">Coming Soon</h3>
@@ -77,18 +88,7 @@
           </a>
     </div>
     
-    <div class="resp  col-sm-4 col-lg-3 col-xl-3 col-xs-4  col-4 pt-3 animate animated slideRight" style="padding-right: 10px;padding-left: 10px;">
-         <a href="#" class="home-box">
-           <div class="__item __item--shadow itemBox circle circle1" style="border-radius:10%">  
-                <div class="_header">
-                    <i class="fa fa-shield" aria-hidden="true"></i> 
-                </div>
-                <div class="_body">
-                   <h3 class="__title" style="font-size: 11px;line-height: 14px;letter-spacing: 1px;font-weight: 600 !important;">Term Plan</h3>
-                </div>
-            </div> 
-          </a>
-    </div>
+   
     <div class="resp  col-sm-4 col-lg-3 col-xl-3 col-xs-4  col-4 pt-3 animate animated slideLeft" style="padding-right: 10px;padding-left: 10px;">
          <a href="#" class="home-box">
            <div class="__item __item--shadow itemBox circle circle1" style="border-radius:10%">  

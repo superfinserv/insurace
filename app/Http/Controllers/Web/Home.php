@@ -104,13 +104,24 @@ class Home extends Controller{
     public function claimMyRequest(Request $request){
         $data['referenceId'] = date('Ymdhis');
         $data['insurance'] = $request->insuranceType;
-        $data['policy_no'] = $request->PolicyNumber;
+        $data['policy_no'] = strtoupper($request->PolicyNumber);
         $data['name'] = $request->name;
         $data['mobile'] = $request->MobileNumber;
         $data['email'] = $request->email;
         $data['message'] = $request->comment;
         $id = DB::table('claims_assistance')->insertGetId($data);
         if($id){
+              unset($data['message']);
+              $data['comment'] = $request->comment;
+              $custname =  $request->name;
+              $custemail =  $request->email;
+              $subject = 'New Claim Query - '.$data['referenceId'];
+              $data['sfLogo'] = asset('site_assets/logo/'.config('custom.site_logo'));
+              Mail::send('insurance.email-template.claims-assistance', $data, function($message) use ($subject,$custname, $custemail) {
+              $message->to([$custemail,'care@superfinserv.com'])
+                      ->subject($subject);
+             $message->from('care@superfinserv.com',config('custom.site_short_name'));
+            });
             return response()->json(['status'=>'success','message'=>'your claim registered successfully','data'=>[]]);
         }else{
             return response()->json(['status'=>'error','message'=>'opps! somthing went wrong try again!','data'=>$cities]);

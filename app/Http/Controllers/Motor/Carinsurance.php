@@ -10,16 +10,18 @@ use Auth;
 use File;
 use App\Resources\DigitCarResource;
 use App\Resources\HdfcErgoCarResource;
+use App\Resources\FgiCarResource;
 use Symfony\Component\HttpFoundation\Cookie;
 use App\Utils\UserManager;
 class Carinsurance extends Controller
 {
     public $uniqueToken;
     
-    public function __construct(DigitCarResource $DigitCarResource ,HdfcErgoCarResource $HdfcErgoCarResource) { 
-           $this->DigitCar   = $DigitCarResource; 
-           $this->HdfcErgoCar= $HdfcErgoCarResource; 
+    public function __construct() { 
+           $this->DigitCar   = new DigitCarResource; 
+           $this->HdfcErgoCar= new HdfcErgoCarResource; 
            $this->usermanger =  new UserManager;
+           $this->FgiCar =  new FgiCarResource;
     }
     
     function getToken(){
@@ -143,9 +145,18 @@ class Carinsurance extends Controller
          }
          if($request->supp=="HDFCERGO"){
              
-               //echo "Hellow";
              $plans =[];
              $result= $this->HdfcErgoCar->getQuickQuote($this->getToken(),$request->carInfo);
+             if($result['status']){ 
+                  return response()->json(['status' => 'success','data' => $result['plans']]);
+              }else{
+                 return response()->json(['status' => 'error','data' =>[],'message'=>$result['message']]);
+              }
+         }
+         
+          if($request->supp=="FGI"){
+             $plans =[];
+             $result= $this->FgiCar->getQuickQuote($this->getToken(),$request->carInfo);
              if($result['status']){ 
                   return response()->json(['status' => 'success','data' => $result['plans']]);
               }else{
@@ -171,6 +182,14 @@ class Carinsurance extends Controller
                   return response()->json(['status' => 'success','data' => $hdfc['plans']]);
              }else{
                  return response()->json(['status' => 'error','supp'=>'HDFCERGO','plans' => []]);
+             }
+         }else if($request->supp=="FGI"){
+             $FGplans =[];
+             $fgii= $this->FgiCar->getQuickQuote($this->getToken(),$request->carInfo);
+             if($fgii['status']){
+                  return response()->json(['status' => 'success','data' => $fgii['plans']]);
+             }else{
+                 return response()->json(['status' => 'error','supp'=>'FGI','plans' => []]);
              }
          }
     }
