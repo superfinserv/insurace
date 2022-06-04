@@ -649,8 +649,8 @@ class FgiTwResource extends AppResource{
        
             $ROOT = "<Root>
                     	<Uid>".$uid."</Uid>
-                    	<VendorCode>webagg</VendorCode>
-                    	<VendorUserId>webagg</VendorUserId>
+                    	<VendorCode>".config('motor.FGI.tw.vendorCode')."</VendorCode>
+                    	<VendorUserId>".config('motor.FGI.tw.vendorName')."</VendorUserId>
                     	<PolicyHeader>
                     		<PolicyStartDate>".$period->startDate."</PolicyStartDate> 
                             <PolicyEndDate>".$period->endDate."</PolicyEndDate>
@@ -1191,8 +1191,6 @@ class FgiTwResource extends AppResource{
             }
     }
     
-    
-    
      function createQuote($enquiry_id,$options){
                $EnQ = DB::table('app_quote')->where('enquiry_id', $enquiry_id)->first();
                $params = json_decode(json_encode(json_decode($EnQ->params_request)),true);
@@ -1423,8 +1421,8 @@ class FgiTwResource extends AppResource{
         }
             $ROOT = "<Root>
                     	<Uid>".$uid."</Uid>
-                    	<VendorCode>webagg</VendorCode>
-                    	<VendorUserId>webagg</VendorUserId>
+                    	<VendorCode>".config('motor.FGI.tw.vendorCode')."</VendorCode>
+                    	<VendorUserId>".config('motor.FGI.tw.vendorName')."</VendorUserId>
                     	<PolicyHeader>
                     		<PolicyStartDate>".$period->startDate."</PolicyStartDate> 
                             <PolicyEndDate>".$period->endDate."</PolicyEndDate>
@@ -1787,7 +1785,7 @@ class FgiTwResource extends AppResource{
             }
     }
     
-     function Generatehash256($message) {
+     function Generatehash256($message){
          $hash = hash('sha256', mb_convert_encoding($message, 'UTF-8'), true);
         return $this->hexToStr($hash);
      }
@@ -1805,36 +1803,12 @@ class FgiTwResource extends AppResource{
      function GetPDF($pno){
             
             try {
-               //  $url = "http://fglpg001.futuregenerali.in/PDFDownload?wsdl";
-              //  $factory = new Factory();
-              //  $client =  $factory->create(new Client(['headers' => ["Content-Type" => "text/xml;charset=utf-8"]]), $url); 
-                $REQUEST= ["PolicyNumber"=>$pno,'UserID'=>'webagg','Password'=>'webagg@123'];
-               // print_r($REQUEST);
-               // $_result = $client->call('GetPDF', [$REQUEST]);
-                
-               // $new = simplexml_load_string($_result);
-              // print_r($_result->GetPDFResult);
-               // $xml   = simplexml_load_string($_result->GetPDFResult, 'SimpleXMLElement', LIBXML_NOCDATA);
-              // $array = json_decode(json_encode((array)$xml), TRUE);
-               // print_r($xml);
-                //if(isset($_result->GetPDFResult) && $_result->GetPDFResult!=""){
-                    // if(isset($_result->GetPDFResult->any)){
-                    //     return  ['status'=>false,'filename'=>"",'message'=>$_result->GetPDFResult->any];
-                    // }else{
-                    // $filename = 'FGI_TW_'.$pno.'.pdf';
-                    // $filePath =$_result->GetPDFResult->any;
-                    // $ff = file_get_contents($filePath,true);
-                    // $file = getcwd()."/public/assets/customers/policy/pdf/".$fileName;
-                    // file_put_contents($file, $ff);
-                    // return  ['status'=>true,'filename'=>$fileName];
-                    
-                    
-                   //}
-               // }
+              $REQUEST= ["PolicyNumber"=>$pno,'UserID'=>config('motor.FGI.tw.userID'),'Password'=>config('motor.FGI.tw.Password')];
+               
                
                $this->soapWrapper->add('DataTable', function ($service) {
                       $service
-                        ->wsdl("http://fglpg001.futuregenerali.in/PDFDownload?wsdl")
+                        ->wsdl(config('motor.FGI.tw.policyPDF'))
                         ->trace(true);
                         // ->options([
                         //     'UserID' => 'webagg',
@@ -1844,7 +1818,7 @@ class FgiTwResource extends AppResource{
                    
                     // Without classmap
                     $response = $this->soapWrapper->call('DataTable.GetPDF', [$REQUEST]);
-                     //print_r($response->GetPDFResult->any);
+                     print_r($response->GetPDFResult->any);
                       $xmmll =  "<root>".$response->GetPDFResult->any."</root>";
                         $doc = new \DOMDocument();
                         $doc->preserveWhiteSpace = true;
