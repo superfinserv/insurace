@@ -136,7 +136,14 @@ $(document).ready(function() {
                     required: {
                             depends: function () { return ($('#nominee_relation').length>0)?true:false; }
                         },
+                },
+                customerPanNum :{
+                     required:  {
+                        depends: function () { return $('#customerPanNum').length>0; }
+                       },
+                    pan_no :true
                 }
+                
             },
          
         });
@@ -151,6 +158,7 @@ $(document).ready(function() {
                 carInfo.customer.mobile = $('#mobile').val();
                 carInfo.customer.dob = $('#dob').val();
                 carInfo.customer.gender = $("input[name='gender']:checked").val();
+                carInfo.customer.pan_no = ($('#customerPanNum').length)?$('#customerPanNum').val():"";
             }else{
                var customer = {} 
                 customer.salutation =  $('#salutation').val();
@@ -160,6 +168,7 @@ $(document).ready(function() {
                 customer.mobile = $('#mobile').val();
                 customer.dob = $('#dob').val();
                 customer.gender = $("input[name='gender']:checked").val();
+                customer.pan_no = ($('#customerPanNum').length)?$('#customerPanNum').val():"";
                 carInfo.customer = customer;
             }
             carInfo.vehicle.hypothecationAgency= $('#hypothecationAgency').val();
@@ -326,8 +335,7 @@ $(document).ready(function() {
                         depends: function () { return $('#previousInsurer').length>0; }
                     }
                 },
-                
-                
+               
                  TP_policyno: {
                     required: {
                         depends: function () { return $('#TP_policyno').length>0; }
@@ -368,6 +376,7 @@ $(document).ready(function() {
                  car_number: {
                     required: "Bike Registration number required!",
                 },
+                
                 policy_no: {
                     required: "Please enter policy number",
                 },
@@ -409,6 +418,7 @@ $(document).ready(function() {
                         carInfo.previousInsurance.policyNo = ($('#policy_no').length>0)?$('#policy_no').val():"";
                         carInfo.previousInsurance.insurer = ($('#previousInsurer').length>0)?$('#previousInsurer').val():"";
                         carInfo.previousInsurance.expDate = ($('#policy_exp_date').length>0)?$('#policy_exp_date').val():"";
+                        console.log($('#policy_exp_date').val());
                     }else{
                         carInfo.vehicle.rtoCode = carInfo.vehicle.rtoCode;
                     }

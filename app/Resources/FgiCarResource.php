@@ -747,7 +747,7 @@ class FgiCarResource extends AppResource{
                     				<InbuiltKit>N</InbuiltKit>
                     				<IVDOfCNGOrLPG></IVDOfCNGOrLPG>
                     			</CNGOrLPG>
-                    			<BodyType>SOLO</BodyType>
+                    			<BodyType>SALOON</BodyType>
                     			<EngineNo>".$preInfo->EngineNumber."</EngineNo>
                     			<ChassiNo>".$preInfo->ChassisNumber."</ChassiNo>
                     			<CubicCapacity>".$var->cubic_capacity."</CubicCapacity>
@@ -1519,7 +1519,7 @@ class FgiCarResource extends AppResource{
                     				<InbuiltKit>N</InbuiltKit>
                     				<IVDOfCNGOrLPG></IVDOfCNGOrLPG>
                     			</CNGOrLPG>
-                    			<BodyType>SOLO</BodyType>
+                    			<BodyType>SALOON</BodyType>
                     			<EngineNo>".$params['vehicle']['engineNumber']."</EngineNo>
                     			<ChassiNo>".$params['vehicle']['chassisNumber']."</ChassiNo>
                     			<CubicCapacity>".$var->cubic_capacity."</CubicCapacity>

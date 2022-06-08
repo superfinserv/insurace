@@ -331,7 +331,7 @@ class SuccessController extends Controller{
                 $saledData['getway_response']= json_encode($_REQUEST);
                  //https://superfinserv.co.in/moter-insurance/insured-success/bike/48daf5f2cbeb879468ea38d346f226f9?WS_P_ID=TP0000096531&TID=1k450629W9&PGID=403993715525903340&Premium=1471.00&Response=Success
                 // Array ( [WS_P_ID] => TP0000096531 [TID] => 1k450629W9 [PGID] => 403993715525903340 [Premium] => 1471.00 [Response] => Success ) 
-                // if($request->input('Response')=="Success"){
+                 if($request->input('Response')=="Success"){
                       $saledData['transaction_no'] =$request->input('WS_P_ID');
                       $saledData['payment_status'] = "Completed";
                       $saledData['amount'] = $request->input('Premium');
@@ -340,6 +340,15 @@ class SuccessController extends Controller{
                       $saledData['policy_no'] = $pdata['data'];
                       $saledData['policy_status'] = "Completed";
                    }
+                 }else{
+                     if($info->server=='AGENT_WEB'){
+                          $url = config('custom.posp_site_url').'/ policy/cancel/'.$request->enquiryID;
+                          return redirect($url);
+                      }else{
+                          return redirect('policy/cancel/'.$request->enquiryID);
+                      }
+                    
+                 }
                  
              }
              

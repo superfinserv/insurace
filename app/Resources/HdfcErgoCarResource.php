@@ -6,7 +6,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 use Meng\AsyncSoap\Guzzle\Factory;
 use Carbon\Carbon;
-
+use Auth;
 class HdfcErgoCarResource extends AppResource{ 
     
  
@@ -668,7 +668,7 @@ class HdfcErgoCarResource extends AppResource{
                }
                 
                 $request->PurchaseRegistrationDate = $regDate;
-                $request->PospCode = "";
+                $request->PospCode = (isset(Auth::guard('agents')->user()->id))?Auth::guard('agents')->user()->hdfcErgoCode:"";
                 
                 $plnTypeAddon = "";
                 // if($isCashAllowCover=='YES'){
@@ -740,7 +740,7 @@ class HdfcErgoCarResource extends AppResource{
                 )]
             );
             $result = $clientResp->getBody()->getContents();
-        //   print_r(json_encode($request));
+          //print_r(json_encode($request));
            //print_r($result);die;
             $response = json_decode($result);
            
@@ -1103,9 +1103,9 @@ class HdfcErgoCarResource extends AppResource{
        
         $customerDetails->EmailAddress=$params->customer->email;
         $customerDetails->MobileNumber= (int)$params->customer->mobile;
-        $customerDetails->PanCard= "";
+        $customerDetails->PanCard= isset($params->customer->pan_no)?$params->customer->pan_no:"";
        
-        $customerDetails->PospCode= "";
+        $customerDetails->PospCode= (isset(Auth::guard('agents')->user()->id))?Auth::guard('agents')->user()->hdfcErgoCode:"";
         $customerDetails->IsCustomerAuthenticated= "YES";
         $customerDetails->UidNo= "";
         $customerDetails->AuthentificationType= "OTP";
@@ -1152,7 +1152,10 @@ class HdfcErgoCarResource extends AppResource{
                 )]
             );
            $result = $clientResp->getBody()->getContents();
-           //print_r($result);
+         // print_r( json_encode(
+             //       $request
+             //   ));
+                //  print_r( $result);
            $response = json_decode($result);
            if($response->Status==200){
                 $txId = $response->Data->TransactionNo;
@@ -1233,7 +1236,7 @@ class HdfcErgoCarResource extends AppResource{
            }
     }
     
-    function  GetPostInspectionDetails($breakInId,$quoteNo){
+    function GetPostInspectionDetails($breakInId,$quoteNo){
             $request =  new \stdClass(); 
             if($breakInId!=""){
               $request->BreakinId = $breakInId;
@@ -1255,13 +1258,14 @@ class HdfcErgoCarResource extends AppResource{
            
            $result = $clientResp->getBody()->getContents();
            $response = json_decode($result);
+                  //  print_r($result);die;
            if($response->Status==200){
                 return ['status'=>true,'message'=>"",'data'=>$response->Data]; 
             }else{
                return ['status'=>false,'message'=>$response->Message->Inspection]; 
                
            }
-           //print_r($result);die;
+  
     }
     
     function GetPostInspectionCalculatePremium($enQId){
@@ -1271,12 +1275,13 @@ class HdfcErgoCarResource extends AppResource{
         $breakIn =  json_decode($enQ->breakInJson,true);
         $request = $this->fnQuoteRequest(json_decode($params,true));
         $brkIninfo = $this->GetPostInspectionDetails("",$breakIn['QuoteId']);
+       
         $request->PreviousInsurerId = $brkIninfo['data']->ProposalDetail->PreviousInsurerId;
         $request->PreviousPolicyEndDate = $brkIninfo['data']->ProposalDetail->PreviousPolicyEndDate;
         $request->UniqueRequestID = $jData->enq;
         $request->QuoteNo =  $breakIn['QuoteId'];
         $request->RtoLocationCode = $brkIninfo['data']->VehicleDetail->RtoLocationCode;
-            
+        $request->RequiredIDV =  $enQ->idv;
             $client = new Client([
                 'headers' => [ 'Content-Type' => 'application/json','MerchantKey'=>config('motor.HDFCERGO.car.mKey'),'SecretToken'=>config('motor.HDFCERGO.car.secretToken')]
             ]);
@@ -1288,20 +1293,28 @@ class HdfcErgoCarResource extends AppResource{
             );
            
            $result = $clientResp->getBody()->getContents();
-           // print_r($result);die;
-           $response = json_decode($result);
+            // print_r( json_encode(
+            //         $request
+            //     ));die;
+          $response = json_decode($result);
             if(isset($response->Status) && $response->Status==200 ){
-               $json_data = $this->getJsonData($result,json_decode($params,true));
-               $json_data->enq = $response->UniqueRequestID;
-               DB::table('app_quote')->where('enquiry_id',$enQId)->update(['json_data'=>json_encode($json_data)]);
+              $json_data = $this->getJsonData($result,json_decode($params,true));
+              $json_data->enq = $response->UniqueRequestID;
+              $cData =  ['netAmt'=>str_replace(',','',str_replace('INR','',$response->Data[0]->NetPremiumAmount)),
+                         'taxAmt'=>str_replace(',','',str_replace('INR','',$response->Data[0]->TaxAmount)),
+                         'grossAmt'=>str_replace(',','',str_replace('INR','',$response->Data[0]->TotalPremiumAmount)),
+                         'reqQuote'=>json_encode( $request),
+                         'respQuote'=>$result,
+                         'json_data'=>json_encode($json_data)];
+              DB::table('app_quote')->where('enquiry_id',$enQId)->update($cData);
                 return ['status'=>true,'message'=>"Success"]; 
             }else if($response->Status==400){
                 $msgs = $response->Message;
                 $msg = current($msgs);
                 return ['status'=>false,'message'=>$msg];
-           }else{
+          }else{
                  return ['status'=>false,'message'=>"Sometning went wrong , please try again later."]; 
-            }
+             }
     }
     
     function GetPostinspectionCreateProposal($enquiry_id){ 
@@ -1567,9 +1580,9 @@ class HdfcErgoCarResource extends AppResource{
         
         $customerDetails->EmailAddress=$options['customer']['email'];
         $customerDetails->MobileNumber= (int)$options['customer']['mobile'];
-        $customerDetails->PanCard= "";
+        $customerDetails->PanCard= isset($options['customer']['pan_no'])?$options['customer']['pan_no']:"";
        
-        $customerDetails->PospCode= "";
+        $customerDetails->PospCode= (isset(Auth::guard('agents')->user()->id))?Auth::guard('agents')->user()->hdfcErgoCode:"";
         $customerDetails->IsCustomerAuthenticated= "YES";
         $customerDetails->UidNo= "";
         $customerDetails->AuthentificationType= "OTP";
@@ -1616,7 +1629,7 @@ class HdfcErgoCarResource extends AppResource{
          // $auth['url'] = "https://uatcp.hdfcergo.com/TWOnline/ChannelPartner/SaveTransaction";
           if($city->hdfcErgoCode!=""){
         //  $result = $this->curlPost(json_encode($request),$auth);
-         // echo json_encode($request);
+        //  echo json_encode($request);
         //   die;
         
         
@@ -1639,18 +1652,30 @@ class HdfcErgoCarResource extends AppResource{
                     $QDATA = ['token'=>$txId,'req'=>json_encode($request),'resp'=>($result)];
                     $QDATA['startDate'] = isset($response->Data->NewPolicyStartDate)?$response->Data->NewPolicyStartDate:NULL;
                     $QDATA['endDate'] = isset($response->Data->NewPolicyEndDate)?$response->Data->NewPolicyEndDate:NULL;
+                    $QDATA['reqCreate'] =json_encode($request);
+                    $QDATA['respCreate']=$result;
                    DB::table('app_quote')->where('enquiry_id',$enquiry_id)->update($QDATA);
                    return ['status'=>true,'isBreakIn'=>false,'message'=>'Proposal Created successfully'];
 
            }else if($response->Status==500){
-                DB::table('app_quote')->where('enquiry_id',$enquiry_id)->update(['req'=>json_encode($request),'resp'=>($result)]);
+                DB::table('app_quote')->where('enquiry_id',$enquiry_id)->update([
+                                                                                 'reqCreate' =>json_encode($request),
+                                                                                 'respCreate'=>$result,
+                                                                                 'req'=>json_encode($request),
+                                                                                 'resp'=>($result)
+                                                                                ]);
                 return ['status'=>false,'message'=>$response->Message];
            }else if($response->Status==400){
                 //$rsp = json_decode($response);
                  $msgs = $response->Message;
                 //print_r($msgs);
                  $msg = current($msgs);
-                 DB::table('app_quote')->where('enquiry_id',$enquiry_id)->update(['req'=>json_encode($request),'resp'=>($result)]);
+                 DB::table('app_quote')->where('enquiry_id',$enquiry_id)->update([
+                                                                                 'reqCreate' =>json_encode($request),
+                                                                                 'respCreate'=>$result,
+                                                                                 'req'=>json_encode($request),
+                                                                                 'resp'=>($result)
+                                                                                ]);
                  return ['status'=>false,'message'=>$msg];
            }else {
                 return ['status'=>false,'message'=>'Sorry we are unable to process your request.'];

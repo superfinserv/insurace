@@ -246,6 +246,14 @@ input[type="email"]::-ms-input-placeholder,input[type="text"]:-ms-input-placehol
                                                      @endif
                                                 </div>
                                             </div>
+                                            @if($data->grossAmt>=100000)
+                                            <div class="col-md-6">    
+                                                 <div class="form-group">
+                                                    <label for="customerPanNum" style="width: 100%">PAN Number <span style="color: #b6b3b3;font-size: 12px;">*</span></label>    
+                                                     <input style="margin-bottom:0px;"type="text" name="customerPanNum" id="customerPanNum" class="form-control word-uppercase" placeholder="XXXPX0000X" value="<?=isset($params->vehicle->hypothecationAgency)?$params->customer->customerPanNum:'';?>"  autocomplete="off">
+                                                   </div>
+                                            </div>
+                                            @endif
                                         </div>
                                         @if($params->vehicle->policyHolder=='COR')
                                           <div class="row">
