@@ -73,9 +73,10 @@ $(document).ready(function() {
              var mn = d.getMonth();
              var regMonth = ("0" + (d.getMonth() + 1)).slice(-2);
              let tD =  parseInt(monthMaxDay[parseInt(mn)]);
-             if(parseInt(n)>tD){
-                n = tD.toString();
-            }
+               var n =  (("0" + (d.getDate())).slice(-2));
+            //  if(parseInt(n)>tD){
+            //     n = tD.toString();
+            // }
         }
             
          twInfo.vehicle.regDate = n;

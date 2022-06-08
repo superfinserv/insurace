@@ -13,6 +13,7 @@ use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
+
 use App\Resources\Signzy;
 use App\Resources\DigitCarResource;
 use App\Resources\HdfcErgoCarResource;
@@ -23,6 +24,16 @@ use App\VarientTw;
 class MotorInsurance extends Controller
 {
     public $uniqueToken;
+    
+    
+    function getToken(){
+            if(isset(Auth::guard('agents')->user()->id)){
+                $this->uniqueToken  = Auth::guard('agents')->user()->posp_ID;
+            }else{
+                $this->uniqueToken  = Auth::guard('customers')->user()->uniqueToken;
+            }
+            return $this->uniqueToken;
+    }
     
     public function __construct(DigitCarResource $DigitCarResource ,HdfcErgoCarResource $HdfcErgoCarResource,Signzy $Signzy){ 
            $this->DigitCar   = $DigitCarResource; 
@@ -339,9 +350,10 @@ class MotorInsurance extends Controller
     
       
     function loadidvModal(Request $request){
+        
          $SQL = DB::table('app_temp_quote')
                      ->select('idv','min_idv','max_idv','provider')
-                     ->where(['device'=>Auth::guard('customers')->user()->uniqueToken,'type'=>$request->type])->orderBy('id','DESC');
+                     ->where(['device'=>$this->getToken(),'type'=>$request->type])->orderBy('id','DESC');
              if(strtolower($request->type)=='car'){
                  $SQL->limit(2);
              }else{

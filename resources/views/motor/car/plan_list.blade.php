@@ -122,6 +122,7 @@ border: 1px solid #ac0f0b;
 padding: 1px 4px;
 line-height: 14px;
 border-radius: 2px;
+display: inline-block;
 }
 
 select {

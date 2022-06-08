@@ -13,7 +13,7 @@ function getInspectionInfo(enQId){
              $("#step2").addClass('active-step');
              $("#progress-step-1").removeClass('active').addClass('completed');
              $("#progress-step-2").addClass('active');
-             if($.trim(result.BreakInStatus)=='HDFCERGO'){
+             if($.trim(result.provider)=='HDFCERGO'){
                 reCalculatePremium(enQId);
              }else{
                 window.location.href=base_url+"/car-insurance/plan-summary/"+enQId;

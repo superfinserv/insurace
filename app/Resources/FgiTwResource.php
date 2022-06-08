@@ -416,6 +416,7 @@ class FgiTwResource extends AppResource{
             $res->isPreviousInsurerKnown = false;
             $res->hasPreClaim ="N";
             $res->preInsurerCode = "";
+            $res->preInsclientCode = "";
             $res->businessType   = "Rollover";
             $res->prePolicyNo ="";
             $res->isRollover ="Y";
@@ -552,11 +553,15 @@ class FgiTwResource extends AppResource{
             }
             
             if(isset($params['previousInsurance']['insurer']) && $params['previousInsurance']['insurer']!="0"){
-                if($res->businessType!="NEW")
-                $res->preInsurerCode = DB::table('previous_insurer')->where('id', $params['previousInsurance']['insurer'])->value('name');
+                if($res->businessType!="NEW"){
+                    $res->preInsclientCode = DB::table('previous_insurer')->where('id', $params['previousInsurance']['insurer'])->value('fgi');
+                    $res->preInsurerCode = DB::table('previous_insurer')->where('id', $params['previousInsurance']['insurer'])->value('name');
+                }
             }else{ 
-                if($res->businessType!="NEW")
-                $res->preInsurerCode = DB::table('previous_insurer')->where('type', 'GENERAL')->inRandomOrder()->limit(1)->value('name');
+                if($res->businessType!="NEW"){
+                  $res->preInsclientCode = DB::table('previous_insurer')->whereNotNull('fgi')->where('type', 'GENERAL')->inRandomOrder()->limit(1)->value('fgi');
+                  $res->preInsurerCode = DB::table('previous_insurer')->where('fgi', $res->preInsclientCode)->value('name');
+                }
             }
             if($params['previousInsurance']['policyType']=='TP'){
                 $res->ncbPercent =0; 
@@ -807,30 +812,7 @@ class FgiTwResource extends AppResource{
                     				<NPAAppinteeName></NPAAppinteeName>
                     				<NPAAppinteeRel></NPAAppinteeRel>
                     			</NPA>
-                        		<ZNCBRSRCV></ZNCBRSRCV>
-                        		<ZNOFEMPLY></ZNOFEMPLY>
-                        		<ZLMTPERPD></ZLMTPERPD>
-                        		<ZADDLPAPD></ZADDLPAPD>
-                        		<ZTPPER></ZTPPER>
-                        		<ZCMPTPPA></ZCMPTPPA>
-                        		<ZLMTTPPD></ZLMTTPPD>
-                        		<ZPREMISE></ZPREMISE>
-                        		<ZVINTAGE></ZVINTAGE>
-                        		<XCESSLAB></XCESSLAB>
-                        		<XCESCDE></XCESCDE>
-                        		<ZSCARSI></ZSCARSI>
-                        		<ZSCARIND></ZSCARIND>
-                        		<ZAANO></ZAANO>
-                        		<ZEMBASSY></ZEMBASSY>
-                        		<ZSPECRAL></ZSPECRAL>
-                        		<ZRALTRAIL></ZRALTRAIL>
-                        		<ZDRVTTN></ZDRVTTN>
-                        		<EXPDTE></EXPDTE>
-                        		<ZOVRTFLG></ZOVRTFLG>
-                        		<ZIMT44ID></ZIMT44ID>
-                        		<ZPAPDPRM></ZPAPDPRM>
-                        		<ZNOPPM></ZNOPPM>
-                        		<ZIMT34ID></ZIMT34ID>
+                        		
                         	</AdditionalBenefit>
                     		<AddonReq>{{HAS_ADDONS}}</AddonReq>
                     		{{ADDONS}}
@@ -852,7 +834,7 @@ class FgiTwResource extends AppResource{
                     			    <PolicyNo>".$damiPolicyNo."</PolicyNo>
                                     <InsuredName>".$preInfo->preInsurerCode."</InsuredName>
                     				<PreviousPolExpDt>".$preInfo->expDate."</PreviousPolExpDt>
-                    				<ClientCode>40062645</ClientCode>
+                    				<ClientCode>".$preInfo->preInsclientCode."</ClientCode>
                     				<Address1>".$_city."</Address1>
                     				<Address2>".$_city."</Address2>
                     				<Address3>".$_city."</Address3>
@@ -970,7 +952,8 @@ class FgiTwResource extends AppResource{
             $result = $client->call('CreatePolicy', [["Product"=>"Motor","XML"=>$XML]]);
             $xml   = simplexml_load_string($result->CreatePolicyResult, 'SimpleXMLElement', LIBXML_NOCDATA);
             $array = json_decode(json_encode((array)$xml), TRUE);
-          //print_r($result);die;
+        // echo $XML;
+         //   print_r($result);die;
             
               
             if(isset($array['Policy'])){
@@ -1624,7 +1607,7 @@ class FgiTwResource extends AppResource{
                     			    <PolicyNo>".$preInfo->prePolicyNo."</PolicyNo>
                                     <InsuredName>".$preInfo->preInsurerCode."</InsuredName>
                     				<PreviousPolExpDt>".$preInfo->expDate."</PreviousPolExpDt>
-                    				<ClientCode>40062645</ClientCode>
+                    				<ClientCode>".$preInfo->preInsclientCode."</ClientCode>
                     				<Address1>".$_city."</Address1>
                     				<Address2>".$_city."</Address2>
                     				<Address3>".$_city."</Address3>
