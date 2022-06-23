@@ -4,13 +4,17 @@ $(function(){
     
      $(document).on('click', '.agent-hdfc-btn', function (e) { 
          e.preventDefault();
+          var _this = $(this);
+           
           $('#hdfc_id-error').remove();
          var hdfc_id = $('#hdfc_id').val();
          if(hdfc_id!=""){
-             $('.agent-hdfc-btn').loadButton('on',{ faClass:'fa',faIcon:'fa-spinner clr', doSpin:true, loadingText:''});
-            
+            // $('.agent-hdfc-btn').loadButton('on',{ faClass:'fa',faIcon:'fa-spinner clr', doSpin:true, loadingText:''});
+            _this.find('.fas').removeClass('fa-check');
+           _this.find('.fas').addClass("fa-circle-notch fa-spin");
             $.post(base_url+'/agent/update/otherInfo',{hdfc_id:hdfc_id,_agent:$('#_agent').val()},function(result){
-                $(".agent-hdfc-btn").loadButton('off');
+                 _this.find('.fas').removeClass("fa-circle-notch fa-spin");
+                      _this.find('.fas').addClass('fa-check');
                if($.trim(result.status)=='success'){
                    $('.agent-other-notify')._success(result.message); 
                 }else{
@@ -86,11 +90,18 @@ $(function(){
      $(document).on('click', '.agentSpMapBtn', function (e) { 
          e.preventDefault();
           $('#sp_id-error').remove();
+           var _this = $(this);
+          
          var spId = $('#sp_id').val();
-         if(spId!=""){
-            $('.agentSpMapBtn').loadButton('on',{ faClass:'fa',faIcon:'fa-spinner', doSpin:true, loadingText:''});
+         
+         if(spId!==""){
+              _this.find('.fas').removeClass('fa-check');
+           _this.find('.fas').addClass("fa-circle-notch fa-spin");
+           // $('.agentSpMapBtn').loadButton('on',{ faClass:'fa',faIcon:'fa-spinner', doSpin:true, loadingText:''});
                 $.post(base_url+'/agent/update/otherInfo',{sp_id:spId,_agent:$('#_agent').val()},function(result){
-                    $(".agentSpMapBtn").loadButton('off');
+                   
+                      _this.find('.fas').removeClass("fa-circle-notch fa-spin");
+                      _this.find('.fas').addClass('fa-check');
                     if($.trim(result.status)=='success'){
                        $('.agent-other-notify')._success(result.message); 
                     }else{

@@ -953,7 +953,7 @@ class FgiTwResource extends AppResource{
             $xml   = simplexml_load_string($result->CreatePolicyResult, 'SimpleXMLElement', LIBXML_NOCDATA);
             $array = json_decode(json_encode((array)$xml), TRUE);
         // echo $XML;
-         //   print_r($result);die;
+       //   print_r($result);die;
             
               
             if(isset($array['Policy'])){
@@ -1007,23 +1007,24 @@ class FgiTwResource extends AppResource{
             }
             }catch (ConnectException $e) {
                 $response = $e->getResponse();
-                $responseBodyAsString = $response->getBody()->getContents();
-                $jsonRes = json_decode($responseBodyAsString);
+               // $responseBodyAsString = $response->getBody()->getContents();
+               // $jsonRes = json_decode($responseBodyAsString);
               
                 return ['status' => false,'plans'=>[], 'message' => "ConnectException"];
             }catch (RequestException $e) {
                 $response = $e->getResponse();
-                $responseBodyAsString = $response->getBody()->getContents();
-                 return ['status' => false,'plans'=>[], 'message' => 'RequestException'];
+               // print_r($response);
+               // $responseBodyAsString = $response->getBody()->getContents();
+               return ['status' => false,'plans'=>[], 'message' => 'RequestException'];
             }catch (ClientException $e) {
                 $response = $e->getResponse();
-                $responseBodyAsString = $response->getBody()->getContents();
-                $jsonRes = json_decode($responseBodyAsString);
+               // $responseBodyAsString = $response->getBody()->getContents();
+               // $jsonRes = json_decode($responseBodyAsString);
                 return ['status' =>false, 'plans'=>[],'message' => "ClientException"];
             }catch (ErrorException $e) {
                 $response = $e->getResponse();
-                $responseBodyAsString = $response->getBody()->getContents();
-                $jsonRes = json_decode($responseBodyAsString);
+                //$responseBodyAsString = $response->getBody()->getContents();
+               // $jsonRes = json_decode($responseBodyAsString);
                 return ['status' =>false, 'plans'=>[],'message' => "ErrorException"];
             }
        }
@@ -1158,18 +1159,18 @@ class FgiTwResource extends AppResource{
             }
         }catch (ConnectException $e) {
                 $response = $e->getResponse();
-                $responseBodyAsString = $response->getBody()->getContents();
-                $jsonRes = json_decode($responseBodyAsString);
+                //$responseBodyAsString = $response->getBody()->getContents();
+                //$jsonRes = json_decode($responseBodyAsString);
               
                 return ['status' => false,'plans'=>[], 'message' => "ConnectException"];
             }catch (RequestException $e) {
                 $response = $e->getResponse();
-                $responseBodyAsString = $response->getBody()->getContents();
+                //$responseBodyAsString = $response->getBody()->getContents();
                  return ['status' => false,'plans'=>[], 'message' => 'RequestException'];
             }catch (ClientException $e) {
                 $response = $e->getResponse();
-                $responseBodyAsString = $response->getBody()->getContents();
-                $jsonRes = json_decode($responseBodyAsString);
+               // $responseBodyAsString = $response->getBody()->getContents();
+                //$jsonRes = json_decode($responseBodyAsString);
                 return ['status' =>false, 'plans'=>[],'message' => "ClientException"];
             }
     }

@@ -221,6 +221,7 @@ Route::get('/clear-cache', function() {
         Route::get('/vehicles/pvt-car/export','Admin\VehiclesController@exportPvtCar'); //Excel export
         
         Route::get('hdfc-vehicles-models/{param}', 'Admin\VehiclesController@hdfcModelData');
+        Route::get('fgi-vehicles-models/{param}', 'Admin\VehiclesController@FgiModelData');
         
           Route::get('rto-master', 'Admin\RtoController@index');
           
@@ -235,10 +236,10 @@ Route::get('/clear-cache', function() {
         // Route::post('/vehicle/image/upload/{param}', 'Admin\VehiclesController@uploadFiles');
         
         
-        // Route::get('/vehicles/make/sortable/', 'Admin\VehiclesController@sortableMake');
-        // Route::post('/vehicles/update/make/serial-number/', 'Admin\VehiclesController@updateMakeSerialNumber');
-        // Route::get('/vehicles/modal/sortable/{make}', 'Admin\VehiclesController@sortableModals');
-        // Route::post('/vehicles/update/modal/serial-number/{make}', 'Admin\VehiclesController@updateModalSerialNumber');
+         Route::get('/vehicles/make/sortable/{vtype}', 'Admin\VehiclesController@sortableMake');
+         Route::post('/vehicles/update/make/serial-number/{vtype}', 'Admin\VehiclesController@updateMakeSerialNumber');
+         Route::get('/vehicles/modal/sortable/{make}/{vtype}', 'Admin\VehiclesController@sortableModals');
+         Route::post('/vehicles/update/modal/serial-number/{make}/{vtype}', 'Admin\VehiclesController@updateModalSerialNumber');
         
         
         // Route::get('vehicle/brands', 'Admin\VehiclesController@brands');

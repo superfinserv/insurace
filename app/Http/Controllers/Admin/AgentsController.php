@@ -326,7 +326,7 @@ public function exportExcel()   {
     
      public function editotherInformations(Request $request){
         $agentData = Agents::select('*')->where('id',$request->id)->first(); 
-         $sps = DB::table('users')->where('role',3)->get();
+        $sps = DB::table('agents')->where('userType','SP')->get();
          
         $template = ['title' => 'Agents',"subtitle"=>"Training Details",'agentData'=>$agentData,'sps'=>$sps,
                      'scripts'=>[asset('admin/js/page/agent-otherinfo.js')]];
@@ -354,28 +354,28 @@ public function exportExcel()   {
      }
      
     
-    //  public function otherInfoupdate(Request $request){
-    //      $data = Agents::find($request->_agent);
-    //      $spVal = $data->mapped_sp;
-    //      if(isset($request->sp_id)){       $data->mapped_sp = $request->sp_id; $message="Specified Person updated successfully";}
-    //      else if(isset($request->hdfc_id)){  $data->hdfc_id = $request->hdfc_id; $message="HDFC ID updated successfully";}
+     public function otherInfoupdate(Request $request){
+         $data = Agents::find($request->_agent);
+         $spVal = $data->mapped_sp;
+         if(isset($request->sp_id)){       $data->mapped_sp = $request->sp_id; $message="Specified Person updated successfully";}
+         else if(isset($request->hdfc_id)){  $data->hdfc_id = $request->hdfc_id; $message="HDFC ID updated successfully";}
          
-    //      if(isset($request->sp_id)){ 
-    //          $sp = DB::table('users')->where('id',$request->sp_id)->first();
-    //          if($spVal==""){
-    //             userLog(['user_id'=>$request->_agent,'type'=>"POSP",'action'=>"SP_ASSIGNED",'message'=>$sp->name." has been assigned as Relationship Manager.",'created_at'=>date('Y-m-d H:i:s')]);
-    //          }else if($spVal!=$request->sp_id){
-    //              userLog(['user_id'=>$request->_agent,'type'=>"POSP",'action'=>"SP_ASSIGNED",'message'=>$sp->name." has been re-assigned as Relationship Manager.",'created_at'=>date('Y-m-d H:i:s')]); 
-    //          }    
+         if(isset($request->sp_id)){ 
+             $sp = DB::table('agents')->where('id',$request->sp_id)->first();
+             if($spVal==""){
+                userLog(['user_id'=>$request->_agent,'type'=>"POSP",'action'=>"SP_ASSIGNED",'message'=>$sp->name." has been assigned as Relationship Manager.",'created_at'=>date('Y-m-d H:i:s')]);
+             }else if($spVal!=$request->sp_id){
+                 userLog(['user_id'=>$request->_agent,'type'=>"POSP",'action'=>"SP_ASSIGNED",'message'=>$sp->name." has been re-assigned as Relationship Manager.",'created_at'=>date('Y-m-d H:i:s')]); 
+             }    
              
-    //       }
+          }
          
-    //       if($data->save()){
-    //           return Response::json(array('status'=>'success','message'=>$message));
-    //       }else{
-    //           return Response::json(array('status'=>'error','message'=>"Something went wrong while information"));
-    //       }
-    // }
+          if($data->save()){
+              return Response::json(array('status'=>'success','message'=>$message));
+          }else{
+              return Response::json(array('status'=>'error','message'=>"Something went wrong while information"));
+          }
+    }
     
      public function sendTranningcrd(Request $request){
          $agent = Agents::find($request->_agent);

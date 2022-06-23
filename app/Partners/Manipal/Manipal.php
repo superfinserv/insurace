@@ -48,7 +48,7 @@ class Manipal {
                        $data=['enq'=>$enqID,'amount'=> $dataParam->amount,  'proposalNum'=>"",'applicationID'=>$result->applicationNumber,
                               'quotationPremium'=>$dataParam->amount
                               ];
-                        if($Querydata->product=="RPRT06SBSF"){ //Prohealth Protect     
+                        if($Querydata->product=="Protect" ){ //Prohealth Protect     
                               $res = $this->protect->validateProposal($enqID);
                               if($res['status']){
                                 return ['status'=>'success','data'=>$data];
@@ -103,8 +103,8 @@ class Manipal {
                     $mProtect = $this->protect->calculatePremium($params,$sum,$sumInsured,$devicetoken,$policytyp);
                     if($mProtect['status']){$count++; $_plans[] =$mProtect['data'];}
                     
-                    $mPlus = $this->plus->calculatePremium($params,$sum,$sumInsured,$devicetoken,$policytyp);
-                    if($mPlus['status']){$count++; $_plans[] =$mPlus['data'];}
+                  $mPlus = $this->plus->calculatePremium($params,$sum,$sumInsured,$devicetoken,$policytyp);
+                  if($mPlus['status']){$count++; $_plans[] =$mPlus['data'];}
                   
             }//foreach Range
            
@@ -124,7 +124,7 @@ class Manipal {
     function recalculateQuickPlan($enqId,$termYear,$sum,$_zone,$addOn){ 
           
           $enQproduct = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enqId)->value('product');
-          if($enQproduct=="RPRT06SBSF"){
+          if($enQproduct=="Protect"){//if($enQproduct=="RPRT06SBSF" || $enQproduct=="RPRT06POSSF" ){
                $this->protect->recalculatePremium($enqId,$termYear,$sum,$_zone,$addOn);
           }else{
                $this->plus->recalculatePremium($enqId,$termYear,$sum,$_zone,$addOn);
@@ -132,16 +132,18 @@ class Manipal {
       }
       
     function saveProposalData($enqID,$quoteId,$proposalNum,$txnid,$amount){ 
-              $enQproduct = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enqID)->value('product');
-              if($enQproduct=="RPRT06SBSF"){
+               $enQproduct = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enqID)->value('product');
+             if($enQproduct=="Protect"){ //if($enQproduct=="RPRT06SBSF" || $enQproduct=="RPRT06POSSF" ){
                    $this->protect->saveProposal($enqID,$quoteId,$proposalNum,$txnid,$amount);
               }else{
                    $this->plus->saveProposal($enqID,$quoteId,$proposalNum,$txnid,$amount);
               }
        }
        
-    function GetPolicyInfo($pno){
-        $listofPolicyDetailsTO[]  = ['policyNum'=>$pno];
+    function GetPolicyInfo($applicationID){
+         //$listofPolicyDetailsTO[]  = ['policyNum'=>$pno];
+         $listofPolicyDetailsTO[]  = ["policyNum"=>"",'applicationID'=>$applicationID];
+        
          $REQUEST = ["listofPolicyDetailsTO"=>$listofPolicyDetailsTO];
         
           $client = new Client([
@@ -156,17 +158,20 @@ class Manipal {
             $_result=json_decode($response);
          
          
-         //  print_r($_result);
+          // print_r($_result);
        //  if(isset($_result->errorList)){
            
                  if($_result->errorList==null || $_result->errorList==""){
                      $statusCd  = $_result->listofPolicyDetailsTO[0]->statusCd;
                      $caseType  = $_result->listofPolicyDetailsTO[0]->caseType;
                      $recptId   = $_result->listofPolicyDetailsTO[0]->inwardDOList[0]->receiptId;
-                     if($statusCd=="Pending"){
-                         $_result = ['status'=>'pending','message'=>'Policy is under issuance. Please try downloading after some time','receipt'=>$recptId];
+                     $policyNum  = $_result->listofPolicyDetailsTO[0]->policyNum;
+                     if($statusCd=="Enforced"){
+                         DB::table('policy_saled')->where(['proposalNumber'=>$applicationID])->update(['policy_no'=>$policyNum,'policy_status'=>'Completed']);
+                         $_result = ['status'=>'success','message'=>'Policy Generated successfully','receipt'=>$recptId,'policy_no'=>$policyNum,];
                      }else{
-                         $_result = ['status'=>'success' ,'receipt'=>$recptId];
+                         $_result = ['status'=>'pending','message'=>'Policy is under issuance. Please try downloading after some time','receipt'=>$recptId];
+                        
                      }
                  }else{
                       $_result = ['status'=>'error','message'=>$_result->errorList[0]->errDescription];
@@ -179,9 +184,10 @@ class Manipal {
     }
     
     function GetPDF($pno,$data,$f=false){
-       $policy =  $this->GetPolicyInfo($pno);
+       
        //print_r($policy);die;
        $json = json_decode($data->json_data);
+       $policy =  $this->GetPolicyInfo($data->proposalNumber);
        $params = ($f)?json_decode($data->params):json_decode($data->params_request);
        $policyno = base64_encode($pno);
        $username = base64_encode(config('mediclaim.MANIPAL.baseAgentId'));//1607112-01

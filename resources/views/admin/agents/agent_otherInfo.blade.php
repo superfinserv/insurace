@@ -22,7 +22,7 @@
                             <div class="input-group">
                             <input type="text" style="border-radius: 0px;" class="form-control" id="hdfc_id" name="hdfc_id" value="{{$agentData->hdfc_id}}" placeholder="Enter HDFC User id">
                             <span class="input-group-btn">
-                              <button style="border-radius: 0;border-left: none;background-color: red;" class="btn bd bg-danger tx-gray-600 agent-hdfc-btn" type="button"><i class="fa fa-check"></i></button>
+                              <button style="border-radius: 0;border-left: none;background-color: red;" class="btn bd bg-danger tx-gray-600 agent-hdfc-btn" type="button"><i class="fas fa-check"></i></button>
                             </span>
                           </div>
                          </div>
@@ -39,7 +39,7 @@
                                          @endforeach
                                   </select>
                             <span class="input-group-btn">
-                              <button class="btn bd bg-white tx-gray-600 agentSpMapBtn" type="button"><i class="fa fa-check"></i></button>
+                              <button class="btn bd bg-white tx-gray-600 agentSpMapBtn" type="button"><i class="fas fa-check"></i></button>
                             </span>
                           </div>
                          </div>

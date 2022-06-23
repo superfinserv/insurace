@@ -352,7 +352,7 @@ if(!function_exists('getMailSmsInfo')){
                 $cc->name = false;
                 $cc->email = false;
                 if($agent->mapped_sp!=""){
-                   $sp =  DB::table("users")->where(['id'=>$agent->mapped_sp])->first();
+                   $sp =  DB::table("agents")->where(['id'=>$agent->mapped_sp])->first();
                    $cc->status = true;
                    $cc->name = $sp->name;
                    $cc->email = $sp->email;

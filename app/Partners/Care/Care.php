@@ -159,6 +159,7 @@ class Care {
                  
                   $response = $clientResp->getBody()->getContents();
                   $output = json_decode($response);
+                 // echo json_encode($req);
                 // print_r($response);die;
                   if(isset($output->responseData->status) && $output->responseData->status==1){
                       $decoded = base64_decode($output->intFaveoGetPolicyPDFIO->dataPDF);

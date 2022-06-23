@@ -214,15 +214,22 @@
                                  <td style="color: #000;">{{$jd->title}}</td>
                              </tr>
                              <tr>
-                                 <td>Sum Insured</td>
+                                 <td>Sum Insured:</td>
                                  <td style="color: #000;">{{$jd->sumInsured}} Lakhs</td>
                              </tr>
                               
                              @endif
                              <tr>
-                                 <td>Transaction No</td>
+                                 <td>Transaction No:</td>
                                  <td style="color: #000;">#<?=$trno;?></td>
                              </tr>
+                             @if($data->provider=='MANIPAL_CIGNA')
+                             
+                              <tr>
+                                 <td>Proposal No. :</td>
+                                 <td style="color: #000;">{{$data->proposalNumber}}</td>
+                             </tr>
+                             @endif
                               <tr>
                                  <td>Policy Number:</td>
                                  @if($data->policy_status=='Pending')
