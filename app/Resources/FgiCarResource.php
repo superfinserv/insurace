@@ -608,7 +608,7 @@ class FgiCarResource extends AppResource{
              if($productCode->cover=="OD"){ 
                  $period = $this->timePeriod('d/m/Y',1 );
              }else{
-                 $period = $this->timePeriod('d/m/Y',5 );
+                 $period = $this->timePeriod('d/m/Y',3 );
              }
              $damiPolicyNo ="";
          }
@@ -899,7 +899,7 @@ class FgiCarResource extends AppResource{
         
         if((isset($subcovers['isPA_OwnerDriverCover']) && $subcovers['isPA_OwnerDriverCover']=='true')){ 
                   if($options['planType']=="TP" && $preInfo->businessType=="NEW"){
-                           $PA_OWNER =5;
+                           $PA_OWNER =3;
                       }else{ 
                            $paCoverVal = isset($optionValues['PA_OwnerDriverCoverval'])?$optionValues['PA_OwnerDriverCoverval']:1;
                            $PA_OWNER = ($preInfo->businessType=="NEW")?$paCoverVal:"";
@@ -970,8 +970,8 @@ class FgiCarResource extends AppResource{
             $result = $client->call('CreatePolicy', [["Product"=>"Motor","XML"=>$XML]]);
             $xml   = simplexml_load_string($result->CreatePolicyResult, 'SimpleXMLElement', LIBXML_NOCDATA);
             $array = json_decode(json_encode((array)$xml), TRUE);
-            print_r($XML);
-            print_r($result);die;
+          //  print_r($XML);
+           // print_r($result);die;
               
             if(isset($array['Policy'])){
                   $policy = $array['Policy'];
@@ -979,7 +979,7 @@ class FgiCarResource extends AppResource{
                 if($policy['Status']=="Successful"){
                     $partner = DB::table('our_partners')->where('shortName','FGI')->value('name');
                     $json_data = $this->getJsonData($options,$response,$preInfo);
-                    $enq = "QT-TW-".time().mt_rand();
+                    $enq = "QT-FW-".time().mt_rand();
                     
                       $plan['title'] = $partner;
                       $plan['grossamount'] = $json_data->gross;
@@ -992,7 +992,7 @@ class FgiCarResource extends AppResource{
                       $Inuptxml   = simplexml_load_string($XML, 'SimpleXMLElement', LIBXML_NOCDATA);
                       $Inuptxml = json_decode(json_encode((array)$Inuptxml), TRUE);
                       
-                      $quoteData = ['quote_id'=>$enq,'type'=>'BIKE','title'=>$partner,
+                      $quoteData = ['quote_id'=>$enq,'type'=>'CAR','title'=>$partner,
                                     'device'=>$deviceToken,'provider'=>'FGI',
                                     'policyType'=>$options['planType'],
                                     'min_idv'=>$policy['VehicleIDV'],
@@ -1059,7 +1059,7 @@ class FgiCarResource extends AppResource{
         
         if((isset($options['isPA_OwnerDriverCover']) && $options['isPA_OwnerDriverCover']=='true')){ 
                   if($params['planType']=="TP" && $preInfo->businessType=="NEW"){
-                        $PA_OWNER =5;
+                        $PA_OWNER =3;
                       }else{ 
                            $paCoverVal = isset($optionValues['PA_OwnerDriverCoverval'])?$optionValues['PA_OwnerDriverCoverval']:1;
                            $PA_OWNER = ($preInfo->businessType=="NEW")?$paCoverVal:"";
@@ -1137,7 +1137,7 @@ class FgiCarResource extends AppResource{
                 if($policy['Status']=="Successful"){
                     $partner = DB::table('our_partners')->where('shortName','FGI')->value('name');
                     $json_data = $this->getJsonData($options,$response,$preInfo);
-                    $enq = "QT-TW-".time().mt_rand();
+                    $enq = "QT-FW-".time().mt_rand();
                     
                       $plan['title'] = $partner;
                       $plan['grossamount'] = $json_data->gross;
@@ -1150,7 +1150,7 @@ class FgiCarResource extends AppResource{
                       $Inuptxml   = simplexml_load_string($XML, 'SimpleXMLElement', LIBXML_NOCDATA);
                       $Inuptxml = json_decode(json_encode((array)$Inuptxml), TRUE);
                       
-                      $quoteData = ['quote_id'=>$enq,'type'=>'BIKE','title'=>$partner,
+                      $quoteData = ['quote_id'=>$enq,'type'=>'CAR','title'=>$partner,
                                     'device'=>$deviceToken,'provider'=>'FGI',
                                     'policyType'=>$params['planType'],
                                     'min_idv'=>$policy['VehicleIDV'],
@@ -1207,7 +1207,7 @@ class FgiCarResource extends AppResource{
                 $optionValues = $params['coverValues'];
                     if((isset($options['isPA_OwnerDriverCover']) && $options['isPA_OwnerDriverCover']=='true')){ 
                           if($params['planType']=="TP" && $preInfo->businessType=="NEW"){
-                                $PA_OWNER =5;
+                                $PA_OWNER =3;
                               }else{ 
                                    $paCoverVal = isset($optionValues['PA_OwnerDriverCoverval'])?$optionValues['PA_OwnerDriverCoverval']:1;
                                    $PA_OWNER = ($preInfo->businessType=="NEW")?$paCoverVal:"";
@@ -1355,7 +1355,7 @@ class FgiCarResource extends AppResource{
          //$expDate = createFormatDate($params['previousInsurance']['expDate'],'d-m-Y','d/m/Y');
          //$startDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->addDays()->format('Y-m-d');
          
-         $var = DB::table('vehicle_variant_tw')->where('id',$params['vehicle']['varient']['id'])->first();
+         $var = DB::table('vehicle_variant_car')->where('id',$params['vehicle']['varient']['id'])->first();
     
          $pincode =  $params['address']['pincode'];
          $_city   =  strtoupper(explode("-",$params['address']['state'])[1]);
@@ -1837,7 +1837,7 @@ class FgiCarResource extends AppResource{
                     $PDF = $DocumentElement['PDF'];
                         if(isset($PDF['PDFBytes'])){
                             $PDFBytes = $PDF['PDFBytes'];
-                            $fileName = "FGI-TW-".$pno.".pdf";
+                            $fileName = "FGI-FW-".$pno.".pdf";
                             $filePath1 = base64_decode($PDFBytes);
                              $file1 = getcwd()."/public/assets/customers/policy/pdf/".$fileName;
                             file_put_contents($file1, $filePath1);

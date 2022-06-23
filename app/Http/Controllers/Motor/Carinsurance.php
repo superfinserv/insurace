@@ -234,7 +234,7 @@ class Carinsurance extends Controller
             }else{
                 return response()->json(['status'=>'error','message'=>"Error while recalculating premium.",'data'=>[]]);
             }
-        }else if($Q->provider=="HDFCERGO"){
+        }else if($Q->provider=="HDFCERGO" || $Q->provider=="FGI" ){
                 $enquiryId = md5(uniqid(rand(), true));
                 $temp =   DB::table('app_temp_quote')->where('quote_id',$request->id)->first();
                 $json_data = json_decode($temp->json_data);//$this->DigitCar->getJsonData($temp->response);
@@ -371,6 +371,13 @@ class Carinsurance extends Controller
                 }else{
                     $result = ['status'=>'error','message'=>$resp['message'],'data'=>[]];
                 }
+             }else if($data->provider=='FGI'){
+                 $resp = $this->FgiCar->createQuote($request->enc,json_decode($data->params_request));
+                if($resp['status']){
+                     $result = ['status'=>'success','message'=>'Proposal Created successfully','data'=>['enc'=>$request->enc]];
+                }else{
+                    $result = ['status'=>'error','message'=>$resp['message'],'data'=>[]];
+                }
              }else{
                   $result  =['status'=>'error','message'=>'Unkonwn insurer found!','data'=>[]];
              }
@@ -394,6 +401,27 @@ class Carinsurance extends Controller
               $hashSequence = config('motor.HDFCERGO.car.mKey')."|".$txid."|".config('motor.HDFCERGO.car.secretToken')."|S001";
               $template['checkSum'] = strtoupper(hash('sha512', $hashSequence));
               $template['paymetAction'] = config('motor.HDFCERGO.car.paymentGateway');
+         }else if($template['info']->provider=='FGI'){
+               $jsonData = json_decode($template['info']->json_data);
+               $paramData = json_decode($template['info']->params_request);
+               $template['TransactionID']= $template['info']->token;
+               $template['PaymentOption']= 3;
+               $template['ResponseURL'] = config('custom.site_url').'/moter-insurance/insured-success/car/'.$enquiryID;
+               $template['ProposalNumber'] =$enquiryID;
+               $template['PremiumAmount']  = $jsonData->gross;
+               $template['UserIdentifier'] = $paramData->customer->first_name." ".$paramData->customer->last_name;
+               $template['UserId'] = $paramData->customer->mobile;
+               $template['FirstName'] =$paramData->customer->first_name;
+               $template['LastName'] = $paramData->customer->last_name;
+               $template['Mobile'] =$paramData->customer->mobile;
+               $template['Email'] =$paramData->customer->email;
+               $template['Vendor'] =1;
+              //TransactionID|PaymentOption|ResponseURL|ProposalNumber|PremiumAmount|UserIdentifier|UserId|FirstName|LastName|Mobile|Email|
+              $hashSequence=$template['info']->token."|".$template['PaymentOption']."|".$template['ResponseURL']."|".$enquiryID."|".$jsonData->gross."|".$template['UserIdentifier']."|".$template['UserId']."|".$template['FirstName']."|".$template['LastName']."|".$template['Mobile']."|".$template['Email']."|";
+             // $hashSequence = config('motor.HDFCERGO.tw.mKey')."|".$txid."|".config('motor.HDFCERGO.tw.secretToken')."|S001";
+              $template['checkSum'] = $this->FgiCar->Generatehash256($hashSequence);
+              $template['paymetAction'] = config('motor.FGI.car.payment');
+              //$template['paymetAction'] ="https://online.futuregenerali.in/ECOM_NL/WEBAPPLN/UI/Common/webaggpay.aspx";
          }
          return View::make('motor.car.plan_summary')->with($template);
     }

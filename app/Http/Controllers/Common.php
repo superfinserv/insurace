@@ -145,6 +145,7 @@ class Common extends Controller{
          }else if($request->type=="customer-uploaded-doc"){
              $filepath =public_path()."/assets/customers/pre-policy-doc/";
          }
+     //    echo $filepath;
         if(File::exists($filepath.$request->file)) {
           
         //   $F = (explode(".",$request->file));

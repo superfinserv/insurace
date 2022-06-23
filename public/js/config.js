@@ -19,6 +19,11 @@ $(document).ready(function() {
     $.validator.addMethod("chars", function (value, element) {
         return this.optional(element) || /^[a-zA-Z]*$/i.test(value);
     }, "Please choise a username with only a-z A-Z.");
+    
+    
+     $.validator.addMethod("addrs", function (value, element) {
+        return this.optional(element) || /^[ A-Za-z0-9.,/#&+-]*$/i.test(value); 
+    }, "Please choise a username with only a-z A-Z.");
 
     $.validator.addMethod("isValidNumber", function(value1, element1) {
             var pan_value = value1.toUpperCase();

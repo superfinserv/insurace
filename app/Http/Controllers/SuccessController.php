@@ -17,6 +17,7 @@ use App\Resources\DigitBikeResource;
 use App\Resources\HdfcErgoTwResource;
 use App\Resources\HdfcErgoCarResource;
 use App\Resources\FgiTwResource;
+use App\Resources\FgiCarResource;
 
 use App\Partners\Care\Care;
 use App\Partners\Manipal\Manipal;
@@ -32,6 +33,7 @@ class SuccessController extends Controller{
        $this->HdfcErgoTwResource =  new HdfcErgoTwResource;
        $this->HdfcErgoCarResource =  new HdfcErgoCarResource;
        $this->FgiTw =  new FgiTwResource;
+       $this->FgiCar =  new FgiCarResource;
        
        $this->Care =   new Care;
        $this->Manipal  =  new Manipal;
@@ -156,7 +158,8 @@ class SuccessController extends Controller{
                  
                  //print_r($_POST);
                  $saledData['transaction_no'] =$_POST['txnid'];
-                 $saledData['policy_no'] = $_POST['udf4'];
+               //  $saledData['policy_no'] = $_POST['udf4'];
+                 $saledData['proposalNumber'] = $_POST['udf4'];
                  $saledData['amount'] = $_POST['amount'];
                   $saledData['netAmt']=$data->netAmt;
                  $saledData['taxAmt']=$data->taxAmt;
@@ -166,7 +169,7 @@ class SuccessController extends Controller{
                  $saledData['agent_id'] =$data->agent_id;
                 
                  $saledData['payment_status'] = "Completed";
-                 $saledData['policy_status'] = "Completed";
+                 $saledData['policy_status'] = "Pending";
                 
                  $SUM = json_decode($data->sumInsured);
                  $replace = array("Lakhs", "INR", "Lakh", " ");
@@ -335,7 +338,11 @@ class SuccessController extends Controller{
                       $saledData['transaction_no'] =$request->input('WS_P_ID');
                       $saledData['payment_status'] = "Completed";
                       $saledData['amount'] = $request->input('Premium');
-                      $pdata = $this->FgiTw->policyIssuance($request->enquiryID,$request->input('Premium'),$request->input('WS_P_ID'),$request->input('TID'),$request->input('PGID'));
+                      if($info->type =="BIKE"){
+                          $pdata = $this->FgiTw->policyIssuance($request->enquiryID,$request->input('Premium'),$request->input('WS_P_ID'),$request->input('TID'),$request->input('PGID'));
+                      }else{
+                           $pdata = $this->FgiCar->policyIssuance($request->enquiryID,$request->input('Premium'),$request->input('WS_P_ID'),$request->input('TID'),$request->input('PGID'));
+                      }
                    if($request->input('Response')=="Success"){   //print_r($pdata);die;
                       $saledData['policy_no'] = $pdata['data'];
                       $saledData['policy_status'] = "Completed";

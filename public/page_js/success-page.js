@@ -87,7 +87,9 @@ $(document).ready(function(){
               var st = $.trim(result.status);
               
               if(st=='success'){
-                   _this.html(clone);
+                  _this.parent('td').html(result.policy_no);
+                  //_this.html(result.policy_no);
+                 // _this.removeAttr('id');
                   toastr.success(result.message,'Success');
               }else{
                    _this.html(clone);

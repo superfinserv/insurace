@@ -68,7 +68,7 @@
             <div class="form-row">
                 <div class="form-group  col-md-6">
                   <label for="state" class="h4">State</label>
-                  <select type="text" class="form-control profile-input single-select2" id="state" name="state">
+                  <select type="text" class="form-control profile-input single-select2" id="state" name="state"  data-refClass="personal-section">
                     <option value="">Select State</option>
                     <?php foreach ($states as  $value) {?>
                       <option value="{{$value->id}}" <?php if($value->id==$agent->state){ echo 'selected';}?>>{{$value->name}}</option>
@@ -79,7 +79,7 @@
                 
                 <div class="form-group col-md-6">
                   <label for="inputAddress" class="h4">City</label>
-                  <select type="text" class="form-control profile-input single-select2" id="city" name="city">
+                  <select type="text" class="form-control profile-input single-select2" id="city" name="city"  data-refClass="personal-section">
                     <option value="">Select City</option>
                     <?php if(isset($cities)){ foreach ($cities as  $value) {?>
                       <option class="form-control" value="{{$value->id}}" <?php if($value->id==$agent->city){ echo 'selected';}?>>{{$value->name}}</option>
@@ -93,13 +93,13 @@
                   <label for="inputAddress" class="h4">Gender</label><br>
                   <div>
                   <div class="custom-control custom-radio">
-                      <input type="radio" class="custom-control-input profile-input" id="GenderM" name="sex" value="Male" <?php if('Male'==$agent->sex){ echo 'checked';}?> >
+                      <input type="radio"  data-refClass="personal-section" class="custom-control-input profile-input" id="GenderM" name="sex" value="Male" <?php if('Male'==$agent->sex){ echo 'checked';}?> >
                       <label class="custom-control-label h4" for="GenderM">Male</label>
                     </div>
 
                     <!-- Default checked -->
                     <div class="custom-control custom-radio">
-                      <input type="radio" class="custom-control-input profile-input" id="GenderF" name="sex" value="Female" <?php if('Female'==$agent->sex){ echo 'checked';}?> >
+                      <input type="radio" data-refClass="personal-section"  class="custom-control-input profile-input" id="GenderF" name="sex" value="Female" <?php if('Female'==$agent->sex){ echo 'checked';}?> >
                       <label class="custom-control-label h4" for="GenderF">Female</label>
                     </div>
                      <div id="errorsss"></div>
@@ -111,13 +111,13 @@
                   <label for="inputAddress" class="h4">Marital Status</label><br>
                     <div>
                         <div class="custom-control custom-radio">
-                              <input type="radio" class="custom-control-input profile-input" id="Single" name="marital_status" value="Single" <?php if('Single'==$agent->marital_status){ echo 'checked';}?> >
+                              <input type="radio"  data-refClass="personal-section" class="custom-control-input profile-input" id="Single" name="marital_status" value="Single" <?php if('Single'==$agent->marital_status){ echo 'checked';}?> >
                               <label class="custom-control-label h4" for="Single">Single</label>
                         </div>
 
                         <!-- Default checked -->
                         <div class="custom-control custom-radio">
-                          <input type="radio" class="custom-control-input profile-input" id="Married" name="marital_status" value="Married" <?php if('Married'==$agent->marital_status){ echo 'checked';}?> >
+                          <input type="radio"  data-refClass="personal-section" class="custom-control-input profile-input" id="Married" name="marital_status" value="Married" <?php if('Married'==$agent->marital_status){ echo 'checked';}?> >
                           <label class="custom-control-label h4" for="Married">Married</label>
                         </div>
                         <div id="errorss"></div>

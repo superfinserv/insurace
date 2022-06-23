@@ -5,7 +5,7 @@
         <label for="inputEmail4" class="h4">Bank Name</label>
      </div>
       <div class="form-group col-md-6 col-sm-12">
-         <select type="text" class="form-control profile-input single-select2" id="bank_name" name="bank_name">
+         <select type="text"  data-refClass="bank-section" class="form-control profile-input single-select2" id="bank_name" name="bank_name">
             <option value="">Select Bank</option>
                     <?php foreach ($banks as  $value) {?>
                       <option value="{{$value->bank}}" <?php if($value->bank==$agent->bank_name){ echo 'selected';}?>>{{$value->bank}}</option>
@@ -18,28 +18,28 @@
      </div>
       <div class="form-group col-md-6 col-sm-12">
           <?php $account_holder_name = ($agent->account_holder_name!="")?$agent->account_holder_name:$agent->name;?>
-        <input type="text" class="form-control profile-input" id="account_holder_name" name="account_holder_name" placeholder="Account Holder Name" value="{{$account_holder_name}}">
+        <input data-refClass="bank-section" type="text" class="form-control profile-input" id="account_holder_name" name="account_holder_name" placeholder="Account Holder Name" value="{{$account_holder_name}}">
       </div>
      
      <div class="form-group col-md-4 col-sm-12">
         <label for="inputEmail4" class="h4">Account Number</label>
      </div>
       <div class="form-group col-md-6 col-sm-12">
-        <input type="text" class="form-control profile-input number-only" id="account_number" name="account_number" placeholder="Account Number" value="{{$agent->account_number}}">
+        <input data-refClass="bank-section" type="text" class="form-control profile-input number-only" id="account_number" name="account_number" placeholder="Account Number" value="{{$agent->account_number}}">
       </div>
 
       <div class="form-group col-md-4 col-sm-12">
         <label for="inputEmail4" class="h4">Confirm Account Number</label>
      </div>
       <div class="form-group col-md-6 col-sm-12">
-        <input type="password" class="form-control profile-input number-only" id="account_number_confirm" name="account_number_confirm" placeholder="Confirm Account Number" value="{{$agent->account_number}}">
+        <input data-refClass="bank-section" type="password" class="form-control profile-input number-only" id="account_number_confirm" name="account_number_confirm" placeholder="Confirm Account Number" value="{{$agent->account_number}}">
       </div>
     <div class="form-group col-md-4 col-sm-12">
 
         <label for="inputEmail4" class="h4">IFSC</label>
      </div>
      <div class="form-group col-md-6 col-sm-12">
-        <input type="text" class="form-control profile-input uppercase" id="ifsc_code" name="ifsc_code" placeholder="IFSC Code" value="{{$agent->ifsc_code}}">
+        <input data-refClass="bank-section" type="text" class="form-control profile-input uppercase" id="ifsc_code" name="ifsc_code" placeholder="IFSC Code" value="{{$agent->ifsc_code}}">
       </div>
      <div class="form-group col-md-4 col-sm-12">
         <label for="inputPassword4" class="h4">Cancelled cheque / passbook / bank statement</label>
@@ -51,7 +51,7 @@
         
          <div class="form-group" id="not-hasPassbook-element" style="display:<?=($agent->passbook_statement=="")?"block":"none";?>">
                 <div class="input-group mb-3">
-                  <input type="file" class="form-control"  name="passbook_statement" id="passbook_statement" accept="application/pdf,image/jpeg, image/png">
+                  <input data-refClass="bank-section" type="file" class="form-control"  name="passbook_statement" id="passbook_statement" accept="application/pdf,image/jpeg, image/png">
                   <div class="input-group-append profile-input-upload" data-name="passbook_statement" data-refClass="bank-section" data-form="bankinfo" data-elem="hasPassbook-element">
                     <span class="input-group-text">
                         <i class="fa fa-check "  style="color:#C52118;font-size: 20px;"></i>

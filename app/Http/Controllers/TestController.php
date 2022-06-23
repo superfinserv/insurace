@@ -119,7 +119,10 @@ class TestController extends Controller{
     
     
      public function testany(){
-       
+               $sql= DB::table('cities_list')->where('state_id',38)->get();
+               foreach($sql as $ct){
+                  // DB::table('cities')->insertGetId(['name'=>$ct->name,'state_id'=>31]);
+               }
           
                 //  $sql= DB::table('policy_saled')->select('sp_id','agent_id','policy_no','date')
                 //               ->whereMonth('date', 05)->whereYear('date', 2022);

@@ -586,7 +586,7 @@ $('body').on('click','.btn-next-address',function(e){
                  $(this).rules("add", {required: true,maxlength:20,alphanumeric:true});
             });
              $('#street').each(function() {
-                $(this).rules("add", {required: true,maxlength:40,alphanumeric:true});
+                $(this).rules("add", {required: true,maxlength:40,addrs:true});
             });
              $('#pincode').each(function() {
                 $(this).rules("add", { required: true,number:true,minlength:6,maxlength:6 });
@@ -833,7 +833,7 @@ $('body').on('click','.btn-next-medical',function(e){
                     doSpin:true,
                     loadingText:'Loading...',
                   });
-                    console.log("healthInfo",healthInfo);
+                //    console.log("healthInfo",healthInfo);
                 localStorage.setItem("healthInfo", JSON.stringify(healthInfo));
                 var postData = JSON.parse(localStorage.getItem('healthInfo'));
                 var enqId =healthInfo.enq; 

@@ -213,7 +213,9 @@
                                </hr>
                               <?php if(isset($mem->medical)){
                                          if(!empty($mem->medical)){
-                                           foreach($mem->medical as $q){?>
+                                           foreach($mem->medical as $q){ 
+                                              
+                                           ?>
                                               <p style="margin:0;font-size: 14px;color: #000;font-weight: 600;"> <?=$q->title;?></p>
                                               <?php if($q->hasChildQuestions && !empty($q->childQuestions)){ 
                                                        foreach($q->childQuestions as $chQ){?>

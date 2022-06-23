@@ -379,7 +379,11 @@ class Healthinsurance extends Controller{
     public function productInfo(Request $request){
              $enquiryID = $request->enquiryID;
              $enQ = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enquiryID)->first();
-             
+             if(in_array($enQ->product, ['RPLS06POSSF','RPLS06SBSF'])){
+                  $enQ->product = "RPLS06SBSF";
+             }else if(in_array($enQ->product, ['RPRT06POSSF','RPRT06SBSF'])){
+                  $enQ->product = "RPRT06SBSF";
+             }
               $features = DB::table('plans_features')->select('plans_features.*','plan_key_features.features')
                           ->leftJoin('plans','plans.id','plans_features.plan_id')
                           ->leftJoin('plan_key_features','plan_key_features.code','plans_features.featuresKey')
@@ -450,7 +454,7 @@ class Healthinsurance extends Controller{
               $planInfo->amount = $jd->amount;
               $planInfo->zone = $jd->zone;
               
-              $template = ['title' => 'Health Insurance Detail',"subtitle"=>"Health Proposal","relations"=>$relations,'plan'=>$planInfo,'param'=>$params,'data'=>$data,'scripts'=>[asset('js/health/health_proposal.js?v=0.0.1')]];  
+              $template = ['title' => 'Health Insurance Detail',"subtitle"=>"Health Proposal","relations"=>$relations,'plan'=>$planInfo,'param'=>$params,'data'=>$data,'scripts'=>[asset('js/health/health_proposal.js?v=0.0.2')]];  
             
              return View::make('health.health_proposal')->with($template);
          }
@@ -511,7 +515,7 @@ class Healthinsurance extends Controller{
     function reviewInfoTemplate(Request $request){
          $enquiryID = $request->enquiryID;
          $data = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enquiryID)->first();
-         $template['questions'] = DB::table('medical_questions')->where('status',1)->where('parentId',0)->get();
+        // $template['questions'] = DB::table('medical_questions')->where('status',1)->where('parentId',0)->get();
          $template['param'] = json_decode($data->params_request);
          $template['info'] = $data;
          return View::make('health.info.review')->with($template);
@@ -598,6 +602,7 @@ class Healthinsurance extends Controller{
     }
     
     private function updateMedicalInfo($param,$enquiryID){
+        
          $Querydata = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enquiryID)->first();
          $dataParam = json_decode($Querydata->params_request);
         
@@ -606,17 +611,19 @@ class Healthinsurance extends Controller{
              $each['mkey'] = $key;
              array_push($members,$each);
          }
-        
+      
          $dataParam->members = $members;
          $dataParam->hasMedical = $param['hasMedical'];
          $medical = isset($param['medical'])?$param['medical']:[];
          $dataParam->medical = $medical;
          
         DB::table('app_quote')->where('enquiry_id', $enquiryID)->update(['params_request'=>json_encode($dataParam)]);
+        
     }
     
     function updateProposal(Request $request){
         if($request->enqId!=""){
+         //  print_r($_POST);die;
             $count = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$request->enqId)->count();
             if($count){
                 DB::table('leads')->where(['id'=>$request->customerData['lead_id']])->update(['param'=>json_encode($request->param)]);
@@ -630,11 +637,12 @@ class Healthinsurance extends Controller{
                 }else if($request->step=="medical"){
                    $arr= $this->updateMedicalInfo($request->param,$request->enqId);
                 }
-                return response()->json(['status'=>'success','message'=>'Inforamtion updated successfully']);
+                return response()->json(['status'=>'success','message'=>'--Inforamtion updated successfully']);
                 
             }else{
                 return response()->json(['status'=>'error','message'=>'Something went wrong']);
             }
+            
         }else{
              return response()->json(['status'=>'error','message'=>'Something went wrong']);
         }

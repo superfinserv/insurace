@@ -1258,7 +1258,7 @@ class HdfcErgoCarResource extends AppResource{
            
            $result = $clientResp->getBody()->getContents();
            $response = json_decode($result);
-                  //  print_r($result);die;
+              //  print_r($result);die;
            if($response->Status==200){
                 return ['status'=>true,'message'=>"",'data'=>$response->Data]; 
             }else{
@@ -1609,13 +1609,15 @@ class HdfcErgoCarResource extends AppResource{
        
        
         if($insuranceProductCode=="ODOnly"){
-            $policyStartDate= isset($params->TP->TPpolicyStartDate)?explode('-',$options['TP']['TPpolicyStartDate']):null;
-            $policyTPEndDate= isset($params->TP->TPpolicyEndDate)?explode('-',$options['TP']['TPpolicyEndDate']):null;
+            //$policyStartDate= isset($params->TP->TPpolicyStartDate)?explode('-',$options['TP']['TPpolicyStartDate']):null;
+           // $policyTPEndDate= isset($params->TP->TPpolicyEndDate)?explode('-',$options['TP']['TPpolicyEndDate']):null;
             //$preInsurerCode = DB::table('previous_insurer')->where('id', $options['TP']['TPInsurer'])->value('hdfcErgo');
             $customerDetails->TPExisitingInsurerCode=$brkIninfo['data']->ProposalDetail->TPExistingPreviousInsurerId;;
             $customerDetails->TPExisitingPolicyNumber=$options['TP']['TP_policyno'];
-            $customerDetails->TPExistingStartDate=$policyStartDate[2]."-".$policyStartDate[1]."-".$policyStartDate[0];
-            $customerDetails->TPExistingEndDate=$policyTPEndDate[2]."-".$policyTPEndDate[1]."-".$policyTPEndDate[0];
+           // $customerDetails->TPExistingStartDate=$policyStartDate[2]."-".$policyStartDate[1]."-".$policyStartDate[0];
+          //  $customerDetails->TPExistingEndDate=$policyTPEndDate[2]."-".$policyTPEndDate[1]."-".$policyTPEndDate[0];
+            $customerDetails->TPExistingStartDate=$brkIninfo['data']->ProposalDetail->TPExistingStartDate;
+            $customerDetails->TPExistingEndDate=$brkIninfo['data']->ProposalDetail->TPExistingEndDate;
         }
        
        $request->ProposalDetails =$proposalDetails; 

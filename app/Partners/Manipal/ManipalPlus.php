@@ -10,7 +10,7 @@ use Carbon\Carbon;
 
 class ManipalPlus{
     
-     function spCode(){
+    function spCode(){
         $SPCodes = config('mediclaim.MANIPAL.SPCODE');
         
            if(isset(Auth::guard('customers')->user()->mobile)){ // IF CUSTOMER LOGIN
@@ -31,23 +31,26 @@ class ManipalPlus{
                           return config('mediclaim.MANIPAL.baseAgentId');
                      }
             }else{  // IF SP/POSP LOGIN
-                //$agent = DB::table('agents')->where('mobile',Auth::guard('agents')->user()->mobile)->first();
-                if(Auth::guard('agents')->user()=="POSP"){ 
+            
+                $agent = DB::table('agents')->where('mobile',Auth::guard('agents')->user()->mobile)->first();
+                if(Auth::guard('agents')->user()->userType=="POSP"){  
                     if($agent->mapped_sp){
+                       
                         $SPMOB = DB::table('agents')->where('id',$agent->mapped_sp)->value('mobile');
                         return isset($SPCodes[$SPMOB])?$SPCodes[$SPMOB]:config('mediclaim.MANIPAL.baseAgentId');
                      }else{ // SP NOT MAPPED
                           return config('mediclaim.MANIPAL.baseAgentId');
                       }
-                }else if(Auth::guard('agents')->user()=="SP"){ 
+                }else if(Auth::guard('agents')->user()->userType=="SP"){ 
+                    
                       return isset($SPCodes[Auth::guard('customers')->user()->mobile])?$SPCodes[Auth::guard('customers')->user()->mobile]:config('mediclaim.MANIPAL.baseAgentId');
                 }
             }
            
       }
      function calculatePremium($params,$sum,$sumInsured,$devicetoken,$policytyp){ 
-                 $baseAgentID = $this->spCode();
-                $productId = 'RPLS06SBSF';
+                $baseAgentID = $this->spCode(); 
+                $productId =  (isset(Auth::guard('agents')->user()->id))?'RPLS06POSSF':'RPLS06SBSF';
                 $productPlanOptionCd = $policytyp.'-PLS'.$sum.'-HMB2K';
                 $_state = explode("-",$params['state']);
                 $_city = explode("-",$params['city']);
@@ -151,7 +154,7 @@ class ManipalPlus{
                 ['body' => json_encode($Request)]
             );
             $response = $clientResp->getBody()->getContents();   
-           // print_r($response);
+            //print_r($response);die;
             $result=json_decode($response);
              if(isset($result->errorList[0]->errProcessStatusCd)){
                  $_result =  ['status'=>false,'data'=>[]];
@@ -164,7 +167,7 @@ class ManipalPlus{
                          ->select('plan_key_features.features as _key','plans_features.val as _val','plan_key_features.description as _desc')
                           ->leftJoin('plans','plans.id','plans_features.plan_id')
                           ->leftJoin('plan_key_features','plan_key_features.code','plans_features.featuresKey')
-                          ->where('plans.product','=',$productId)
+                          ->where('plans.product','=',"Plus")
                           ->where('plans.supplier','=','MANIPAL_CIGNA')->limit(5)->get();
                       
                       
@@ -183,7 +186,7 @@ class ManipalPlus{
                       
                       $quoteData = ['short_sumInsured'=>$sum,'long_sumInsured'=>$sumInsured,'premiumAmount'=>$amount,
                                     'quote_id'=>$quoteId,'type'=>'HEALTH','policyType'=>$policytyp,
-                                    'code'=>$productPlanOptionCd,'product'=>$productId,'title'=>"ProHealth-Plus",
+                                    'code'=>$productPlanOptionCd,'product'=>"Plus",'title'=>"ProHealth-Plus",
                                     'device'=>$devicetoken,'provider'=>'MANIPAL_CIGNA',
                                     'netAmt'=>$actualPrice,
                                     'taxAmt'=>$tax,
@@ -224,7 +227,8 @@ class ManipalPlus{
          $policyType = ($enqData->policyType=="FL")?"FAMILYFLOATER":"INDIVIDUAL";
         $pT = $enqData->policyType;
          
-         $productId = 'RPLS06SBSF';
+        // $productId = 'RPLS06SBSF';
+         $productId =  (isset(Auth::guard('agents')->user()->id))?'RPLS06POSSF':'RPLS06SBSF';
          $productPlanOptionCd = $enqData->policyType.'-PLS'.$sum.'-HMB2K';
         
         
@@ -389,6 +393,7 @@ class ManipalPlus{
      }
      
      function validateProposal($enqID){
+            $productId =  (isset(Auth::guard('agents')->user()->id))?'RPLS06POSSF':'RPLS06SBSF';
             $baseAgentID = $this->spCode();
             $Querydata = DB::table('app_quote')->where('type','HEALTH')->where('enquiry_id',$enqID)->first();
             $dataParam = json_decode($Querydata->json_data);
@@ -639,7 +644,7 @@ class ManipalPlus{
             $ProductDOList['coverTypeCd'] = $pt; 
             $ProductDOList['baseSumAssured']  = floatval($sum*100000);
             $ProductDOList['policyProductInsuredDOList']  = $_ProductInsuredDOList;
-            $ProductDOList['productId'] = $dataParam->product;
+            $ProductDOList['productId'] = $productId;//$dataParam->product;
             $ProductDOList['productTerm'] = $termYear;
             if(isset($params->addOn) && $params->addOn!=""){
                 $adddonns = explode(',',$params->addOn);
@@ -667,7 +672,7 @@ class ManipalPlus{
             $req['servicingBranchId'] ='';
             $req['channelId'] =config('mediclaim.MANIPAL.channelId');
             $req['shgName'] ='';
-            $req['baseProductId'] =$dataParam->product;
+            $req['baseProductId'] =$productId;//$dataParam->product;
             $req['baseProductVersion'] =1;
             $req['baseProductTypeCd'] ='SUBPLAN';
             $req['baseProductFamilyCd'] ='HEALTHREVISED';
@@ -804,7 +809,7 @@ class ManipalPlus{
             $req['totalRewardPoints'] =null;
             $req['pointsFromWellnessPrograms'] =null;
             $req['agencyId'] ='';
-            $req['subagencyId'] ='';
+            $req['subagencyId'] =config('mediclaim.MANIPAL.subagencyId');
             $req['employeeCd'] ='';
             $req['partnerBranchId'] =config('mediclaim.MANIPAL.partnerBranchId');
             $req['refCodeA'] ='';
@@ -900,7 +905,7 @@ class ManipalPlus{
               //print_r(json_encode($REQUEST));die;
                 $response = $clientResp->getBody()->getContents();   
                 $result=json_decode($response);
-               // print_r($response);
+                //print_r($response);die;
                 //$result=json_decode($response);
                       
                 DB::table('app_quote')->where('enquiry_id', $enqID)->update(['reqCreate'=>json_encode($REQUEST),'respCreate'=>$response]);
@@ -1593,12 +1598,12 @@ class ManipalPlus{
     }
     
     function inwardDoList_obj($period,$praposalNum,$txnid,$amount){
-               $baseAgentID = $this->spCode();
+               //$baseAgentID = $this->spCode();
                $elem["receiptId"]= "";
                $elem["payerTypeCd"]= "CLIENT";
                $elem["inwardDt"]= $period->startDate;//"08/09/2020";
                $elem["insurerBankCd"]= "DAUTSCHEBANK";
-               $elem["agentId"]= $baseAgentID;
+               $elem["agentId"]= "";
                $elem["payerPartyId"]= "0062X0000106xGdQAI";
                $elem["receiptBranchId"]= "110060418433";
                $elem["parentBranchId"]= "";
@@ -1658,11 +1663,12 @@ class ManipalPlus{
            $period = timePeriod('d/m/Y',$termYear);
            $object = json_decode($Querydata->reqCreate);
            $REQUEST = json_decode(json_encode($object), true);
-           $REQUEST['listofPolicyTO'][0]['inwardDOList'] =[$this->inwardDoList_obj($period,$proposalNum,$txnid,$amount)];
-           
+          // $REQUEST['listofPolicyTO'][0]['inwardDOList'] =[$this->inwardDoList_obj($period,$proposalNum,$txnid,$amount)];
+            $REQUEST['listofPolicyTO'][0]['inwardDOList'] =[$this->inwardDoList_obj($period,$proposalNum,$txnid,$amount)];
+            $REQUEST['listofPolicyTO'][0]['inwardDOList'][0]['agentId'] =  $REQUEST['listofPolicyTO'][0]['baseAgentId'];
             try{
                 $client = new Client([
-                'headers' => ['Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKey'),"app_id"=>config('mediclaim.MANIPAL.appIdSave')]
+                'headers' => ['Content-Type'=>'application/json',"app_key"=>config('mediclaim.MANIPAL.appKeySave'),"app_id"=>config('mediclaim.MANIPAL.appIdSave')]
             ]);
             
             $clientResp = $client->post(config('mediclaim.MANIPAL.saveProposal'),

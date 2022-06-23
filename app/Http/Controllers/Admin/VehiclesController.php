@@ -46,45 +46,7 @@ class VehiclesController extends Controller
        }
         return View::make('admin.vehicles.list')->with($template);
     }
-    
-    
-    function dataDATACar(){
-        
-        $client = new Client([
-                'headers' => [ 'Content-Type' => 'application/json','MerchantKey'=>'SUPER FINSERV PRIVATE LIMITED DBG MUM BHANUP','SecretToken'=>'ZUAXaH2CcvguB1m5gWxYjA==']
-            ]);
-            
-            $clientResp = $client->post('https://chpa.heaggregator.com/CPMotorOnline/ChannelPartner/GetMasterData',
-                ['body' => '{ 
-                      "MasterKey": "MAKE",
-                      "AgentCode":"FWD22000",
-                      "PolicyType":"All"
-                    }']
-                                );
-                         $result = $clientResp->getBody()->getContents();
-                         print_r($result);die;
 
-
-    }
-    
-    function dataDATA2w(){
-        
-        $client = new Client([
-                'headers' => [ 'Content-Type' => 'application/json','MerchantKey'=>'SUPER FINSERV PRIVATE LIMITED','SecretToken'=>'7+aEy4DrMHumytddFoJbzg==']
-            ]);
-            
-            $clientResp = $client->post('https://chpa.heaggregator.com/CPTWOnline/ChannelPartner/GetMasterData',
-                ['body' => '{ 
-                      "MasterKey": "MODEL",
-                      "AgentCode":"TWD22020",
-                      "PolicyType":"All"
-                    }']
-                                );
-                $result = $clientResp->getBody()->getContents();
-                print_r($result);die;
-
-
-    }
     
     public function GetvehicleDetailsInfo(Request $request){
       
@@ -106,6 +68,19 @@ class VehiclesController extends Controller
         
        $template['scripts'] = [asset('admin/js/page/hdfc-vehicles-model.js')];  
        return View::make('admin.vehicles.hdfcModels')->with($template);
+    }
+    public function FgiModelData(Request $request){
+        $template = ['title' => 'FGI Vehicles::List',"subtitle"=>"Model List", "prm"=>$request->param];
+        if($request->param=="2w"){
+          $template['subtitle'] = "2w";
+       }else if($request->param=="pvt-car"){
+           $template['subtitle'] = "Pvt Car";
+       }else{
+            $template['subtitle'] = "2w ";
+       }
+        
+       $template['scripts'] = [asset('admin/js/page/fgi-vehicles-model.js')];  
+       return View::make('admin.vehicles.fgiModels')->with($template);
     }
     
    
@@ -295,6 +270,72 @@ class VehiclesController extends Controller
             return Response::json(array('status'=>'success'));
         }
     }
+    
+    public function sortableMake(Request $request){
+        if($request->vtype=="pvt-car"){
+            $Makes = DB::table('vehicle_make_car')->orderBy('serial_no','ASC')->get();
+        }else if($request->vtype=="tw"){
+            $Makes = DB::table('vehicle_make_tw')->orderBy('serial_no','ASC')->get();
+        }else{
+            $Makes = DB::table('vehicle_make_car')->orderBy('serial_no','ASC')->get();
+        }
+       
+        $template = ['title' => 'Vehicles::Make',"subtitle"=>strtoupper($request->vtype)." Sortable",'Makes'=>$Makes,
+                     'scripts'=>[asset('admin/js/page/vehicles-make-sortable.js')]];
+        $template['vtype'] = $request->vtype;
+        return View::make('admin.vehicles.make-sortable')->with($template);
+    }
+   
+    public function updateMakeSerialNumber(Request $request){
+        if($request->vtype=="pvt-car"){
+              $serial=1;
+               foreach($request->data as $key=>$value){
+                    $arr = explode("-",$value);
+                    DB::table('vehicle_make_car')
+                      ->where('id', $arr[1])
+                      ->update(['serial_no' => $serial]);
+                   
+                   $serial++;
+               }
+        }else if($request->vtype=="tw"){
+             $serial=1;
+             foreach($request->data as $key=>$value){
+                    $arr = explode("-",$value);
+                    DB::table('vehicle_make_tw')
+                      ->where('id', $arr[1])
+                      ->update(['serial_no' => $serial]);
+                   
+                   $serial++;
+               }
+        }
+   }
+   
+    public function sortableModals(Request $request){
+       $count  = DB::table('vehicle_modal')->where('make_id',$request->make)->count();
+       if($count){
+           $tblMake = ($request->vtype=="tw")?'vehicle_make_tw':'vehicle_make_car';
+           $tblModal = ($request->vtype=="tw")?'vehicle_modal_tw':'vehicle_modal_car';
+           $make = DB::table($tblMake)->where('id',$request->make)->first();
+           $data  = DB::table($tblModal)->where('make_id',$request->make)->orderBy('serial_no','ASC')->get();
+           $template = ['title' => 'Vehicles::Modals',"subtitle"=>"Vehicles Modals Sortable",'data'=>$data,'make'=>$make,
+                         'scripts'=>[asset('admin/js/page/vehicles-modal-sortable.js')]];
+            return View::make('admin.vehicles.modal-sortable')->with($template);
+       }
+    }
+    
+    public function updateModalSerialNumber(Request $request){
+      $serial=1;
+       foreach($request->data as $key=>$value){
+            $arr = explode("-",$value);
+            DB::table('vehicle_modal_car')
+              ->where('id', $arr[1])
+              ->where('make_id', $request->make)
+              ->update(['serial_no' => $serial]);
+           
+           $serial++;
+       }
+   }
+   
     
     
     

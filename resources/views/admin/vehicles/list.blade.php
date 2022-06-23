@@ -38,7 +38,7 @@
            <div class="card-header bg-danger d-flex  align-items-center justify-content-between pd-y-5">
                   <h6 class="mg-b-0 tx-14 tx-white"> Vehicles List</h6>
                   <div class="card-option tx-24">
-                    
+                    <a href="{{url('/fgi-vehicles-models/'.$prm)}}" class="btn btn-dark  btn-sm tx-white mg-l-10">FGI Models</a>
                     <a href="{{url('/hdfc-vehicles-models/'.$prm)}}" class="btn btn-dark  btn-sm tx-white mg-l-10">HDFC ERGO Models</a>
                     <a href="{{url('/vehicles/'.$prm.'/export')}}" class="btn btn-success  btn-sm tx-white mg-l-10"><i style="color:#fff" class="fa fa-file-excel-o"></i> Export</a>
                      

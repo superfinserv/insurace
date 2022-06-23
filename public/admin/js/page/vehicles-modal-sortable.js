@@ -9,7 +9,7 @@
                   var make = $('.sortable-modals').attr('data-make');
                   //console.log(parameters);
                 //   var data = $(this).sortable('serialize');
-                  $.post(base_url+"/vehicles/update/modal/serial-number/"+make,{data:parameters},function(result){
+                  $.post(base_url+"/vehicles/update/modal/serial-number/"+make+"/pvt-car",{data:parameters},function(result){
                       console.log(result);
                       var serial =1;
                       $('.sortable-modals').find('.list-item-modal').each(function(){

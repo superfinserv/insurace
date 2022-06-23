@@ -5,7 +5,7 @@
             <label for="inputEmail4" class="h4" >Educational Qualification</label>
          </div>
          <div class="form-group col-md-6">
-           <select class="form-control profile-input single-select2" id="educational_qualification" name="educational_qualification" >
+           <select class="form-control profile-input single-select2" data-refClass="education-section" id="educational_qualification" name="educational_qualification" >
              <option value="">Select Educational Qualification</option>
               <option value="10th standard" <?php if('10th standard'==$agent->educational_qualification){ echo 'selected';}?>>10th standard</option>
               <option value="12th standard" <?php if('12th standard'==$agent->educational_qualification){ echo 'selected';}?>>12th standard</option>
@@ -24,7 +24,7 @@
             <!--</div>-->
             <div class="form-group" id="not-hasEdu-element" style="display:<?=($agent->education_certificate=="")?"block":"none";?>">
                 <div class="input-group mb-3">
-                  <input type="file" class="form-control "   name="education_certificate" id="education_certificate" accept="application/pdf,image/jpeg, image/png">
+                  <input type="file" class="form-control " data-refClass="education-section"   name="education_certificate" id="education_certificate" accept="application/pdf,image/jpeg, image/png">
                   <div class="input-group-append profile-input-upload" data-name="education_certificate" data-refClass="education-section" data-form="educationinfo" data-elem="hasEdu-element">
                     <span class="input-group-text">
                         <i class="fa fa-check" style="color:#C52118;font-size: 20px;"></i>

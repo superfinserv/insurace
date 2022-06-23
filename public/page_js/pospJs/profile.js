@@ -35,11 +35,27 @@ $(document).ready(function(){
             
             $.post(base_url+'/update-posp-info/',{name:name,ref:refClass,val:val,_typ:_typ},function(resp){
                     alertconfig(resp.data.iscomplete,"profile");
-                    if(resp.data.ispersonal==1){
+                    if(parseInt(resp.data.ispersonal)==1){
                         $('.'+refClass).html("").html('<span>Done</span>');  
                     }else{
                         $('.'+refClass).html("").html('<span class="required">Required</span>'); 
-                  }
+                    }
+                     if(parseInt(resp.data.isdocument)==1){
+                        $('.'+refClass).html("").html('<span>Done</span>');  
+                    }else{
+                        $('.'+refClass).html("").html('<span class="required">Required</span>'); 
+                    }
+                     if(parseInt(resp.data.iseducation)==1){
+                        $('.'+refClass).html("").html('<span>Done</span>');  
+                    }else{
+                        $('.'+refClass).html("").html('<span class="required">Required</span>'); 
+                    }
+                    
+                    if(parseInt(resp.data.isbank)==1){
+                        $('.'+refClass).html("").html('<span>Done</span>');  
+                    }else{
+                        $('.'+refClass).html("").html('<span class="required">Required</span>'); 
+                    }
                  _this.parent().removeClass('has-feedback');
                  _this.parent().find('span.form-control-feedback').remove();
                   if($.trim(resp.status)=='success'){
@@ -55,10 +71,13 @@ $(document).ready(function(){
      });
      
      $('body').on('click','.profile-input-upload',function(e){
+               var _this = $(this);
+               _this.find('span').find('.fa').removeClass('fa-check');
+               _this.find('span').find('.fa').addClass('fa-circle-o-notch fa-spin');
                 var formID = $(this).attr('data-form');
                 var pElm = $(this).attr('data-elem');
                 var name = $(this).attr('data-name');
-                var _this = $(this);
+                //var _this = $(this);
                 //var formv = $('#'+formID)[0];
                 var refClass = $(this).attr('data-refClass');//personal-section
                // var formData = new FormData(formv);
@@ -78,14 +97,32 @@ $(document).ready(function(){
                      dataType:'json',
                      success: function (resp) {
                          var str = $.trim(resp.status);
-                         if(resp.data.iseducation==1){
-                             $('.'+refClass).html("").html('<span>Done</span>');  
-                            }else{
-                              $('.'+refClass).html("").html('<span class="required">Required</span>'); 
-                           }
+                         _this.find('span').find('.fa').removeClass('fa-circle-o-notch fa-spin');
+                         _this.find('span').find('.fa').addClass('fa-check');
+                          if(parseInt(resp.data.ispersonal)==1){
+                        $('.'+refClass).html("").html('<span>Done</span>');  
+                    }else{
+                        $('.'+refClass).html("").html('<span class="required">Required</span>'); 
+                    }
+                     if(parseInt(resp.data.isdocument)==1){
+                        $('.'+refClass).html("").html('<span>Done</span>');  
+                    }else{
+                        $('.'+refClass).html("").html('<span class="required">Required</span>'); 
+                    }
+                     if(parseInt(resp.data.iseducation)==1){
+                        $('.'+refClass).html("").html('<span>Done</span>');  
+                    }else{
+                        $('.'+refClass).html("").html('<span class="required">Required</span>'); 
+                    }
+                    
+                    if(parseInt(resp.data.isbank)==1){
+                        $('.'+refClass).html("").html('<span>Done</span>');  
+                    }else{
+                        $('.'+refClass).html("").html('<span class="required">Required</span>'); 
+                    }
                             alertconfig(resp.data.iscomplete,"profile");
                          if(str == "success") {
-                             if(resp.name!=""){
+                             if(resp.name!==""){
                                  $("#"+pElm).find('input').val(resp.name);
                                  $("#"+pElm).show();
                                  $('#not-'+pElm).hide();

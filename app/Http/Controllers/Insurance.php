@@ -190,6 +190,9 @@ class Insurance extends Controller{
                 return response()->json($res); 
             }
              
+        }else if($enQ->provider=='MANIPAL_CIGNA'){
+            $res =   $this->Manipal->GetPolicyInfo($enQ->proposalNumber);
+            return response()->json($res); 
         }
     }
     

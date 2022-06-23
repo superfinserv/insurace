@@ -234,6 +234,10 @@ input[type="file" i]:after {
   }
   
 }
+
+.profile-input-upload:hover{
+   cursor: pointer;
+}
       </style>
     <main role="main">
  

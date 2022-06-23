@@ -563,22 +563,25 @@ class CareAdvantage{
                         //print_r($q);
                          if($q->hasChildQuestions=='true'){ 
                                //print_r($q->childQuestions);
-                                $ch = $q->childQuestions[0];
-                                $childSet =   DB::table('medical_questions')->where(['supplier'=>'CARE','parentId'=>$ch->parentId,'id'=>$ch->Qid])->first();
-                                $questionCd = $childSet->code;
-                               // print_r($ch->answer);
-                                $_que =   new \stdClass();
-                                 if($childSet->inputType=='date'){
-                                       $resppp =  explode("/",$ch->answer);
-                                       $_que->response = isset($resppp[1])?$resppp[1]."/".$resppp[2]:"";
-                                  }else{
-                                      $_que->response =$ch->answer;
-                                   }
-                                
-                                $_que->questionSetCd = $Q->setcode;
-                                $_que->questionCd = $questionCd;
-                                
-                                array_push($QueARR,$_que);
+                                $chQs = $q->childQuestions;
+                                foreach($chQs as $ch){
+                                 //$ch = $q->childQuestions[0];
+                                    $childSet =   DB::table('medical_questions')->where(['supplier'=>'CARE','parentId'=>$ch->parentId,'id'=>$ch->Qid])->first();
+                                    $questionCd = $childSet->code;
+                                   // print_r($ch->answer);
+                                    $_que =   new \stdClass();
+                                     if($childSet->inputType=='date'){
+                                           $resppp =  explode("/",$ch->answer);
+                                           $_que->response = isset($resppp[1])?$resppp[1]."/".$resppp[2]:"";
+                                      }else{
+                                          $_que->response =$ch->answer;
+                                       }
+                                    
+                                    $_que->questionSetCd = $Q->setcode;
+                                    $_que->questionCd = $questionCd;
+                                    
+                                    array_push($QueARR,$_que);
+                                }
                          }
                         
                     }
