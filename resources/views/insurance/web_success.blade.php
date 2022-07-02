@@ -167,7 +167,8 @@
     <div class="container">
         
         <?php  $param = json_decode($data->params);
-               $jd= json_decode($data->json_data);?>
+               $jd= json_decode($data->json_data);
+              ?>
         <div class="card">
             <header class="card-header">Transaction Successful</header>
             <div class="card-body">

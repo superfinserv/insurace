@@ -80,7 +80,7 @@ width: 75px;
                         @if($status!='Inforce')
                         <div class="col-md-12 col-sm-12">
                             <div class="myprofile alert-profile-complete"  style="background: #fff;border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">
-                              <span><strong>Alert! </strong> Please complete your POSP certification before start sale.</span>
+                              <span><strong>Alert! </strong> Please complete your POSP certification.</span>
                            </div>
                         </div>
                         @endif

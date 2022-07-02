@@ -239,7 +239,7 @@ main p {
                                     <p><span class="fa fa-id-card ">  </span> Pan Card  : {{$agent_info->pan_card_number}}</p>
                                     
                                  </div>
-                                 <div class="col-xs-12 col-md-12">
+                                 <div class="  col-md-12">
 
                                     <p><span class="fa fa-id-card">  </span> Adhaar Card  : {{$agent_info->adhaar_card_number}}</p>
                                     
@@ -248,11 +248,13 @@ main p {
 
                            </div>
                       </div>
-                      <div style="margin-top: 50px;margin-bottom: 15px">
-                      <a href="{{url('/profile')}}" class="btn btn-primary pull-left" style=" background: #2d3a49 !important;  padding: 5px 15px !important; border-radius: 3px !important; box-shadow: 0 16px 24px 2px rgba(0, 0, 0, .14), 0 6px 30px 5px rgba(0, 0, 0, .12), 0 8px 10px -5px rgba(0, 0, 0, .2) !important; margin-top: 0px !important; border: 0px !important; color: #fff !important; font-size: 16px !important; "><span class="fa fa-arrow-left"></span>    Back   </a>
-                    </div>
-                      <div style="margin-top: 50px;margin-bottom: 15px">
-                      <a href="{{url('/profile/video-uploads')}}" class="btn btn-primary pull-right" style=" background: #ac0f0b !important; float: right !important; padding: 5px 15px !important; border-radius: 3px !important; box-shadow: 0 16px 24px 2px rgba(0, 0, 0, .14), 0 6px 30px 5px rgba(0, 0, 0, .12), 0 8px 10px -5px rgba(0, 0, 0, .2) !important; margin-top: 0px !important; border: 0px !important; color: #fff !important; font-size: 16px !important; ">Continue   <span class="fa fa-arrow-right"></span></a>
+                      <div class="row">
+                             <div class="col-lg-6 col-xl-6  col-md-6 col-sm-6 col-xs-6">
+                              <a href="{{url('/profile')}}" class="btn btn-primary" style=" background: #2d3a49 !important;  padding: 5px 15px !important; border-radius: 3px !important; box-shadow: 0 16px 24px 2px rgba(0, 0, 0, .14), 0 6px 30px 5px rgba(0, 0, 0, .12), 0 8px 10px -5px rgba(0, 0, 0, .2) !important; margin-top: 0px !important; border: 0px !important; color: #fff !important; font-size: 16px !important; "><span class="fa fa-arrow-left"></span>    Back   </a>
+                            </div>
+                              <div class="col-lg-6 col-xl-6  col-md-6 col-xs-6" style="margin-top:5px;">
+                              <a href="{{url('/profile/video-uploads')}}" class="btn btn-primary" style=" background: #ac0f0b !important; float: right !important; padding: 5px 15px !important; border-radius: 3px !important; box-shadow: 0 16px 24px 2px rgba(0, 0, 0, .14), 0 6px 30px 5px rgba(0, 0, 0, .12), 0 8px 10px -5px rgba(0, 0, 0, .2) !important; margin-top: 0px !important; border: 0px !important; color: #fff !important; font-size: 16px !important; ">Continue   <span class="fa fa-arrow-right"></span></a>
+                            </div>
                     </div>
               </div>
                  

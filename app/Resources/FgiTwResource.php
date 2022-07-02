@@ -13,7 +13,7 @@ use Artisaninweb\SoapWrapper\SoapWrapper;
 //use App\Soap\Response\GetConversionAmountResponse;
 
 use Carbon\Carbon;
-
+use Auth;
 class FgiTwResource extends AppResource{ 
     
  
@@ -24,50 +24,50 @@ class FgiTwResource extends AppResource{
     
      public function productCode($plan){
           $res =  new \stdClass();
-          
-            switch ($plan) {
+          $isPosp = (isset(Auth::guard('agents')->user()->id))?true:false;
+           switch ($plan) {
             //  case "COM":
             //     $res->contract =  "FTW"; $res->risk =  "FTW"; $res->cover =  "CO";
             //     return $res;
             //     break;
              case "COM-NEW":
-                $res->contract = "F15";$res->risk  =  "F15";$res->cover =  "CO";
+                $res->contract = ($isPosp)?"P15":"F15";$res->risk  =  "F15";$res->cover =  "CO";
                 return $res;
                 break;
             case "COM-ROLLOVER":
-                $res->contract =  "FTW";$res->risk =  "FTW";  $res->cover =  "CO";
+                $res->contract =  ($isPosp)?"PTW":"FTW";$res->risk =  "FTW";  $res->cover =  "CO";
                 return $res;
                 break;
             case "COM-USED":
-                $res->contract =  "FTW"; $res->risk =  "FTW";$res->cover =  "CO";
+                $res->contract =  ($isPosp)?"PTW":"FTW"; $res->risk =  "FTW";$res->cover =  "CO";
                 return $res;
                 break;
             case "TP-ROLLOVER":
-                $res->contract =  "FTW";$res->risk =  "FTW"; $res->cover =  "LO";
+                $res->contract =  ($isPosp)?"PTW":"FTW";$res->risk =  "FTW"; $res->cover =  "LO";
                 return $res;
                 break;
            case "TP-NEW":
-                $res->contract =  "FTW";$res->risk =  "FTW"; $res->cover =  "LO";
+                $res->contract =  ($isPosp)?"PTW":"FTW";$res->risk =  "FTW"; $res->cover =  "LO";
                 return $res;
                 break;
             case "TP-USED":
-                $res->contract =  "FTW";$res->risk =  "FTW"; $res->cover =  "LO";
+                $res->contract =  ($isPosp)?"PTW":"FTW";$res->risk =  "FTW"; $res->cover =  "LO";
                 return $res;
                 break;
               case "SAOD-ROLLOVER":
-                $res->contract = "TWO"; $res->risk  =  "TWO"; $res->cover =  "OD";
+                $res->contract = ($isPosp)?"PWO":"TWO"; $res->risk  =  "TWO"; $res->cover =  "OD";
                 return $res;
                 break;
              case "SAOD-NEW":
-                $res->contract = "TWO"; $res->risk  =  "TWO"; $res->cover =  "OD";
+                $res->contract = ($isPosp)?"PWO":"TWO"; $res->risk  =  "TWO"; $res->cover =  "OD";
                 return $res;
                 break;
              case "SAOD-USED":
-                $res->contract = "TWO"; $res->risk  =  "TWO"; $res->cover =  "OD";
+                $res->contract = ($isPosp)?"PWO":"TWO"; $res->risk  =  "TWO"; $res->cover =  "OD";
                 return $res;
                 break;
               default:
-                $res->contract =  "FTW"; $res->risk =  "FTW";  $res->cover =  "CO";
+                $res->contract =  ($isPosp)?"PTW":"FTW"; $res->risk =  "FTW";  $res->cover =  "CO";
                 return $res;
             }
     }
@@ -265,15 +265,15 @@ class FgiTwResource extends AppResource{
                    $eachAddon->netAmt  = trim($cover->BOValue);
                    array_push($addons,$eachAddon);
                 }
-                if($cover->Code=="PLAN1" && trim($cover->Type)=='OD'){
-                   $eachAddon =   new \stdClass();
-                   $eachAddon->title   = "Zero Dep";
-                   $eachAddon->code    = "PLAN1";
-                   $eachAddon->insured = 0; 
-                   $eachAddon->grossAmt= trim($cover->BOValue);
-                   $eachAddon->netAmt  = trim($cover->BOValue);
-                   array_push($addons,$eachAddon);
-                }
+                // if($cover->Code=="PLAN1" && trim($cover->Type)=='OD'){
+                //   $eachAddon =   new \stdClass();
+                //   $eachAddon->title   = "Zero Dep";
+                //   $eachAddon->code    = "PLAN1";
+                //   $eachAddon->insured = 0; 
+                //   $eachAddon->grossAmt= trim($cover->BOValue);
+                //   $eachAddon->netAmt  = trim($cover->BOValue);
+                //   array_push($addons,$eachAddon);
+                // }
                 
                 if($cover->Code=="NCB" && trim($cover->Type)=='OD'){ 
                      $eachDis =   new \stdClass();
@@ -670,8 +670,7 @@ class FgiTwResource extends AppResource{
                     		<ReceiptNo></ReceiptNo>
                     	</PolicyHeader>
                     	<POS_MISP>
-		                   <Type></Type>
-		                   <PanNo></PanNo>
+                    	  {{POS_MISP}}
 	                    </POS_MISP>
                     	<Client>
                     		<ClientType></ClientType>
@@ -878,18 +877,17 @@ class FgiTwResource extends AppResource{
         $preInfo = $this->GetPreviousPolicyData($options,"Premium");
         $subcovers = $options['subcovers'];
         $optionValues = $options['coverValues'];
-        
+      
         if((isset($subcovers['isPA_OwnerDriverCover']) && $subcovers['isPA_OwnerDriverCover']=='true')){ 
-                  if($options['planType']=="TP" && $preInfo->businessType=="NEW"){
+                      if($options['planType']=="TP" && $preInfo->businessType=="NEW"){
                            $PA_OWNER =5;
                       }else{ 
                            $paCoverVal = isset($optionValues['PA_OwnerDriverCoverval'])?$optionValues['PA_OwnerDriverCoverval']:1;
                            $PA_OWNER = ($preInfo->businessType=="NEW")?$paCoverVal:"";
                       }
-                  
-              }else{
-                  $PA_OWNER ="";
-              }
+          }else{
+              $PA_OWNER ="";
+          }
         if($options['planType']!="SAOD" && $options['vehicle']['policyHolder'] == "IND"){      
             $XML = str_replace("{{CPAYear}}",$PA_OWNER,$XML);
             $XML = str_replace("{{CPAReq}}","Y",$XML);
@@ -941,9 +939,17 @@ class FgiTwResource extends AppResource{
         }else{
             $XML = str_replace("{{ADDONS}}","<Addon><CoverCode></CoverCode></Addon>",$XML);	
         }
+        if(isset(Auth::guard('agents')->user()->id)){
+            $POSPAN= Auth::guard('agents')->user()->pan_card_number;
+            $XML = str_replace("{{POS_MISP}}","<Type>P</Type><PanNo>".$POSPAN."</PanNo>",$XML);
+        }else{
+             $XML = str_replace("{{POS_MISP}}","<Type></Type><PanNo></PanNo>",$XML);	
+        }
+        
+
         
         if($options['vehicle']['isBrandNew']==='true' && $options['planType']=="TP"){
-             return ['status' =>false, 'plans'=>[],'message' => "Plan nott available"];
+             return ['status' =>false, 'plans'=>[],'message' => "Plan not available"];
         }else{
             
           try {
@@ -953,7 +959,7 @@ class FgiTwResource extends AppResource{
             $xml   = simplexml_load_string($result->CreatePolicyResult, 'SimpleXMLElement', LIBXML_NOCDATA);
             $array = json_decode(json_encode((array)$xml), TRUE);
         // echo $XML;
-       //   print_r($result);die;
+      //print_r($result);die;
             
               
             if(isset($array['Policy'])){
@@ -1039,7 +1045,7 @@ class FgiTwResource extends AppResource{
         
         $CPAReq = (isset($options['isPA_OwnerDriverCover']) && $options['isPA_OwnerDriverCover']=='true')?'Y':'N';
         
-         $optionValues = $params['coverValues'];
+        $optionValues = $params['coverValues'];
         
         if((isset($options['isPA_OwnerDriverCover']) && $options['isPA_OwnerDriverCover']=='true')){ 
                   if($params['planType']=="TP" && $preInfo->businessType=="NEW"){
@@ -1048,12 +1054,12 @@ class FgiTwResource extends AppResource{
                            $paCoverVal = isset($optionValues['PA_OwnerDriverCoverval'])?$optionValues['PA_OwnerDriverCoverval']:1;
                            $PA_OWNER = ($preInfo->businessType=="NEW")?$paCoverVal:"";
                       }
-                  
+                
               }else{
                   $PA_OWNER ="";
               }
         
-       if($params['planType']!="SAOD" && $params['vehicle']['policyHolder'] == "IND"){      
+       if($params['planType']!="SAOD" && $params['vehicle']['policyHolder'] == "IND" && $CPAReq=="Y"){      
             $XML = str_replace("{{CPAYear}}",$PA_OWNER,$XML);
             $XML = str_replace("{{CPAReq}}","Y",$XML);
             $XML = str_replace("{{CPANomName}}","Test",$XML);
@@ -1103,7 +1109,14 @@ class FgiTwResource extends AppResource{
         }else{
              $XML = str_replace("{{ADDONS}}","<Addon><CoverCode></CoverCode></Addon>",$XML);	
         }
-       //  echo $XML;
+        
+        if(isset(Auth::guard('agents')->user()->id)){
+            $POSPAN= Auth::guard('agents')->user()->pan_card_number;
+            $XML = str_replace("{{POS_MISP}}","<Type>P</Type><PanNo>".$POSPAN."</PanNo>",$XML);
+        }else{
+             $XML = str_replace("{{POS_MISP}}","<Type></Type><PanNo></PanNo>",$XML);	
+        }
+       // echo $XML;
         
        // $url = 'http://fglpg001.futuregenerali.in/BO/Service.svc?wsdl';
         try {
@@ -1113,8 +1126,8 @@ class FgiTwResource extends AppResource{
            
             $xml   = simplexml_load_string($result->CreatePolicyResult, 'SimpleXMLElement', LIBXML_NOCDATA);
             $array = json_decode(json_encode((array)$xml), TRUE);
-           // print_r($array);
-          // print_r($result);die;
+           //print_r($array);
+         // print_r($result);die;
             if(isset($array['Policy'])){
                   $policy = $array['Policy'];  
                   $response  = json_decode(json_encode($array));
@@ -1200,7 +1213,7 @@ class FgiTwResource extends AppResource{
                       }else{
                           $PA_OWNER ="";
                       }
-                if($params['planType']!="SAOD" && $params['vehicle']['policyHolder'] == "IND"){     
+                if($params['planType']!="SAOD" && $params['vehicle']['policyHolder'] == "IND" && $CPAReq=="Y"){     
                     $XML = str_replace("{{CPAYear}}",$PA_OWNER,$XML);
                     $XML = str_replace("{{CPAReq}}","Y",$XML);
                     $XML = str_replace("{{CPANomName}}","Test",$XML);
@@ -1250,7 +1263,14 @@ class FgiTwResource extends AppResource{
                 }else{
                      $XML = str_replace("{{ADDONS}}","<Addon><CoverCode></CoverCode></Addon>",$XML);	
                 }
-               
+                if(isset(Auth::guard('agents')->user()->id)){
+                    $POSPAN= Auth::guard('agents')->user()->pan_card_number;
+                    $XML = str_replace("{{POS_MISP}}","<Type>P</Type><PanNo>".$POSPAN."</PanNo>",$XML);
+                }else{
+                     $XML = str_replace("{{POS_MISP}}","<Type></Type><PanNo></PanNo>",$XML);	
+                }
+                // echo '<pre>', htmlentities($XML), '</pre>';
+                 
                 try {
                     $factory = new Factory();
                     $client = $factory->create(new Client(), config('motor.FGI.tw.QuickQuote')); 
@@ -1258,8 +1278,9 @@ class FgiTwResource extends AppResource{
                    
                     $xml   = simplexml_load_string($result->CreatePolicyResult, 'SimpleXMLElement', LIBXML_NOCDATA);
                     $array = json_decode(json_encode((array)$xml), TRUE);
+                    // echo '<pre>', htmlentities($xml), '</pre>';
                    // print_r($array);
-                   //print_r($result);die;
+                  // print_r($result);die;
                     if(isset($array['Policy'])){
                           $policy = $array['Policy'];  
                           $response  = json_decode(json_encode($array));
@@ -1323,9 +1344,60 @@ class FgiTwResource extends AppResource{
             //   }
      }
      
-     function fnPolicyIssuance($params,$Premium,$WS_P_ID,$TID,$PGID){
+      public function productCodePolicyIssuance($plan,$PospID){
+          $res =  new \stdClass();
+          $isPosp = ($PospID!="" && $PospID>0)?true:false;
+           switch ($plan) {
+            //  case "COM":
+            //     $res->contract =  "FTW"; $res->risk =  "FTW"; $res->cover =  "CO";
+            //     return $res;
+            //     break;
+             case "COM-NEW":
+                $res->contract = ($isPosp)?"P15":"F15";$res->risk  =  "F15";$res->cover =  "CO";
+                return $res;
+                break;
+            case "COM-ROLLOVER":
+                $res->contract =  ($isPosp)?"PTW":"FTW";$res->risk =  "FTW";  $res->cover =  "CO";
+                return $res;
+                break;
+            case "COM-USED":
+                $res->contract =  ($isPosp)?"PTW":"FTW"; $res->risk =  "FTW";$res->cover =  "CO";
+                return $res;
+                break;
+            case "TP-ROLLOVER":
+                $res->contract =  ($isPosp)?"PTW":"FTW";$res->risk =  "FTW"; $res->cover =  "LO";
+                return $res;
+                break;
+           case "TP-NEW":
+                $res->contract =  ($isPosp)?"PTW":"FTW";$res->risk =  "FTW"; $res->cover =  "LO";
+                return $res;
+                break;
+            case "TP-USED":
+                $res->contract =  ($isPosp)?"PTW":"FTW";$res->risk =  "FTW"; $res->cover =  "LO";
+                return $res;
+                break;
+              case "SAOD-ROLLOVER":
+                $res->contract = ($isPosp)?"PWO":"TWO"; $res->risk  =  "TWO"; $res->cover =  "OD";
+                return $res;
+                break;
+             case "SAOD-NEW":
+                $res->contract = ($isPosp)?"PWO":"TWO"; $res->risk  =  "TWO"; $res->cover =  "OD";
+                return $res;
+                break;
+             case "SAOD-USED":
+                $res->contract = ($isPosp)?"PWO":"TWO"; $res->risk  =  "TWO"; $res->cover =  "OD";
+                return $res;
+                break;
+              default:
+                $res->contract =  ($isPosp)?"PTW":"FTW"; $res->risk =  "FTW";  $res->cover =  "CO";
+                return $res;
+            }
+    }
+     
+     
+     function fnPolicyIssuance($params,$Premium,$WS_P_ID,$TID,$PGID,$pospID){
          $preInfo = $this->GetPreviousPolicyData($params,"Proposal");
-         $productCode = $this->productCode(strtoupper($params['planType']."-".$preInfo->businessType));
+         $productCode = $this->productCodePolicyIssuance(strtoupper($params['planType']."-".$preInfo->businessType),$pospID);
          
          $chars = date('Ymd').time();
          $uid = str_shuffle(substr(str_shuffle($chars), 0, 10));
@@ -1421,8 +1493,7 @@ class FgiTwResource extends AppResource{
                     		<ReceiptNo></ReceiptNo>
                     	</PolicyHeader>
                     	<POS_MISP>
-		                   <Type></Type>
-		                   <PanNo></PanNo>
+		                  {{POS_MISP}}
 	                    </POS_MISP>
                     	<Client>
                     		<ClientType>".$ClientType."</ClientType>
@@ -1663,7 +1734,7 @@ class FgiTwResource extends AppResource{
           }else{
               $PA_OWNER ="";
           }
-        $XML =  $this->fnPolicyIssuance(json_decode(json_encode($params), true),$Premium,$WS_P_ID,$TID,$PGID);
+        $XML =  $this->fnPolicyIssuance(json_decode(json_encode($params), true),$Premium,$WS_P_ID,$TID,$PGID,$info->agent_id);
         
         //$jData = json_decode($info->json_data);
         $CPAReq = (isset($subcovers->isPA_OwnerDriverCover) && $subcovers->isPA_OwnerDriverCover=='true')?'Y':'N';
@@ -1723,16 +1794,24 @@ class FgiTwResource extends AppResource{
             }else{
                  $XML = str_replace("{{ADDONS}}","<Addon><CoverCode></CoverCode></Addon>",$XML);	
             }
+            
+        if($info->agent_id!="" && $info->agent_id>0){
+            
+            $POSPAN= DB::table('agents')->where('id',$info->agent_id)->value('pan_card_number');
+            $XML = str_replace("{{POS_MISP}}","<Type>P</Type><PanNo>".$POSPAN."</PanNo>",$XML);
+        }else{
+             $XML = str_replace("{{POS_MISP}}","<Type></Type><PanNo></PanNo>",$XML);	
+        }
         try {
              $Inuptxml   = simplexml_load_string($XML, 'SimpleXMLElement', LIBXML_NOCDATA);
              $Inuptxml = json_decode(json_encode((array)$Inuptxml), TRUE);
            // echo "<pre>";
-             //echo '<pre>', htmlentities($XML), '</pre>';
+            // echo '<pre>', htmlentities($XML), '</pre>';
             $factory = new Factory();
             $client = $factory->create(new Client(), config('motor.FGI.tw.QuickQuote')); 
             $result = $client->call('CreatePolicy', [["Product"=>"Motor","XML"=>$XML]]);
            // print_r($result);die;
-          // echo '<pre>', htmlentities($result->CreatePolicyResult), '</pre>';
+           //echo '<pre>', htmlentities($result->CreatePolicyResult), '</pre>';
             $xml   = simplexml_load_string($result->CreatePolicyResult, 'SimpleXMLElement', LIBXML_NOCDATA);
             $array = json_decode(json_encode((array)$xml), TRUE);
            //  print_r($array);
@@ -1743,15 +1822,18 @@ class FgiTwResource extends AppResource{
                      
                     $policyNo = is_array($array['Policy']['PolicyNo'])?"":$array['Policy']['PolicyNo'];
                    
-                    $QDATA = ['reqCreate'=>json_encode($Inuptxml),'respCreate'=>json_encode($array)];
+                    $QDATA = ['reqSaveGenPolicy'=>json_encode($Inuptxml),'respSaveGenPolicy'=>json_encode($array)];
                     //print_r($QDATA);
                     DB::table('app_quote')->where('enquiry_id',$enQId)->update($QDATA);
                     return ['status'=>true,'message'=>'Policy Generated successfully','data'=>$policyNo];
             }else{
-                $QDATA = ['reqCreate'=>json_encode($Inuptxml),'respCreate'=>json_encode($array)];
+                $QDATA = ['reqSaveGenPolicy'=>json_encode($Inuptxml),'respSaveGenPolicy'=>json_encode($array)];
                 DB::table('app_quote')->where('enquiry_id',$enQId)->update($QDATA);
                return ['status'=>false,'message' => "Connection Fail",'data'=>""];
             }
+            
+            //echo '<pre>', htmlentities($XML), '</pre>';
+            //echo '<pre>', htmlentities($xml), '</pre>';die;
         }catch (ConnectException $e) {
                 $response = $e->getResponse();
                 $responseBodyAsString = $response->getBody()->getContents();
@@ -1802,7 +1884,7 @@ class FgiTwResource extends AppResource{
                    
                     // Without classmap
                     $response = $this->soapWrapper->call('DataTable.GetPDF', [$REQUEST]);
-                     print_r($response->GetPDFResult->any);
+                    // print_r($response->GetPDFResult->any);
                       $xmmll =  "<root>".$response->GetPDFResult->any."</root>";
                         $doc = new \DOMDocument();
                         $doc->preserveWhiteSpace = true;

@@ -49,7 +49,7 @@ if (!function_exists('updateCustomConfig')){
 
 
 
-if (!function_exists('get_site_settings')) {
+if (!function_exists('get_site_settings')){
     function get_site_settings($options=""){
        if($options!=""){
            $data = DB::table("site_settings")->where(['key_name'=>$options])->first();
@@ -58,7 +58,6 @@ if (!function_exists('get_site_settings')) {
            }else{
                 return  $data->value;
            }
-          
        }
     }
 }

@@ -164,33 +164,28 @@
 								
 								<input type="hidden" class="custom-control-input" id="product_code" name="product_code" value="20201">
 							</div>
+                         <div class="row mt-3">
+                            <div class="col-lg-1 col-xl-1 col-md-1 col-sm-12"></div>
+			                <div class="col-lg-5 col-xl-5 col-md-5 col-sm-6 mb-4">
+			                  <a href="{{url('twowheeler-insurance/registration-year/')}}" class="btnSF btn-blue">Back</a>
+			                </div>
 
-						    </div>
-                           <div class="col-lg-2 col-xl-2 col-md-12 col-sm-12"></div>
-
-						</div>
-
-						<div class="row mt-3">
-                         <div class="col-lg-4 col-xl-3 col-md-3 col-sm-12"></div>
-			              <div class="col-lg-4 col-xl-3 col-md-3 col-sm-6 mb-4">
-			                <a href="{{url('twowheeler-insurance/registration-year/')}}" class="btnSF btn-blue">Back</a>
+    			             <div class="col-lg-5 col-xl-5 col-md-5 col-sm-6">
+    			                 <button type="submit" class="btnSF btn-blue" style="margin-top:0px;">Next</button>
+    			             </div>
+                              <div class="col-lg-1 col-xl-1 col-md-1 col-sm-12"></div>
 			              </div>
-
-			             <div class="col-lg-4 col-xl-3 col-md-3 col-sm-6">
-			                 <button type="submit" class="btnSF btn-blue" style="margin-top:0px;">Next</button>
-			             </div>
-                          <div class="col-lg-4 col-xl-3 col-md-3 col-sm-12"></div>
-			            </div>
-
-			        </form>
-
 					</div>
+                    <div class="col-lg-2 col-xl-2 col-md-12 col-sm-12"></div>
 
-				</section>
+				</div>
 
+			</form>
 
+			</div>
 
-			</main>
+	</section>
+</main>
 
 <style type="text/css">
 .bike_policy_details__expitem{

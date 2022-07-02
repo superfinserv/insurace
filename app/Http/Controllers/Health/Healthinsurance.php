@@ -616,8 +616,8 @@ class Healthinsurance extends Controller{
          $dataParam->hasMedical = $param['hasMedical'];
          $medical = isset($param['medical'])?$param['medical']:[];
          $dataParam->medical = $medical;
-         
-        DB::table('app_quote')->where('enquiry_id', $enquiryID)->update(['params_request'=>json_encode($dataParam)]);
+      
+        DB::table('app_quote')->where('enquiry_id', $enquiryID)->update(['params_request'=>str_replace('\/','/',json_encode($dataParam))]);
         
     }
     

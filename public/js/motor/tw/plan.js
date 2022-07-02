@@ -10,6 +10,8 @@ $(function(){
               if(digitCard.length){
                   $('.plan-card-digit_m').find('button.btn-netpremiumn').html(loader);//.attr('disabled',false);
                   $('.plan-card-digit_m').find('.error-span').remove();
+                   digitCard.find('.downloadQuoteLink').attr('href','#');
+                   digitCard.find('.downloadQuoteLink').hide();
                   var twInfo = JSON.parse(localStorage.getItem('twInfo'));
                   var url =  (callTyp=='recalculate')?"/twowheeler-insurance/load-plans-recalculate/":"/twowheeler-insurance/load-plans/";
                  $.ajax({
@@ -39,7 +41,9 @@ $(function(){
                         digitCard.find('button.btn-netpremiumn').attr('data-ref',result.id);
                         digitCard.find('button.btn-netpremiumn').html('<span class="fa fa-inr"></span> '+result.grossamount+' <i style="" class="fa fa-angle-double-right" aria-hidden="true"></i>');
                         digitCard.find('button.btn-netpremiumn').attr('disabled',false);
-                        
+                        digitCard.find('.downloadQuoteLink').attr('href','#');
+                        digitCard.find('.downloadQuoteLink').attr('data-ref',result.id);
+                        digitCard.find('.downloadQuoteLink').show();
                         var addon =  result.addons.covers.addons;
                         if( addon.length){
                             var addonHtm = "";
@@ -80,7 +84,8 @@ $(function(){
                        $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html(loader);//.attr('disabled',false);
                        $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html(loader);
                        $('.plan-card-hdfcergo_m').find('.error-span').remove();
-                     
+                     hdfcergoCard.find('.downloadQuoteLink').attr('href','#');
+                     hdfcergoCard.find('.downloadQuoteLink').hide();
                      var twInfo = JSON.parse(localStorage.getItem('twInfo'));
                      var url =  (callTyp=='recalculate')?"/twowheeler-insurance/load-plans-recalculate/":"/twowheeler-insurance/load-plans/";
                      $.ajax({
@@ -112,6 +117,9 @@ $(function(){
                                 hdfcergoCard.find('span.paCoverStatus-txt').text('N/A');
                             }
                             hdfcergoCard.find('button.btn-netpremiumn').html('<span class="fa fa-inr"></span> '+result.grossamount+' <i style="" class="fa fa-angle-double-right" aria-hidden="true"></i>');
+                            hdfcergoCard.find('.downloadQuoteLink').attr('href','#');
+                            hdfcergoCard.find('.downloadQuoteLink').attr('data-ref',result.id);
+                            hdfcergoCard.find('.downloadQuoteLink').show();
                             var addon =  result.addons.covers.addons;
                              if( addon.length){
                                 var addonHtm = "";
@@ -156,7 +164,8 @@ $(function(){
                 $('.plan-card-fgi_m').find('button.btn-netpremiumn').html(loader).attr('disabled',false);
                 $('.plan-card-fgi_m').find('button.btn-netpremiumn').html(loader);
                 $('.plan-card-fgi_m').find('.error-span').remove();
-            
+                fgiCard.find('.downloadQuoteLink').attr('href','#');
+                fgiCard.find('.downloadQuoteLink').hide();
                  var twInfo = JSON.parse(localStorage.getItem('twInfo'));
                  var url =  (callTyp=='recalculate')?"/twowheeler-insurance/load-plans-recalculate/":"/twowheeler-insurance/load-plans/";
                  $.ajax({
@@ -183,6 +192,9 @@ $(function(){
                             fgiCard.find('span.paCoverStatus-txt').text('N/A');
                         }
                         fgiCard.find('button.btn-netpremiumn').html('<span class="fa fa-inr"></span> '+result.grossamount+' <i style="" class="fa fa-angle-double-right" aria-hidden="true"></i>');
+                        fgiCard.find('.downloadQuoteLink').attr('href','#');
+                        fgiCard.find('.downloadQuoteLink').attr('data-ref',result.id);
+                        fgiCard.find('.downloadQuoteLink').show();
                         var addon =  result.addons.covers.addons;
                          if( addon.length){
                             var addonHtm = "";
@@ -406,7 +418,7 @@ $(function(){
     }
     
     
-     $('body').on('submit','#TpDetailsForm',function(e){
+    $('body').on('submit','#TpDetailsForm',function(e){
       e.preventDefault();
         $("#TpDetailsForm").validate();
         
@@ -783,6 +795,36 @@ $(function(){
      });
    
     
+     $('body').on('click','.downloadQuoteLink',function(e) {
+         e.preventDefault();
+         var id = $(this).attr('data-ref');
+          var provider = $(this).attr('data-provider');
+          var _this = $(this);
+          var clone =  _this.clone();
+          _this.attr('disabled',true);
+          _this.prop('disabled',true);
+          var _html = _this.html();
+          _this.html(loader);
+           var twInfo = JSON.parse(localStorage.getItem('twInfo'));
+          $.post(base_url + "/twowheeler-insurance/create-enquiry/",{provider:provider,id:id,twInfo:twInfo}, function (resp) {
+             var status = $.trim(resp.status);
+             if(status=='success'){
+                var encId = resp.data.enq;
+                window.location.href=base_url+"/download-quote/motor-insurance/"+encId;
+                _this.html(clone);
+             }else{
+                _this.attr('disabled',false);
+                _this.prop('disabled',false);
+                _this.html(_html);
+                toastr.error(resp.message, 'Error!');
+             }
+          },'json').fail(function() {
+                _this.attr('disabled',false);
+                _this.prop('disabled',false);
+                _this.html(_html);
+                toastr.error("Internal Server error.", 'Error!');
+          });
+     });
     
 
     

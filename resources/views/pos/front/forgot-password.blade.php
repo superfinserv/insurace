@@ -113,7 +113,7 @@ text-shadow: inherit;
                                     </div>
                                 </div>
                             {{ Form::close() }}
-                             <p class=" pfts">We will send mail your register email address.</p>
+                             <p class=" pfts">We will send mail on your registered email address.</p>
                     </div>
                     <div class="spacer py-5 d-md-none"></div>
                     <div class="col-12 col-md-5 col-lg-6">

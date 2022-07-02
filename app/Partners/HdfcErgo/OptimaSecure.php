@@ -279,11 +279,12 @@ class OptimaSecure{
             $json_data = json_decode($enqData->json_data);
             $Amts = json_decode($enqData->amounts);
             $amt =  $Amts->$termYear;
+         
             $SI = json_decode($enqData->sumInsured);
             $sumInsured =  $SI->longAmt;
             $child = $params->total_child;
             $adult = $params->total_adult;
-           
+           $pTyp = $enqData->policyType;
              $totalMem = $child+$adult;
              if($totalMem>1){
                  $policyType = ($pTyp=="FL")?"Family":"Individual";
@@ -322,14 +323,14 @@ class OptimaSecure{
             foreach($params->members as $key=>$data){
                 if($data->type=="self")     {      $relationCd = "Self";    
                                                    $Salutation =($params->gender=='MALE')?'Mr.':(($params->selfMstatus=="Married")?"Mrs.":"Ms.");
-                                                   $gender=($params->gender=='Male')?"Male":"Female";
+                                                   $gender=($params->gender=='MALE')?"Male":"FeMale";
                                             }
-                else if($data->type=="daughter"){  $relationCd = "Daughter"; $Salutation ="Ms.";$gender="Female";}
+                else if($data->type=="daughter"){  $relationCd = "Daughter"; $Salutation ="Ms.";$gender="FeMale";}
                 else if($data->type=="son")     {  $relationCd = "Son";      $Salutation ="Mr.";$gender="Male";}
-                else if($data->type=="wife")    {  $relationCd = "Wife";     $Salutation ="Mrs.";$gender="Female";}
+                else if($data->type=="wife")    {  $relationCd = "Wife";     $Salutation ="Mrs.";$gender="FeMale";}
                 else if($data->type=="husband") {  $relationCd = "Husband";  $Salutation ="Mr.";$gender="Male";}
                 else if($data->type=="father")  {  $relationCd = "Father";   $Salutation ="Mr.";$gender="Male";}
-                else if($data->type=="mother")  {  $relationCd = "Mother";   $Salutation ="Mr.";$gender="Female";}
+                else if($data->type=="mother")  {  $relationCd = "Mother";   $Salutation ="Mr.";$gender="FeMale";}
                  $FullName =  ($data->type=="self")?$params->selfFname." ".$params->selfLname:$data->fname." ".$data->lname;
                  $DateofBirth = ($data->type=="self")?$params->selfyy."-".$params->selfmm."-".$params->selfdd:$data->yy."-".$data->mm."-".$data->dd;
                  $HeightInFt = ($data->type=="self")?$params->selfFeet:$data->feet;
@@ -341,22 +342,29 @@ class OptimaSecure{
                       foreach($data->medical as $q){ 
                           $Que =  new \stdClass();
                           $Q =  DB::table('medical_questions')->where('id', $q->queId)->first();
-                          $Que->QuestionId =$Q->code;
-                          $Que->QuestionText =$Q->title;
-                          $ch = $q->childQuestions[0];
-                          //$chQ =  DB::table('medical_questions')->where('id', $ch->Qid)->first();
-                          $ANS = explode("@@",$ch->answer);
-                          $opt =[
-                                    "OptionId"=>$ANS[0],
-                                    "OptionText"=> $ANS[1],
-                                   // "ExactDiagnosis"=>"High Blood Pressure",
-                                   // "ConsultationDate"=> "2020-03-29",
-                                   // "DiagnosisDate"=> "2020-03-29",
-                                   // "CurrentStatus"=> "Cured",
-                                   // "LineOfManagement"=> "Medical Management",
-                                    //"TreatmentDetails"=> "Medical Checkup"
-                                 ];
+                          $Que->QuestionId =(int)$Q->code;
+                          $Que->QuestionText =str_replace("\/",'/',$Q->title);
+                          //$ch = $q->childQuestions[0];
+                          $opt = [];
+                          foreach($q->childQuestions as $chQ){
+                            $ch =  DB::table('medical_questions')->where('id', $chQ->Qid)->first();
+                            //print_r($chQ->answer);
+                          if($ch->setparam=='OptionText'){
+                               $ANS = explode("@@",$chQ->answer);
+                               $opt["OptionId"]=isset($ANS[0])?(int)$ANS[0]:"";
+                               $opt["OptionText"]= isset($ANS[1])?str_replace("\/",'/',$ANS[1]):"";
+                          }else{
+                              if($ch->inputType=='date'){
+                                   $ans = Carbon::createFromFormat('d/m/Y', $chQ->answer)->format('Y-m-d');
+                                   $opt[$ch->setparam] = $ans;
+                              }else{
+                                 $opt[$ch->setparam] = $chQ->answer;
+                              }
+                             
+                          }
+                          }
                           $options =[];
+                         
                           array_push($options,$opt);
                           $Que->Options = $options;
                           
@@ -367,9 +375,9 @@ class OptimaSecure{
                  $person = [
                         "Relation"=> $relationCd,
                         "FullName"=> $FullName,
-                        "HeightInFt"=> $HeightInFt,
-                        "HeightInInc"=> $HeightInInc,
-                        "Weight"=> $Weight,
+                        "HeightInFt"=> (int)$HeightInFt,
+                        "HeightInInc"=> (int)$HeightInInc,
+                        "Weight"=> (int)$Weight,
                         "Gender"=> $gender,
                         "Salutation"=> $Salutation,
                         "DateofBirth"=> $DateofBirth,
@@ -395,14 +403,14 @@ class OptimaSecure{
             $state =  DB::table('states')->where('id',$stateID)->first();
             $city  =  DB::table('cities')->where('id',$cityID)->first();
             
-            $ProposerDetails->PinCode= $params->address->pincode;
+            $ProposerDetails->PinCode= (int)$params->address->pincode;
             $ProposerDetails->StateName= strtoupper($state->name);
             $ProposerDetails->CityName= strtoupper($city->name);
             $ProposerDetails->Address1=  $params->address->house_no;
             $ProposerDetails->Address2=  $params->address->street;
             $ProposerDetails->Address3= null;
-            $ProposerDetails->CityId=$city->hdfcErgoCode;
-            $ProposerDetails->StateId=$state->hdfcErgoCode;
+            $ProposerDetails->CityId=(int)$city->hdfcErgoCode;
+            $ProposerDetails->StateId=(int)$state->hdfcErgoCode;
             $ProposerDetails->PanCard= $params->document->documentId;
             $ProposerDetails->GstInNo= null;
             $request->ProposerDetails = $ProposerDetails;
@@ -417,17 +425,17 @@ class OptimaSecure{
             $NomineeDoB = Carbon::createFromFormat('Y-m-d', $nDob)->format('Y-m-d');
             $NomineeAge = calulateAge($NomineeDoB);
             $NomineeDetails->FullName =  $params->nomineename;
-            $NomineeDetails->Age= $NomineeAge;
+            $NomineeDetails->Age= (int)$NomineeAge;
             $NomineeDetails->RelationWithProposer= $RelationWithProposer;//"Son"
             $NomineeDetails->AddressSameAsProposer= true;
             $NomineeDetails->Address1= $params->address->house_no;
             $NomineeDetails->Address2= $params->address->street;
             $NomineeDetails->Address3= null;
-            $NomineeDetails->PinCode= $params->address->pincode;
+            $NomineeDetails->PinCode= (int)$params->address->pincode;
             $NomineeDetails->StateName=strtoupper($state->name);
             $NomineeDetails->CityName= strtoupper($city->name);
-            $NomineeDetails->CityId=$city->hdfcErgoCode;
-            $NomineeDetails->StateId=$state->hdfcErgoCode;
+            $NomineeDetails->CityId=(int)$city->hdfcErgoCode;
+            $NomineeDetails->StateId=(int)$state->hdfcErgoCode;
             $NomineeDetails->AddressSameAsApointee= false;
             
             $ApointeeDetails =  new \stdClass();
@@ -459,7 +467,7 @@ class OptimaSecure{
             $NomineeDetails->ApointeeDetails = $ApointeeDetails;
             
             $request->NomineeDetails = $NomineeDetails;
-            
+         echo json_encode($request); 
             
              $client = new Client([
               'headers' => [ 'Content-Type' => 'application/json',
@@ -473,7 +481,7 @@ class OptimaSecure{
              );
              $response = $clientResp->getBody()->getContents();
              $resp = json_decode($response);
-           //  print_r($response);
+            print_r($response);die;
              if(isset($resp->Status) && $resp->Status==200 ){ 
                     $data=['enq'=>$enq,
                               'amount'=> $amt->Total_Premium,
@@ -503,8 +511,8 @@ class OptimaSecure{
                               'proposalNum'=> $amt->quoteNo,
                               'quotationPremium'=>$amt->Total_Premium
                               ];
-                  return ['status'=>'success','message'=>'Proposal created successfully','data'=>$data];
-                 // return ['status'=>'error','message'=>$msg->Message,'data'=>[]];
+                 // return ['status'=>'success','message'=>'Proposal created successfully','data'=>$data];
+                  return ['status'=>'error','message'=>$msg->Message,'data'=>[]];
              }else{
                  return ['status'=>'error','message'=>$output->responseData->message,'data'=>[]];
              }

@@ -513,7 +513,7 @@ class HdfcErgoTwResource extends AppResource{
                    }
                 
                 $request->PurchaseRegistrationDate = $regDate;
-                $request->PospCode = "";
+                $request->PospCode = (isset(Auth::guard('agents')->user()->id))?Auth::guard('agents')->user()->hdfcErgoCode:"";
                 
                 $plnTypeAddon = "";
                 if($isCashAllowCover=='YES'){

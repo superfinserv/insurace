@@ -10,6 +10,8 @@ $(function(){
                if(digitCard.length){
                       digitCard.find('button.btn-netpremiumn').html(loader);
                       digitCard.find('.error-span').remove();
+                       digitCard.find('.downloadQuoteLink').attr('href','#');
+                   digitCard.find('.downloadQuoteLink').hide();
                      var carInfo = JSON.parse(localStorage.getItem('carInfo'));
                      var url =  (callTyp=='recalculate')?"/car-insurance/load-plans-recalculate/":"/car-insurance/load-plans/";
                      $.ajax({
@@ -41,6 +43,9 @@ $(function(){
                             digitCard.find('button.btn-netpremiumn').attr('data-ref',result.id);
                             digitCard.find('button.btn-netpremiumn').html('<span class="fa fa-inr"></span> '+result.grossamount+' <i style="" class="fa fa-angle-double-right" aria-hidden="true"></i>');
                             digitCard.find('button.btn-netpremiumn').attr('disabled',false);
+                             digitCard.find('.downloadQuoteLink').attr('href','#');
+                        digitCard.find('.downloadQuoteLink').attr('data-ref',result.id);
+                        digitCard.find('.downloadQuoteLink').show();
                             var addon =  result.addons.covers.addons;
                             if( addon.length){
                                 var addonHtm = "";
@@ -75,6 +80,8 @@ $(function(){
               if(hdfcergoCard.length){
                      $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html(loader);
                      $('.plan-card-hdfcergo_m').find('.error-span').remove();
+                      hdfcergoCard.find('.downloadQuoteLink').attr('href','#');
+                     hdfcergoCard.find('.downloadQuoteLink').hide();
                      var carInfo = JSON.parse(localStorage.getItem('carInfo'));
                      var url =  (callTyp=='recalculate')?"/car-insurance/load-plans-recalculate/":"/car-insurance/load-plans/";
                      $.ajax({
@@ -98,6 +105,9 @@ $(function(){
                             hdfcergoCard.find('button.btn-netpremiumn').attr('data-ref',result.id);
                             hdfcergoCard.find('button.btn-netpremiumn').html('<span class="fa fa-inr"></span> '+result.grossamount+' <i style="" class="fa fa-angle-double-right" aria-hidden="true"></i>');
                             hdfcergoCard.find('button.btn-netpremiumn').attr('disabled',false);
+                            hdfcergoCard.find('.downloadQuoteLink').attr('href','#');
+                            hdfcergoCard.find('.downloadQuoteLink').attr('data-ref',result.id);
+                            hdfcergoCard.find('.downloadQuoteLink').show();
                             var addon =  result.addons.covers.addons;
                             if( addon.length){
                                 var addonHtm = "";
@@ -136,7 +146,8 @@ $(function(){
                 $('.plan-card-fgi_m').find('button.btn-netpremiumn').html(loader).attr('disabled',false);
                 $('.plan-card-fgi_m').find('button.btn-netpremiumn').html(loader);
                 $('.plan-card-fgi_m').find('.error-span').remove();
-            
+                fgiCard.find('.downloadQuoteLink').attr('href','#');
+                fgiCard.find('.downloadQuoteLink').hide();
                  var carInfo = JSON.parse(localStorage.getItem('carInfo'));
                  var url =  (callTyp=='recalculate')?"/car-insurance/load-plans-recalculate/":"/car-insurance/load-plans/";
                  $.ajax({
@@ -163,6 +174,9 @@ $(function(){
                             fgiCard.find('span.paCoverStatus-txt').text('N/A');
                         }
                         fgiCard.find('button.btn-netpremiumn').html('<span class="fa fa-inr"></span> '+result.grossamount+' <i style="" class="fa fa-angle-double-right" aria-hidden="true"></i>');
+                        fgiCard.find('.downloadQuoteLink').attr('href','#');
+                        fgiCard.find('.downloadQuoteLink').attr('data-ref',result.id);
+                        fgiCard.find('.downloadQuoteLink').show();
                         var addon =  result.addons.covers.addons;
                          if( addon.length){
                             var addonHtm = "";
@@ -803,6 +817,37 @@ $(function(){
                 toastr.error("Internal Server error.", 'Error!');
           });
      });
+     
+      $('body').on('click','.downloadQuoteLink',function(e) {
+         e.preventDefault();
+         var id = $(this).attr('data-ref');
+          var provider = $(this).attr('data-provider');
+          var _this = $(this);
+          var clone =  _this.clone();
+          _this.attr('disabled',true);
+          _this.prop('disabled',true);
+          var _html = _this.html();
+          _this.html(loader);
+           var carInfo = JSON.parse(localStorage.getItem('carInfo'));
+          $.post(base_url + "/car-insurance/create-enquiry/",{provider:provider,id:id,carInfo:carInfo}, function (resp) {
+             var status = $.trim(resp.status);
+             if(status=='success'){
+                var encId = resp.data.enq;
+                window.location.href=base_url+"/download-quote/motor-insurance/"+encId;
+                _this.html(clone);
+             }else{
+                _this.attr('disabled',false);
+                _this.prop('disabled',false);
+                _this.html(_html);
+                toastr.error(resp.message, 'Error!');
+             }
+          },'json').fail(function() {
+                _this.attr('disabled',false);
+                _this.prop('disabled',false);
+                _this.html(_html);
+                toastr.error("Internal Server error.", 'Error!');
+          });
+     });
    
 
     $( "#slider-range-cng" ).slider({
@@ -810,7 +855,7 @@ $(function(){
       value: 100,
       min: 100,
       max: 1000,
-      step:500,
+      step:100,
       slide: function( event, ui ) {
         $( "#isCngKitCover-txt-val" ).text( "₹"+ ui.value );
       },
@@ -833,7 +878,7 @@ $(function(){
       value: 100,
       min: 100,
       max: 700,
-      step:500,
+      step:100,
       slide: function( event, ui ) {
         $( "#isElecAccCover-txt-val" ).text( "₹"+ ui.value );
       },
@@ -856,7 +901,7 @@ $(function(){
       value: 100,
       min: 100,
       max: 700,
-      step:500,
+      step:100,
       slide: function( event, ui ) {
         $( "#isNonElecAccCover-txt-val" ).text( "₹"+ ui.value );
       },
@@ -880,26 +925,26 @@ $(function(){
   
   function loadAdssCover(cover){
       var deviceToken = localStorage.getItem('deviceToken');
-      $.get(base_url + "/commomn/load-min-max-value/car/"+deviceToken, function (resp) {
-           if(cover=="isCngKitCover"){
-             $("#slider-range-cng").slider("option", "min", resp.cng.min);
-             $("#slider-range-cng").slider("option", "max", resp.cng.max); 
-             $("#slider-range-cng").slider("option", "value", resp.cng.min);
-             $( "#isCngKitCover-txt-val" ).text( "₹"+ resp.cng.min);
-           }
-            if(cover=="isElecAccCover"){
-              $("#slider-range-electric").slider("option", "min", resp.electrical.min); 
-              $("#slider-range-electric").slider("option", "max", resp.electrical.max); 
-              $("#slider-range-electric").slider("option", "value", resp.electrical.min);
-              $( "#isElecAccCover-txt-val" ).text( "₹"+ resp.electrical.min );
-            }
-             if(cover=="isNonElecAccCover"){
-                $("#slider-range-nonelectric").slider("option", "min", resp.nonelectrical.min); 
-                $("#slider-range-nonelectric").slider("option", "max", resp.nonelectrical.max); 
-                $("#slider-range-nonelectric").slider("option", "value", resp.nonelectrical.min);
-                $( "#isNonElecAccCover-txt-val" ).text( "₹"+ resp.electrical.min);
-             }
-      },'json');
+    //   $.get(base_url + "/moter-insurance/load-min-max-value/car/"+deviceToken, function (resp) {
+    //       if(cover=="isCngKitCover"){
+    //          $("#slider-range-cng").slider("option", "min", resp.cng.min);
+    //          $("#slider-range-cng").slider("option", "max", resp.cng.max); 
+    //          $("#slider-range-cng").slider("option", "value", resp.cng.min);
+    //          $( "#isCngKitCover-txt-val" ).text( "₹"+ resp.cng.min);
+    //       }
+    //         if(cover=="isElecAccCover"){
+    //           $("#slider-range-electric").slider("option", "min", resp.electrical.min); 
+    //           $("#slider-range-electric").slider("option", "max", resp.electrical.max); 
+    //           $("#slider-range-electric").slider("option", "value", resp.electrical.min);
+    //           $( "#isElecAccCover-txt-val" ).text( "₹"+ resp.electrical.min );
+    //         }
+    //          if(cover=="isNonElecAccCover"){
+    //             $("#slider-range-nonelectric").slider("option", "min", resp.nonelectrical.min); 
+    //             $("#slider-range-nonelectric").slider("option", "max", resp.nonelectrical.max); 
+    //             $("#slider-range-nonelectric").slider("option", "value", resp.nonelectrical.min);
+    //             $( "#isNonElecAccCover-txt-val" ).text( "₹"+ resp.electrical.min);
+    //          }
+    //   },'json');
   }
 
 

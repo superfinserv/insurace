@@ -204,7 +204,7 @@ class Twinsurance extends Controller
     public function createEnquiry(Request $request){
         $Q =   DB::table('app_temp_quote')->where('quote_id',$request->id)->first();
         $cust = $this->usermanger->GetPolicySoldBy();
-        
+        $QuoteId = uniqueQuoteNo('BIKE');
         if($Q->provider=="DIGIT"){
             $recalculate = $this->DigitTw->getSingleRecalulateQuote($Q->quote_id,$this->getToken(),$request->twInfo);
             if($recalculate['status']){
@@ -213,6 +213,7 @@ class Twinsurance extends Controller
                 $json_data = json_decode($temp->json_data);//$this->DigitTw->getJsonData($temp->response);
                 $json_data->enq = $enquiryId;
                 $quoteData = ['type'=>'BIKE',
+                              'SFQuoteId'=>$QuoteId,
                               'provider'=>$temp->provider,
                               'device_id'=>$this->getToken(),
                               'termYear'=>$temp->tenure,
@@ -243,12 +244,12 @@ class Twinsurance extends Controller
             }else{
                 return response()->json(['status'=>'error','message'=>"Error while recalculating premium.",'data'=>[]]);
             }
-        }else if($Q->provider=="HDFCERGO" || $Q->provider=="FGI" ){
+        }else if($Q->provider=="HDFCERGO" || $Q->provider=="FGI" ){ 
                 $enquiryId = md5(uniqid(rand(), true));
                 $temp =   DB::table('app_temp_quote')->where('quote_id',$request->id)->first();
                 $json_data = json_decode($temp->json_data);//$this->DigitTw->getJsonData($temp->response);
                 $json_data->enq = $temp->quote_id;
-                $quoteData = ['type'=>'BIKE',
+                $quoteData = ['type'=>'BIKE','SFQuoteId'=>$QuoteId,
                               'provider'=>$temp->provider,
                               'device_id'=>$this->getToken(),
                               'agent_id'=>$cust->agent_id,//$agentID,

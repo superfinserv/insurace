@@ -20,7 +20,17 @@
     
   </div>
   <style>
+ @media screen and (max-width: 600px) {
+     
+     #uploadimageModal{
+         left:0 !important;
+     }
+}
 
+ #uploadimageModal{
+         left:50%;bottom: unset;
+     }
+    
   </style>
     <div class="form-group col-md-8">
         <form class="form-group" style="top: 10px;margin: 10px;" enctype="multipart/form-data"  id="personalinfo" method="post">
@@ -134,7 +144,7 @@
 </div>
 
 <!-- This is the modal -->
-<div class="modal" tabindex="-1" role="dialog" id="uploadimageModal" style="left:50%;bottom: unset;">
+<div class="modal" tabindex="-1" role="dialog" id="uploadimageModal" style="">
     <div class="modal-dialog" role="document" >
         <div class="modal-content">
             <div class="modal-header" style="background: #C52118;color: #fff;">

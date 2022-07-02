@@ -79,7 +79,7 @@ text-shadow: inherit;
 						    {{ Form::close() }}
 						    </br> </br>
 						      <a href="{{url('forgot-password')}}" id="forgot_pswd" >Forgot password?</a>  
-						      <a href="{{url('register')}}" id="forgot_pswd" style=" float: right; ">Don`t Have Account?</a>  
+						      <a href="{{url('register')}}" id="forgot_pswd" style=" float: right; ">Register for POSP</a>  
 						</div>
 
 						<div class="col-md-4"></div>
