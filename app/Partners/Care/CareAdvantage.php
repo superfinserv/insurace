@@ -577,7 +577,7 @@ class CareAdvantage{
                                           $_que->response =$ch->answer;
                                        }
                                     
-                                    $_que->questionSetCd = $Q->setcode;
+                                    $_que->questionSetCd = $childSet->setcode;
                                     $_que->questionCd = $questionCd;
                                     
                                     array_push($QueARR,$_que);

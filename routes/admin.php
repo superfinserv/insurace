@@ -224,7 +224,8 @@ Route::get('/clear-cache', function() {
         Route::get('fgi-vehicles-models/{param}', 'Admin\VehiclesController@FgiModelData');
         
           Route::get('rto-master', 'Admin\RtoController@index');
-          
+          Route::get('rto-vehicle-info', 'Admin\RtoController@GetRtoVehicleInfo');
+          Route::post('get-vehicle-rto-info', 'Admin\RtoController@GetVehicleRegDetails');
           Route::post('rto-master/create', 'Admin\RtoController@savenewInfo');
           Route::post('rto-master/datatable', 'Admin\RtoController@getdatatable');
           Route::post('rto-master/update-code/{param}', 'Admin\RtoController@updateVcode');

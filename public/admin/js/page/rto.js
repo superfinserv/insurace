@@ -64,11 +64,11 @@ $(function(){
             } );
             
     
-     $('.search-input-text').on( 'keyup change', function () {   // for text boxes
+    $('.search-input-text').on( 'keyup change', function () {   // for text boxes
         var i =$(this).attr('data-column');  // getting column index
         var v =$(this).val();  // getting search input value
         vehiclestable.columns(i).search(v).draw();
-  });
+    });
   
     $('body').on('change','.text-vcode', function () {   // for text boxes
         var i =$(this).attr('data-id');  // getting column index
@@ -102,9 +102,7 @@ $(function(){
         },'json');
     });
     
-    
-    
-     $("#createNewRtoForm").validate({
+    $("#createNewRtoForm").validate({
         rules: {
             'rtoCode': { required: true },
             'rtoTxt': { required: true},
@@ -130,5 +128,18 @@ $(function(){
         }
 
     });
+    
+    $('body').on('click','#btnRtoinfo', function (e) {   // for text boxes
+        e.preventDefault();
+        var _this =  $(this);
+        _this.loadButton('on',{ faClass:'fa',faIcon:'fa-spinner', doSpin:false, loadingText:'Fetching....'});
+        $.post(base_url+'/get-vehicle-rto-info',{vehicleNumber:$('#vehicleNumber').val()},function(result){
+           _this.loadButton('off');
+           $('#VinfoCode').html('<pre style="color: #f8f8f2 !important;">'+JSON.stringify(JSON.parse(result), null, 2)+'</pre>');
+          
+        });
+    });
+    
+   
     
 });

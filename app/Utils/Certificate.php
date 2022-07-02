@@ -23,7 +23,7 @@ class Certificate {
             File::makeDirectory($path, $mode = 0755, true, true);
         } 
        
-            $logo = get_site_settings('site_logo');//"https://insurance.supersolutions.in/logo/logo_5.png";
+            $logo = public_path('/site_assets/logo/site_logo.png');//$logo = public_path('/site_assets/logo/'.config('custom.site_logo'));//"https://insurance.supersolutions.in/logo/logo_5.png";
             $arrContextOptions=array(
                             "ssl"=>array(
                                 "verify_peer"=>false,

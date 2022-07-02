@@ -158,7 +158,7 @@ class Manipal {
             $_result=json_decode($response);
          
          
-          // print_r($_result);
+         // print_r($_result);
        //  if(isset($_result->errorList)){
            
                  if($_result->errorList==null || $_result->errorList==""){
@@ -224,7 +224,7 @@ class Manipal {
     }
     
     function GetReceipt($pno,$data,$f=false){
-       $policy =  $this->GetPolicyInfo($pno);
+       $policy =  $this->GetPolicyInfo($data->proposalNumber);
        
        $json = json_decode($data->json_data);
        

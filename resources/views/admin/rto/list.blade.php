@@ -16,14 +16,12 @@
             cursor: move;
         }
   </style> 
-         <div class="card shadow-base bd-0">
-            <div class="card-header tx-medium bd-0 tx-white">
+         <div class="card bd-0">
+            <div class="card-header bg-danger d-flex  align-items-center justify-content-between pd-y-5">
                <h6 class="mg-b-0 tx-14 tx-white">ADD NEW RTO</h6>
-               <!--<div class="card-option tx-24">-->
-                    
-               <!--     <a href="#" class=" btn-sm tx-white mg-l-10"><i class="fas fa-arrows-alt lh-0"></i> Sort Brands</a>-->
-                     
-               <!--    </div>-->
+                <div class="card-option tx-24">
+                  <a href="{{url('rto-vehicle-info')}}" class="btn btn-dark  btn-sm tx-white mg-l-10"><i class="fas fa-arrows-alt lh-0"></i> Get Vehicle Info</a>
+                </div>
             </div>
             <div class="card-body bd bd-t-0 rounded-bottom"> 
             <form id="createNewRtoForm">

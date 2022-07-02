@@ -444,13 +444,13 @@ $("#ForgotForm").validate({
                         $('#otpbased').hide();
                         $('.ajax_responsea').html('');
                         $('#mobile').val('');
-                         $('.ajax_responsea').html('<div class="alert alert-success alert-bordered"><span class="text-semibold">Send mail your email ! </span> please check your email   .</div>')
+                         $('.ajax_responsea').html('<div class="alert alert-success alert-bordered"><span class="text-semibold">Password reset mail sent successfully </span></div>')
                     } else if(str == 400){
                         setInterval(function(){ $(".alert").hide(); }, 5000);
                         $(".abc").show();
                         $('#otpbased').hide();
                         $('.ajax_responsea').html('');
-                         $('.ajax_responsea').html('<div class="alert alert-success alert-bordered"><span class="text-semibold">Send mail your email ! </span> please check your email   .</div>')
+                         $('.ajax_responsea').html('<div class="alert alert-success alert-bordered"><span class="text-semibold">Password reset mail sent successfully </span></div>')
                     }else{
                         setInterval(function(){ $(".alert").hide(); }, 5000);
                         $(".abc").show();

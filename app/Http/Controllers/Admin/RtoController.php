@@ -9,12 +9,13 @@ use Session;
 use File;
 use Auth;
 use Illuminate\Support\Facades\Validator;
-
+use App\Resources\Signzy;
 class RtoController extends Controller
 {
      public function __construct() { 
        // $this->appUtil = $appUtil; 
         $this->middleware('auth');
+         $this->Signzy = new Signzy;
      }
 
     public function index(Request $request){
@@ -103,7 +104,7 @@ class RtoController extends Controller
         }
     }
     
-     public function savenewInfo(Request $request){
+    public function savenewInfo(Request $request){
           try{
                     $validator = Validator::make($request->all(), [
                         'rtoCode' => 'required|unique:rtoMaster'
@@ -131,6 +132,46 @@ class RtoController extends Controller
          }
      }
     
+     public function GetRtoVehicleInfo(Request $request){
+        $template = ['title' => 'RTO',"subtitle"=>"Vehicle Info"];
+        $template['scripts'] = [asset('admin/js/page/rto.js')];  
+        return View::make('admin.rto.vInfoApi')->with($template);
+    }
+    function GetVehicleRegDetails(Request $request){
+          $isExist = DB::table('vehicles_rc')->where('regNo',$request->vehicleNumber)->count();
+          if(isset($request->vehicleNumber) && $request->vehicleNumber!=""){
+              if($isExist){
+                  $result = DB::table('vehicles_rc')->where('regNo',$request->vehicleNumber)->first();
+                  $response =  json_decode($result->json_result);
+                  echo  json_encode($response->result, JSON_PRETTY_PRINT);
+              }else{
+                 $response = $this->Signzy->GetVehicleDetails($request->vehicleNumber);
+                 if(isset($response->id)){
+                     $insert =  ['regNo'=>$response->result->regNo, 'class'=>$response->result->class, 'chassis'=>$response->result->chassis, 'engine'=>$response->result->engine, 'vehicleManufacturerName'=>$response->result->vehicleManufacturerName, 
+                                 'model'=>$response->result->model, 'vehicleColour'=>$response->result->vehicleColour, 'type'=>$response->result->type, 'normsType'=>$response->result->normsType, 'bodyType'=>$response->result->bodyType, 
+                                 'ownerCount'=>$response->result->ownerCount, 'owner'=>$response->result->owner, 'ownerFatherName'=>$response->result->ownerFatherName, 'mobileNumber'=>$response->result->mobileNumber, 
+                                 'status'=>$response->result->status, 'statusAsOn'=>$response->result->statusAsOn, 'regAuthority'=>$response->result->regAuthority, 'regDate'=>$response->result->regDate, 
+                                 'vehicleManufacturingMonthYear'=>$response->result->vehicleManufacturingMonthYear, 'rcExpiryDate'=>$response->result->rcExpiryDate, 'vehicleTaxUpto'=>$response->result->vehicleTaxUpto, 
+                                 'vehicleInsuranceCompanyName'=>$response->result->vehicleInsuranceCompanyName, 'vehicleInsuranceUpto'=>$response->result->vehicleInsuranceUpto, 'vehicleInsurancePolicyNumber'=>$response->result->vehicleInsurancePolicyNumber, 
+                                 'rcFinancer'=>$response->result->rcFinancer, 
+                                 'district'=>isset($response->result->splitPresentAddress->district[0])?$response->result->splitPresentAddress->district[0]:"", 
+                                 'state'=>isset($response->result->splitPresentAddress->state[0][0])?$response->result->splitPresentAddress->state[0][0]:"", 
+                                 'city'=>isset($response->result->splitPresentAddress->city[0])?$response->result->splitPresentAddress->city[0]:"", 
+                                 'pincode'=>$response->result->splitPresentAddress->pincode, 
+                                 'addressLine'=>$response->result->splitPresentAddress->addressLine, 'vehicleCubicCapacity'=>$response->result->vehicleCubicCapacity, 'grossVehicleWeight'=>$response->result->grossVehicleWeight, 'unladenWeight'=>$response->result->unladenWeight,
+                                 'vehicleCategory'=>$response->result->vehicleCategory, 'vehicleCylindersNo'=>$response->result->vehicleCylindersNo, 'vehicleSeatCapacity'=>$response->result->vehicleSeatCapacity, 'wheelbase'=>$response->result->wheelbase, 
+                                 'puccNumber'=>$response->result->puccNumber, 'puccUpto'=>$response->result->puccUpto, 'isCommercial'=>$response->result->isCommercial, 'json_result'=>json_encode($response)];
+                                 //print_r($insert);die;
+                               DB::table('vehicles_rc')->insert($insert);
+                   echo  json_encode($response->result, JSON_PRETTY_PRINT);
+                 }else{
+                      echo  json_encode(['status' => false, 'message' =>"Not found"], JSON_PRETTY_PRINT);
+                 }
+              }
+          }else{
+               echo  json_encode(['status' => false, 'message' =>"Enter Valid Vehicle Number"], JSON_PRETTY_PRINT);
+          }
+    }
   
     
     

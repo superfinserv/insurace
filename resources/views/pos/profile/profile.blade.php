@@ -267,9 +267,21 @@ input[type="file" i]:after {
                            </div>
                        <?php  } ?>
                        
-                        <?php  if($data['iscomplete']==1 && $agent->isProceedSign=='Yes' && $agent->payment_status=='Yes') {?>
+                        <?php  if($data['iscomplete']==1 && $agent->isProceedSign!='Inforced' && $agent->isProceedSign=='Yes' && $agent->payment_status=='Paid' && $agent->tranning_crd=="") {?>
                             <div class="myprofile alert-process-verification" style="background: #fff; border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">
-                              <span><strong>Congratulations! </strong>You have completed the POSP Application with Super Finserv. We will check the records in IIB and will let you the the future course of action. We will refund your application & training fee in case we find your records in IIB with any other Insurer/Intermediary. Super Finserv reserves the right to select or reject the application..</span>
+                              <span><strong>Congratulations! </strong>You have completed the POSP Application with Super Finserv. We will check the records in IIB and will let you know the future course of action. We will refund your application & training fee in case we find your records in IIB with any other Insurer/Intermediary. Super Finserv reserves the right to select or reject the application.</span>
+                            </div>
+                       <?php  } ?>
+                       
+                      <?php  if($agent->application_status=='Approved' && $agent->tranning_crd!="" && $agent->is_tranning_complete=="No") {?>
+                            <div class="myprofile alert-process-verification" style="background: #fff; border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">
+                              <span><strong>Congratulations! </strong>Training Credentials sent on your mail id. Please follow the training link and complete your POSP Training to appear for certification.</span>
+                           </div>
+                       <?php  } ?>
+                       
+                       <?php  if( $agent->application_status=='Approved' && $agent->isProceedSign=='Yes' && $agent->tranning_crd!="" && $agent->is_tranning_complete=="Yes") {?>
+                            <div class="myprofile alert-process-verification" style="background: #fff; border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">
+                              <span><strong>Congratulations! </strong>Please appear for certification in "My Certification" section. All the Best.</span>
                             </div>
                        <?php  } ?>
                           

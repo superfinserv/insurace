@@ -54,7 +54,7 @@ class InspectionCron extends Command
            Write your database logic we bellow:
            Item::create(['name'=>'hello new']);
         */
-         $cases = DB::table('app_quote')->where('isBreakInCase','YES')->whereIn('breakInStatus',['Pending', 'Initiated', 'Approved'])->get();
+         $cases = DB::table('app_quote')->where('status','ENQ')->where('isBreakInCase','YES')->whereIn('breakInStatus',['Pending', 'Initiated', 'Approved'])->get();
          foreach($cases as $each){
              if($each->provider=="DIGIT"){ 
                     $breakIn =  json_decode($each->breakInJson,true);

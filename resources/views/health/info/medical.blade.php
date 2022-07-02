@@ -79,7 +79,7 @@
                 <div class="row" style="">
                      <div class="col-md-12 col-sm-12 col-xs-12"><span class="users-span-error error-select-user-<?=$que->id;?>"></span></div>
                     <?php foreach($param->members as $ins=>$insurer){ 
-                        $isMemChecked = true;
+                        $isMemChecked = false;
                         $YearFrom = $insurer->yy;
                         $YearTill =date('Y');
                         if($isQuecheked){ $isMemChecked =  isset($insurer->medical->{$que->id})?true:false;}

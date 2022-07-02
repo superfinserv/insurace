@@ -85,15 +85,15 @@
         
                                     <div class="mt-4 Application-Status-Elem">
                                         @if($agentData->application_status=="Pending")
-                                        <h6 class="mb-0" style="letter-spacing: 0.7px;font-weight: 300;">Do you want to <span class="text-success">Approved</span> or <span class="text-danger">Declined</span> the application? Please press below "Approve/Declined" button</h6>
+                                        <h6 class="mb-0" style="letter-spacing: 0.7px;font-weight: 300;">Do you want to <span class="text-success">Approve</span> or <span class="text-danger">Decline</span> the application? Please press below "Approve/Decline" button</h6>
                                         <div class="mt-4">
-                                            <button class="btn btn-success btn-sm btn-app-status" data-id="{{$agentData->id}}" data-status="Approved">Approved</button>
-                                            <button class="btn btn-danger btn-sm btn-app-status" data-id="{{$agentData->id}}" data-status="Declined">Declined</button>
+                                            <button class="btn btn-success btn-sm btn-app-status" data-id="{{$agentData->id}}" data-status="Approved">Approve</button>
+                                            <button class="btn btn-danger btn-sm btn-app-status" data-id="{{$agentData->id}}" data-status="Declined">Decline</button>
                                         </div><!--end col-->
                                          @elseif($agentData->application_status=="Approved")
-                                         <button class="btn btn-success btn-sm">Approved</button>
+                                         <button class="btn btn-success btn-sm">Approve</button>
                                          @elseif($agentData->application_status=="Declined")
-                                         <button class="btn btn-danger btn-sm ">Declined</button>
+                                         <button class="btn btn-danger btn-sm ">Decline</button>
                                          @endif
                                     </div>
                                 </div>

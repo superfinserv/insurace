@@ -102,7 +102,7 @@ Route::post('/sales-dashbord/get-dashboard-counts', 'Pos\SalesController@getDash
     Route::get('/motor/{insType}/policy/payments/{enQId}', 'Motor\MotorInsurance@paymentLinkPage');
     Route::post('motor/get-vehicle-models', 'Motor\MotorInsurance@getModelByMake');
     Route::post('motor/get-vehicle-varients', 'Motor\MotorInsurance@getVarientByModel');
-    
+    Route::get('download-quote/motor-insurance/{enQ}', 'Motor\MotorInsurance@GetDownloadQuote');
     //health Common data
     Route::post('health-insurance/genrate-payment-link', 'Health\Healthinsurance@sendPaymentLink');
     Route::get('/health/{insType}/policy/payments/{enQId}', 'Health\Healthinsurance@paymentLinkPage');

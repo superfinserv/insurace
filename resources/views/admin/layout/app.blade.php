@@ -144,6 +144,8 @@
     <script src="{{asset('admin/lib/loading-btn/jquery.loadButton.js')}}"  type="text/javascript"></script>
     <script src="{{asset('admin/lib/toastr/toastr.min.js')}}"  type="text/javascript"></script>
     <script src="{{asset('admin/lib/input-mask/jquery.mask.js')}}"  type="text/javascript"></script>
+    
+    
    <!--<script src="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/js/bootstrap-editable.min.js"></script>-->
    
     <script> var base_url = "{{url('/')}}"; </script>  

@@ -277,7 +277,7 @@ padding: 4px 1px 4px 1px;
                                                     </div>
                                                     <div class="col-lg-3 col-xl-3 col-md-3 col-xs-6">
                                                         <div class="column-4">
-                                                            <!--<h5 style="" class="grosspremium"><span class="fa fa-inr"></span> ----</h5>-->
+                                                             <a href="#" class="downloadQuoteLink"><span class="fa fa-download"></span> Download Quote</a>
                                                                 <button class="btn btn-netpremiumn selectPlan" style="height: 40px;" data-provider="DIGIT_M" data-ref="">
                                                                    <span class="inline-loader"><span class="inline-loader-box"></span><span class="inline-loader-box"></span><span class="inline-loader-box"></span></span> 
                                                                 </button>
@@ -312,7 +312,7 @@ padding: 4px 1px 4px 1px;
                                                     </div>
                                                     <div class="col-lg-3 col-xl-3 col-md-3  col-xs-12">
                                                         <div class="column-4">
-                                                            <!--<h5 style="" class="grosspremium"><span class="fa fa-inr"></span> ----</h5>-->
+                                                            <a href="#" class="downloadQuoteLink"><span class="fa fa-download"></span> Download Quote</a>
                                                                 <button class="btn btn-netpremiumn selectPlan" style="height: 40px;" data-provider="" data-ref="#">
                                                                    <span class="inline-loader"><span class="inline-loader-box"></span><span class="inline-loader-box"></span><span class="inline-loader-box"></span></span> 
                                                                 </button>
@@ -347,7 +347,7 @@ padding: 4px 1px 4px 1px;
                                                     </div>
                                                     <div class="col-lg-3 col-xl-3 col-md-3  col-xs-12">
                                                         <div class="column-4">
-                                                            <!--<h5 style="" class="grosspremium"><span class="fa fa-inr"></span> ----</h5>-->
+                                                             <a href="#" class="downloadQuoteLink"><span class="fa fa-download"></span> Download Quote</a>
                                                                 <button disabled class="btn btn-netpremiumn selectPlan" style="height: 40px;" data-provider="fgi_m" data-ref="">
                                                                    0.00<!--<span class="inline-loader"><span class="inline-loader-box"></span><span class="inline-loader-box"></span><span class="inline-loader-box"></span></span> -->
                                                                 </button>
@@ -412,10 +412,10 @@ padding: 4px 1px 4px 1px;
        padding:35px 8px 8px 8px;
     }
      .plan-card .column-4{
-        padding-top: 35px;
+        padding-top: 6px;
     }
-    .plan-card .column-4 .grosspremium {
-      font-size:15px;font-weight:500;text-decoration: line-through;
+    .plan-card .column-4 .downloadQuoteLink {
+      font-size:15px;font-weight:500;display:none;
     }
     .plan-card .column-4 .btn-netpremiumn {
         width: 100%;

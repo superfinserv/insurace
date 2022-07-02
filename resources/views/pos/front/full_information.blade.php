@@ -35,10 +35,10 @@
              <div class="input-wrp">
                 <input class="form-control " placeholder="Pincode" name="pincode"  id="pincode"  />
             </div>
-            <div class="input-wrp" style="width: 49%;float: left;margin-right: 8px;">
+            <div class="input-wrp" style="width: 48%;float: left;margin-right: 8px;">
                 <input class="form-control" placeholder="Password" name="password" id="password" type="password"  >
             </div>
-            <div class="input-wrp" style="width: 49%;float: right;">
+            <div class="input-wrp" style="width: 48%;float: right;">
                  <input class="form-control" placeholder="Confirm Password" name="confirm_password" id="confirm_password" type="password" >
             </div>
         </div>

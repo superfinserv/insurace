@@ -13,7 +13,7 @@ use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
-
+use PDF as Filepdf;
 use App\Resources\Signzy;
 use App\Resources\DigitCarResource;
 use App\Resources\HdfcErgoCarResource;
@@ -43,7 +43,7 @@ class MotorInsurance extends Controller
            
     }
     
-     function GetVehicleRegistrationDetails(Request $request){
+    public function GetVehicleRegistrationDetails(Request $request){
            
             $isExist = DB::table('vehicles_rc')->where('regNo',$request->vehicleNumber)->count();
             if($isExist){
@@ -348,8 +348,7 @@ class MotorInsurance extends Controller
             }//else get data from signzy
     }
     
-      
-    function loadidvModal(Request $request){
+    public function loadidvModal(Request $request){
         
          $SQL = DB::table('app_temp_quote')
                      ->select('idv','min_idv','max_idv','provider')
@@ -378,7 +377,7 @@ class MotorInsurance extends Controller
          return View::make('motor.idv_modal')->with($temp);
     }
     
-    function load_TP_details_Modal(Request $request){
+    public function load_TP_details_Modal(Request $request){
         $temp['previous_insurer'] = DB::table('previous_insurer')->where(['status'=>'ACTIVE','type'=>'GENERAL'])->get();
         $temp['type'] = $request->type;
         $temp['preCover'] =  isset($request->preCover)?$request->preCover:'COM';
@@ -386,7 +385,7 @@ class MotorInsurance extends Controller
         return View::make('motor.moter_tp_details')->with($temp);
     }
     
-    function moterPremiumBreakupModal(Request $request){
+    public function moterPremiumBreakupModal(Request $request){
          $refId =  $request->refId;
          $typ   =  $request->typ;
          if($typ=='quote'){
@@ -400,7 +399,6 @@ class MotorInsurance extends Controller
          }
          return View::make('motor.moter_premium_breakup')->with($temp);
     }
-    
     
     public function getminMaxassValue(Request $request){
         $token = isset(Auth::guard('agents')->user()->posp_ID)?Auth::guard('agents')->user()->posp_ID:Auth::guard('customers')->user()->uniqueToken;
@@ -570,7 +568,39 @@ class MotorInsurance extends Controller
         
     }
     
-
+    public function GetDownloadQuote(Request $request){
+          
+         
+            $enQId=$request->enQ;
+            $enQ= DB::table('app_quote')->where('enquiry_id',$enQId)->first();
+            $logo = public_path('/site_assets/logo/site_logo.png');//.config('custom.site_logo'));
+            $arrContextOptions=array(
+                            "ssl"=>array(
+                                "verify_peer"=>false,
+                                "verify_peer_name"=>false,
+                            ),
+                        );
+            $type = pathinfo($logo, PATHINFO_EXTENSION);
+            $avatarData = file_get_contents($logo, false, stream_context_create($arrContextOptions));
+            $avatarBase64Data = base64_encode($avatarData);
+            $data['logo'] = 'data:image/' . $type . ';base64,' . $avatarBase64Data;
+            
+            $partner = DB::table('our_partners')->where('shortName',$enQ->provider)->first();
+            $partnerlogo =public_path('/assets/partners/'.$partner->logo_image);//.config('custom.site_logo'));
+          
+            $type1 = pathinfo($partnerlogo, PATHINFO_EXTENSION);
+            $avatarData1 = file_get_contents($partnerlogo, false, stream_context_create($arrContextOptions));
+            $avatarBase64Data1 = base64_encode($avatarData1);
+            $data['partnerlogo'] = 'data:image/' . $type1 . ';base64,' . $avatarBase64Data1;
+            $param    = json_decode($enQ->params_request);
+            $data['enQ'] = $enQ;
+            $data['QuoteDate'] = Carbon::CreateFromFormat('Y-m-d H:i:s',$enQ->created_at)->format('d/m/Y');
+            $data['RegDate']   = ucfirst(Carbon::CreateFromFormat('d-m-Y',$param->vehicle->regDMY)->format('M,Y'));
+         Filepdf::setOptions(['defaultFont' => 'sans-serif','defaultMediaType'=>'all','isFontSubsettingEnabled'=>true]);
+         $pdf = Filepdf::loadView('insurance.partnerQuote',$data);
+         $filename = "Quote-".$enQ->provider."-".$enQ->SFQuoteId.".pdf";
+         return $pdf->download($filename);
+    }
    
 
     

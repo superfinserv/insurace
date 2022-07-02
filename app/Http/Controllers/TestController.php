@@ -16,7 +16,7 @@ use Auth;
 //use Redirect;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
-use PDF;
+//use PDF;
 use Carbon\Carbon;
 
 use App\Resources\DigitCarResource;
@@ -24,12 +24,14 @@ use App\Resources\DigitBikeResource;
 use App\Resources\HdfcErgoTwResource;
 use App\Resources\HdfcErgoCarResource;
 use App\Resources\FgiTwResource;
+use PDF as Filepdf;
 
 use App\Partners\Care\Care;
 use App\Partners\Manipal\Manipal;
 use App\Partners\Digit\DigitHealth;
- use App\Utils\PolicyMail;
- use App\Utils\OrcCalculate;
+use App\Utils\PolicyMail;
+use App\Utils\OrcCalculate;
+use App\Utils\Posp;
 class TestController extends Controller{
     public $uniqueToken;
     public function __construct() { 
@@ -45,12 +47,20 @@ class TestController extends Controller{
        
        $this->policymail = new PolicyMail;
        $this->orc =  new OrcCalculate;
+       $this->posp  = new Posp;
    }
      
      function testPartnerBug(Request $request){
          header('Content-Type: application/json');
        //$this->HdfcErgoTwResource->bugReport();
-        $this->HdfcErgoCarResource->bugReport();
+        //$this->HdfcErgoCarResource->bugReport();
+        $results = DB::table('agents')->where('status','Inforce')->where('posp_ID','SF/POSP/A10005')->first();
+         //foreach($results as $each){
+             if($results->status=='Inforce'){ 
+                 $res = $this->posp->createPOSPcode($results);
+             }
+             
+         //}
         die;
         $resp = new \stdClass(); 
              $resp->status = false;$resp->code = ""; $resp->message = "";
@@ -118,11 +128,42 @@ class TestController extends Controller{
     }
     
     
-     public function testany(){
-               $sql= DB::table('cities_list')->where('state_id',38)->get();
-               foreach($sql as $ct){
+     public function testany(Request $request){
+        
+        $filename = "QUOTE.pdf";
+         
+           $enQ=$request->param;
+            $policy= DB::table('app_quote')->where('enquiry_id',$enQ)->first();
+            $logo = public_path('/site_assets/logo/site_logo.png');//.config('custom.site_logo'));
+            $arrContextOptions=array(
+                            "ssl"=>array(
+                                "verify_peer"=>false,
+                                "verify_peer_name"=>false,
+                            ),
+                        );
+            $type = pathinfo($logo, PATHINFO_EXTENSION);
+            $avatarData = file_get_contents($logo, false, stream_context_create($arrContextOptions));
+            $avatarBase64Data = base64_encode($avatarData);
+            $data['logo'] = 'data:image/' . $type . ';base64,' . $avatarBase64Data;
+            
+            $partner = DB::table('our_partners')->where('shortName',$policy->provider)->first();
+            $partnerlogo = public_path('/assets/partners/HDFC-Ergo-logo.png');//public_path('/ assets/partners/'.$partner->logo);//.config('custom.site_logo'));
+          
+            $type1 = pathinfo($partnerlogo, PATHINFO_EXTENSION);
+            $avatarData1 = file_get_contents($partnerlogo, false, stream_context_create($arrContextOptions));
+            $avatarBase64Data1 = base64_encode($avatarData1);
+            $data['partnerlogo'] = 'data:image/' . $type1 . ';base64,' . $avatarBase64Data1;
+          
+           // $data['quote'] = $policy;
+         
+         Filepdf::setOptions(['defaultFont' => 'sans-serif','defaultMediaType'=>'all','isFontSubsettingEnabled'=>true]);
+         $pdf = Filepdf::loadView('insurance.partnerQuote',$data);
+         return $pdf->download('Quote.pdf');
+    
+               //$sql= DB::table('cities_list')->where('state_id',38)->get();
+               //foreach($sql as $ct){
                   // DB::table('cities')->insertGetId(['name'=>$ct->name,'state_id'=>31]);
-               }
+              // }
           
                 //  $sql= DB::table('policy_saled')->select('sp_id','agent_id','policy_no','date')
                 //               ->whereMonth('date', 05)->whereYear('date', 2022);

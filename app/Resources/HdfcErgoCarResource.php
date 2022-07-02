@@ -507,8 +507,12 @@ class HdfcErgoCarResource extends AppResource{
             }
             if($params['previousInsurance']['policyType']=='TP' || $params['planType']=="TP"){
                 $res->ncbPercent =0; 
+                
             }else{
                 $res->ncbPercent =$ncbArr[$res->ncb]; 
+            }
+            if($params['previousInsurance']['policyType']=='TP' && $params['planType']=="SAOD"){ 
+              $res->businessType ="USED";  
             }
             
             if($callTyp=="Proposal"){
@@ -740,7 +744,7 @@ class HdfcErgoCarResource extends AppResource{
                 )]
             );
             $result = $clientResp->getBody()->getContents();
-          //print_r(json_encode($request));
+          // print_r(json_encode($request));
            //print_r($result);die;
             $response = json_decode($result);
            
@@ -1156,10 +1160,11 @@ class HdfcErgoCarResource extends AppResource{
              //       $request
              //   ));
                 //  print_r( $result);
+           //print_r(json_encode($request));
            $response = json_decode($result);
            if($response->Status==200){
                 $txId = $response->Data->TransactionNo;
-                if($txId>0 && $preInfo->businessType!='USED'){
+                if($txId>0 && $response->Data->IsBreakin==0){
                     $cust = isset($params->customer->first_name)?$params->customer->first_name." ".$params->customer->last_name:$params->customer->company;
                     $QDATA = ['customer_name'=>$cust,'token'=>$txId,'reqCreate'=>json_encode($request),'respCreate'=>$result,'req'=>json_encode($request),'resp'=>($result)];
                     $QDATA['startDate'] = $response->Data->NewPolicyStartDate;
@@ -1258,12 +1263,15 @@ class HdfcErgoCarResource extends AppResource{
            
            $result = $clientResp->getBody()->getContents();
            $response = json_decode($result);
-              //  print_r($result);die;
+           //print_r($result);die;
            if($response->Status==200){
                 return ['status'=>true,'message'=>"",'data'=>$response->Data]; 
-            }else{
+            }else if(isset($response->Message->Inspection)){
                return ['status'=>false,'message'=>$response->Message->Inspection]; 
-               
+           }else if(isset($response->Message->QuoteNo)){
+                return ['status'=>false,'message'=>$response->Message->QuoteNo]; 
+           }else{
+               return ['status'=>false,'message'=>"Something went wrong"]; 
            }
   
     }

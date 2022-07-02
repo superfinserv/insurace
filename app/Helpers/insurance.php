@@ -18,6 +18,12 @@
     }
     }
     
+    function uniqueQuoteNo($param){
+        $length = 10;
+        $str = '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ'.date('YmdHis').$param.rand(1111111111,9999999999);
+        return substr(str_shuffle($str), 0, $length);
+    }
+    
     
     //Get eldest Member age
     if (!function_exists('eldestMemberAge')) {

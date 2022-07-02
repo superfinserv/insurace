@@ -18,7 +18,7 @@ class TaxInvoice {
             $pay = DB::table('agent_payments')->where('agent_id', $agentID)->first();
             $filename = "Invoice-".$pay->invoice_no.".pdf";
         
-            $logo = get_site_settings('site_logo');//"https://insurance.supersolutions.in/logo/logo_5.png";
+            $logo = public_path('/site_assets/logo/site_logo.png');//get_site_settings('site_logo');//"https://insurance.supersolutions.in/logo/logo_5.png";
             $arrContextOptions=array(
                             "ssl"=>array(
                                 "verify_peer"=>false,

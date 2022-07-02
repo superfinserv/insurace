@@ -1,5 +1,6 @@
 <?php
 namespace App\Utils;
+use Nathanmac\Utilities\Parser\Parser;
 use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
@@ -206,9 +207,15 @@ class Posp {
             // return $number;
     }
     
-    function createPOSPcode($row){
-             $resp = new \stdClass(); 
-             $resp->status = false;$resp->code = ""; $resp->message = "";
+   function createPOSPcode($row){
+            $this->FgiPospCode($row);
+             //echo '<pre>', htmlentities($result), '</pre>';
+          
+    }
+    
+     function HdfcPospCode($row){
+        $resp = new \stdClass(); 
+             $resp->status = false;$resp->code = ""; $resp->message = "";$resp->partnerColumn="hdfcErgoCode";
              
         $VC_UNIQUE_CODE =$row->posp_ID;
         $xml_post_string = '<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -269,10 +276,55 @@ class Posp {
                       $resp->message = "Internal error";
                   }
                   return $resp;
-             //echo '<pre>', htmlentities($result), '</pre>';
-            
+                  //echo '<pre>', htmlentities($result), '</pre>';
     }
     
+     function FgiPospCode($row){
+        $resp = new \stdClass(); 
+        $resp->status = false;$resp->code = ""; $resp->message = "";$resp->partnerColumn="FgiCode";
+             
+        $VC_UNIQUE_CODE =$row->posp_ID;//str_replace('/','',$row->posp_ID);
+      
+        $city = ($row->city!="" && $row->city>0)?DB::table('cities')->where('id',$row->city)->value('name'):"";   
+        $state = ($row->state!="" && $row->state>0)?DB::table('states')->where('id',$row->state)->value('name'):"";    
+        $xml_post_string    = '<Root>
+                                  <VendorCode>'.config('motor.FGI.tw.vendorCode').'</VendorCode>
+                                  <MajorClass>MOT</MajorClass>
+                                  <ContractType>PPV</ContractType>
+                                  <Method>CRT</Method>
+                                  <Type>P</Type>
+                                  <PanNo>'.$row->pan_card_number.'</PanNo>
+                                  <AgentCode>'.config('motor.FGI.tw.AgentCode').'</AgentCode>
+                                  <BranchCode>'.config('motor.FGI.tw.BranchCode').'</BranchCode>
+                                  <FullName>'.$row->name.'</FullName>
+                                  <City>'.$city.'</City>
+                                  <State>'.$state.'</State>
+                                  <LicenceNo>'.$VC_UNIQUE_CODE.'</LicenceNo>
+                                  <Email>'.$row->email.'</Email>
+                                  <Mobile>'.$row->mobile.'</Mobile>
+                                  <AlternateRefNo></AlternateRefNo>
+                                  <ExpiryDate></ExpiryDate>
+                                  <TerminationDate></TerminationDate>
+                            </Root>';
+             
+            $url = 'http://fglpg001.futuregenerali.in/BO/Service.svc?wsdl';  // WSDL web service url for request method/function
+          //  echo $xml_post_string;
+            $factory = new Factory();
+            $client = $factory->create(new Client(), $url); 
+            $result = $client->call('Pos_MispMaster', [["xml"=>$xml_post_string]]);
+            $xml   = simplexml_load_string($result->Pos_MispMasterResult, 'SimpleXMLElement', LIBXML_NOCDATA);
+            $array = json_decode(json_encode((array)$xml), TRUE);
+            // print_r($result);
+            // print_r($array);
+             if(isset($array['Status']) && $array['Status']=="Successful"){
+                     $resp->status = true;
+                     $resp->code = $VC_UNIQUE_CODE;
+                     $resp->message = "Posp unique code created successfully.";
+             }else{
+                $resp->message = "Something went wrong while create code."; 
+             }
+             return $resp;
+    }
     
     function pospVerifiedData($id){
         $user = DB::table('agents')->where('id',$id)->first();

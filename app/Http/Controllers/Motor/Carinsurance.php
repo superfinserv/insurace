@@ -197,6 +197,7 @@ class Carinsurance extends Controller
     public function createEnquiry(Request $request){
          $Q =   DB::table('app_temp_quote')->where('quote_id',$request->id)->first();
          $cust = $this->usermanger->GetPolicySoldBy();
+         $QuoteId = uniqueQuoteNo('CAR');
         if($Q->provider=="DIGIT"){
             $recalculate = $this->DigitCar->getSingleRecalulateQuote($Q->quote_id,$this->getToken(),$request->carInfo);
             if($recalculate['status']){
@@ -204,7 +205,7 @@ class Carinsurance extends Controller
                 $temp =   DB::table('app_temp_quote')->where('quote_id',$recalculate['quote_id'])->first();
                 $json_data = json_decode($temp->json_data);//$this->DigitCar->getJsonData($temp->response);
                 $json_data->enq = $enquiryId;
-                $quoteData = ['type'=>'CAR',
+                $quoteData = ['type'=>'CAR', 'SFQuoteId'=>$QuoteId,
                               'provider'=>$temp->provider,
                               'device_id'=>$this->getToken(),
                               'agent_id'=>$cust->agent_id,//$agentID,
@@ -240,7 +241,7 @@ class Carinsurance extends Controller
                 $json_data = json_decode($temp->json_data);//$this->DigitCar->getJsonData($temp->response);
                 $json_data->enq = $temp->quote_id;
                   
-                $quoteData = ['type'=>'CAR',
+                $quoteData = ['type'=>'CAR','SFQuoteId'=>$QuoteId,
                               'provider'=>$temp->provider,
                               'device_id'=>$this->getToken(),
                               'agent_id'=>$cust->agent_id,//$agentID,
