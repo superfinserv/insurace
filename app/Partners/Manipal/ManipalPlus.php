@@ -1088,7 +1088,7 @@ class ManipalPlus{
         $elem['nomineeLastName'] = '';
         $elem['nomineeRelationCd'] = 'WI';
         $elem['nomineeBirthDt'] = '';
-        $elem['businessSourceCd'] = 'GOHEALTH';
+        $elem['businessSourceCd'] = 'PORTAL';
         $elem['receiverId'] ='';
         $elem['receiverName'] =''; 
         $elem['verifierId'] ='';

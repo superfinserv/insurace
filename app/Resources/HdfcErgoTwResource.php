@@ -264,6 +264,7 @@ class HdfcErgoTwResource extends AppResource{
             $vehicle->reg_date = '';//$data->vehicle->registrationDate;
             $vehicle->chassis_no = '';
             $vehicle->engin_no = '';
+            $vehicle->newNCB = isset($data->Data[0]->NewNcbDiscountPercentage)?($data->Data[0]->NewNcbDiscountPercentage*100):"";
             $vehicle->idv    =isset($data->Data[0]->VehicleIdv)?$data->Data[0]->VehicleIdv:0;
             $vehicle->minIdv =isset($data->Data[0]->VehicleIdvMin)?$data->Data[0]->VehicleIdvMin:0;
             $vehicle->maxIdv =isset($data->Data[0]->VehicleIdvMax)?$data->Data[0]->VehicleIdvMax:0;
@@ -1005,7 +1006,7 @@ class HdfcErgoTwResource extends AppResource{
             $result = $clientResp->getBody()->getContents();
           
                 
-          $response = json_decode($result);print_r($response);
+          $response = json_decode($result);
           if($response->status==200){
                 //$PolicyNumber = $response->Data->PolicyNumber;
                 $fileName = "HDFCERGO_".$policyno.".pdf";
@@ -1022,7 +1023,7 @@ class HdfcErgoTwResource extends AppResource{
     
    function bugReport(){
         $request =  new \stdClass(); 
-        $request->MasterKey = "RTOCODE";
+        $request->MasterKey = "CITY";
         $request->PolicyType ="ALL"; 
         $request->AgentCode ="TWD22020";
         $client = new Client([

@@ -51,10 +51,10 @@
                                      <h2>You are failed in this test, Try Again.</h2>
                                      <table >
                                          <tr>
-                                             <td style=" text-align: left; ">Currect answer</td><td style=" text-align: right; "><?php $currect=$result->obtained_marks/5; echo $currect;?></td>
+                                             <td style=" text-align: left; ">Correct answer</td><td style=" text-align: right; "><?php $currect=$result->obtained_marks/5; echo $currect;?></td>
                                          </tr>
                                           <tr>
-                                             <td style=" text-align: left; ">Incurrect answer</td><td style=" text-align: right; "><?php $incurrect=20-$currect; echo $incurrect;?></td>
+                                             <td style=" text-align: left; ">Incorrect answer</td><td style=" text-align: right; "><?php $incurrect=20-$currect; echo $incurrect;?></td>
                                          </tr>
                                           <tr>
                                              <td style=" text-align: left; ">Passing Marks</td><td style=" text-align: right; ">50%</td>

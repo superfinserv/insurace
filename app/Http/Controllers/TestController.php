@@ -52,8 +52,9 @@ class TestController extends Controller{
      
      function testPartnerBug(Request $request){
          header('Content-Type: application/json');
-       //$this->HdfcErgoTwResource->bugReport();
-        //$this->HdfcErgoCarResource->bugReport();
+        // $this->HdfcErgoTwResource->bugReport();
+        $this->HdfcErgoCarResource->bugReport();
+        die;
         $results = DB::table('agents')->where('status','Inforce')->where('posp_ID','SF/POSP/A10005')->first();
          //foreach($results as $each){
              if($results->status=='Inforce'){ 

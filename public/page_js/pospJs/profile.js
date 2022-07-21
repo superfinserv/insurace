@@ -1267,27 +1267,31 @@ $(document).ready(function(){
         if(st=="success"){
             if(res.data.iscomplete==0 && res.data.isProceedSign=='No' && res.data.payment_status==='Pending'){
                    
-                   $('.alert-section').html('<div class="myprofile alert-profile-complete"  style="background: #fff;border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">'+
-                                          '<span><strong>Alert! </strong> Profile Information is not Complete. Fill all required details to get paid quickly.</span>'+
-                                         '</div>'); 
+                   $('.alert-section').html(' <div class="alert alert-sf" role="alert">'
+                                                +'<h4 class="alert-heading">Alert!</h4>'
+                                                +'<p>Profile Information is not Complete. Fill all required details to get paid quickly.</p>'
+                                              +'<hr>'
+                                            +'</div>'); 
             }
             
             if(res.data.iscomplete==1 && res.data.isProceedSign=='No' && res.data.payment_status=='Pending'){
               
-                   $('.alert-section').html('<div class="myprofile alert-process-payment" style="background: #fff; border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">'+
-                                      '<span><strong>Congratulations! </strong> Profile Information is Complete. Proceed for the Payment of the Application fee. <i style="font-size: 16px;" class="fa fa-hand-o-right"></i></span>'+
-                                     '<button type="submit" class="btn btn-primary"style=" background: #2f3c46 !important; float: right !important; padding:8px 10px !important; border-radius: 3px !important; box-shadow: 0 16px 24px 2px rgba(0, 0, 0, .14), 0 6px 30px 5px rgba(0, 0, 0, .12), 0 8px 10px -5px rgba(0, 0, 0, .2) !important; margin-top: -10px !important; border: 0px !important; color: #fff !important; font-size: 15px !important;text-transform: uppercase;font-weight: bold; " id="payment_process">Pay now'+ 
-                                     ' <span class="fa fa-arrow-right"></span></button>'+
-                                   '</div>');
+                   $('.alert-section').html(' <div class="alert alert-sf" role="alert">'
+                                               +' <h4 class="alert-heading">Congratulations!</h4>'
+                                               +' <p> Profile Information is Complete. Proceed for the Payment of the Application fee.</p>'
+                                                 +'<hr>'
+                                               +' <p class="mb-0"><button type="submit" class="btn btn-primary"style="" id="payment_process">Pay now <span class="fa fa-arrow-right"></span></button></p>'
+                                            +'</div>');
                     $('html, body').animate({ scrollTop: 0 }, 1200);
             }
             
             if(res.data.iscomplete==1 && res.data.isProceedSign=='No' && res.data.payment_status=='Paid'){
-                $('.alert-section').html('<div class="myprofile alert-process-verification" style="background: #fff; border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">'+
-                                      '<span><strong>Congratulations! </strong>You have paid application fee successfully. please proceed for verification, after verification you can not  update any details.</span>'+
-                                     '<button type="submit" class="btn btn-primary"style=" background: #2f3c46 !important; float: right !important; padding:8px 10px !important; border-radius: 3px !important; box-shadow: 0 16px 24px 2px rgba(0, 0, 0, .14), 0 6px 30px 5px rgba(0, 0, 0, .12), 0 8px 10px -5px rgba(0, 0, 0, .2) !important; margin-top: -4px !important; border: 0px !important; color: #fff !important; font-size: 15px !important;text-transform: uppercase;font-weight: bold; " id="sing_process_video">Procced'+ 
-                                     '<span class="fa fa-arrow-right"></span></button>'+
-                                   '</div>');
+                $('.alert-section').html('<div class="alert alert-sf" role="alert">'
+                                            +'<h4 class="alert-heading">Congratulations!</h4>'
+                                           +' <p>You have paid application fee successfully. please proceed for verification, after verification you can not  update any details.</p>'
+                                         +' <hr>'
+                                           +' <p class="mb-0"><button type="submit" class="btn btn-primary"style="" id="sing_process_video">Procces<span class="fa fa-arrow-right"></span></button></p>'
+                                        +'</div>');
             }
         }
     },'json');

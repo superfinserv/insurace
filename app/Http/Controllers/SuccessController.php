@@ -70,38 +70,55 @@ class SuccessController extends Controller{
                 
             }else if(strtolower($request->enquiryID)=='hdfcergo_health'){
                 if(isset($_REQUEST['hdmsg'])){ 
-                     $data =    DB::table('app_quote')
+                     $enQdata =    DB::table('app_quote')
                                ->where('token',$_REQUEST['hdmsg'])
                                ->latest('id')->first();
                     
-                     $saledData = ['type'=>'HEALTH','provider'=>$data->provider,'policyType'=>$data->policyType,
-                                   'json_data'=>$data->json_data,'mobile_no'=>"",'getway_response'=>json_encode($_REQUEST),
-                                    "customer_id"=>$data->customer_id,'params'=>$data->params_request,
+                   
+                     $saledData = ['type'=>'HEALTH','provider'=>$enQdata->provider,'policyType'=>$enQdata->policyType,
+                                   'json_data'=>$enQdata->json_data,'mobile_no'=>"",'getway_response'=>json_encode($_REQUEST),
+                                    "customer_id"=>$enQdata->customer_id,'params'=>$enQdata->params_request,
                                   ];
+                     $pData = $this->HdfcErgoHealth->policyGeneration($enQdata->enquiry_id);
+                     if($pData['status']){
+                         $saledData['policy_no']=$pData['PolicyNumber'];
+                         $saledData['policy_status']=($pData['PolicyNumber']>0)?"Completed":"Pending";
+                     }
+                    $data =    DB::table('app_quote')
+                               ->where('enquiry_id',$enQdata->enquiry_id)
+                               ->first();
                      $saledData['transaction_no'] =$_REQUEST['hdmsg'];
                      //$saledData['policy_no'] =$_REQUEST['PolicyNo'];
+                     $saledData['getway_response']=json_encode($_REQUEST);
                      $saledData['startDate']=$data->startDate;
                      $saledData['endDate']=$data->endDate;
                      $saledData['sp_id'] =$data->sp_id;
                      $saledData['mobile_no'] =$data->customer_mobile;
+                     $saledData['customer_name'] = $data->customer_name;
                      $saledData['agent_id'] =$data->agent_id;
                      $saledData['payment_status'] = "Completed";
-                     $saledData['policy_status'] = "Completed";
+                    // $saledData['policy_status'] = "Completed";
                      $saledData['amount'] = $data->grossAmt;
                      $saledData['netAmt']=$data->netAmt;
                      $saledData['taxAmt']=$data->taxAmt;
                      $saledData['grossAmt']=$data->grossAmt;
                      $saledData['server']=$data->server;
-                     $pData = $this->HdfcErgoHealth->policyGeneration($data->enquiry_id);
-                     if($pData['status']){
-                         $saledData['policy_no']=$pData['PolicyNumber'];
-                         $saledData['policy_status']="Pending";
-                     }
+                     $saledData['reqQuote']=$data->reqQuote;
+                 	 $saledData['respQuote']=$data->respQuote;
+                	 $saledData['reqRecalculate']=$data->reqRecalculate;
+            	     $saledData['respRecalculate']=$data->respRecalculate;
+            	     $saledData['reqCreate']=$data->reqCreate;
+            	     $saledData['respCreate']=$data->respCreate;
+                     $saledData['reqSaveGenPolicy']=$data->reqSaveGenPolicy;
+                     $saledData['respSaveGenPolicy']=$data->respSaveGenPolicy;
+                     $saledData['product_info'] = json_encode(['title'=>$data->title,'code'=>$data->code,'product'=>$data->product,'policyType'=>$data->policyType,'zone'=>$data->zone]);
+                     $premium = json_decode($data->amounts); 
+                     $saledData['premium_info'] = json_encode($premium->{$data->termYear});
                      $isExist = DB::table('policy_saled')->where('type','HEALTH')->where('enquiry_id',$data->enquiry_id)->count();
                      $json_data = json_decode($data->json_data);
                      if(!$isExist){
-                        $saledData['enquiry_id'] =$data->enquiry_id;
-                        $refID = DB::table('policy_saled')->insertGetId($saledData);
+                       $saledData['enquiry_id'] =$data->enquiry_id;
+                       $refID = DB::table('policy_saled')->insertGetId($saledData);
                      }else{
                         $refID = DB::table('policy_saled')->where(['enquiry_id'=>$data->enquiry_id])->update($saledData);
                      }
@@ -383,7 +400,7 @@ class SuccessController extends Controller{
         
           $data = DB::table('policy_saled')->where('enquiry_id',$request->enquiryID)->first();
           $insurer = DB::table('our_partners')->where('shortName',$data->provider)->value('name');
-          $isAgent = ($data->agent_id>0)?true:false;
+          $isAgent = ($data->server=="AGENT_WEB")?true:false;
          
          //echo  date('Y-m-d H:i:s');
           $template = ['title' => 'Super Finserv',"subtitle"=>"Policy success",'isAgent'=>$isAgent,'data'=>$data,'insurer'=>$insurer,

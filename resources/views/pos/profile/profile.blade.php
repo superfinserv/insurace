@@ -238,50 +238,112 @@ input[type="file" i]:after {
 .profile-input-upload:hover{
    cursor: pointer;
 }
+
+
+/* alert css */
+ .alert-sf{
+    color: #000;
+    background-color: #fff;
+    border-color: #AC0F0B;
+    width: 100%;
+}
+.alert-sf .alert-heading{
+    color: #AC0F0B;
+    font-weight: 900;
+    font-size: 17px;
+}
+
+.alert-sf p{
+    margin: 5px 0px;
+    font-size: 15px;
+}
+
+.alert-sf button{
+    background: #2f3c46 !important;
+    float: right !important;
+    padding: 8px 10px !important;
+    border-radius: 3px !important;
+    /* box-shadow: 0 16px 24px 2px rgb(0 0 0 / 14%), 0 6px 30px 5px rgb(0 0 0 / 12%), 0 8px 10px -5px rgb(0 0 0 / 20%) !important; */
+    /* margin-top: -10px !important; */
+    border: 0px !important;
+    color: #fff !important;
+    font-size: 12px !important;
+    text-transform: uppercase;
+    font-weight: bold;
+}
       </style>
     <main role="main">
  
       <section class="become-an-insurance">
                <div class="container">
                   <div class="row ">
+                       <!--<div class="alert alert-sf" role="alert">-->
+                       <!--     <h4 class="alert-heading">Congratulations!</h4>-->
+                       <!--     <p> Profile Information is Complete. Proceed for the Payment of the Application fee.</p>-->
+                       <!--   <hr>-->
+                       <!--     <p class="mb-0"><button type="submit" class="btn btn-primary"style="" id="payment_process">Pay now <span class="fa fa-arrow-right"></span></button></p>-->
+                       <!-- </div>-->
                       @if(Auth::guard('agents')->user()->userType=="POSP")
-                      <div class="col-12 alert-section" style="">
+                      <div class="alert-section" style="">
                            <?php  if($data['iscomplete']==0 && $agent->isProceedSign=='No' && $agent->payment_status=='Pending'){?> 
-                               <div class="myprofile alert-profile-complete"  style="background: #fff;border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">
-                                  <span><strong>Alert! </strong> Profile Information is not Complete. Fill all required details to get paid quickly.</span>
-                               </div>
+                                <div class="alert alert-sf" role="alert">
+                                    <h4 class="alert-heading">Alert!</h4>
+                                    <p>Profile Information is not Complete. Fill all required details to get paid quickly.</p>
+                                  <hr>
+                                </div>
                            <?php }?>
                            
                            <?php  if($data['iscomplete']==1 && $agent->isProceedSign=='No' && $agent->payment_status=='Pending') { ?>
-                            <div class="myprofile alert-process-payment" style="background: #fff; border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">
-                              <span><strong>Congratulations! </strong> Profile Information is Complete. Proceed for the Payment of the Application fee. <i style="font-size: 16px;" class="fa fa-hand-o-right"></i></span>
-                             <button type="submit" class="btn btn-primary"style=" background:  #2f3c46 !important; float: right !important; padding: 8px 10px !important; border-radius: 3px !important; box-shadow: 0 16px 24px 2px rgba(0, 0, 0, .14), 0 6px 30px 5px rgba(0, 0, 0, .12), 0 8px 10px -5px rgba(0, 0, 0, .2) !important; margin-top:-10px !important; border: 0px !important; color: #fff !important; font-size: 15px !important;text-transform: uppercase;font-weight: bold;" id="payment_process">Pay now <span class="fa fa-arrow-right"></span></button>
-                           </div>
+                            
+                           <div class="alert alert-sf" role="alert">
+                                <h4 class="alert-heading">Congratulations!</h4>
+                                <p> Profile Information is Complete. Proceed for the Payment of the Application fee.</p>
+                              <hr>
+                                <p class="mb-0"><button type="submit" class="btn btn-primary"style="" id="payment_process">Pay now <span class="fa fa-arrow-right"></span></button></p>
+                            </div>
                            
                           <?php  } ?>
                        
                         <?php  if($data['iscomplete']==1 && $agent->isProceedSign=='No' && $agent->payment_status=='Paid') {?>
-                            <div class="myprofile alert-process-verification" style="background: #fff; border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">
-                              <span><strong>Congratulations! </strong>You have paid application fee successfully. please proceed for verification, after verification you can not  update any details.</span>
-                             <button type="submit" class="btn btn-primary"style=" background: #2f3c46 !important; float: right !important; padding: 8px 10px !important; border-radius: 3px !important; box-shadow: 0 16px 24px 2px rgba(0, 0, 0, .14), 0 6px 30px 5px rgba(0, 0, 0, .12), 0 8px 10px -5px rgba(0, 0, 0, .2) !important; margin-top:-4px !important; border: 0px !important; color: #fff !important; font-size: 15px !important;text-transform: uppercase;font-weight: bold; " id="sing_process_video">Proceed <span class="fa fa-arrow-right"></span></button>
-                           </div>
-                       <?php  } ?>
-                       
-                        <?php  if($data['iscomplete']==1 && $agent->isProceedSign!='Inforced' && $agent->isProceedSign=='Yes' && $agent->payment_status=='Paid' && $agent->tranning_crd=="") {?>
-                            <div class="myprofile alert-process-verification" style="background: #fff; border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">
-                              <span><strong>Congratulations! </strong>You have completed the POSP Application with Super Finserv. We will check the records in IIB and will let you know the future course of action. We will refund your application & training fee in case we find your records in IIB with any other Insurer/Intermediary. Super Finserv reserves the right to select or reject the application.</span>
+                           <!-- <div class="myprofile alert-process-verification" style="background: #fff; border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">-->
+                           <!--   <span><strong>Congratulations! </strong>You have paid application fee successfully. please proceed for verification, after verification you can not  update any details.</span>-->
+                           <!--  <button type="submit" class="btn btn-primary"style=" background: #2f3c46 !important; float: right !important; padding: 8px 10px !important; border-radius: 3px !important; box-shadow: 0 16px 24px 2px rgba(0, 0, 0, .14), 0 6px 30px 5px rgba(0, 0, 0, .12), 0 8px 10px -5px rgba(0, 0, 0, .2) !important; margin-top:-4px !important; border: 0px !important; color: #fff !important; font-size: 15px !important;text-transform: uppercase;font-weight: bold; " id="sing_process_video">Proceed <span class="fa fa-arrow-right"></span></button>-->
+                           <!--</div>-->
+                           
+                           <div class="alert alert-sf" role="alert">
+                                <h4 class="alert-heading">Congratulations!</h4>
+                                <p>You have paid application fee successfully. please proceed for verification, after verification you can not  update any details.</p>
+                              <hr>
+                                <p class="mb-0"><button type="submit" class="btn btn-primary"style="" id="sing_process_video">Procces<span class="fa fa-arrow-right"></span></button></p>
                             </div>
                        <?php  } ?>
                        
+                        <?php  if($data['iscomplete']==1 && $agent->isProceedSign!='Inforced' && $agent->isProceedSign=='Yes' && $agent->payment_status=='Paid' && $agent->tranning_crd=="") {?>
+                               <div class="alert alert-sf" role="alert">
+                                    <h4 class="alert-heading">Congratulations!</h4>
+                                    <p>You have completed the POSP Application with Super Finserv. We will check the records in IIB and will let you know the future course of action. We will refund your application & training fee in case we find your records in IIB with any other Insurer/Intermediary. Super Finserv reserves the right to select or reject the application.</p>
+                                  <hr>
+                                </div>
+                       <?php  } ?>
+                       
                       <?php  if($agent->application_status=='Approved' && $agent->tranning_crd!="" && $agent->is_tranning_complete=="No") {?>
-                            <div class="myprofile alert-process-verification" style="background: #fff; border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">
-                              <span><strong>Congratulations! </strong>Training Credentials sent on your mail id. Please follow the training link and complete your POSP Training to appear for certification.</span>
-                           </div>
+                           <!-- <div class="myprofile alert-process-verification" style="background: #fff; border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">-->
+                           <!--   <span><strong>Congratulations! </strong>Training Credentials sent on your mail id. Please follow the training link and complete your POSP Training to appear for certification.</span>-->
+                           <!--</div>-->
+                           
+                            <div class="alert alert-sf" role="alert">
+                                <h4 class="alert-heading">Congratulations!</h4>
+                                <p>Training Credentials sent on your mail id. Please follow the training link and complete your POSP Training to appear for certification.</p>
+                              <hr>
+                            </div>
                        <?php  } ?>
                        
                        <?php  if( $agent->application_status=='Approved' && $agent->isProceedSign=='Yes' && $agent->tranning_crd!="" && $agent->is_tranning_complete=="Yes") {?>
-                            <div class="myprofile alert-process-verification" style="background: #fff; border: 1px solid #ac0f0a;color: #aa0f0a;margin: 10px 0px;    padding: 15px 48px;    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);border-radius: 10px;">
-                              <span><strong>Congratulations! </strong>Please appear for certification in "My Certification" section. All the Best.</span>
+                           
+                             <div class="alert alert-sf" role="alert">
+                                <h4 class="alert-heading">Congratulations!</h4>
+                                <p>Please appear for certification in "My Certification" section. All the Best.</p>
+                              <hr>
                             </div>
                        <?php  } ?>
                           

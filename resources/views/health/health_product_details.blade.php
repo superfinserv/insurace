@@ -355,8 +355,10 @@ input[name='planYear']:checked + label.label-planYear::after {
                                             <label for="planSumInsured"  style="width:100%;font-weight: 800;">
                                                 <select id="planSumInsured" class="" style="width:100%">
                                                     <?php $sumArr = sumInsuredArr($data->provider,$data->code,$uType);
-                                                    foreach($sumArr as $s=>$l){ ?>
-                                                    <option value="<?=$s;?>"   <?=($s==$SUM->shortAmt)?'selected':'';?>><?=($s<100)?$s.' Lakhs':'1 crore';?> </option>
+                                                    foreach($sumArr as $s=>$l){ 
+                                                      
+                                                    ?>
+                                                    <option value="<?=$s;?>"   <?=($s==$SUM->shortAmt)?'selected':'';?>><?=($s<100)?$s.' Lakhs':($s/100).' crore';?> </option>
                                                     <?php } ?>
                         
                                                 </select>
@@ -429,7 +431,7 @@ input[name='planYear']:checked + label.label-planYear::after {
                                         </div>
                                         <div class="col-12 col-md-12 col-lg-12 col-sm-12 section-zoneType" style="margin-top:12px;">
                                             <input <?php if($actualZone=="ZONE1"){ echo "disabled";}else{ }?> type="radio" class="updateZone" name="zoneType" id="zoneType_B" value="ZONE2"  {{$data->zone=='ZONE2'? "checked":""}}>
-                                                  <label class="label-zoneType" for="zoneType_B">
+                                               <label class="label-zoneType" for="zoneType_B">
                                                     <h2 class="zone-type" style="color:#000 !important">Zone 2</h2>
                                                     <p style="padding-left: 40px;margin-top:0px;margin-bottom: 1px;">Can avail treatment in Zone II and Zone III without any Co-pay.</p>
                                                     <p style="padding-left: 40px;margin-top:0px;margin-bottom: 1px;">Availing treatment in Zone I will have to bear 10% of each and every claim.</p>
@@ -515,13 +517,16 @@ input[name='planYear']:checked + label.label-planYear::after {
                                                 @endif
                                                 <input id="addOn3" value="SMARTCA" name="addOn3" type="checkbox" class="addonInput addon-label" <?=((!empty($addons)) && in_array("SMARTCA",$addons))?"checked":"";?>/>
                                                 <label for="addOn3">Smart Select</label>
-                                                <?php /*
+                                                 
                                                 <input id="addOn1" value="HCUPCA1093" name="addOn1" type="checkbox" class="addonInput addon-label" <?=((!empty($addons)) && in_array("HCUPCA1093",$addons))?"checked":"";?>/>
                                                 <label for="addOn1">Annual Health Check-up</label>
-                                                 */?>
+                                                 
                                                 <input id="addOn5" value="RRMCA" name="addOn5" type="checkbox" class="addonInput addon-label" <?=((!empty($addons)) && in_array("RRMCA",$addons))?"checked":"";?>/>
-                                                <label for="addOn5">Room rent</label>
-                                        
+                                                <label for="addOn5">Room Rent</label>
+                                                <?php /*
+                                                 <input id="addOn7" value="AACA" name="addOn7" type="checkbox" class="addonInput addon-label" <?=((!empty($addons)) && in_array("AACA",$addons))?"checked":"";?>/>
+                                                <label for="addOn7">Air Ambulance</label>
+                                                 */?>
                                         @else
 	
 

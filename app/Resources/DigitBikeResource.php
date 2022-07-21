@@ -282,7 +282,7 @@ class DigitBikeResource extends AppResource{
             $covers->addons = $addons;
             
             $discount = new \stdClass();
-            $discounts = [];$totalDis =0;
+            $discounts = [];$totalDis =0;$newNcb = "";
             if(isset($data->discounts->otherDiscounts)){
                  foreach($data->discounts->otherDiscounts as $dis){
                      $amt = trim(str_replace('INR', '',$dis->discountAmount));
@@ -293,6 +293,10 @@ class DigitBikeResource extends AppResource{
                          $eachDis->percent = $dis->discountPercent;
                          array_push($discounts,$eachDis);
                          $totalDis+= $amt;
+                         
+                         if($dis->discountType=="NCB_DISCOUNT"){
+                             $newNcb = $dis->discountPercent;
+                         }
                      }
                  }
              }
@@ -338,6 +342,7 @@ class DigitBikeResource extends AppResource{
             //vehicle
             // $RTO = substr($data->vehicle->licensePlateNumber,0,4);
              $vehicle = new \stdClass(); 
+               $vehicle->newNCB = $newNcb;
             // $vehicle->make =$data->vehicle->make;
             // $vehicle->model =$data->vehicle->model;
             // $vehicle->varient =$data->vehicle->varient;

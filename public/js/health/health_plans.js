@@ -320,7 +320,7 @@ function addElements(key,data){
      //console.log(_feature);
     let sumInsured = parseFloat(data.sumInsured);
     if(sumInsured>99){
-        sumInsured = "1 Cr";
+        sumInsured = (sumInsured==100)?"1 Cr":"2 Cr";
     }else{
         sumInsured = (sumInsured==1)?data.sumInsured+" Lakh":data.sumInsured+" Lakhs";
         

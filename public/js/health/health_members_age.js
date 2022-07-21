@@ -66,7 +66,7 @@ $("body").on('click','.btnTable3',function(e){
                 }else{
                     
                     var age = $('#'+_typ+'-age-'+key).val();//(calculateAge(dobArr[1]+"/"+dobArr[0]+"/"+dobArr[2]));
-                   
+                    age = (age=='3-12')?1:age;
                     var d = new Date();
                     var Y = parseInt(d.getFullYear())-parseInt(age);
                     var M = parseInt(d.getMonth())+1;

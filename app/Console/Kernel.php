@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
          Commands\OrcCron::class,
          Commands\PolicyMailCron::class,
          Commands\PospCodeGeneration::class,
+        // Commands\BackupDatabase::class,
     ];
 
     /**
@@ -32,6 +33,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('orc:cron')->dailyAt('05:00');
         $schedule->command('poscode:cron')->daily();
         $schedule->command('policymail:cron')->everyFiveMinutes();//hourly();
+        $schedule->command('backup:run')->everyMinutes();
+        
     }
 
     /**

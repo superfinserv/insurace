@@ -21,7 +21,7 @@ use App\Resources\FgiTwResource;
 use App\Partners\Care\Care;
 use App\Partners\Manipal\Manipal;
 use App\Partners\Digit\DigitHealth;
-    
+use App\Partners\HdfcErgo\HdfcErgoHealth;    
 
     
 class Insurance extends Controller{
@@ -36,6 +36,7 @@ class Insurance extends Controller{
        $this->Care =   new Care;
        $this->Manipal  =  new Manipal;
        $this->DigitHealth  =  new DigitHealth;
+       $this->HdfcErgoHealth =  new HdfcErgoHealth;
        
        
    }
@@ -143,6 +144,19 @@ class Insurance extends Controller{
                                              'data'=>['fileName'=>$resp['filename'],'path'=>url('get/download/file/policy-file/'.$resp['filename'])]]); 
                 }else{
                   return response()->json(['status'=>'error','fileName'=>$resp['filename'],"message"=>$resp['message']]); 
+                }
+        }else if($sale->provider=="HDFCERGO" && $sale->type=="HEALTH" ){
+               $productInfo =  json_decode( $sale->product_info);
+               $resp = $this->HdfcErgoHealth->savePDF($sale->enquiry_id,$sale->policy_no,$productInfo->product);
+                if($resp->status){
+                    DB::table('policy_saled')->where(['id'=>$request->id])->update(['filename'=>$resp->filename]);
+                    return response()->json(['status'=>'success',
+                                             'message'=>"Policy Get Successfully",
+                                             "provider"=>$sale->provider,
+                                             "type"=>$sale->type,
+                                             'data'=>['fileName'=>$resp->filename,'path'=>url('get/download/file/policy-file/'.$resp->filename)]]); 
+                }else{
+                  return response()->json(['status'=>'error','fileName'=>"",'message'=>$resp->message]); 
                 }
         }else if($sale->provider=="MANIPAL_CIGNA"){
                 if($request->opt=="Policy"){

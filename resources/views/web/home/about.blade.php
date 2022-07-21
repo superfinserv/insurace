@@ -17,8 +17,14 @@
 								<div>
 									<p class="animated slideInRight" style=" text-align: justify;font-size: smaller;color:#0E3679 ">
 									
-										{{get_site_settings('site_name')}} is a financial product distribution company that has been started by two seasoned insurance professionals. 
-										<br/> What gives the company a distinct competitive edge is the deep knowledge and understanding of the financial products that the promoters have acquired. It believes in giving priority to customer satisfaction and delight. Its youthful energy and the culture of knowledge creation and inquisitiveness set it apart from the other companies in the market. It has the professional knowledge base of a matured company and the zeal of a start-up.</p>
+									   You'll find our company passionate about helping you build a better life for yourself and your loved ones.
+										Our team has decades of experience in the industry, so they know what works and what doesn't. . 
+									</p>
+									<p class="animated slideInRight" style=" text-align: justify;font-size: smaller;color:#0E3679 ">
+									   So if you're looking for a new approach to managing your finances or want to create a secure nest egg for your family, visit us today!
+
+									</p>
+								
 
 									<!--<p class="mt-9">-->
 										
