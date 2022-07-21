@@ -47,14 +47,7 @@
         font-weight: bold;
     text-decoration: underline;
     }
-   .btn-home{
-    background: #ac0f09;
-    color: #ffff;
-    font-size: 15px;
-    padding: 8px;
-    width: 35%;
-    border-radius: 25px;
-}
+
       
    </style>
     <main role="main">
@@ -69,7 +62,9 @@
                                 <h4 class="pay-heading success-pay">Payment successfull!</h4>
                                 <p class="line1">You have successfully paid POSP application fee of ₹<?=number_format((float)$info->total_amount, 2, '.', '');?>/- to <b style="color:#AC0F0B">{{config('custom.site_name')}}</b></p>
                                 <p class="linemore">Your Application fee payment reference no. <b class="trno">#<?=$info->invoice_no;?></b></p>
-                                <a href="{{url('/profile/details/')}}" class="btn btn-home">Continue for identity verification</a>
+                                <?php if(!$info->total_amount){?>
+                                <a href="{{url('/profile/details/')}}" class="btnSF btn-red" style="width: unset;">Continue for identity verification</a>
+                                <?php } ?>
                                 <!--<a href="{{url('/profile')}}" class="btn btn-home">Profile</a>-->
                             </div>
                         </div>

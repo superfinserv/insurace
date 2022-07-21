@@ -169,21 +169,28 @@ class Ourpartners extends Controller
          $fileName2=$pln->policy_brochure;
          $plnName=str_replace(' ','-',$request->plan_name);
         if($request->hasFile('policy_wording')){ 
-           $fileName1 = $plnName.'-policy-wording'.'.'.request()->policy_wording->getClientOriginalExtension();
-           $request->policy_wording->move('public/assets/partners/', $fileName1);
-           $data['policy_wording']=$fileName1;
+            
+             $f1_path = getcwd()."/public/assets/partners/".$pln->policy_wording;
+             if(File::exists($f1_path)) { File::delete($f1_path); }
+            
+             $fileName1 = $plnName.'-policy-wording'.'.'.request()->policy_wording->getClientOriginalExtension();
+             $request->policy_wording->move('public/assets/partners/', $fileName1);
            
-           $f1_path = getcwd()."/public/assets/partners/".$pln->policy_wording;
-           if(File::exists($f1_path)) { File::delete($f1_path); }
+            $data['policy_wording']=$fileName1;
+           
         }
         
         if($request->hasFile('policy_brochure')){ 
+            
+            $f2_path = getcwd()."/public/assets/partners/".$pln->policy_brochure;
+           if(File::exists($f2_path)) { File::delete($f2_path); }
+           
+           
            $fileName2 = $plnName.'-policy-brochure'.'.'.request()->policy_brochure->getClientOriginalExtension();
            $request->policy_brochure->move('public/assets/partners/', $fileName2);
            $data['policy_brochure']=$fileName2;
            
-           $f2_path = getcwd()."/public/assets/partners/".$pln->policy_brochure;
-           if(File::exists($f2_path)) { File::delete($f2_path); }
+          
         }
         $data['descriptions'] = htmlentities($_POST['plan_description']);
         $data['plan_name'] =  $request->plan_name;

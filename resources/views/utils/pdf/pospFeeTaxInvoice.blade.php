@@ -61,7 +61,7 @@
                   <p style="margin:0;font-size:12px;">{{$user->email}}</p>
               </td>
               <td style="width:30%;text-align:left;padding-left:120px;">
-                  <h5 style="margin:0;">Invoice No.:{{str_replace("/","",$user->posp_ID)}}</h5>
+                  <h5 style="margin:0;">Invoice No.:{{str_replace("/","",$pay->invoice_no)}}</h5>
                   <p style="margin:0;font-size:12px;">Date:{{$date}}</p>
                   <p style="margin:0;font-size:12px;">CIN:{{get_site_settings('corporate_identity_no')}}</p>
                   <p style="margin:0;font-size:12px;">GSTIN:{{get_site_settings('gstin_no')}}</p>

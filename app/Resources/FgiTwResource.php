@@ -436,17 +436,17 @@ class FgiTwResource extends AppResource{
                               $res->isRollover ="Y";
                               $res->isUsed ="N";
                                if($callTyp=="Proposal"){
-                                    $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('Y-m-d');
+                                    $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('d/m/Y');
                               }else{
                                   
                                    if($params['previousInsurance']['expDate']!=""){
-                                         $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('Y-m-d');
+                                         $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('d/m/Y');
                                     }else{
                                          $res->expDate =date('Y-m-d', strtotime('+10 days'));
                                     }
                                     
                                 }
-                              $res->startDate = Carbon::createFromFormat('Y-m-d', $res->expDate)->addDays()->format('Y-m-d');  
+                              $res->startDate = Carbon::createFromFormat('d/m/Y', $res->expDate)->addDays()->format('Y-m-d');  
                               $res->prePolicyType = !empty($params['previousInsurance']['policyType'])?$this->productCode($params['previousInsurance']['policyType']):"Comprehensive"; 
                               if($res->prePolicyType=="ThirdParty"){
                                     $res->ncb = "ZERO";//isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
@@ -958,7 +958,7 @@ class FgiTwResource extends AppResource{
             $result = $client->call('CreatePolicy', [["Product"=>"Motor","XML"=>$XML]]);
             $xml   = simplexml_load_string($result->CreatePolicyResult, 'SimpleXMLElement', LIBXML_NOCDATA);
             $array = json_decode(json_encode((array)$xml), TRUE);
-        // echo $XML;
+        
       //print_r($result);die;
             
               
@@ -1116,7 +1116,8 @@ class FgiTwResource extends AppResource{
         }else{
              $XML = str_replace("{{POS_MISP}}","<Type></Type><PanNo></PanNo>",$XML);	
         }
-       // echo $XML;
+        
+        $XML = preg_replace('/\s+/', '', $XML);
         
        // $url = 'http://fglpg001.futuregenerali.in/BO/Service.svc?wsdl';
         try {
@@ -1344,7 +1345,7 @@ class FgiTwResource extends AppResource{
             //   }
      }
      
-      public function productCodePolicyIssuance($plan,$PospID){
+     public function productCodePolicyIssuance($plan,$PospID){
           $res =  new \stdClass();
           $isPosp = ($PospID!="" && $PospID>0)?true:false;
            switch ($plan) {
@@ -1393,7 +1394,6 @@ class FgiTwResource extends AppResource{
                 return $res;
             }
     }
-     
      
      function fnPolicyIssuance($params,$Premium,$WS_P_ID,$TID,$PGID,$pospID){
          $preInfo = $this->GetPreviousPolicyData($params,"Proposal");
@@ -1884,7 +1884,7 @@ class FgiTwResource extends AppResource{
                    
                     // Without classmap
                     $response = $this->soapWrapper->call('DataTable.GetPDF', [$REQUEST]);
-                    // print_r($response->GetPDFResult->any);
+                // print_r($response->GetPDFResult->any);
                       $xmmll =  "<root>".$response->GetPDFResult->any."</root>";
                         $doc = new \DOMDocument();
                         $doc->preserveWhiteSpace = true;
@@ -1896,7 +1896,7 @@ class FgiTwResource extends AppResource{
                         $ob       = simplexml_load_string($parseObj);
                         $data     = json_decode(json_encode($ob), true);
                     
-                   // print_r($data);
+                   print_r($data);
                     if(isset($data['diffgrdiffgram'])){
                     $diffgrdiffgram = $data['diffgrdiffgram'];
                     $DocumentElement = $diffgrdiffgram['DocumentElement'];

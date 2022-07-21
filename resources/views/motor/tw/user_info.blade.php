@@ -566,7 +566,7 @@ input[type="email"]::-ms-input-placeholder,input[type="text"]:-ms-input-placehol
 						                <?php  $isNew = ($params->vehicle->rtoCode=='true')?'-New':"";?>
 						                <tr>   <th>Cover Type</th> 
 						                      @if($params->planType=="COM")
-						                         <td>:Comprehansive{{$isNew}}</td> 
+						                         <td>:Comprehensive{{$isNew}}</td> 
 						                      @elseif($params->planType=="TP")
 						                          <td>:Third Party{{$isNew}}</td> 
 						                      @elseif($params->planType=="SAOD")

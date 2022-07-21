@@ -121,7 +121,7 @@ class HdfcErgoCarResource extends AppResource{
             $addonCovers  = $data->Data[0]->AddOnCovers; 
              foreach($addonCovers as $cover){
                
-               if($subcover['isPA_OwnerDriverCover']=="true" && $params['planType']=="TP" && $params['vehicle']['isBrandNew']==='true'){
+               if($cover->CoverName=="PACoverOwnerDriver" && $subcover['isPA_OwnerDriverCover']=="true" && $params['planType']=="TP" && $params['vehicle']['isBrandNew']==='true'){
                     $pa_od->title = "PA(Personal Accident) Owner Driver (3 Year)";
                     $pa_od->selection = true;
                     $pa_od->grossAmt = $cover->CoverPremium;
@@ -145,8 +145,8 @@ class HdfcErgoCarResource extends AppResource{
                         $ll_paid_driver->grossAmt = $cover->CoverPremium;
                         $ll_paid_driver->netAmt   = $cover->CoverPremium;
                  }
-                 
-                 if($cover->CoverName=='PAPaidDriver' && $subcover['isPA_UNDriverCover']=="true"){ 
+                  if($cover->CoverName=='PAPaidDriver' && $subcover['isPA_UNDriverCover']=="true"){ 
+                
                         //$pa_un_pass->insuredValue  = $subcoverval['PA_UNPassCoverval'];
                         $pa_paid_driver->selection = true;
                         $pa_paid_driver->grossAmt = $cover->CoverPremium;
@@ -168,6 +168,7 @@ class HdfcErgoCarResource extends AppResource{
                         $pa_un_pass->grossAmt = $cover->CoverPremium;
                         $pa_un_pass->netAmt   = $cover->CoverPremium;
                  }
+                 
                  if($cover->CoverName=='ZERODEP' && $subcover['isPartDepProCover']=="true"){
                                $eachAddon =   new \stdClass();
                                $eachAddon->title   = 'Zero Depreciation cover';
@@ -359,7 +360,7 @@ class HdfcErgoCarResource extends AppResource{
             $vehicle->reg_date = '';//$data->vehicle->registrationDate;
             $vehicle->chassis_no = '';
             $vehicle->engin_no = '';
-            $vehicle->newNCB = isset($data->Data[0]->NewNcbDiscountPercentage)?$data->Data[0]->NewNcbDiscountPercentage:"";
+            $vehicle->newNCB = isset($data->Data[0]->NewNcbDiscountPercentage)?($data->Data[0]->NewNcbDiscountPercentage*100):"";
             $vehicle->idv    = isset($data->Data[0]->VehicleIdv)?$data->Data[0]->VehicleIdv:0;
             $vehicle->minIdv =isset($data->Data[0]->VehicleIdvMin)?$data->Data[0]->VehicleIdvMin:0;
             $vehicle->maxIdv =isset($data->Data[0]->VehicleIdvMax)?$data->Data[0]->VehicleIdvMax:0;
@@ -942,8 +943,12 @@ class HdfcErgoCarResource extends AppResource{
         
        
               if(isset($params->vehicle->vehicleNumber)){
-                  $vNo  = $params->vehicle->vehicleNumber;
-                  $vehicleNo = substr($vNo, 0,2)."-".substr($vNo, 2,2)."-".substr($vNo, 4,2)."-".substr($vNo, 6,4);
+                   $vNo  = $params->vehicle->vehicleNumber;
+                  if(strlen($vNo)<10){
+                    $vehicleNo = substr($vNo, 0,2)."-".substr($vNo, 2,2)."-".substr($vNo, 4,1)."-".substr($vNo, 5,4); 
+                  }else{
+                     $vehicleNo = substr($vNo, 0,2)."-".substr($vNo, 2,2)."-".substr($vNo, 4,2)."-".substr($vNo, 6,4);
+                  }
                }else{
                   $vNo = $params->vehicle->rtoCode;
                   $vehicleNo = substr($vNo, 0,1)."-".substr($vNo, 2,3);
@@ -1417,8 +1422,13 @@ class HdfcErgoCarResource extends AppResource{
         
        
               if(isset($options['vehicle']['vehicleNumber'])){
+                
                   $vNo  = $options['vehicle']['vehicleNumber'];
-                  $vehicleNo = substr($vNo, 0,2)."-".substr($vNo, 2,2)."-".substr($vNo, 4,2)."-".substr($vNo, 6,4);
+                  if(strlen($vNo)<10){
+                    $vehicleNo = substr($vNo, 0,2)."-".substr($vNo, 2,2)."-".substr($vNo, 4,1)."-".substr($vNo, 5,4); 
+                  }else{
+                     $vehicleNo = substr($vNo, 0,2)."-".substr($vNo, 2,2)."-".substr($vNo, 4,2)."-".substr($vNo, 6,4);
+                  }
                }else{
                   $vNo = $options['vehicle']['rtoCode'];
                   $vehicleNo = substr($vNo, 0,1)."-".substr($vNo, 2,3);
@@ -1769,7 +1779,7 @@ class HdfcErgoCarResource extends AppResource{
     
       function bugReport(){
         $request =  new \stdClass(); 
-        $request->MasterKey = "RTOCODE";
+        $request->MasterKey = "CITY";
         $request->PolicyType ="ALL"; 
         $request->AgentCode ="FWD22000";
         $client = new Client([

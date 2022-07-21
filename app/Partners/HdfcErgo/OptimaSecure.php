@@ -9,9 +9,9 @@ use Carbon\Carbon;
 
 class OptimaSecure{
      function calculatePremium($params,$sum,$sumInsured,$devicetoken,$pTyp){
-          $persons = [];
+          $persons = [];$IsLoyaltyDiscountOpted = false;
          foreach($params->members as $key=>$data){
-                if($data->type=="self")     {      $relationCd = "Self";     $roleCd ="PRIMARY";$gender=($params->gender=='MALE')?"Male":"Female"; }
+                if($data->type=="self")     { $IsLoyaltyDiscountOpted = true;     $relationCd = "Self";     $roleCd ="PRIMARY";$gender=($params->gender=='MALE')?"Male":"Female"; }
                 else if($data->type=="daughter"){  $relationCd = "Daughter"; $roleCd ="PRIMARY";$gender="Female";}
                 else if($data->type=="son")     {  $relationCd = "Son";      $roleCd ="PRIMARY";$gender="Male";}
                 else if($data->type=="wife")    {  $relationCd = "Wife";     $roleCd ="PRIMARY";$gender="Female";}
@@ -21,7 +21,7 @@ class OptimaSecure{
                     
                 $person = [
                          "InsuredRelation"=> $relationCd,
-                         "InsuredAge"=> (int)$data->age,
+                         "InsuredAge"=> ($data->age=="3-12")?1:(int)$data->age,
                          ];
                   array_push($persons,$person);
                 }
@@ -50,7 +50,7 @@ class OptimaSecure{
             $request->PolicyTenure= 1;
             $request->SumInsured=$sumInsured;
             $request->Deductible= 0;
-            $request->IsLoyaltyDiscountOpted=false;
+            $request->IsLoyaltyDiscountOpted=$IsLoyaltyDiscountOpted;
             
             $InsuredDetail = new \stdClass();
             $request->InsuredDetail = $persons;
@@ -167,9 +167,9 @@ class OptimaSecure{
             
         
         
-          $persons = [];
+          $persons = [];$IsLoyaltyDiscountOpted = false;
          foreach($params->members as $key=>$data){
-                if($data->type=="self")     {      $relationCd = "Self";     $roleCd ="PRIMARY";$gender=($params->gender=='MALE')?"Male":"Female"; }
+                if($data->type=="self")     {    $IsLoyaltyDiscountOpted = true;  $relationCd = "Self";     $roleCd ="PRIMARY";$gender=($params->gender=='MALE')?"Male":"Female"; }
                 else if($data->type=="daughter"){  $relationCd = "Daughter"; $roleCd ="PRIMARY";$gender="Female";}
                 else if($data->type=="son")     {  $relationCd = "Son";      $roleCd ="PRIMARY";$gender="Male";}
                 else if($data->type=="wife")    {  $relationCd = "Wife";     $roleCd ="PRIMARY";$gender="Female";}
@@ -179,7 +179,7 @@ class OptimaSecure{
                     
                 $person = [
                          "InsuredRelation"=> $relationCd,
-                         "InsuredAge"=> (int)$data->age,
+                         "InsuredAge"=>($data->age=="3-12")?1:(int)$data->age,
                          ];
                   array_push($persons,$person);
                 }
@@ -208,7 +208,7 @@ class OptimaSecure{
             $request->PolicyTenure= 1;
             $request->SumInsured=$sumInsured;
             $request->Deductible= 0;
-            $request->IsLoyaltyDiscountOpted=false;
+            $request->IsLoyaltyDiscountOpted=$IsLoyaltyDiscountOpted;
             
             $InsuredDetail = new \stdClass();
             $request->InsuredDetail = $persons;
@@ -304,7 +304,7 @@ class OptimaSecure{
             $request->PolicyTenure= $termYear;
             $request->SumInsured=$sumInsured;
             $request->Deductible= 0;
-            $request->IsLoyaltyDiscountOpted=false;
+            
             $request->QuoteNo = $amt->quoteNo;
             
             $PremiumDetails =  new \stdClass();
@@ -319,9 +319,9 @@ class OptimaSecure{
             
             $request->PremiumDetails = $PremiumDetails;
             
-            $persons = [];
+            $persons = [];$IsLoyaltyDiscountOpted =  false;
             foreach($params->members as $key=>$data){
-                if($data->type=="self")     {      $relationCd = "Self";    
+                if($data->type=="self")     {      $relationCd = "Self";    $IsLoyaltyDiscountOpted =  true;
                                                    $Salutation =($params->gender=='MALE')?'Mr.':(($params->selfMstatus=="Married")?"Mrs.":"Ms.");
                                                    $gender=($params->gender=='MALE')?"Male":"FeMale";
                                             }
@@ -349,19 +349,19 @@ class OptimaSecure{
                           foreach($q->childQuestions as $chQ){
                             $ch =  DB::table('medical_questions')->where('id', $chQ->Qid)->first();
                             //print_r($chQ->answer);
-                          if($ch->setparam=='OptionText'){
-                               $ANS = explode("@@",$chQ->answer);
-                               $opt["OptionId"]=isset($ANS[0])?(int)$ANS[0]:"";
-                               $opt["OptionText"]= isset($ANS[1])?str_replace("\/",'/',$ANS[1]):"";
-                          }else{
-                              if($ch->inputType=='date'){
-                                   $ans = Carbon::createFromFormat('d/m/Y', $chQ->answer)->format('Y-m-d');
-                                   $opt[$ch->setparam] = $ans;
-                              }else{
-                                 $opt[$ch->setparam] = $chQ->answer;
-                              }
-                             
-                          }
+                                  if($ch->setparam=='OptionText'){
+                                       $ANS = explode("@@",$chQ->answer);
+                                       $opt["OptionId"]=isset($ANS[0])?(int)$ANS[0]:"";
+                                       $opt["OptionText"]= isset($ANS[1])?str_replace("\/",'/',$ANS[1]):"";
+                                  }else{
+                                      if($ch->inputType=='date'){
+                                           $ans = Carbon::createFromFormat('d/m/Y', $chQ->answer)->format('Y-m-d');
+                                           $opt[$ch->setparam] = $ans;
+                                      }else{
+                                         $opt[$ch->setparam] = $chQ->answer;
+                                      }
+                                     
+                                  }
                           }
                           $options =[];
                          
@@ -385,7 +385,8 @@ class OptimaSecure{
                         ];
                   array_push($persons,$person);
                 }
-                
+            
+            $request->IsLoyaltyDiscountOpted=$IsLoyaltyDiscountOpted;   
             $request->InsureDetail = $persons;
              
             $ProposerDetails =  new \stdClass();
@@ -467,7 +468,7 @@ class OptimaSecure{
             $NomineeDetails->ApointeeDetails = $ApointeeDetails;
             
             $request->NomineeDetails = $NomineeDetails;
-         echo json_encode($request); 
+      //  echo json_encode($request); 
             
              $client = new Client([
               'headers' => [ 'Content-Type' => 'application/json',
@@ -481,7 +482,7 @@ class OptimaSecure{
              );
              $response = $clientResp->getBody()->getContents();
              $resp = json_decode($response);
-            print_r($response);die;
+         // print_r($response);die;
              if(isset($resp->Status) && $resp->Status==200 ){ 
                     $data=['enq'=>$enq,
                               'amount'=> $amt->Total_Premium,
@@ -514,7 +515,7 @@ class OptimaSecure{
                  // return ['status'=>'success','message'=>'Proposal created successfully','data'=>$data];
                   return ['status'=>'error','message'=>$msg->Message,'data'=>[]];
              }else{
-                 return ['status'=>'error','message'=>$output->responseData->message,'data'=>[]];
+                 return ['status'=>'error','message'=>$resp->responseData->message,'data'=>[]];
              }
              
              
@@ -556,5 +557,41 @@ class OptimaSecure{
            }else {
                  return ['status'=>false,'message'=>'Internal error while create proposal'];
            }
+    } 
+    
+     function GetPDF($enQid,$policyno){
+       
+        $request =  new \stdClass();
+        $request->PolicyNo =$policyno; 
+        $request->AgentCd =config('mediclaim.HDFCERGO.OptimaSecure.agentCode');
+        
+
+           
+           $client = new Client([
+                'headers' => [ 'Content-Type' => 'application/json','MerchantKey'=>config('mediclaim.HDFCERGO.OptimaSecure.mKey'),'SecretToken'=>config('mediclaim.HDFCERGO.OptimaSecure.secretToken')]
+            ]);
+            
+            $clientResp = $client->post(config('mediclaim.HDFCERGO.OptimaSecure.policyDownload'),
+                ['body' => json_encode(
+                    $request
+                )]
+            );
+            $result = $clientResp->getBody()->getContents();
+          
+                
+          $response = json_decode($result);
+         // print_r($response);
+          if($response->status==200){
+                
+                $fileName = "HDFCERGO_OP_".$policyno.".pdf";
+                $filePath1 = base64_decode($response->pdfbytes);
+                $file1 = getcwd()."/public/assets/customers/policy/pdf/".$fileName;
+                file_put_contents($file1, $filePath1);
+                return  ['status'=>true,'filename'=>$fileName];
+          }else if($response->status==500){
+                return ['status'=>false,'message'=>$response->ErrMsg];
+          }else {
+                 return ['status'=>false,'message'=>'Internal error while generate policy copy'];
+          }
     } 
 }

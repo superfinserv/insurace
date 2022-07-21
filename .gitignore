@@ -14,6 +14,9 @@ public/assets/agents/profile
 public/assets/agents/tranning_certificates
 public/assets/customers/policy/pdf
 public/assets/partners
+public/assets/vehicles
+storage/app/Superfinserv
+storage/app/backup-temp
 
 config/mediclaim.php
 config/motor.php

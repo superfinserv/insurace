@@ -186,7 +186,7 @@ class CareAdvantage{
         $jd = json_decode($enqData->json_data);
         $child = $params->total_child;
         $adult = $params->total_adult;
-        $addons = [];$CARESHILED="0";$SMARTSELECT=0;$NCBSUPER=0;$RoomRent=0;$AnHC=0;
+        $addons = [];$CARESHILED="0";$SMARTSELECT=0;$NCBSUPER=0;$RoomRent=0;$AnHC=0;$AIR_AMBULACE =0;
         if(isset($addOn) && $addOn!=""){
            $addons = explode(",",$addOn);
           
@@ -198,6 +198,7 @@ class CareAdvantage{
            $SMARTSELECT = in_array("SMARTCA", $addons)?"1":"0";
            $RoomRent = in_array("RRMCA", $addons)?"1":"0";
            $AnHC = in_array("HCUPCA1093", $addons)?"1":"0";
+           $AIR_AMBULACE = in_array("AACA", $addons)?"1":"0";
           
         }
         
@@ -236,8 +237,8 @@ class CareAdvantage{
             $postedField->field_SS  = $SMARTSELECT;
             $postedField->field_AHC  = $AnHC;
             $postedField->field_34  = $RoomRent;
+            $postedField->field_35  = $AIR_AMBULACE;
             $postedField->field_9=$policyType;
-            //$postedField->field_35 = $AIR_AMBULACE;
             $postedField->field_PA ="0";
             
             $ageBands = $this->getAgeBand($params,$enqData->policyType);
@@ -660,7 +661,7 @@ class CareAdvantage{
                 $response = $clientResp->getBody()->getContents();
          
          
-       //  print_r($response);die;
+       // print_r($response);die;
          $output = json_decode($response);
           if(isset($output->responseData->status)){
               if($output->responseData->status==1){

@@ -190,7 +190,7 @@ class Healthinsurance extends Controller{
              return response()->json($result);
          }
          
-         if($request->supp=="HDFCERGO" && config('mediclaim.HDFCERGO.status')===true){
+         if($request->supp=="HDFCERGO" && config('mediclaim.HDFCERGO.status')===true && (isset(Auth::guard('customers')->user()->id))){
               $plans =[];
               if(config('mediclaim.HDFCERGO.OptimaSecure.status')===true){
                  $OSPlans = $this->HdfcErgoHealth->getQuickPlans($range,$request->params,$this->getToken(),$request->pln,$request->policytyp);
@@ -211,7 +211,7 @@ class Healthinsurance extends Controller{
     }
     
     public function createEnquiry(Request $request){
-             
+        $QuoteId = uniqueQuoteNo('HEALTH');     
         $sup = DB::table('our_partners')->where('shortName',$request->provider)->first();
         $sumInsured = str_replace(" ","",str_replace("Lakhs","",$request->insurerInfo['sumInsured']));
              if(isset(Auth::guard('agents')->user()->id)){
@@ -226,7 +226,7 @@ class Healthinsurance extends Controller{
                 }
                  
         $cust = $this->usermanger->GetPolicySoldBy();
-        $quoteData = ['type'=>'HEALTH',
+        $quoteData = ['type'=>'HEALTH','SFQuoteId'=>$QuoteId,
                       'provider'=>$sup->shortName,
                       'device_id'=>$this->getToken(),
                       'agent_id'=>$cust->agent_id,//$agentID,
@@ -502,7 +502,9 @@ class Healthinsurance extends Controller{
          $supp = $data->provider;//$param->supplier;
          if($data->provider=="CARE"){
               $whr = ($data->product=="CAREFREEDOM")?['status'=>1,'supplier'=>$supp,'productTyp'=>'CARE_FREEDOM']:['status'=>1,'supplier'=>$supp,'productTyp'=>'OTHER'];
-          }else{
+         }else if($data->provider=="HDFCERGO"){
+              $whr = ['status'=>1,'supplier'=>$supp,'productTyp'=>'OptimaSecure-'.$data->policyType];
+         }else{
              $whr = ['status'=>1,'supplier'=>$supp];
          }
         
