@@ -496,6 +496,10 @@ class MotorInsurance extends Controller
                                
                                $partner = DB::table('our_partners')->where('shortName',$enQ->provider)->first();
                                
+                               $customerName = $paramReQ->customer->first_name;
+        				       $customerName = (isset($paramReQ->customer->middle_name) && $paramReQ->customer->middle_name!="")?$customerName." ".$paramReQ->customer->middle_name:$customerName;
+        				          	                 
+                               
                                $encrypted = Crypt::encryptString($enQ->id);
                                $data['url'] = url('motor/'.strtolower($enQ->type)."-insurance/policy/payments/".$request->enquiryID."?utm_target=".$encrypted);
                                $data['enQ'] = $enQ;
@@ -507,8 +511,9 @@ class MotorInsurance extends Controller
                                $data['sfLogo'] = asset('site_assets/logo/'.config('custom.site_logo'));
                                $data['amount'] =  isset($jsonData->gross)?setMoneyFormat($jsonData->gross):'';
                                $data['vehicleInfo'] = $paramReQ->vehicle->brand->name." ".$paramReQ->vehicle->model->name." ".$paramReQ->vehicle->varient->name."-".$paramReQ->vehicle->fueltype."(".$paramReQ->vehicle->cc.")";
-                               $data['customerName'] = $paramReQ->customer->first_name;
-                               $custname = $paramReQ->customer->first_name." ".$paramReQ->customer->last_name;
+                               $data['customerName'] = $customerName;//$paramReQ->customer->first_name;
+                               $data['motorText'] = (strtolower($enQ->type)=='car')?"Car":"Two wheeler";
+                               $custname = $customerName." ".$paramReQ->customer->last_name;
                                $custemail=$paramReQ->customer->email;
                                $subject = "Payment link for your ". $paramReQ->vehicle->brand->name." ".$paramReQ->vehicle->model->name." ".$paramReQ->vehicle->varient->name;
                                 Mail::send('insurance.email-template.moter-payment-link', $data, function($message) use ($custname, $custemail,$subject) {
@@ -597,7 +602,7 @@ class MotorInsurance extends Controller
             $data['QuoteDate'] = Carbon::CreateFromFormat('Y-m-d H:i:s',$enQ->created_at)->format('d/m/Y');
             $data['RegDate']   = ucfirst(Carbon::CreateFromFormat('d-m-Y',$param->vehicle->regDMY)->format('M,Y'));
          Filepdf::setOptions(['defaultFont' => 'sans-serif','defaultMediaType'=>'all','isFontSubsettingEnabled'=>true]);
-         $pdf = Filepdf::loadView('insurance.partnerQuote',$data);
+         $pdf = Filepdf::loadView('insurance.partnerQuoteMotor',$data);
          $filename = "Quote-".$enQ->provider."-".$enQ->SFQuoteId.".pdf";
          return $pdf->download($filename);
     }

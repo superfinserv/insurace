@@ -89,6 +89,7 @@ class DigitGold{
                         ['body' => json_encode($request)]
                     );
                      $response = $clientResp->getBody()->getContents();
+                     //print_r($response);
                      $resp = json_decode($response);
                       if(isset($resp->error) && isset($resp->error->errorCode) && $resp->error->errorCode==200 && $resp->error->errorMessage =='Success'){
                        $features = DB::table('plans_features') 
@@ -96,7 +97,7 @@ class DigitGold{
                           ->leftJoin('plans','plans.id','plans_features.plan_id')
                           ->leftJoin('plan_key_features','plan_key_features.code','plans_features.featuresKey')
                           ->where('plans.product','=','DIGIT_GOLD')
-                          ->where('plans.supplier','=','DIGIT')->limit(5)->get();
+                          ->where('plans.supplier','=','DIGIT')->limit(4)->get();
                          $amount  = str_replace(" ","",str_replace("INR","",$resp->premium->basePremiumWithTax));
                           $partner = DB::table('our_partners')->where('shortName','DIGIT')->first();          
                           $plan['supplier']="DIGIT";

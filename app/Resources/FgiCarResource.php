@@ -13,7 +13,7 @@ use Artisaninweb\SoapWrapper\SoapWrapper;
 //use App\Soap\Response\GetConversionAmountResponse;
 
 use Carbon\Carbon;
-
+use Auth;
 class FgiCarResource extends AppResource{ 
     
  
@@ -265,15 +265,15 @@ class FgiCarResource extends AppResource{
                    $eachAddon->netAmt  = trim($cover->BOValue);
                    array_push($addons,$eachAddon);
                 }
-                if($cover->Code=="PLAN1" && trim($cover->Type)=='OD'){
-                   $eachAddon =   new \stdClass();
-                   $eachAddon->title   = "Zero Dep";
-                   $eachAddon->code    = "PLAN1";
-                   $eachAddon->insured = 0; 
-                   $eachAddon->grossAmt= trim($cover->BOValue);
-                   $eachAddon->netAmt  = trim($cover->BOValue);
-                   array_push($addons,$eachAddon);
-                }
+                // if($cover->Code=="PLAN1" && trim($cover->Type)=='OD'){
+                //   $eachAddon =   new \stdClass();
+                //   $eachAddon->title   = "Zero Dep";
+                //   $eachAddon->code    = "PLAN1";
+                //   $eachAddon->insured = 0; 
+                //   $eachAddon->grossAmt= trim($cover->BOValue);
+                //   $eachAddon->netAmt  = trim($cover->BOValue);
+                //   array_push($addons,$eachAddon);
+                // }
                 
                 if($cover->Code=="NCB" && trim($cover->Type)=='OD'){ 
                      $eachDis =   new \stdClass();
@@ -416,6 +416,7 @@ class FgiCarResource extends AppResource{
             $res->isPreviousInsurerKnown = false;
             $res->hasPreClaim ="N";
             $res->preInsurerCode = "";
+            $res->preInsclientCode = "";
             $res->businessType   = "Rollover";
             $res->prePolicyNo ="";
             $res->isRollover ="Y";
@@ -435,17 +436,17 @@ class FgiCarResource extends AppResource{
                               $res->isRollover ="Y";
                               $res->isUsed ="N";
                                if($callTyp=="Proposal"){
-                                    $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('Y-m-d');
+                                    $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('d/m/Y');
                               }else{
                                   
                                    if($params['previousInsurance']['expDate']!=""){
-                                         $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('Y-m-d');
+                                         $res->expDate = Carbon::createFromFormat('d-m-Y', $params['previousInsurance']['expDate'])->format('d/m/Y');
                                     }else{
                                          $res->expDate =date('Y-m-d', strtotime('+10 days'));
                                     }
                                     
                                 }
-                              $res->startDate = Carbon::createFromFormat('Y-m-d', $res->expDate)->addDays()->format('Y-m-d');  
+                              $res->startDate = Carbon::createFromFormat('d/m/Y', $res->expDate)->addDays()->format('Y-m-d');  
                               $res->prePolicyType = !empty($params['previousInsurance']['policyType'])?$this->productCode($params['previousInsurance']['policyType']):"Comprehensive"; 
                               if($res->prePolicyType=="ThirdParty"){
                                     $res->ncb = "ZERO";//isset($params['previousInsurance']['ncb'])?$params['previousInsurance']['ncb']:"ZERO";
@@ -552,11 +553,15 @@ class FgiCarResource extends AppResource{
             }
             
             if(isset($params['previousInsurance']['insurer']) && $params['previousInsurance']['insurer']!="0"){
-                if($res->businessType!="NEW")
-                $res->preInsurerCode = DB::table('previous_insurer')->where('id', $params['previousInsurance']['insurer'])->value('name');
+                if($res->businessType!="NEW"){
+                    $res->preInsclientCode = DB::table('previous_insurer')->where('id', $params['previousInsurance']['insurer'])->value('fgi');
+                    $res->preInsurerCode = DB::table('previous_insurer')->where('id', $params['previousInsurance']['insurer'])->value('name');
+                }
             }else{ 
-                if($res->businessType!="NEW")
-                $res->preInsurerCode = DB::table('previous_insurer')->where('type', 'GENERAL')->inRandomOrder()->limit(1)->value('name');
+                if($res->businessType!="NEW"){
+                  $res->preInsclientCode = DB::table('previous_insurer')->whereNotNull('fgi')->where('type', 'GENERAL')->inRandomOrder()->limit(1)->value('fgi');
+                  $res->preInsurerCode = DB::table('previous_insurer')->where('fgi', $res->preInsclientCode)->value('name');
+                }
             }
             if($params['previousInsurance']['policyType']=='TP'){
                 $res->ncbPercent =0; 
@@ -630,14 +635,14 @@ class FgiCarResource extends AppResource{
                                                 ->leftJoin('cities', 'cities.id', '=', 'rtoMaster.city_id')
                                                 ->leftJoin('states', 'states.id', '=', 'cities.state_id')->first();
        
-         $adrsData = DB::table('pincode_masters')->where('pincode',$params['vehicle']['regPincode'])->first();
+         $pincode = DB::table('pincode_masters')->where('city_id',$rto_master->cityId)->first();
          $var = DB::table('vehicle_variant_car')->where('id',$params['vehicle']['varient']['id'])->first();
-         //print_r($params['vehicle']['varient']['id']);die;
-        // $adrsData = DB::table('pincode_masters')->where('city_id',$rto_master->cityId)->first();
          
-         $pincode =  isset($params['vehicle']['regPincode'])?$params['vehicle']['regPincode']:'';
-         $_city   =  isset($adrsData->District)?strtoupper($adrsData->District):'';
-         $_state  =  isset($adrsData->State)?strtoupper($adrsData->State):'';
+         $adrsData = DB::table('pincode_masters')->where('city_id',$rto_master->cityId)->first();
+         
+         $pincode =  isset($pincode->pincode)?$pincode->pincode:'';
+         $_city   =  isset($rto_master->cityName)?strtoupper($rto_master->cityName):'';
+         $_state  =  isset($rto_master->stateName)?strtoupper($rto_master->stateName):'';
          $fuel = "P";
          switch (strtolower($var->fuel_type)) {
             case "petrol":$fuel =  "P";break;
@@ -665,8 +670,7 @@ class FgiCarResource extends AppResource{
                     		<ReceiptNo></ReceiptNo>
                     	</PolicyHeader>
                     	<POS_MISP>
-		                   <Type></Type>
-		                   <PanNo></PanNo>
+                    	  {{POS_MISP}}
 	                    </POS_MISP>
                     	<Client>
                     		<ClientType></ClientType>
@@ -807,30 +811,7 @@ class FgiCarResource extends AppResource{
                     				<NPAAppinteeName></NPAAppinteeName>
                     				<NPAAppinteeRel></NPAAppinteeRel>
                     			</NPA>
-                        		<ZNCBRSRCV></ZNCBRSRCV>
-                        		<ZNOFEMPLY></ZNOFEMPLY>
-                        		<ZLMTPERPD></ZLMTPERPD>
-                        		<ZADDLPAPD></ZADDLPAPD>
-                        		<ZTPPER></ZTPPER>
-                        		<ZCMPTPPA></ZCMPTPPA>
-                        		<ZLMTTPPD></ZLMTTPPD>
-                        		<ZPREMISE></ZPREMISE>
-                        		<ZVINTAGE></ZVINTAGE>
-                        		<XCESSLAB></XCESSLAB>
-                        		<XCESCDE></XCESCDE>
-                        		<ZSCARSI></ZSCARSI>
-                        		<ZSCARIND></ZSCARIND>
-                        		<ZAANO></ZAANO>
-                        		<ZEMBASSY></ZEMBASSY>
-                        		<ZSPECRAL></ZSPECRAL>
-                        		<ZRALTRAIL></ZRALTRAIL>
-                        		<ZDRVTTN></ZDRVTTN>
-                        		<EXPDTE></EXPDTE>
-                        		<ZOVRTFLG></ZOVRTFLG>
-                        		<ZIMT44ID></ZIMT44ID>
-                        		<ZPAPDPRM></ZPAPDPRM>
-                        		<ZNOPPM></ZNOPPM>
-                        		<ZIMT34ID></ZIMT34ID>
+                        		
                         	</AdditionalBenefit>
                     		<AddonReq>{{HAS_ADDONS}}</AddonReq>
                     		{{ADDONS}}
@@ -852,7 +833,7 @@ class FgiCarResource extends AppResource{
                     			    <PolicyNo>".$damiPolicyNo."</PolicyNo>
                                     <InsuredName>".$preInfo->preInsurerCode."</InsuredName>
                     				<PreviousPolExpDt>".$preInfo->expDate."</PreviousPolExpDt>
-                    				<ClientCode>40062645</ClientCode>
+                    				<ClientCode>".$preInfo->preInsclientCode."</ClientCode>
                     				<Address1>".$_city."</Address1>
                     				<Address2>".$_city."</Address2>
                     				<Address3>".$_city."</Address3>
@@ -896,18 +877,17 @@ class FgiCarResource extends AppResource{
         $preInfo = $this->GetPreviousPolicyData($options,"Premium");
         $subcovers = $options['subcovers'];
         $optionValues = $options['coverValues'];
-        
+      
         if((isset($subcovers['isPA_OwnerDriverCover']) && $subcovers['isPA_OwnerDriverCover']=='true')){ 
-                  if($options['planType']=="TP" && $preInfo->businessType=="NEW"){
+                      if($options['planType']=="TP" && $preInfo->businessType=="NEW"){
                            $PA_OWNER =3;
                       }else{ 
                            $paCoverVal = isset($optionValues['PA_OwnerDriverCoverval'])?$optionValues['PA_OwnerDriverCoverval']:1;
                            $PA_OWNER = ($preInfo->businessType=="NEW")?$paCoverVal:"";
                       }
-                  
-              }else{
-                  $PA_OWNER ="";
-              }
+          }else{
+              $PA_OWNER ="";
+          }
         if($options['planType']!="SAOD" && $options['vehicle']['policyHolder'] == "IND"){      
             $XML = str_replace("{{CPAYear}}",$PA_OWNER,$XML);
             $XML = str_replace("{{CPAReq}}","Y",$XML);
@@ -952,6 +932,8 @@ class FgiCarResource extends AppResource{
         $ADDONS .= (isset($subcovers['isBreakDownAsCover']) && $subcovers['isBreakDownAsCover']=='true')?"<Addon><CoverCode>RODSA</CoverCode></Addon>":"";
         $ADDONS .= (isset($subcovers['isConsumableCover']) && $subcovers['isConsumableCover']=='true')?"<Addon><CoverCode>CONSM</CoverCode></Addon>":"";
         $ADDONS .= (isset($subcovers['isPartDepProCover']) && $subcovers['isPartDepProCover']=='true')?"<Addon><CoverCode>ZODEP</CoverCode></Addon>":"";
+        $ADDONS .= (isset($subcovers['isEng_GearBoxProCover']) && $subcovers['isEng_GearBoxProCover']=='true')?"<Addon><CoverCode>ENGPR</CoverCode></Addon>":"";
+        $ADDONS .= (isset($subcovers['isTyreProCover']) && $subcovers['isTyreProCover']=='true')?"<Addon><CoverCode>00001</CoverCode></Addon>":"";
         $hasAddons = ($ADDONS!="")?"Y":"N";
         $XML = str_replace("{{HAS_ADDONS}}",$hasAddons,$XML);
         if($hasAddons=="Y"){
@@ -959,9 +941,17 @@ class FgiCarResource extends AppResource{
         }else{
             $XML = str_replace("{{ADDONS}}","<Addon><CoverCode></CoverCode></Addon>",$XML);	
         }
+        if(isset(Auth::guard('agents')->user()->id)){
+            $POSPAN= Auth::guard('agents')->user()->pan_card_number;
+            $XML = str_replace("{{POS_MISP}}","<Type>P</Type><PanNo>".$POSPAN."</PanNo>",$XML);
+        }else{
+             $XML = str_replace("{{POS_MISP}}","<Type></Type><PanNo></PanNo>",$XML);	
+        }
+        
+
         
         if($options['vehicle']['isBrandNew']==='true' && $options['planType']=="TP"){
-             return ['status' =>false, 'plans'=>[],'message' => "Plan nott available"];
+             return ['status' =>false, 'plans'=>[],'message' => "Plan not available"];
         }else{
             
           try {
@@ -970,8 +960,9 @@ class FgiCarResource extends AppResource{
             $result = $client->call('CreatePolicy', [["Product"=>"Motor","XML"=>$XML]]);
             $xml   = simplexml_load_string($result->CreatePolicyResult, 'SimpleXMLElement', LIBXML_NOCDATA);
             $array = json_decode(json_encode((array)$xml), TRUE);
-          //  print_r($XML);
-           // print_r($result);die;
+        
+     // print_r($result);die;
+            
               
             if(isset($array['Policy'])){
                   $policy = $array['Policy'];
@@ -979,7 +970,7 @@ class FgiCarResource extends AppResource{
                 if($policy['Status']=="Successful"){
                     $partner = DB::table('our_partners')->where('shortName','FGI')->value('name');
                     $json_data = $this->getJsonData($options,$response,$preInfo);
-                    $enq = "QT-FW-".time().mt_rand();
+                    $enq = "QT-CAR-".time().mt_rand();
                     
                       $plan['title'] = $partner;
                       $plan['grossamount'] = $json_data->gross;
@@ -1024,23 +1015,24 @@ class FgiCarResource extends AppResource{
             }
             }catch (ConnectException $e) {
                 $response = $e->getResponse();
-                $responseBodyAsString = $response->getBody()->getContents();
-                $jsonRes = json_decode($responseBodyAsString);
+               // $responseBodyAsString = $response->getBody()->getContents();
+               // $jsonRes = json_decode($responseBodyAsString);
               
                 return ['status' => false,'plans'=>[], 'message' => "ConnectException"];
             }catch (RequestException $e) {
                 $response = $e->getResponse();
-                $responseBodyAsString = $response->getBody()->getContents();
-                 return ['status' => false,'plans'=>[], 'message' => 'RequestException'];
+               // print_r($response);
+               // $responseBodyAsString = $response->getBody()->getContents();
+               return ['status' => false,'plans'=>[], 'message' => 'RequestException'];
             }catch (ClientException $e) {
                 $response = $e->getResponse();
-                $responseBodyAsString = $response->getBody()->getContents();
-                $jsonRes = json_decode($responseBodyAsString);
+               // $responseBodyAsString = $response->getBody()->getContents();
+               // $jsonRes = json_decode($responseBodyAsString);
                 return ['status' =>false, 'plans'=>[],'message' => "ClientException"];
             }catch (ErrorException $e) {
                 $response = $e->getResponse();
-                $responseBodyAsString = $response->getBody()->getContents();
-                $jsonRes = json_decode($responseBodyAsString);
+                //$responseBodyAsString = $response->getBody()->getContents();
+               // $jsonRes = json_decode($responseBodyAsString);
                 return ['status' =>false, 'plans'=>[],'message' => "ErrorException"];
             }
        }
@@ -1050,12 +1042,12 @@ class FgiCarResource extends AppResource{
         $preInfo = $this->GetPreviousPolicyData($params,"Premium");
         $XML =  $this->fnQuoteRequest($params);
         $options = $params['subcovers'];
-        $_quoteData = DB::table('app_temp_quote')->where(['provider'=>"FGI",'type'=>'BIKE','device'=>$deviceToken])->orderBy('id','desc')->first();  
+        $_quoteData = DB::table('app_temp_quote')->where(['provider'=>"FGI",'type'=>'CAR','device'=>$deviceToken])->orderBy('id','desc')->first();  
         
         
         $CPAReq = (isset($options['isPA_OwnerDriverCover']) && $options['isPA_OwnerDriverCover']=='true')?'Y':'N';
         
-         $optionValues = $params['coverValues'];
+        $optionValues = $params['coverValues'];
         
         if((isset($options['isPA_OwnerDriverCover']) && $options['isPA_OwnerDriverCover']=='true')){ 
                   if($params['planType']=="TP" && $preInfo->businessType=="NEW"){
@@ -1064,12 +1056,12 @@ class FgiCarResource extends AppResource{
                            $paCoverVal = isset($optionValues['PA_OwnerDriverCoverval'])?$optionValues['PA_OwnerDriverCoverval']:1;
                            $PA_OWNER = ($preInfo->businessType=="NEW")?$paCoverVal:"";
                       }
-                  
+                
               }else{
                   $PA_OWNER ="";
               }
         
-       if($params['planType']!="SAOD" && $params['vehicle']['policyHolder'] == "IND"){      
+       if($params['planType']!="SAOD" && $params['vehicle']['policyHolder'] == "IND" && $CPAReq=="Y"){      
             $XML = str_replace("{{CPAYear}}",$PA_OWNER,$XML);
             $XML = str_replace("{{CPAReq}}","Y",$XML);
             $XML = str_replace("{{CPANomName}}","Test",$XML);
@@ -1112,6 +1104,8 @@ class FgiCarResource extends AppResource{
         $ADDONS .= (isset($options['isBreakDownAsCover']) && $options['isBreakDownAsCover']=='true')?"<Addon><CoverCode>RODSA</CoverCode></Addon>":"";
         $ADDONS .= (isset($options['isConsumableCover']) && $options['isConsumableCover']=='true')?"<Addon><CoverCode>CONSM</CoverCode></Addon>":"";
         $ADDONS .= (isset($options['isPartDepProCover']) && $options['isPartDepProCover']=='true')?"<Addon><CoverCode>ZODEP</CoverCode></Addon>":"";
+        $ADDONS .= (isset($options['isEng_GearBoxProCover']) && $options['isEng_GearBoxProCover']=='true')?"<Addon><CoverCode>ENGPR</CoverCode></Addon>":"";
+        $ADDONS .= (isset($options['isTyreProCover']) && $options['isTyreProCover']=='true')?"<Addon><CoverCode>00001</CoverCode></Addon>":"";
         $hasAddons = ($ADDONS!="")?"Y":"N";
         $XML = str_replace("{{HAS_ADDONS}}",$hasAddons,$XML);
         if($hasAddons=="Y"){
@@ -1119,8 +1113,16 @@ class FgiCarResource extends AppResource{
         }else{
              $XML = str_replace("{{ADDONS}}","<Addon><CoverCode></CoverCode></Addon>",$XML);	
         }
-       //  echo $XML;
         
+        if(isset(Auth::guard('agents')->user()->id)){
+            $POSPAN= Auth::guard('agents')->user()->pan_card_number;
+            $XML = str_replace("{{POS_MISP}}","<Type>P</Type><PanNo>".$POSPAN."</PanNo>",$XML);
+        }else{
+             $XML = str_replace("{{POS_MISP}}","<Type></Type><PanNo></PanNo>",$XML);	
+        }
+        
+        $XML = preg_replace('/\s+/', '', $XML);
+         //echo '<pre>', htmlentities($XML), '</pre>';die;
        // $url = 'http://fglpg001.futuregenerali.in/BO/Service.svc?wsdl';
         try {
             $factory = new Factory();
@@ -1129,15 +1131,15 @@ class FgiCarResource extends AppResource{
            
             $xml   = simplexml_load_string($result->CreatePolicyResult, 'SimpleXMLElement', LIBXML_NOCDATA);
             $array = json_decode(json_encode((array)$xml), TRUE);
-           // print_r($array);
-          // print_r($result);die;
+           //print_r($array);
+         // print_r($result);die;
             if(isset($array['Policy'])){
                   $policy = $array['Policy'];  
                   $response  = json_decode(json_encode($array));
                 if($policy['Status']=="Successful"){
                     $partner = DB::table('our_partners')->where('shortName','FGI')->value('name');
                     $json_data = $this->getJsonData($options,$response,$preInfo);
-                    $enq = "QT-FW-".time().mt_rand();
+                    $enq = "QT-CAR-".time().mt_rand();
                     
                       $plan['title'] = $partner;
                       $plan['grossamount'] = $json_data->gross;
@@ -1175,18 +1177,18 @@ class FgiCarResource extends AppResource{
             }
         }catch (ConnectException $e) {
                 $response = $e->getResponse();
-                $responseBodyAsString = $response->getBody()->getContents();
-                $jsonRes = json_decode($responseBodyAsString);
+                //$responseBodyAsString = $response->getBody()->getContents();
+                //$jsonRes = json_decode($responseBodyAsString);
               
                 return ['status' => false,'plans'=>[], 'message' => "ConnectException"];
             }catch (RequestException $e) {
                 $response = $e->getResponse();
-                $responseBodyAsString = $response->getBody()->getContents();
+                //$responseBodyAsString = $response->getBody()->getContents();
                  return ['status' => false,'plans'=>[], 'message' => 'RequestException'];
             }catch (ClientException $e) {
                 $response = $e->getResponse();
-                $responseBodyAsString = $response->getBody()->getContents();
-                $jsonRes = json_decode($responseBodyAsString);
+               // $responseBodyAsString = $response->getBody()->getContents();
+                //$jsonRes = json_decode($responseBodyAsString);
                 return ['status' =>false, 'plans'=>[],'message' => "ClientException"];
             }
     }
@@ -1200,7 +1202,7 @@ class FgiCarResource extends AppResource{
                $preInfo = $this->GetPreviousPolicyData($params,"Premium");
                $XML =  $this->fnQuoteRequest($params);
                $options = $params['subcovers'];
-               // $_quoteData = DB::table('app_temp_quote')->where(['provider'=>"FGI",'type'=>'BIKE','device'=>$deviceToken])->orderBy('id','desc')->first();  
+               // $_quoteData = DB::table('app_temp_quote')->where(['provider'=>"FGI",'type'=>'CAR','device'=>$deviceToken])->orderBy('id','desc')->first();  
                 $PR = json_decode($EnQ->params_request);
                 
                 $CPAReq = (isset($options['isPA_OwnerDriverCover']) && $options['isPA_OwnerDriverCover']=='true')?'Y':'N';
@@ -1216,7 +1218,7 @@ class FgiCarResource extends AppResource{
                       }else{
                           $PA_OWNER ="";
                       }
-                if($params['planType']!="SAOD" && $params['vehicle']['policyHolder'] == "IND"){     
+                if($params['planType']!="SAOD" && $params['vehicle']['policyHolder'] == "IND" && $CPAReq=="Y"){     
                     $XML = str_replace("{{CPAYear}}",$PA_OWNER,$XML);
                     $XML = str_replace("{{CPAReq}}","Y",$XML);
                     $XML = str_replace("{{CPANomName}}","Test",$XML);
@@ -1259,6 +1261,8 @@ class FgiCarResource extends AppResource{
                 $ADDONS .= (isset($options['isBreakDownAsCover']) && $options['isBreakDownAsCover']=='true')?"<Addon><CoverCode>RODSA</CoverCode></Addon>":"";
                 $ADDONS .= (isset($options['isConsumableCover']) && $options['isConsumableCover']=='true')?"<Addon><CoverCode>CONSM</CoverCode></Addon>":"";
                 $ADDONS .= (isset($options['isPartDepProCover']) && $options['isPartDepProCover']=='true')?"<Addon><CoverCode>ZODEP</CoverCode></Addon>":"";
+                $ADDONS .= (isset($options['isEng_GearBoxProCover']) && $options['isEng_GearBoxProCover']=='true')?"<Addon><CoverCode>ENGPR</CoverCode></Addon>":"";
+                $ADDONS .= (isset($options['isTyreProCover']) && $options['isTyreProCover']=='true')?"<Addon><CoverCode>00001</CoverCode></Addon>":"";
                 $hasAddons = ($ADDONS!="")?"Y":"N";
                 $XML = str_replace("{{HAS_ADDONS}}",$hasAddons,$XML);
                 if($hasAddons=="Y"){
@@ -1266,7 +1270,14 @@ class FgiCarResource extends AppResource{
                 }else{
                      $XML = str_replace("{{ADDONS}}","<Addon><CoverCode></CoverCode></Addon>",$XML);	
                 }
-               
+                if(isset(Auth::guard('agents')->user()->id)){
+                    $POSPAN= Auth::guard('agents')->user()->pan_card_number;
+                    $XML = str_replace("{{POS_MISP}}","<Type>P</Type><PanNo>".$POSPAN."</PanNo>",$XML);
+                }else{
+                     $XML = str_replace("{{POS_MISP}}","<Type></Type><PanNo></PanNo>",$XML);	
+                }
+                // echo '<pre>', htmlentities($XML), '</pre>';
+                 
                 try {
                     $factory = new Factory();
                     $client = $factory->create(new Client(), config('motor.FGI.car.QuickQuote')); 
@@ -1274,8 +1285,9 @@ class FgiCarResource extends AppResource{
                    
                     $xml   = simplexml_load_string($result->CreatePolicyResult, 'SimpleXMLElement', LIBXML_NOCDATA);
                     $array = json_decode(json_encode((array)$xml), TRUE);
+                    // echo '<pre>', htmlentities($xml), '</pre>';
                    // print_r($array);
-                   //print_r($result);die;
+                  // print_r($result);die;
                     if(isset($array['Policy'])){
                           $policy = $array['Policy'];  
                           $response  = json_decode(json_encode($array));
@@ -1339,9 +1351,59 @@ class FgiCarResource extends AppResource{
             //   }
      }
      
-     function fnPolicyIssuance($params,$Premium,$WS_P_ID,$TID,$PGID){
+     public function productCodePolicyIssuance($plan,$PospID){
+          $res =  new \stdClass();
+          $isPosp = ($PospID!="" && $PospID>0)?true:false;
+           switch ($plan) {
+            //  case "COM":
+            //     $res->contract =  "FTW"; $res->risk =  "FTW"; $res->cover =  "CO";
+            //     return $res;
+            //     break;
+             case "COM-NEW":
+                $res->contract = ($isPosp)?"P13":"F13";$res->risk  =  "F13";$res->cover =  "CO";
+                return $res;
+                break;
+            case "COM-ROLLOVER":
+                $res->contract =  ($isPosp)?"PPV":"FPV";$res->risk =  "FTW";  $res->cover =  "CO";
+                return $res;
+                break;
+            case "COM-USED":
+                $res->contract =  ($isPosp)?"PPV":"FPV"; $res->risk =  "FTW";$res->cover =  "CO";
+                return $res;
+                break;
+            case "TP-ROLLOVER":
+                $res->contract =  ($isPosp)?"PPV":"FPV";$res->risk =  "FTW"; $res->cover =  "LO";
+                return $res;
+                break;
+           case "TP-NEW":
+                $res->contract =  ($isPosp)?"PPV":"FPV";$res->risk =  "FTW"; $res->cover =  "LO";
+                return $res;
+                break;
+            case "TP-USED":
+                $res->contract =  ($isPosp)?"PPV":"FPV";$res->risk =  "FTW"; $res->cover =  "LO";
+                return $res;
+                break;
+              case "SAOD-ROLLOVER":
+                $res->contract = ($isPosp)?"PVO":"FVO"; $res->risk  =  "FVO"; $res->cover =  "OD";
+                return $res;
+                break;
+             case "SAOD-NEW":
+                $res->contract = ($isPosp)?"PVO":"FVO"; $res->risk  =  "FVO"; $res->cover =  "OD";
+                return $res;
+                break;
+             case "SAOD-USED":
+                $res->contract = ($isPosp)?"PVO":"FVO"; $res->risk  =  "FVO"; $res->cover =  "OD";
+                return $res;
+                break;
+              default:
+                $res->contract =  ($isPosp)?"PPV":"FPV"; $res->risk =  "FPV";  $res->cover =  "CO";
+                return $res;
+            }
+    }
+     
+     function fnPolicyIssuance($params,$Premium,$WS_P_ID,$TID,$PGID,$pospID){
          $preInfo = $this->GetPreviousPolicyData($params,"Proposal");
-         $productCode = $this->productCode(strtoupper($params['planType']."-".$preInfo->businessType));
+         $productCode = $this->productCodePolicyIssuance(strtoupper($params['planType']."-".$preInfo->businessType),$pospID);
          
          $chars = date('Ymd').time();
          $uid = str_shuffle(substr(str_shuffle($chars), 0, 10));
@@ -1437,8 +1499,7 @@ class FgiCarResource extends AppResource{
                     		<ReceiptNo></ReceiptNo>
                     	</PolicyHeader>
                     	<POS_MISP>
-		                   <Type></Type>
-		                   <PanNo></PanNo>
+		                  {{POS_MISP}}
 	                    </POS_MISP>
                     	<Client>
                     		<ClientType>".$ClientType."</ClientType>
@@ -1624,7 +1685,7 @@ class FgiCarResource extends AppResource{
                     			    <PolicyNo>".$preInfo->prePolicyNo."</PolicyNo>
                                     <InsuredName>".$preInfo->preInsurerCode."</InsuredName>
                     				<PreviousPolExpDt>".$preInfo->expDate."</PreviousPolExpDt>
-                    				<ClientCode>40062645</ClientCode>
+                    				<ClientCode>".$preInfo->preInsclientCode."</ClientCode>
                     				<Address1>".$_city."</Address1>
                     				<Address2>".$_city."</Address2>
                     				<Address3>".$_city."</Address3>
@@ -1671,7 +1732,7 @@ class FgiCarResource extends AppResource{
         $optionValues = $params->coverValues;
          if((isset($subcovers->isPA_OwnerDriverCover) && $subcovers->isPA_OwnerDriverCover=='true')){ 
             if($params->planType=="TP" && $preInfo->businessType=="NEW"){
-               $PA_OWNER =5;
+               $PA_OWNER =3;
             }else{ 
                $paCoverVal = isset($optionValues->PA_OwnerDriverCoverval)?$optionValues->PA_OwnerDriverCoverval:1;
                $PA_OWNER = ($preInfo->businessType=="NEW")?$paCoverVal:"";
@@ -1679,7 +1740,7 @@ class FgiCarResource extends AppResource{
           }else{
               $PA_OWNER ="";
           }
-        $XML =  $this->fnPolicyIssuance(json_decode(json_encode($params), true),$Premium,$WS_P_ID,$TID,$PGID);
+        $XML =  $this->fnPolicyIssuance(json_decode(json_encode($params), true),$Premium,$WS_P_ID,$TID,$PGID,$info->agent_id);
         
         //$jData = json_decode($info->json_data);
         $CPAReq = (isset($subcovers->isPA_OwnerDriverCover) && $subcovers->isPA_OwnerDriverCover=='true')?'Y':'N';
@@ -1732,6 +1793,8 @@ class FgiCarResource extends AppResource{
            $ADDONS .= (isset($subcovers->isBreakDownAsCover) && $subcovers->isBreakDownAsCover=='true')?"<Addon><CoverCode>RODSA</CoverCode></Addon>":"";
            $ADDONS .= (isset($subcovers->isConsumableCover) && $subcovers->isConsumableCover=='true')?"<Addon><CoverCode>CONSM</CoverCode></Addon>":"";
            $ADDONS .= (isset($subcovers->isPartDepProCover) && $subcovers->isPartDepProCover=='true')?"<Addon><CoverCode>ZODEP</CoverCode></Addon>":"";
+           $ADDONS .= (isset($subcovers->isEng_GearBoxProCover) && $subcovers->isEng_GearBoxProCover=='true')?"<Addon><CoverCode>ENGPR</CoverCode></Addon>":"";
+            $ADDONS .= (isset($subcovers->isTyreProCover) && $subcovers->isTyreProCover=='true')?"<Addon><CoverCode>00001</CoverCode></Addon>":"";
             $hasAddons = ($ADDONS!="")?"Y":"N";
             $XML = str_replace("{{HAS_ADDONS}}",$hasAddons,$XML);
             if($hasAddons=="Y"){
@@ -1739,16 +1802,24 @@ class FgiCarResource extends AppResource{
             }else{
                  $XML = str_replace("{{ADDONS}}","<Addon><CoverCode></CoverCode></Addon>",$XML);	
             }
+            
+        if($info->agent_id!="" && $info->agent_id>0){
+            
+            $POSPAN= DB::table('agents')->where('id',$info->agent_id)->value('pan_card_number');
+            $XML = str_replace("{{POS_MISP}}","<Type>P</Type><PanNo>".$POSPAN."</PanNo>",$XML);
+        }else{
+             $XML = str_replace("{{POS_MISP}}","<Type></Type><PanNo></PanNo>",$XML);	
+        }
         try {
              $Inuptxml   = simplexml_load_string($XML, 'SimpleXMLElement', LIBXML_NOCDATA);
              $Inuptxml = json_decode(json_encode((array)$Inuptxml), TRUE);
            // echo "<pre>";
-             //echo '<pre>', htmlentities($XML), '</pre>';
+            // echo '<pre>', htmlentities($XML), '</pre>';
             $factory = new Factory();
             $client = $factory->create(new Client(), config('motor.FGI.car.QuickQuote')); 
             $result = $client->call('CreatePolicy', [["Product"=>"Motor","XML"=>$XML]]);
            // print_r($result);die;
-          // echo '<pre>', htmlentities($result->CreatePolicyResult), '</pre>';
+           //echo '<pre>', htmlentities($result->CreatePolicyResult), '</pre>';
             $xml   = simplexml_load_string($result->CreatePolicyResult, 'SimpleXMLElement', LIBXML_NOCDATA);
             $array = json_decode(json_encode((array)$xml), TRUE);
            //  print_r($array);
@@ -1759,15 +1830,18 @@ class FgiCarResource extends AppResource{
                      
                     $policyNo = is_array($array['Policy']['PolicyNo'])?"":$array['Policy']['PolicyNo'];
                    
-                    $QDATA = ['reqCreate'=>json_encode($Inuptxml),'respCreate'=>json_encode($array)];
+                    $QDATA = ['reqSaveGenPolicy'=>json_encode($Inuptxml),'respSaveGenPolicy'=>json_encode($array)];
                     //print_r($QDATA);
                     DB::table('app_quote')->where('enquiry_id',$enQId)->update($QDATA);
                     return ['status'=>true,'message'=>'Policy Generated successfully','data'=>$policyNo];
             }else{
-                $QDATA = ['reqCreate'=>json_encode($Inuptxml),'respCreate'=>json_encode($array)];
+                $QDATA = ['reqSaveGenPolicy'=>json_encode($Inuptxml),'respSaveGenPolicy'=>json_encode($array)];
                 DB::table('app_quote')->where('enquiry_id',$enQId)->update($QDATA);
                return ['status'=>false,'message' => "Connection Fail",'data'=>""];
             }
+            
+            //echo '<pre>', htmlentities($XML), '</pre>';
+            //echo '<pre>', htmlentities($xml), '</pre>';die;
         }catch (ConnectException $e) {
                 $response = $e->getResponse();
                 $responseBodyAsString = $response->getBody()->getContents();
@@ -1818,7 +1892,7 @@ class FgiCarResource extends AppResource{
                    
                     // Without classmap
                     $response = $this->soapWrapper->call('DataTable.GetPDF', [$REQUEST]);
-                     print_r($response->GetPDFResult->any);
+                // print_r($response->GetPDFResult->any);
                       $xmmll =  "<root>".$response->GetPDFResult->any."</root>";
                         $doc = new \DOMDocument();
                         $doc->preserveWhiteSpace = true;
@@ -1830,14 +1904,14 @@ class FgiCarResource extends AppResource{
                         $ob       = simplexml_load_string($parseObj);
                         $data     = json_decode(json_encode($ob), true);
                     
-                   // print_r($data);
+                //   print_r($data);
                     if(isset($data['diffgrdiffgram'])){
                     $diffgrdiffgram = $data['diffgrdiffgram'];
                     $DocumentElement = $diffgrdiffgram['DocumentElement'];
                     $PDF = $DocumentElement['PDF'];
                         if(isset($PDF['PDFBytes'])){
                             $PDFBytes = $PDF['PDFBytes'];
-                            $fileName = "FGI-FW-".$pno.".pdf";
+                            $fileName = "FGI-TW-".$pno.".pdf";
                             $filePath1 = base64_decode($PDFBytes);
                              $file1 = getcwd()."/public/assets/customers/policy/pdf/".$fileName;
                             file_put_contents($file1, $filePath1);

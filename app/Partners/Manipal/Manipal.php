@@ -18,6 +18,7 @@ class Manipal {
     public function __construct(){
          $this->protect = new ManipalProtect;
          $this->plus = new ManipalPlus;
+         $this->prime = new ManipalPrime;
     }
     
     function getZone($pincode){
@@ -71,40 +72,50 @@ class Manipal {
          
     }
     
-     function getQuickPlans($range,$params,$devicetoken,$policytyp){
+     function getQuickPlans($range,$params,$devicetoken,$policytyp,$pln){
          
-        
+          $SRange = SumIncRange($range,'MANIPAL_CIGNA','','customer');
           
            $child = $params['total_child'];
            $adult = $params['total_adult'];
           
-           $rangeARR =[];
+        //   $rangeARR =[];
           
-         if($range['start']==2){ $rangeARR = ['2'=>200000,'3'=>300000.0];}
-         if(isset(Auth::guard('agents')->user()->posp_ID)){ 
-             if(Auth::guard('agents')->user()->userType=="POSP"){ //For POSP
-               if($range['start']==4){ $rangeARR = ['4.5'=>450000];}
-             }else{ // For SP
-                if($range['start']==4){ $rangeARR = ['4.5'=>450000,'5.5'=>550000,'7.5'=>750000];}
-                if($range['start']==10){ $rangeARR = ['10'=>1000000,'15'=>1500000];}
-                if($range['start']==16){ $rangeARR = ['20'=>2000000,'25'=>2500000];}
-             }
-         }else{ // For customer
-                if($range['start']==4){ $rangeARR = ['4.5'=>450000,'5.5'=>550000,'7.5'=>750000];}
-                if($range['start']==10){ $rangeARR = ['10'=>1000000,'15'=>1500000];}
-                if($range['start']==16){ $rangeARR = ['20'=>2000000,'25'=>2500000];}
-        }
+        //  if($range['start']==2){ $rangeARR = ['2'=>200000,'3'=>300000];}
+        //  if(isset(Auth::guard('agents')->user()->posp_ID)){ 
+        //      if(Auth::guard('agents')->user()->userType=="POSP"){ //For POSP
+        //       if($range['start']==4){ $rangeARR = ['4'=>400000,'4.5'=>450000,'5'=>500000,];}
+        //      }else{ // For SP
+        //         if($range['start']==4){ $rangeARR = ['4'=>400000,'4.5'=>450000,'5'=>500000,'5.5'=>550000,'7.5'=>750000];}
+        //         if($range['start']==10){ $rangeARR = ['10'=>1000000,'12.5'=>12500000,'15'=>1500000];}
+        //         if($range['start']==16){ $rangeARR = ['20'=>2000000,'25'=>2500000];}
+        //         if($range['start']==26){ $rangeARR = ['30'=>3000000,'40'=>4000000,'50'=>4000000];}
+        //      }
+        //  }else{ // For customer
+        //         if($range['start']==4){ $rangeARR = ['4'=>400000,'4.5'=>450000,'5'=>500000,'5.5'=>550000,'7.5'=>750000];}
+        //         if($range['start']==10){ $rangeARR = ['10'=>1000000,'12.5'=>12500000,'15'=>1500000];}
+        //         if($range['start']==16){ $rangeARR = ['20'=>2000000,'25'=>2500000];}
+        //         if($range['start']==26){ $rangeARR = ['30'=>3000000,'40'=>4000000,'50'=>4000000];}
+        // }
           
           
           $_plans =[];$count=0;
           
-          foreach($rangeARR as $sum=>$sumInsured){
-              
-                    $mProtect = $this->protect->calculatePremium($params,$sum,$sumInsured,$devicetoken,$policytyp);
-                    if($mProtect['status']){$count++; $_plans[] =$mProtect['data'];}
+          foreach($SRange as $sum=>$sumInsured){
+                    if($pln=="Protect"){
+                        $mProtect = $this->protect->calculatePremium($params,$sum,$sumInsured,$devicetoken,$policytyp);
+                        if($mProtect['status']){$count++; $_plans[] =$mProtect['data'];}
+                    }
+                    if($pln=="Plus"){
+                      $mPlus = $this->plus->calculatePremium($params,$sum,$sumInsured,$devicetoken,$policytyp);
+                      if($mPlus['status']){$count++; $_plans[] =$mPlus['data'];}
+                    }
+                   
+                   if($pln=="Prime" && in_array($sum, [3,4,5,7.5,10,12.5,15,20,25,30,40,50])){
+                      $mPrime = $this->prime->calculatePremium($params,$sum,$sumInsured,$devicetoken,$policytyp);
+                      if($mPrime['status']){$count++; $_plans[] =$mPrime['data'];}
+                    }
                     
-                  $mPlus = $this->plus->calculatePremium($params,$sum,$sumInsured,$devicetoken,$policytyp);
-                  if($mPlus['status']){$count++; $_plans[] =$mPlus['data'];}
                   
             }//foreach Range
            

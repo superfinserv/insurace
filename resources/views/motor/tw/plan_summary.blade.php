@@ -42,7 +42,7 @@
                             <div class="col-md-12">
                                 <table class="table table-planInfo">
                                     @if($params->vehicle->policyHolder=="IND")
-					                <tr><th>Full Name (as per RTO)</th><td>:<span id="">{{$params->customer->first_name}} {{$params->customer->last_name}}</span></td> </tr>
+					                <tr><th>Full Name (as per RTO)</th><td>:<span id="">{{$params->customer->first_name}} {{$params->customer->middle_name}} {{$params->customer->last_name}}</span></td> </tr>
 					                <tr><th>Date of birth</th> <td>:<span id="">{{$params->customer->dob}}</span></td> </tr>
 					                <tr><th>Gender</th> <td>:<span id="ownerGender">{{$params->customer->gender}}</span></td> </tr>
 					                @else

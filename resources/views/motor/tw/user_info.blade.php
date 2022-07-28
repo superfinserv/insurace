@@ -162,10 +162,11 @@ input[type="email"]::-ms-input-placeholder,input[type="text"]:-ms-input-placehol
                                        <input name="_token" type="hidden" value="{{ csrf_token() }}"  />
                                        <!--if($params->vehicle->policyHolder=='IND')-->
                                        <?php  $fnameLabel =  ($params->vehicle->policyHolder=='IND')?'First Name':'Contact Person First Name';
+                                              $mnameLabel =  ($params->vehicle->policyHolder=='IND')?'Middle Name':'Contact Person Middle Name';
                                               $lnameLabel =  ($params->vehicle->policyHolder=='IND')?'Last Name':'Contact Person Last Name';
                                               ?>
                                         <div class="row">
-                                            <div class="col-md-6">    
+                                            <div class="col-md-4">    
                                                 <div class="form-group">
                                                     <label for="first_name" style="width: 100%">{{$fnameLabel}}</label>
                                                     
@@ -183,7 +184,14 @@ input[type="email"]::-ms-input-placeholder,input[type="text"]:-ms-input-placehol
                                                 </div>
                                             </div>
                                             
-                                            <div class="col-md-6">    
+                                             <div class="col-md-4">    
+                                                <div class="form-group">
+                                                    <label for="middle_name" style="width: 100%">{{$mnameLabel}}</label>    
+                                                    <input style="margin-bottom:0px;" type="text" name="middle_name" id="middle_name" class="form-control word-uppercase char-only" placeholder="Enter {{$mnameLabel}}" value="<?=isset($params->customer->middle_name)?$params->customer->middle_name:'';?>" autocomplete="off">
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-md-4">    
                                                 <div class="form-group">
                                                     <label for="name" style="width: 100%">{{$lnameLabel}}</label>    
                                                     <input style="margin-bottom:0px;" type="text" name="last_name" id="last_name" class="form-control word-uppercase char-only" placeholder="Enter {{$lnameLabel}}" value="<?=isset($params->customer->last_name)?$params->customer->last_name:'';?>" autocomplete="off">

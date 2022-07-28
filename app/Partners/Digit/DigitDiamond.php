@@ -2,6 +2,7 @@
 namespace App\Partners\Digit;
 use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Client;
 use Meng\AsyncSoap\Guzzle\Factory;
 use Auth;
@@ -95,7 +96,7 @@ class DigitDiamond{
                           ->leftJoin('plans','plans.id','plans_features.plan_id')
                           ->leftJoin('plan_key_features','plan_key_features.code','plans_features.featuresKey')
                           ->where('plans.product','=','DIGIT_DIAMOND')
-                          ->where('plans.supplier','=','DIGIT')->limit(5)->get();
+                          ->where('plans.supplier','=','DIGIT')->limit(4)->get();
                           $amount  = str_replace(" ","",str_replace("INR","",$resp->premium->basePremiumWithTax));
                           $partner = DB::table('our_partners')->where('shortName','DIGIT')->first();          
                           $plan['supplier']="DIGIT";

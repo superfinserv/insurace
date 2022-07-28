@@ -10,6 +10,7 @@ $(function(){
                if(digitCard.length){
                       digitCard.find('button.btn-netpremiumn').html(loader);
                       digitCard.find('.error-span').remove();
+                      digitCard.removeClass('cart-empty');
                        digitCard.find('.downloadQuoteLink').attr('href','#');
                    digitCard.find('.downloadQuoteLink').hide();
                      var carInfo = JSON.parse(localStorage.getItem('carInfo'));
@@ -59,13 +60,15 @@ $(function(){
                             }
                            
                           }else{
-                               $('.plan-card-digit_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
-                               $('.plan-card-digit_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                              digitCard.addClass('cart-empty');
+                              // $('.plan-card-digit_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
+                               $('.plan-card-digit_m').find('button.btn-netpremiumn').html('N/A').attr('disabled',true);
                           }
                        },
                       error: function (jqXHR, status, err) {
-                             $('.plan-card-digit_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
-                             $('.plan-card-digit_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                             digitCard.addClass('cart-empty');
+                            //$('.plan-card-digit_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
+                             $('.plan-card-digit_m').find('button.btn-netpremiumn').html('N/A').attr('disabled',true);
                       },
                       complete: function (data,jqXHR, status) {
                         
@@ -80,6 +83,7 @@ $(function(){
               if(hdfcergoCard.length){
                      $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html(loader);
                      $('.plan-card-hdfcergo_m').find('.error-span').remove();
+                     hdfcergoCard.removeClass('cart-empty');
                       hdfcergoCard.find('.downloadQuoteLink').attr('href','#');
                      hdfcergoCard.find('.downloadQuoteLink').hide();
                      var carInfo = JSON.parse(localStorage.getItem('carInfo'));
@@ -123,15 +127,17 @@ $(function(){
                               
                           }else{
                                  // console.log('hdfcergo_m');
-                               $('.plan-card-hdfcergo_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
-                               $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                                hdfcergoCard.addClass('cart-empty');
+                              // $('.plan-card-hdfcergo_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
+                               $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html('N/A').attr('disabled',true);
                               //$('.plan-card-digit_m').hide();
                              // toastr.error(data.message, 'HdfcErgo Error!');
                           }
                        },
                       error: function (jqXHR, status, err) {
-                             $('.plan-card-hdfcergo_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
-                             $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                             hdfcergoCard.addClass('cart-empty');
+                            // $('.plan-card-hdfcergo_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
+                             $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html('N/A').attr('disabled',true);
                             // toastr.error(err+' while fetch HDFC ERGO Quote', 'Error!')
                       },
                       complete: function (jqXHR, status) {}
@@ -146,6 +152,7 @@ $(function(){
                 $('.plan-card-fgi_m').find('button.btn-netpremiumn').html(loader).attr('disabled',false);
                 $('.plan-card-fgi_m').find('button.btn-netpremiumn').html(loader);
                 $('.plan-card-fgi_m').find('.error-span').remove();
+                fgiCard.removeClass('cart-empty');
                 fgiCard.find('.downloadQuoteLink').attr('href','#');
                 fgiCard.find('.downloadQuoteLink').hide();
                  var carInfo = JSON.parse(localStorage.getItem('carInfo'));
@@ -192,15 +199,15 @@ $(function(){
                     
                       }else{
                            fgiCard.addClass('cart-empty');
-                           $('.plan-card-fgi_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
-                           $('.plan-card-fgi_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                          // $('.plan-card-fgi_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
+                           $('.plan-card-fgi_m').find('button.btn-netpremiumn').html('N/A').attr('disabled',true);
                           
                       }
                    },
                   error: function (jqXHR, status, err) {
-                        
-                       $('.plan-card-fgi_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
-                       $('.plan-card-fgi_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                       fgiCard.addClass('cart-empty');
+                       //$('.plan-card-fgi_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
+                       $('.plan-card-fgi_m').find('button.btn-netpremiumn').html('N/A').attr('disabled',true);
                         
                       
                   },
@@ -520,7 +527,7 @@ $(function(){
          if(carInfo.vehicle.isBrandNew=="false"){
              if($('#isPartDepProCover').is(":checked")){ 
                   $.confirm({
-                    title: 'Confirm!',
+                    title: 'Zero Depreciation',
                     titleClass:'zerodep-title',
                     type:'red',
                     content: '<h4 style="font-size: 13px;color: red;">Do you have Zero Depreciation cover in your Previous policy?</h4>',
@@ -528,7 +535,7 @@ $(function(){
                     buttons: {
                         yes: {
                             text: 'Yes',
-                            btnClass: 'btn-green',
+                            btnClass: 'b-btn pagebtn',
                             action: function(){
                                 $('#'+elemName+'-elem').show();
                               carInfo = JSON.parse(localStorage.getItem('carInfo'));
@@ -543,7 +550,7 @@ $(function(){
                         },
                         no: {
                             text: 'No',
-                            btnClass: 'btn-red',
+                            btnClass: 'r-btn pagebtn',
                             action: function(){
                               $("#isPartDepProCover").prop("checked", false);$("#isPartDepProCover").attr("checked", false);
                               $('#'+elemName+'-elem').hide();

@@ -939,12 +939,12 @@ class FgiTwResource extends AppResource{
         }else{
             $XML = str_replace("{{ADDONS}}","<Addon><CoverCode></CoverCode></Addon>",$XML);	
         }
-        if(isset(Auth::guard('agents')->user()->id)){
-            $POSPAN= Auth::guard('agents')->user()->pan_card_number;
-            $XML = str_replace("{{POS_MISP}}","<Type>P</Type><PanNo>".$POSPAN."</PanNo>",$XML);
-        }else{
+        // if(isset(Auth::guard('agents')->user()->id)){
+        //     $POSPAN= Auth::guard('agents')->user()->pan_card_number;
+        //     $XML = str_replace("{{POS_MISP}}","<Type>P</Type><PanNo>".$POSPAN."</PanNo>",$XML);
+        // }else{
              $XML = str_replace("{{POS_MISP}}","<Type></Type><PanNo></PanNo>",$XML);	
-        }
+        //}
         
 
         
@@ -981,11 +981,14 @@ class FgiTwResource extends AppResource{
                       $Inuptxml   = simplexml_load_string($XML, 'SimpleXMLElement', LIBXML_NOCDATA);
                       $Inuptxml = json_decode(json_encode((array)$Inuptxml), TRUE);
                       
+                      $Idvvar = ($policy['VehicleIDV']*10)/100;
+                      $Idvvar = number_format((float)$Idvvar, 2, '.', '');
+                      
                       $quoteData = ['quote_id'=>$enq,'type'=>'BIKE','title'=>$partner,
                                     'device'=>$deviceToken,'provider'=>'FGI',
                                     'policyType'=>$options['planType'],
-                                    'min_idv'=>$policy['VehicleIDV'],
-                                    'max_idv'=>$policy['VehicleIDV'],
+                                    'min_idv'=>($policy['VehicleIDV']-$Idvvar),
+                                    'max_idv'=>($policy['VehicleIDV'] + $Idvvar),
                                     'idv'    =>$policy['VehicleIDV'],
                                     'call_type'=>"QUOTE",
                                     'reqQuote'=>json_encode($Inuptxml),
@@ -1110,12 +1113,12 @@ class FgiTwResource extends AppResource{
              $XML = str_replace("{{ADDONS}}","<Addon><CoverCode></CoverCode></Addon>",$XML);	
         }
         
-        if(isset(Auth::guard('agents')->user()->id)){
-            $POSPAN= Auth::guard('agents')->user()->pan_card_number;
-            $XML = str_replace("{{POS_MISP}}","<Type>P</Type><PanNo>".$POSPAN."</PanNo>",$XML);
-        }else{
+        // if(isset(Auth::guard('agents')->user()->id)){
+        //     $POSPAN= Auth::guard('agents')->user()->pan_card_number;
+        //     $XML = str_replace("{{POS_MISP}}","<Type>P</Type><PanNo>".$POSPAN."</PanNo>",$XML);
+        // }else{
              $XML = str_replace("{{POS_MISP}}","<Type></Type><PanNo></PanNo>",$XML);	
-        }
+        //}
         
         $XML = preg_replace('/\s+/', '', $XML);
         
@@ -1128,7 +1131,7 @@ class FgiTwResource extends AppResource{
             $xml   = simplexml_load_string($result->CreatePolicyResult, 'SimpleXMLElement', LIBXML_NOCDATA);
             $array = json_decode(json_encode((array)$xml), TRUE);
            //print_r($array);
-         // print_r($result);die;
+          //print_r($result);die;
             if(isset($array['Policy'])){
                   $policy = $array['Policy'];  
                   $response  = json_decode(json_encode($array));
@@ -1148,12 +1151,15 @@ class FgiTwResource extends AppResource{
                       $Inuptxml   = simplexml_load_string($XML, 'SimpleXMLElement', LIBXML_NOCDATA);
                       $Inuptxml = json_decode(json_encode((array)$Inuptxml), TRUE);
                       
+                      $Idvvar = ($policy['VehicleIDV']*10)/100;
+                      $Idvvar = number_format((float)$Idvvar, 2, '.', '');
+                      
+                      
                       $quoteData = ['quote_id'=>$enq,'type'=>'BIKE','title'=>$partner,
                                     'device'=>$deviceToken,'provider'=>'FGI',
                                     'policyType'=>$params['planType'],
-                                    'min_idv'=>$policy['VehicleIDV'],
-                                    'max_idv'=>$policy['VehicleIDV'],
-                                    'idv'    =>$policy['VehicleIDV'],
+                                     'min_idv'=>($policy['VehicleIDV']-$Idvvar),
+                                    'max_idv'=>($policy['VehicleIDV'] + $Idvvar),
                                     'call_type'=>"QUOTE",
                                     'netAmt'=>$json_data->net,
                                     'taxAmt'=>$json_data->tax,
@@ -1264,8 +1270,11 @@ class FgiTwResource extends AppResource{
                 }else{
                      $XML = str_replace("{{ADDONS}}","<Addon><CoverCode></CoverCode></Addon>",$XML);	
                 }
-                if(isset(Auth::guard('agents')->user()->id)){
-                    $POSPAN= Auth::guard('agents')->user()->pan_card_number;
+                
+               // if(isset(Auth::guard('agents')->user()->id)){
+               if($EnQ->agent_id>0){
+                    $POSPAN =  DB::table('agents')->where('id',$EnQ->agent_id)->value('pan_card_number');
+                    //$POSPAN= Auth::guard('agents')->user()->pan_card_number;
                     $XML = str_replace("{{POS_MISP}}","<Type>P</Type><PanNo>".$POSPAN."</PanNo>",$XML);
                 }else{
                      $XML = str_replace("{{POS_MISP}}","<Type></Type><PanNo></PanNo>",$XML);	
@@ -1896,7 +1905,7 @@ class FgiTwResource extends AppResource{
                         $ob       = simplexml_load_string($parseObj);
                         $data     = json_decode(json_encode($ob), true);
                     
-                   print_r($data);
+                //   print_r($data);
                     if(isset($data['diffgrdiffgram'])){
                     $diffgrdiffgram = $data['diffgrdiffgram'];
                     $DocumentElement = $diffgrdiffgram['DocumentElement'];

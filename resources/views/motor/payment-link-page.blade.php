@@ -126,7 +126,11 @@
         				          	             <th class="th-head" colspan="4">Personal Details</th>
         				          	         </tr>
         				          	       <tr>
-        				          	           <th>Name</th><td><?=$params->customer->first_name." ".$params->customer->last_name;?></td>
+        				          	           <?php $name = $params->customer->first_name;
+        				          	                 $name = (isset($params->customer->middle_name) && $params->customer->middle_name!="")?$name." ".$params->customer->middle_name:$name;
+        				          	                 $name = $name." ".$params->customer->last_name;
+        				          	                 ?>
+        				          	           <th>Name</th><td><?=$name;?></td>
         				          	            <?php /*<th>DOB</th><td><?=$params->customer->dob;?></td> */?>
         				          	            <th>Gender</th><td><?=$params->customer->gender;?></td> 
         				          	       </tr>

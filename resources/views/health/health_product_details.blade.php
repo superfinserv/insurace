@@ -318,7 +318,7 @@ input[name='planYear']:checked + label.label-planYear::after {
         <div class="container invest-long-bg" style="box-shadow: none;">
             <div class="row" id="page-proposal">
                 <div class="col-12 col-md-8 col-lg-8 col-sm-12">
-                    <div class="card">
+                    <div class="card" style="box-shadow: 0 3px 6px rgb(0 0 0 / 16%);border-radius: 5px;">
                         <div class="card-header">
                              <ul  style="list-style-type: none;margin-bottom:0px">
                               <li style="display: inline-block;width:20%;vertical-align: bottom;">
@@ -347,7 +347,7 @@ input[name='planYear']:checked + label.label-planYear::after {
                             </ul>
                         </div>
                         <div class="card-body" style="padding:6px;">
-                            <div style="box-shadow: 0px 5px 6px #ccc;border: 1px solid #ccc;padding: 12px;  border-radius: 12px;">
+                            <div style="padding: 12px;">
                                     <h4 style="font-weight: 700;font-size: 16px;">Cover Amount</h4>
                                     <p style="margin-top: 0px;font-size: 13px;">With medical treatments becoming costlier every year, a higher cover ensures quality treatment</p>
                                     <div class="row" id="page-proposal">
@@ -367,7 +367,7 @@ input[name='planYear']:checked + label.label-planYear::after {
                                     </div>
                             </div>
                             <?php  if($data->provider=='DIGIT'){?>
-                            <div style="margin-top:12px;box-shadow: 0px 5px 6px #ccc;border: 1px solid #ccc;padding: 12px;  border-radius: 12px;">
+                            <div style="margin-top:12px;border-top: 1px solid #ccc;padding: 12px;">
                                 <h4 style="font-weight: 700;font-size: 16px;">Zone</h4>
                                 <p style="margin-top: 0px;font-size: 13px;">
                                     Your city of residence is categorized in either Zone A, B or C. As the treatment cost is different in different cities, there are certain
@@ -414,7 +414,7 @@ input[name='planYear']:checked + label.label-planYear::after {
                             
                              <?php  if($data->provider=='MANIPAL_CIGNA'){?>
                               <?php $actualZone = $data->actualZone;?>
-                            <div style="margin-top:12px;box-shadow: 0px 5px 6px #ccc;border: 1px solid #ccc;padding: 12px;  border-radius: 12px;">
+                            <div style="margin-top:12px;border-top: 1px solid #ccc;padding: 12px;">
                                 <h4 style="font-weight: 700;font-size: 16px;">Zone</h4>
                                 <p style="margin-top: 0px;font-size: 13px;">
                                     Your city of residence is categorized in either Zone I, II or III. As the treatment cost is different in different cities, there are certain
@@ -463,7 +463,7 @@ input[name='planYear']:checked + label.label-planYear::after {
                             </div>
                             <?php } ?>
                             
-                            <div style="margin-top:12px;box-shadow: 0px 5px 6px #ccc;border: 1px solid #ccc;padding: 12px;  border-radius: 12px;">
+                            <div style="margin-top:12px;border-top: 1px solid #ccc;padding: 12px;">
                                     <h4 style="font-weight: 700;font-size: 16px;">Policy Period</h4>
                                     <!--<p style="margin-top: 0px;font-size: 13px;">Choosing a multi-year plan saves your money and the trouble of remembering yearly renewals.</p>-->
                                     <div class="row" id="page-proposal" style="margin-top: 10px;">
@@ -497,7 +497,7 @@ input[name='planYear']:checked + label.label-planYear::after {
                                     </div>
                             </div>
                             <?php  if($data->provider=="CARE"){?>
-                            <div style="margin-top:12px;box-shadow: 0px 5px 6px #ccc;border: 1px solid #ccc;padding: 12px;  border-radius: 12px;">
+                            <div style="margin-top:12px;border-top: 1px solid #ccc;padding: 12px;">
                                  <h4 style="font-weight: 700;font-size: 16px;">Recommended Add-Ons</h4>
                                     <p style="margin-top: 0px;font-size: 13px;">(Please click on below add-ons to add more benefits)</p>
                                     <div class="boxes addon-container" >
@@ -596,7 +596,7 @@ input[name='planYear']:checked + label.label-planYear::after {
                             </div>
                             <?php } ?>
                              <?php  if($data->provider=="DIGIT" && $data->policyType=="FL"){?>
-                             <div style="margin-top:12px;box-shadow: 0px 5px 6px #ccc;border: 1px solid #ccc;padding: 12px;  border-radius: 12px;">
+                             <div style="margin-top:12px;border-top: 1px solid #ccc;padding: 12px;">
                                  <h4 style="font-weight: 700;font-size: 16px;">Recommended Add-Ons</h4>
                                  <p style="margin-top: 0px;font-size: 13px;">(Please click on below add-ons to add more benefits)</p>
                                 <div class="boxes">
@@ -614,7 +614,7 @@ input[name='planYear']:checked + label.label-planYear::after {
                               </div>
                              <?php } ?>
                              <?php  if($data->provider=="MANIPAL_CIGNA"){?>
-                                <div style="margin-top:12px;box-shadow: 0px 5px 6px #ccc;border: 1px solid #ccc;padding: 12px;  border-radius: 12px;">
+                                <div style="margin-top:12px;border-top: 1px solid #ccc;padding: 12px;">
                                      <h4 style="font-weight: 700;font-size: 16px;">Recommended Add-Ons</h4>
                                      <p style="margin-top: 0px;font-size: 13px;">(Please click on below add-ons to add more benefits)</p>
                                      <div class="boxes">
@@ -641,12 +641,12 @@ input[name='planYear']:checked + label.label-planYear::after {
                 <div class="col-12 col-md-4 col-lg-4 col-sm-12">
                      <div class="row supplier-info" >
                          
-                         <div class="card card-providerinfo" style="width: 100%;">
+                         <div class="card card-providerinfo" style="width: 100%;box-shadow: 0 3px 6px rgb(0 0 0 / 16%);border-radius: 5px;">
                            <div class="card-header">
-                               <span>Plan Summary</span>
+                               <span style="font-weight: 700;font-size: 16px;color:#003379">Plan Summary</span>
                             </div>
                            <div class="card-body" style="padding: 0px;">
-                               <h3 style="color: #AC0F0B;font-weight: 600;font-size: 16px;text-align: center;margin-top: 14px;"><span id="<?=$data->enquiry_id;?>-planTitle" class="plan-title"><?=$data->title;?></span></h3>
+                               <h3 style="color: #AC0F0B;font-weight: 600;font-size: 16px;text-align: center;margin-top: 14px;"><span id="<?=$data->enquiry_id;?>-planTitle" class="plan-title" style="letter-spacing: 0px;font-weight: 600"><?=$data->title;?></span></h3>
                                <table id="rightPlanSummaryTbl" class="table" style="margin-bottom:0px;">
                                 <tbody>
                                     <?php $total_adult = $param->total_adult."A";
@@ -743,7 +743,14 @@ input[name='planYear']:checked + label.label-planYear::after {
                                      </tr>
                                      */?>
                                      <tr>
-                                         <td colspan="2"><button class="{{$data->enquiry_id}}" id="proceed-proposal" style="width: 100%;padding: 12px;background-color: #C52118;color: #fff;font-size: 17px;font-weight: 700;font-family: 'Nunito Sans';border: 1px solid #C52118;">PROCEED</button></td>
+                                         <td colspan="2">
+                                             <button class="btnSF btn-red btn-radius-5 {{$data->enquiry_id}}" id="proceed-proposal" style="font-size: 17px;font-weight: 700;">PROCEED</button>
+                                         </td>
+                                     </tr>
+                                     <tr>
+                                        <td colspan="2">
+                                            <a href="#" class="btnSF btn-blue-outline downloadQuoteLink" data-enq="{{$data->enquiry_id}}">Download Quote <span class="fa fa-cloud-download "></span></a>
+                                        </td> 
                                      </tr>
                                  </tfoot>
                                  </table>
@@ -752,6 +759,7 @@ input[name='planYear']:checked + label.label-planYear::after {
                 </div>
 			</div>
     	</div>
+        </div>
     </section>
 
 </main>

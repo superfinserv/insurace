@@ -37,13 +37,13 @@
                         
                         <div class="row row-plan-summary">
                            <div class="col-md-12">
-                               <h3  class="title">Personal Details <span class="pull-right"><a href="{{url('twowheeler-insurance/users-information/'.$info->enquiry_id)}}">Edit</a></span></h3>
+                               <h3  class="title">Personal Details <span class="pull-right"><a href="{{url('car-insurance/users-information/'.$info->enquiry_id)}}">Edit</a></span></h3>
                            </div>
                             <div class="col-md-12">
                                 <table class="table table-planInfo">
                                     @if($params->vehicle->policyHolder=="IND")
-					                <tr><th>Full Name (as per RTO)</th><td>:<span id="">{{$params->customer->first_name}} {{$params->customer->last_name}}</span></td> </tr>
-					                <tr><th>Date of birth</th> <td>:<span id="">{{$params->customer->dob}}</span></td> </tr>
+					                <tr><th>Full Name (as per RTO)</th><td>:<span id="">{{$params->customer->first_name}} {{$params->customer->middle_name}} {{$params->customer->last_name}}</span></td> </tr>
+					                 <tr><th>Date of birth</th> <td>:<span id="">{{$params->customer->dob}}</span></td> </tr>
 					                <tr><th>Gender</th> <td>:<span id="ownerGender">{{$params->customer->gender}}</span></td> </tr>
 					                @else
 					                <tr><th>Company Name (as per RTO)</th><td>:<span id="">{{$params->customer->company}}</span></td> </tr>
@@ -59,7 +59,7 @@
                         
                         <div class="row row-plan-summary">
                            <div class="col-md-12">
-                               <h3 class="title">Vehicle Details <span class="pull-right"><a href="{{url('twowheeler-insurance/users-information/'.$info->enquiry_id)}}">Edit</a></span></h3>
+                               <h3 class="title">Vehicle Details <span class="pull-right"><a href="{{url('car-insurance/users-information/'.$info->enquiry_id)}}">Edit</a></span></h3>
                            </div>
                             <div class="col-md-12">
                                 <table class="table table-planInfo">
@@ -73,7 +73,7 @@
                         
                          <div class="row row-plan-summary">
                            <div class="col-md-12">
-                               <h3 class="title">Communication Details <span class="pull-right"><a href="{{url('twowheeler-insurance/users-information/'.$info->enquiry_id)}}">Edit</a></span></h3>
+                               <h3 class="title">Communication Details <span class="pull-right"><a href="{{url('car-insurance/users-information/'.$info->enquiry_id)}}">Edit</a></span></h3>
                            </div>
                             <div class="col-md-12">
                                 <table class="table table-planInfo">

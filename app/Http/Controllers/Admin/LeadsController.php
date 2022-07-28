@@ -46,7 +46,8 @@ class LeadsController extends Controller{
          foreach($users as $each){
                  $eachData=array();
                  $cat =  DB::table('categories')->where('slug',$each->enQFor)->first();
-                 $eachData['img']        = '<img src="'.asset('site_assets/categories/'.$cat->mobile_icon).'" class="wd-36 rounded-circle" alt="Image">';
+                 $img  = isset($cat->mobile_icon)?'<img src="'.asset('site_assets/categories/'.$cat->mobile_icon).'" class="wd-36 rounded-circle" alt="Image">':"N/A";
+                 $eachData['img']        = $img;
                  $eachData['title']        = ucwords(strtolower(str_replace('-',' ',$each->enQFor)));
                  $eachData['mobile']       = '<a href="#" class="tx-inverse tx-14 tx-medium d-block">'.$each->mobile.'</a>';
                     //   <span class="tx-11 d-block">TRANSID: 1234567890</span>';

@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <title>{{ ($title)?$title:$subtitle }} | {{ ($subtitle)?$subtitle:$title }}</title>
+        <title>{{ ($subtitle)?$subtitle:$title }}</title>
         <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
         <meta http-equiv="Pragma" content="no-cache">
         <meta http-equiv="Expires" content="0">

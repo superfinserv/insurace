@@ -16,6 +16,8 @@ class HdfcErgoHealth{
     
 
     function getQuickPlans($range,$params,$devicetoken,$pln,$policytyp){
+            //$SRange = SumIncRange($range,'HDFCERGO','','customer');
+            
             if($range['start']==2){ $rangeARR = ['2'=>200000,'3'=>300000];}
             if(isset(Auth::guard('agents')->user()->posp_ID)){
                 if(Auth::guard('agents')->user()->userType=="POSP"){ //For POSP

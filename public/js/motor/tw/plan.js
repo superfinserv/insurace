@@ -10,6 +10,7 @@ $(function(){
               if(digitCard.length){
                   $('.plan-card-digit_m').find('button.btn-netpremiumn').html(loader);//.attr('disabled',false);
                   $('.plan-card-digit_m').find('.error-span').remove();
+                  digitCard.removeClass('cart-empty');
                    digitCard.find('.downloadQuoteLink').attr('href','#');
                    digitCard.find('.downloadQuoteLink').hide();
                   var twInfo = JSON.parse(localStorage.getItem('twInfo'));
@@ -20,7 +21,7 @@ $(function(){
                   dataType: "json",
                   data:{supp:'DIGIT',twInfo:twInfo},
                   success: function (data, status, jqXHR) {
-                      console.log(data);
+                     // console.log(data);
                       if($.trim(data.status)=="success"){
                         $('.idv-edit-th').attr('id','open-idv-modal');
                         $('.plan-card-digit_m').show();
@@ -58,16 +59,16 @@ $(function(){
                           
                           
                       }else{
-                           $('.plan-card-digit_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
-                           $('.plan-card-digit_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                           //$('.plan-card-digit_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
+                           $('.plan-card-digit_m').find('button.btn-netpremiumn').html('N/A').attr('disabled',true);
                            digitCard.addClass('cart-empty');
                           
                       }
                    },
                   error: function (jqXHR, status, err) {
-                        
-                          $('.plan-card-digit_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
-                          $('.plan-card-digit_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                          digitCard.addClass('cart-empty');
+                          //$('.plan-card-digit_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
+                          $('.plan-card-digit_m').find('button.btn-netpremiumn').html('N/A').attr('disabled',true);
                 
                   },
                   complete: function (data,jqXHR, status) {
@@ -84,6 +85,7 @@ $(function(){
                        $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html(loader);//.attr('disabled',false);
                        $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html(loader);
                        $('.plan-card-hdfcergo_m').find('.error-span').remove();
+                     hdfcergoCard.removeClass('cart-empty');
                      hdfcergoCard.find('.downloadQuoteLink').attr('href','#');
                      hdfcergoCard.find('.downloadQuoteLink').hide();
                      var twInfo = JSON.parse(localStorage.getItem('twInfo'));
@@ -135,8 +137,8 @@ $(function(){
                         
                           }else{
                                hdfcergoCard.addClass('cart-empty');
-                               $('.plan-card-hdfcergo_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
-                               $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                              // $('.plan-card-hdfcergo_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
+                               $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html('N/A').attr('disabled',true);
                               //$('.plan-card-digit_m').hide();
                              // toastr.error(data.message, 'HdfcErgo Error!') 
                           }
@@ -147,8 +149,9 @@ $(function(){
                             // console.log(status);
                             // console.log(err);
                            //$('.plan-card-hdfcergo_m').hide();
-                           $('.plan-card-hdfcergo_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
-                           $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                            hdfcergoCard.addClass('cart-empty');
+                          // $('.plan-card-hdfcergo_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
+                           $('.plan-card-hdfcergo_m').find('button.btn-netpremiumn').html('N/A').attr('disabled',true);
                             
                           //toastr.error(err+' while fetch HDFC ERGO Quote', 'Error!')
                       },
@@ -164,6 +167,7 @@ $(function(){
                 $('.plan-card-fgi_m').find('button.btn-netpremiumn').html(loader).attr('disabled',false);
                 $('.plan-card-fgi_m').find('button.btn-netpremiumn').html(loader);
                 $('.plan-card-fgi_m').find('.error-span').remove();
+                fgiCard.removeClass('cart-empty');
                 fgiCard.find('.downloadQuoteLink').attr('href','#');
                 fgiCard.find('.downloadQuoteLink').hide();
                  var twInfo = JSON.parse(localStorage.getItem('twInfo'));
@@ -210,15 +214,15 @@ $(function(){
                     
                       }else{
                            fgiCard.addClass('cart-empty');
-                           $('.plan-card-fgi_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
-                           $('.plan-card-fgi_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                          // $('.plan-card-fgi_m').find('.card-body').prepend('<span class="error-span">'+data.message+'</span>');
+                           $('.plan-card-fgi_m').find('button.btn-netpremiumn').html('N/A').attr('disabled',true);
                           
                       }
                    },
                   error: function (jqXHR, status, err) {
-                        
-                       $('.plan-card-fgi_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
-                       $('.plan-card-fgi_m').find('button.btn-netpremiumn').html('0.00').attr('disabled',true);
+                        fgiCard.addClass('cart-empty');
+                      // $('.plan-card-fgi_m').find('.card-body').prepend('<span class="error-span">Error while fetch quote</span>');
+                       $('.plan-card-fgi_m').find('button.btn-netpremiumn').html('N/A').attr('disabled',true);
                         
                       
                   },
@@ -478,7 +482,7 @@ $(function(){
      $('body').on('click','.PACover',function(e) {
              twInfo = JSON.parse(localStorage.getItem('twInfo'));
              var isPACover = ($("input[name='PA_OwnerDriverCover']:checked").val()==1)?"true":"false";
-             console.log(isPACover)
+             //console.log(isPACover)
              if(twInfo.vehicle.isBrandNew=="true"){ 
                  if(isPACover=="true"){ 
                       $('#pa-owner-driver-elem').show();
@@ -826,11 +830,6 @@ $(function(){
           });
      });
     
-
-    
-    
-   
-
 });
 
 

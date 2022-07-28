@@ -58,9 +58,7 @@
                                                       </tr>
                                                       <tr style="border-collapse:collapse">
                                                          <td style="padding:0;Margin:0" align="left">
-                                                            <p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;line-height:28px;color:#666666;font-size:14px">
-                                                                You love your vehicle and we love to Insure it.<br>Please find the Link to make payment for your {{$motorText}} Insurance Policy.
-                                                                </p>
+                                                            <p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;line-height:28px;color:#666666;font-size:14px">You love your vehicle and we love to Insure it.<br>Please find the Link to make payment for your Car Insurance Policy.</p>
                                                          </td>
                                                       </tr>
                                                    </tbody>

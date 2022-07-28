@@ -8,6 +8,8 @@ use View;
 use Auth;
 use Session;
 use File;
+use Carbon\Carbon;
+use PDF as Filepdf;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 use Meng\AsyncSoap\Guzzle\Factory;
@@ -133,7 +135,82 @@ class Healthinsurance extends Controller{
          return View::make('health.health_profile_members_age')->with($template);
     }
     
-    public function healthPlans(){
+     public function healthPlansTest(){
+        $template = ['title' => 'Health Insurance Detail',"subtitle"=>"Health Plans",'scripts'=>[asset('js/health/health_plans-table.js')]];  
+        return View::make('health.1health_plans')->with($template);
+        
+    }
+    
+    public function getHealthPlansTable(Request $request){
+        
+        $range = $request->range;
+        
+         if($request->supp=="CARE" && config('mediclaim.CARE.status')===true){
+            $plans =[];
+            
+            $careplans = $this->Care->getQuickPlans($range,$request->params,$this->getToken(),$request->policytyp,$request->pln);
+             if($careplans['status']=='success'){
+                 foreach($careplans['plans'] as $pln){
+                     array_push($plans,$pln);
+                 }
+                 $result = ['status' => 'success','supp'=>'CARE','plans' => $plans];
+             }else{
+                 $result = ['status' => 'success','supp'=>'CARE','plans' => []];  
+             }
+              return response()->json($result);
+        }
+        
+        // if($range['start']>=4){
+          if($request->supp=="MANIPAL_CIGNA" && config('mediclaim.MANIPAL.status')===true){
+              $plans =[];
+             $ManipalCignaPlans = $this->Manipal->getQuickPlans($range,$request->params,$this->getToken(),$request->policytyp,$request->pln);
+             if($ManipalCignaPlans['status']=='success'){ 
+                 foreach($ManipalCignaPlans['plans'] as $pln){
+                  array_push($plans,$pln);
+                }
+                $result = ['status' => 'success','supp'=>'MANIPAL_CIGNA','plans' => $plans];
+             }else{
+                $result = ['status' => 'success','supp'=>'MANIPAL_CIGNA','plans' => []];  
+             }
+              return response()->json($result);
+          }
+       //  }
+         
+         if($request->supp=="DIGIT" && config('mediclaim.DIGIT.status')===true){
+              $plans =[];
+             $DigitPlans = $this->DigitHealth->getQuickPlans($range,$request->params,$this->getToken(),$request->pln,$request->policytyp);
+             if($DigitPlans['status']=='success'){ 
+                  foreach($DigitPlans['plans'] as $pln){
+                      array_push($plans,$pln);
+                    }
+                $result = ['status' => 'success','supp'=>'DIGIT','plans' => $plans];
+             }else{
+                $result = ['status' => 'success','supp'=>'DIGIT','plans' => []]; 
+             }
+             return response()->json($result);
+         }
+         
+         if($request->supp=="HDFCERGO" && config('mediclaim.HDFCERGO.status')===true && (isset(Auth::guard('customers')->user()->id))){
+              $plans =[];
+              if(config('mediclaim.HDFCERGO.OptimaSecure.status')===true){
+                 $OSPlans = $this->HdfcErgoHealth->getQuickPlans($range,$request->params,$this->getToken(),$request->pln,$request->policytyp);
+                 if($OSPlans['status']=='success'){ 
+                      foreach($OSPlans['plans'] as $pln){
+                          array_push($plans,$pln);
+                        }
+                    $result = ['status' => 'success','supp'=>'HDFCERGO','plans' => $plans];
+                 }else{
+                    $result = ['status' => 'success','supp'=>'HDFCERGO','plans' => []]; 
+                 }
+              }else{
+                  $result = ['status' => 'success','supp'=>'HDFCERGO','plans' => []]; 
+              }
+             return response()->json($result);
+         }
+         
+    }
+    
+     public function healthPlans(){
         $template = ['title' => 'Health Insurance Detail',"subtitle"=>"Health Plans",'scripts'=>[asset('js/health/health_plans.js')]];  
         return View::make('health.health_plans')->with($template);
         
@@ -160,7 +237,7 @@ class Healthinsurance extends Controller{
               return response()->json($result);
         }
         
-         if($range['start']>=4){
+        // if($range['start']>=4){
           if($request->supp=="MANIPAL_CIGNA" && config('mediclaim.MANIPAL.status')===true){
               $plans =[];
              $ManipalCignaPlans = $this->Manipal->getQuickPlans($range,$request->params,$this->getToken(),$request->policytyp);
@@ -174,11 +251,11 @@ class Healthinsurance extends Controller{
              }
               return response()->json($result);
           }
-         }
+       //  }
          
          if($request->supp=="DIGIT" && config('mediclaim.DIGIT.status')===true){
               $plans =[];
-             $DigitPlans = $this->DigitHealth->getQuickPlans($range,$request->params,$this->getToken(),$request->pln,$request->policytyp);
+             $DigitPlans = $this->DigitHealth->getQuickPlans(4,$request->params,$this->getToken(),$request->pln,$request->policytyp);
              if($DigitPlans['status']=='success'){ 
                   foreach($DigitPlans['plans'] as $pln){
                       array_push($plans,$pln);
@@ -989,6 +1066,51 @@ class Healthinsurance extends Controller{
             
          return View::make('health.payment-link-page')->with($template);
         
+    }
+    
+    public function GetDownloadQuote(Request $request){
+          
+         
+            $enQId=$request->enQ;
+            $enQ= DB::table('app_quote')->where('enquiry_id',$enQId)->first();
+            $logo = public_path('/site_assets/logo/site_logo.png');//.config('custom.site_logo'));
+            $arrContextOptions=array(
+                            "ssl"=>array(
+                                "verify_peer"=>false,
+                                "verify_peer_name"=>false,
+                            ),
+                        );
+            $type = pathinfo($logo, PATHINFO_EXTENSION);
+            $avatarData = file_get_contents($logo, false, stream_context_create($arrContextOptions));
+            $avatarBase64Data = base64_encode($avatarData);
+            $data['logo'] = 'data:image/' . $type . ';base64,' . $avatarBase64Data;
+            
+            $partner = DB::table('our_partners')->where('shortName',$enQ->provider)->first();
+            $partnerlogo =public_path('/assets/partners/'.$partner->logo_image);//.config('custom.site_logo'));
+          
+            $type1 = pathinfo($partnerlogo, PATHINFO_EXTENSION);
+            $avatarData1 = file_get_contents($partnerlogo, false, stream_context_create($arrContextOptions));
+            $avatarBase64Data1 = base64_encode($avatarData1);
+            $data['partnerlogo'] = 'data:image/' . $type1 . ';base64,' . $avatarBase64Data1;
+            $param    = json_decode($enQ->params_request);
+            $data['enQ'] = $enQ;
+            $data['partner'] = $partner;
+            $data['QuoteDate'] = Carbon::CreateFromFormat('Y-m-d H:i:s',$enQ->created_at)->format('d/m/Y');
+            
+            $data['features'] = DB::table('plans_features') 
+                         ->select('plan_key_features.features as _key','plans_features.val as _val','plan_key_features.description as _desc')
+                          ->leftJoin('plans','plans.id','plans_features.plan_id')
+                          ->leftJoin('plan_key_features','plan_key_features.code','plans_features.featuresKey')
+                          ->where('plans.product','=',$enQ->product)
+                          ->where('plans.supplier','=',$enQ->provider)->get();
+            
+            
+            
+         Filepdf::setOptions(['defaultFont' => 'sans-serif','defaultMediaType'=>'all','isFontSubsettingEnabled'=>true]);
+         $pdf = Filepdf::loadView('insurance.partnerQuoteHealth',$data);
+         $filename = "Quote-".$enQ->provider."-".$enQ->SFQuoteId.".pdf";
+         //return $pdf->stream();
+         return $pdf->download($filename);
     }
     
      

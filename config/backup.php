@@ -139,7 +139,7 @@ return [
             'to' => 'websupport@superfinserv.com',
 
             'from' => [
-                'address' => env('MAIL_FROM_ADDRESS', 'websupport@superfinserv.com'),
+                'address' => env('MAIL_FROM_ADDRESS', 'care@superfinserv.com'),
                 'name' => env('MAIL_FROM_NAME', 'Super Finserv'),
             ],
         ],

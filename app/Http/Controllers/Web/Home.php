@@ -17,7 +17,7 @@ class Home extends Controller{
      public function index(){
          $Categories = DB::table('categories')->select('*')->where('on_front',1)->orderBy('sno','ASC')->get(); 
          $partners = DB::table('our_partners')->where(['status'=>'ACTIVE'])->get();
-         $template = ['title' => 'Home',"subtitle"=>"Insurance", 'categories'=> $Categories,'partners'=>$partners];  
+         $template = ['title' => 'Home',"subtitle"=>"Online Insurance - Health,Life,Car & Bike", 'categories'=> $Categories,'partners'=>$partners];  
          return View::make('web.home.home')->with($template);
     }
     
