@@ -846,7 +846,7 @@ class HdfcErgoTwResource extends AppResource{
             $customerDetails->Title=$params->customer->salutation;//($Gender=="MALE")?"Mr":"Ms";
             $customerDetails->Gender= $Gender;
             $customerDetails->FirstName=$params->customer->first_name;
-            $customerDetails->MiddleName="";
+            $customerDetails->MiddleName=$params->customer->middle_name;
             $customerDetails->LastName= $params->customer->last_name;
             $customerDetails->DateOfBirth= $ownerDOB[2]."-".$ownerDOB[1]."-".$ownerDOB[0];  
             $customerDetails->GstInNo= "";
@@ -864,8 +864,14 @@ class HdfcErgoTwResource extends AppResource{
         $customerDetails->EmailAddress=$params->customer->email;
         $customerDetails->MobileNumber= (int)$params->customer->mobile;
         $customerDetails->PanCard= "";
-       
-        $customerDetails->PospCode= (isset(Auth::guard('agents')->user()->id))?Auth::guard('agents')->user()->hdfcErgoCode:"";
+        if($enQ->agent_id>0){
+            $hdfcErgoCode =  DB::table('agents')->where('id',$enQ->agent_id)->value('hdfcErgoCode');
+            $customerDetails->PospCode= $hdfcErgoCode;//(isset(Auth::guard('agents')->user()->id))?Auth::guard('agents')->user()->hdfcErgoCode:"";
+            
+        }else{
+            $customerDetails->PospCode= "";
+        }
+        
         $customerDetails->IsCustomerAuthenticated= "YES";
         $customerDetails->UidNo= "";
         $customerDetails->AuthentificationType= "";

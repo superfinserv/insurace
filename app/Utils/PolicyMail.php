@@ -10,16 +10,18 @@ class PolicyMail {
      
                $policy = DB::table('policy_saled')->where('policy_no', $policyNo)->first();
                if($policy->MailStatus=="No"){ 
-                if($policy->type=="BIKE" || $policy->type=="CAR"){
-                    $comsn =  $this->calculateMotorAndSend($policy);
-                    DB::table('policy_saled')->where('policy_no',$policy->policy_no)->update($comsn);
-                }else if($policy->type=="HEALTH"){
-                    $comsn =  $this->calculateHealthAndSend($policy);
-                    DB::table('policy_saled')->where('policy_no',$policy->policy_no)->update($comsn);
+                    if($policy->type=="BIKE" || $policy->type=="CAR"){
+                        $comsn =  $this->calculateMotorAndSend($policy);
+                        DB::table('policy_saled')->where('policy_no',$policy->policy_no)->update($comsn);
+                    }else if($policy->type=="HEALTH"){
+                        $comsn =  $this->calculateHealthAndSend($policy);
+                        DB::table('policy_saled')->where('policy_no',$policy->policy_no)->update($comsn);
+                    }
+                    
+                    
+                }else{
+                   //['status'=>false,'message'=>$policyNo." is already exist."]; 
                 }
-        }else{
-           //['status'=>false,'message'=>$policyNo." is already exist."]; 
-        }
     }
     
     private function calculateMotorAndSend($policy){
@@ -104,5 +106,13 @@ class PolicyMail {
          $comsn['MailStatus']='Yes';
         return $comsn;
      }
+     
+    // private function sendPolicyMailTocustomer(){
+    //     Mail::send('insurance.email-template.moter-payment-link', $data, function($message) use ($custname, $custemail,$subject) {
+    //       $message->to($custemail, $custname)
+    //       ->subject($subject);
+    //      $message->from('care@superfinserv.com',config('custom.site_short_name'));
+    //     });
+    // }
     
 }

@@ -9,7 +9,7 @@ use Auth;
 use Carbon\Carbon;
 
 
-class ManipalProtect{
+class ManipalPrime{
       
      function spCode(){
         $SPCodes = config('mediclaim.MANIPAL.SPCODE');
@@ -52,9 +52,9 @@ class ManipalProtect{
       
      function calculatePremium($params,$sum,$sumInsured,$devicetoken,$policytyp){ 
                  $baseAgentID = $this->spCode();
-                //$productId = 'RPRT06SBSF';
-                $productId =  (isset(Auth::guard('agents')->user()->id))?'RPRT06POSSF':'RPRT06SBSF';
-                $productPlanOptionCd = $policytyp.'-PRT'.$sum.'-HMB500';
+                $productId = 'PACT01SBSF';
+                //$productId =  (isset(Auth::guard('agents')->user()->id))?'RPRT06POSSF':'RPRT06SBSF';
+                $productPlanOptionCd = $policytyp.'-PACT'.$sum;
                 $_state = explode("-",$params['state']);
                 $_city = explode("-",$params['city']);
                 $pincode = $params['address']['pincode'];
@@ -117,7 +117,7 @@ class ManipalProtect{
                 
                $quotationProductBenefitDOList[]=["benefitTypeCd"=> "","benefitId"=> "","amount"=> 0,"productId"=>""];
                $quotationProductChargeDOList[]=["chargeClassCd"=> "","chargeAmount"=> 0,"chargePercentage"=> 0];
-			   $quotationProductAddOnDOList[]=["productPlanOptionCd"=>"","productId"=>""];
+			   $quotationProductAddOnDOList[]=["productPlanOptionCd"=>"","productId"=>"OPPRWEL01"];
 			   $quotationProductDOList[] = [
                     "productId"=> $productId,
                     "productVersion"=> 1,
@@ -136,6 +136,7 @@ class ManipalProtect{
                     
                $quotationChargeDOList  =  new \stdClass();
                $quotationChargeDOList->chargeClassCd="";
+               
                $quotationChangeDOList  =  new \stdClass();
                $quotationChangeDOList->alterationType = "";
                $listofquotationTO[]= ["quoteId" => "","channelId"=>config('mediclaim.MANIPAL.channelId'),
@@ -164,7 +165,7 @@ class ManipalProtect{
             );
             $response = $clientResp->getBody()->getContents();   
            // echo json_encode($Request);
-           // print_r($response);die;
+         //  print_r($response);die;
             $result=json_decode($response);
              if(isset($result->errorList[0]->errProcessStatusCd)){
                  $_result =  ['status'=>false,'data'=>[]];
@@ -177,7 +178,7 @@ class ManipalProtect{
                          ->select('plan_key_features.features as _key','plans_features.val as _val','plan_key_features.description as _desc')
                           ->leftJoin('plans','plans.id','plans_features.plan_id')
                           ->leftJoin('plan_key_features','plan_key_features.code','plans_features.featuresKey')
-                          ->where('plans.product','=',"Protect")
+                          ->where('plans.product','=',"Prime")
                           ->where('plans.supplier','=','MANIPAL_CIGNA')->limit(5)->get();
                       
                       $amount  = $result->listofquotationTO[0]->totPremium;
@@ -186,7 +187,7 @@ class ManipalProtect{
                       $plan['supplier']="MANIPAL_CIGNA";
                       $plan['sumInsured'] = $sum;
                       $plan['features'] = $features;
-                      $plan['title']    ="Pro Health Protect";
+                      $plan['title']    ="Pro Health Prime";
                       $plan['amount']   = $amount;//$result->listofquotationTO[0]->totPremium
                       $plan['supp_name']="ManipalCigna Health Insurance";
                       $plan['supp_logo']="https://health.policybazaar.com/insurer-logo/ManipalCigna.webp";
@@ -194,7 +195,7 @@ class ManipalProtect{
                       
                       $quoteData = ['short_sumInsured'=>$sum,'long_sumInsured'=>$sumInsured,'premiumAmount'=>$amount,
                                     'quote_id'=>$quoteId,'type'=>'HEALTH','policyType'=>$policytyp,
-                                    'code'=>$productPlanOptionCd,'product'=>"Protect",'title'=>"ProHealth-Protect",
+                                    'code'=>$productPlanOptionCd,'product'=>"Prime",'title'=>"ProHealth-Prime",
                                     'device'=>$devicetoken,'provider'=>'MANIPAL_CIGNA',
                                     'call_type'=>"QUOTE",
                                     'netAmt'=>$actualPrice,
@@ -235,9 +236,9 @@ class ManipalProtect{
          $policyType = ($enqData->policyType=="FL")?"FAMILYFLOATER":"INDIVIDUAL";
         $pT = $enqData->policyType;
          
-       //  $productId = 'RPRT06SBSF';
-          $productId =  (isset(Auth::guard('agents')->user()->id))?'RPRT06POSSF':'RPRT06SBSF';
-         $productPlanOptionCd = $enqData->policyType.'-PRT'.$sum.'-HMB500';
+         $productId = 'PACT01SBSF';
+         //$productId =  (isset(Auth::guard('agents')->user()->id))?'RPRT06POSSF':'RPRT06SBSF';
+         $productPlanOptionCd = $enqData->policyType.'-PACT'.$sum;
         
         
         $quotationProductInsuredBenefitDOList[] = [ "benefitTypeCd"=>"","benefitId"=>"","amount"=>0,"productId"=>""];
@@ -810,7 +811,7 @@ class ManipalProtect{
             $req['inwardSubTypeCd'] ='PROPOSALDOCUMENT';
             $req['receivedFrom'] ='ONLINE';
             $req['zoneCd'] =$zoneCd;
-            $req['planId'] ="RPRT06";//$dataParam->product;
+            $req['planId'] ="PACT01";//$dataParam->product;
             $req['higherEduCess'] =null;
             $req['uwReqFl'] ='NO';
             $req['ppmcFl'] ='NO';

@@ -107,6 +107,9 @@
     color: #ffff;
 }
 
+.cart-empty{
+     filter: grayscale(100%);
+}
 
 .cart-empty img{
     filter: grayscale(100%);

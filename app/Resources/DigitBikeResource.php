@@ -4,6 +4,7 @@ use Nathanmac\Utilities\Parser\Parser;
 use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Client;
 use Meng\AsyncSoap\Guzzle\Factory;
 //use App\Resources\Services;
@@ -1118,7 +1119,7 @@ class DigitBikeResource extends AppResource{
                        "partyId"=> "",
                        "personType"=>"INDIVIDUAL",
                        "firstName"=> $options->customer->first_name,
-                       "middleName"=> "",
+                       "middleName"=> $options->customer->middle_name,
                        "lastName"=> $options->customer->last_name,
                        "dateOfBirth"=>$ownerDOB[2]."-".$ownerDOB[1]."-".$ownerDOB[0],
                        "gender"=>strtoupper($options->customer->gender),
@@ -1191,20 +1192,26 @@ class DigitBikeResource extends AppResource{
          $REQUEST->persons=$personArr;
          $REQUEST->nominee=$nominee;
          
-         if(isset(Auth::guard('agents')->user()->id)){
-          $pospInfo = new \stdClass();
+         //if(isset(Auth::guard('agents')->user()->id)){
+         if($quoteData->agent_id>0){
+            $posp =  DB::table('agents')->where('id',$quoteData->agent_id)->first();
+            $_state =  DB::table('states')->where('id',$posp->state)->value('name');
+            $_city  =  DB::table('cities')->where('id',$posp->city)->value('name');
+           $pospInfo = new \stdClass();
            $pospInfo->isPOSP =  true;
-           $pospInfo->pospName =  Auth::guard('agents')->user()->name;
-           $pospInfo->pospUniqueNumber =  Auth::guard('agents')->user()->posp_ID;
-           $pospInfo->pospLocation =  $city->name.", ".$state->name;
-           $pospInfo->pospPanNumber =  Auth::guard('agents')->user()->pan_card_number;
+           $pospInfo->pospName =  $posp->name;
+           $pospInfo->pospUniqueNumber =  $posp->posp_ID;
+           $pospInfo->pospLocation =  $_city.", ".$_state;
+           $pospInfo->pospPanNumber =  $posp->pan_card_number;
            $pospInfo->pospAadhaarNumber =  "";
-           $pospInfo->pospContactNumber =  Auth::guard('agents')->user()->mobile;
+           $pospInfo->pospContactNumber =  $posp->mobile;
            $REQUEST->pospInfo = $pospInfo;
           
        }
-       
+         $cust = isset($options->customer->first_name)?$options->customer->first_name." ".$options->customer->middle_name." ".$options->customer->last_name:$options->customer->company;
+          
        try{  
+              
             $basicAuth = base64_encode(config('motor.DIGIT.tw.username').":".config('motor.DIGIT.tw.password'));
             $client = new Client([
                'headers' => ["accept"=> "*/*",  'Content-Type' => 'application/json','Authorization'=>"Basic ".$basicAuth,]
@@ -1226,8 +1233,7 @@ class DigitBikeResource extends AppResource{
               $jsonData->policyNumber  = $response->contract->policyNumber;
               $jsonData->applicationId = $response->applicationId;
               //$jsonData->hypothecationAgency =$options->customer->hypothecationAgency;
-              $cust = isset($options->customer->first_name)?$options->customer->first_name." ".$options->customer->last_name:$options->customer->company;
-              $quoteData = ['customer_name'=>$cust,
+             $quoteData = ['customer_name'=>$cust,
                             'startDate'=>isset($response->contract->startDate)?$response->contract->startDate:NULL,
                             'endDate'=>isset($response->contract->endDate)?$response->contract->endDate:NULL,
                             'proposalNumber'=>$response->contract->policyNumber,
@@ -1241,6 +1247,11 @@ class DigitBikeResource extends AppResource{
               DB::table('app_quote')->where('enquiry_id', $enquiry_id)->update($quoteData);
               return ['status'=>true,'data'=>$enquiry_id];
           }else{
+               $quoteData = ['customer_name'=>$cust,
+                             'reqCreate'=>json_encode($REQUEST),
+                            'respCreate'=>$result,
+                            ];
+              DB::table('app_quote')->where('enquiry_id', $enquiry_id)->update($quoteData);
               return ['status'=>false,'data'=>$enquiry_id ,"message"=>current($response->error->validationMessages)];
           }
        }catch (ConnectException $e) {
@@ -1251,6 +1262,11 @@ class DigitBikeResource extends AppResource{
                $response = $e->getResponse();
                $responseBodyAsString = $response->getBody()->getContents();
                $resp = json_decode($responseBodyAsString);
+                $quoteData = ['customer_name'=>$cust,
+                             'reqCreate'=>json_encode($REQUEST),
+                             'respCreate'=>$responseBodyAsString,
+                            ];
+                DB::table('app_quote')->where('enquiry_id', $enquiry_id)->update($quoteData);
                if(isset($resp->error->validationMessages[0])){
                     $msg = isset($resp->error->validationMessages[0])?($resp->error->validationMessages[0]):'Internal server error';
                     return ['status'=>false,'plans'=>[],"message"=>$msg];
@@ -1318,9 +1334,11 @@ class DigitBikeResource extends AppResource{
         }
      }
      
-      function GetPDF($policyno,$applicationId){
+     function GetPDF($policyno,$applicationId){
         $REQUEST = ['policyId'=>$applicationId];
-        
+        $result = new \stdClass();
+         //echo json_encode( $REQUEST );
+         try {
         $client = new Client(['headers' => ["accept"=> "*/*",  'Content-Type' => 'application/json','Authorization'=>config('motor.DIGIT.car.paymentKey')] ]);
             
         $clientResp = $client->post(config('motor.DIGIT.car.generatePolicy'),
@@ -1329,28 +1347,38 @@ class DigitBikeResource extends AppResource{
         $response = $clientResp->getBody()->getContents();
         $resp = json_decode($response);
         
-      // print_r($resp);
-        $result = new \stdClass();
-         try {
+        // print_r($resp);
+        
+        
              if(isset($resp->schedulePath)){
                  if($resp->schedulePath!=null){
                       $filePath = $resp->schedulePath;
                       $ff = file_get_contents($filePath,true);
-                      $file = getcwd()."/public/assets/customers/policy/pdf/Digit_tw_".$policyno.".pdf";
+                      $file = getcwd()."/public/assets/customers/policy/pdf/Digit_car_".$policyno.".pdf";
                       file_put_contents($file, $ff);
-                      $result->status =true;$result->filename = "Digit_tw_".$policyno.".pdf";$result->message="Policy Generated successfully";
+                      $result->status =true;$result->filename = "Digit_car_".$policyno.".pdf";$result->message="Policy Generated successfully";
                  }else{
-                    $result->status =false;$result->filename ="";$result->message=""; 
+                    $result->status =false;$result->filename ="";$result->message="schedulePathNotSet"; 
                  }
              }else if(isset($resp->errorMessage)){
                 $error =  json_decode($resp->errorMessage);
                 $result->status =false;$result->filename ="";$result->message=$error->errorMessage;
              }else{
-                $result->status =false;$result->filename ="";$result->message="";
+                $result->status =false;$result->filename ="";$result->message="NoErrorMessage";
              }
-         }catch(Exception $e) {
-          $result->status =false;$result->filename ="";
-         }
+         }catch (ConnectException $e) {
+               $result->status =false;$result->filename ="";$result->message="ConnectException";
+            }catch (RequestException $e) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                $jsonRes = json_decode($responseBodyAsString);
+                print_r($responseBodyAsString);
+               $result->status =false;$result->filename ="";$result->message=$jsonRes->message;
+            }catch (ClientException $e) {
+                $result->status =false;$result->filename ="";$result->message="ClientException";
+            }catch (ServerException $e) {
+                $result->status =false;$result->filename ="";$result->message="ServerException";
+            }
      //$result->status =false;$result->filename ="";
      return $result;
      }

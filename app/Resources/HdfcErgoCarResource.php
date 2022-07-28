@@ -1028,8 +1028,10 @@ class HdfcErgoCarResource extends AppResource{
        $nomineeRelation = ['BROTHER'=>'Sibling','HUSBAND'=>'Spouse','GRAND_FATHER'=>'','GRAND_MOTHER'=>'','FATHER_IN_LAW'=>'','MOTHER_IN_LAW'=>'Mother','MOTHER'=>'Mother','SISTER'=>'Sibling','SON'=>'Son','DAUGHTER'=>'Daughter','FATHER'=>'Father','SPOUSE'=>'Spouse'];
         if($params->vehicle->policyHolder=="IND" && $isNom){ 
             $proposalDetails->PAOwnerDriverNomineeName = ($isNom)?$params->nominee->name:"";
-            if($isNom){
+            if($isNom && $params->nominee->dob!=""){
               $nDob = Carbon::createFromFormat('d-m-Y', $params->nominee->dob)->format('Y-m-d');
+           }else{
+              $nDob = "";
            }
           $proposalDetails->PAOwnerDriverNomineeAge = ($isNom)?$this->calulateAge($nDob):"";
           $proposalDetails->PAOwnerDriverNomineeRelationship = ($isNom)?$nomineeRelation[$params->nominee->relation]:"";
@@ -1098,7 +1100,7 @@ class HdfcErgoCarResource extends AppResource{
             $customerDetails->Title=$params->customer->salutation;//($Gender=="MALE")?"Mr":"Ms";
             $customerDetails->Gender= $Gender;
             $customerDetails->FirstName=$params->customer->first_name;
-            $customerDetails->MiddleName="";
+            $customerDetails->MiddleName=$params->customer->middle_name;
             $customerDetails->LastName= $params->customer->last_name;
             $customerDetails->DateOfBirth= $ownerDOB[2]."-".$ownerDOB[1]."-".$ownerDOB[0];  
             $customerDetails->GstInNo= "";
@@ -1106,7 +1108,7 @@ class HdfcErgoCarResource extends AppResource{
         }else{
               $customerDetails->Title="M/S";
               $customerDetails->OrganizationName=$params->customer->company;
-              $customerDetails->OrganizationContactPersonName=$params->customer->first_name." ".$params->customer->last_name;
+              $customerDetails->OrganizationContactPersonName=$params->customer->first_name." ".$params->customer->middle_name." ".$params->customer->last_name;
               $customerDetails->GstInNo= $params->customer->gstin;
         }
        
@@ -1114,7 +1116,14 @@ class HdfcErgoCarResource extends AppResource{
         $customerDetails->MobileNumber= (int)$params->customer->mobile;
         $customerDetails->PanCard= isset($params->customer->pan_no)?$params->customer->pan_no:"";
        
-        $customerDetails->PospCode= (isset(Auth::guard('agents')->user()->id))?Auth::guard('agents')->user()->hdfcErgoCode:"";
+        //$customerDetails->PospCode= (isset(Auth::guard('agents')->user()->id))?Auth::guard('agents')->user()->hdfcErgoCode:"";
+        if($enQ->agent_id>0){
+            $hdfcErgoCode =  DB::table('agents')->where('id',$enQ->agent_id)->value('hdfcErgoCode');
+            $customerDetails->PospCode= $hdfcErgoCode;//(isset(Auth::guard('agents')->user()->id))?Auth::guard('agents')->user()->hdfcErgoCode:"";
+            
+        }else{
+            $customerDetails->PospCode= "";
+        }
         $customerDetails->IsCustomerAuthenticated= "YES";
         $customerDetails->UidNo= "";
         $customerDetails->AuthentificationType= "OTP";
@@ -1581,7 +1590,7 @@ class HdfcErgoCarResource extends AppResource{
             $customerDetails->Title=$options['customer']['salutation'];//($Gender=="MALE")?"Mr":"Ms";
             $customerDetails->Gender= $Gender;
             $customerDetails->FirstName=$options['customer']['first_name'];
-            $customerDetails->MiddleName="";
+            $customerDetails->MiddleName=$options['customer']['middle_name'];
             $customerDetails->LastName= $options['customer']['last_name'];
             $customerDetails->DateOfBirth= $ownerDOB[2]."-".$ownerDOB[1]."-".$ownerDOB[0];  
             $customerDetails->GstInNo= "";
@@ -1589,7 +1598,7 @@ class HdfcErgoCarResource extends AppResource{
         }else{
               $customerDetails->Title="M/S";
               $customerDetails->OrganizationName=$options['customer']['company'];
-              $customerDetails->OrganizationContactPersonName=$options['customer']['first_name']." ".$options['customer']['last_name'];
+              $customerDetails->OrganizationContactPersonName=$options['customer']['first_name']." ".$options['customer']['middle_name']." ".$options['customer']['last_name'];
               $customerDetails->GstInNo= $options['customer']['gstin'];
         }
        
@@ -1600,7 +1609,15 @@ class HdfcErgoCarResource extends AppResource{
         $customerDetails->MobileNumber= (int)$options['customer']['mobile'];
         $customerDetails->PanCard= isset($options['customer']['pan_no'])?$options['customer']['pan_no']:"";
        
-        $customerDetails->PospCode= (isset(Auth::guard('agents')->user()->id))?Auth::guard('agents')->user()->hdfcErgoCode:"";
+        //$customerDetails->PospCode= (isset(Auth::guard('agents')->user()->id))?Auth::guard('agents')->user()->hdfcErgoCode:"";
+        if($enQ->agent_id>0){
+            $hdfcErgoCode =  DB::table('agents')->where('id',$enQ->agent_id)->value('hdfcErgoCode');
+            $customerDetails->PospCode= $hdfcErgoCode;//(isset(Auth::guard('agents')->user()->id))?Auth::guard('agents')->user()->hdfcErgoCode:"";
+            
+        }else{
+            $customerDetails->PospCode= "";
+        }
+        
         $customerDetails->IsCustomerAuthenticated= "YES";
         $customerDetails->UidNo= "";
         $customerDetails->AuthentificationType= "OTP";

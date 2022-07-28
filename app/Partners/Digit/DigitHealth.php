@@ -31,20 +31,22 @@ class DigitHealth{
          return $z;
     }
     function getQuickPlans($range,$params,$devicetoken,$pln,$policytyp){
-            if($range['start']==2){ $rangeARR = ['2'=>200000,'3'=>300000];}
-            if(isset(Auth::guard('agents')->user()->posp_ID)){
-                if(Auth::guard('agents')->user()->userType=="POSP"){ //For POSP
-                  if($range['start']==4){ $rangeARR = ['4'=>400000,'5'=>500000];}
-                }else{ //FOR SP
-                    if($range['start']==4){ $rangeARR = ['4'=>400000,'5'=>500000,'6'=>600000,'7'=>700000,'9'=>900000];}
-                    if($range['start']==10){ $rangeARR = ['10'=>1000000,'15'=>1500000];}
-                    if($range['start']==16){ $rangeARR = ['20'=>2000000,'25'=>2500000];}
-                }
-            }else{ // For customer
-                if($range['start']==4){ $rangeARR = ['4'=>400000,'5'=>500000,'6'=>600000,'7'=>700000,'9'=>900000];}
-                if($range['start']==10){ $rangeARR = ['10'=>1000000,'15'=>1500000];}
-                if($range['start']==16){ $rangeARR = ['20'=>2000000,'25'=>2500000];}
-            }
+            $SRange = SumIncRange($range,'DIGIT','','customer');
+            
+           // if($range['start']==2){ $rangeARR = ['2'=>200000,'3'=>300000];}
+            // if(isset(Auth::guard('agents')->user()->posp_ID)){
+            //     if(Auth::guard('agents')->user()->userType=="POSP"){ //For POSP
+            //       if($range['start']==4){ $rangeARR = ['4'=>400000,'5'=>500000];}
+            //     }else{ //FOR SP
+            //         if($range['start']==4){ $rangeARR = ['4'=>400000,'5'=>500000,'6'=>600000,'7'=>700000,'9'=>900000];}
+            //         if($range['start']==10){ $rangeARR = ['10'=>1000000,'15'=>1500000];}
+            //         if($range['start']==16){ $rangeARR = ['20'=>2000000,'25'=>2500000];}
+            //     }
+            // }else{ // For customer
+            //     if($range['start']==4){ $rangeARR = ['4'=>400000,'5'=>500000,'6'=>600000,'7'=>700000,'9'=>900000];}
+            //     if($range['start']==10){ $rangeARR = ['10'=>1000000,'15'=>1500000];}
+            //     if($range['start']==16){ $rangeARR = ['20'=>2000000,'25'=>2500000];}
+            // }
             
             
          $child = $params['total_child'];
@@ -53,7 +55,7 @@ class DigitHealth{
          
         $count=0;$plans = [];
      //   $maxAge = $this->eldestMemberAge($params['members'])->maxAge;
-        foreach($rangeARR as $sum=>$sumInsured){    
+        foreach($SRange as $sum=>$sumInsured){    
                    if($pln=="Silver" || $pln=="ALL"){
                      $Silver = $this->silver->calculatePremium(json_decode(json_encode($params)),$sum,$sumInsured,$devicetoken,$policytyp);
                      if($Silver['status']){$count++; $_plans[] =$Silver['data'];}

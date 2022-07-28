@@ -65,7 +65,7 @@ class OptimaSecure{
                     );
                      $response = $clientResp->getBody()->getContents();
                      $resp = json_decode($response);
-                   //  print_r($resp);die;
+                     //print_r($resp);die;
                      $product = "OPTIMA_SECURE";
                      if(isset($resp->Status) && $resp->Status==200 ){
                         $Data = $resp->Data;

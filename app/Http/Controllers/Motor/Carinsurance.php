@@ -185,7 +185,7 @@ class Carinsurance extends Controller
              }
          }else if($request->supp=="FGI"){
              $FGplans =[];
-             $fgii= $this->FgiCar->getQuickQuote($this->getToken(),$request->carInfo);
+             $fgii= $this->FgiCar->getRecalulateQuote($this->getToken(),$request->carInfo);
              if($fgii['status']){
                   return response()->json(['status' => 'success','data' => $fgii['plans']]);
              }else{

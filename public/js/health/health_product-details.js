@@ -264,6 +264,12 @@ $('body').on('click','#proceed-proposal',function(e){
       window.location.href = base_url+"/health-insurance/proposal/"+enqid
 })
 
+$('body').on('click','.downloadQuoteLink',function(e){ 
+    e.preventDefault();
+    var enQ = $('#enQId').val();
+    window.location.href=base_url+"/download-quote/health-insurance/"+enQ;
+})
+
 // $('body').on('click','#btnUpdateZone',function(e){
 //       var healthInfo = JSON.parse(localStorage.getItem('healthInfo')); 
     

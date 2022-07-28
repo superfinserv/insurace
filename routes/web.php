@@ -105,8 +105,10 @@ use Illuminate\Support\Facades\Route;
     Route::get('/motor/{insType}/policy/payments/{enQId}', 'Motor\MotorInsurance@paymentLinkPage');
     Route::post('motor/get-vehicle-models', 'Motor\MotorInsurance@getModelByMake');
     Route::post('motor/get-vehicle-varients', 'Motor\MotorInsurance@getVarientByModel');
-    Route::get('download-quote/motor-insurance/{enQ}', 'Motor\MotorInsurance@GetDownloadQuote');
+    Route::get('download-quote/motor-insurance/{enQ}', 'Motor\MotorInsurance@GetDownloadQuote');//Download Quote Motor
+    
     //health Common data
+    Route::get('download-quote/health-insurance/{enQ}', 'Health\Healthinsurance@GetDownloadQuote');//Download Quote Health
     Route::post('health-insurance/genrate-payment-link', 'Health\Healthinsurance@sendPaymentLink');
     Route::get('/health/{insType}/policy/payments/{enQId}', 'Health\Healthinsurance@paymentLinkPage');
     
@@ -142,8 +144,9 @@ use Illuminate\Support\Facades\Route;
         Route::post('twowheeler-insurance/create-proposal/{enquiryID}', 'Motor\Twinsurance@createProposal');
         Route::get('twowheeler-insurance/plan-summary/{enquiryID}', 'Motor\Twinsurance@plan_summary');
         Route::post('twowheeler-insurance/upload-files/{enquiryID}', 'Motor\Twinsurance@uploadFiles');
-        Route::post('twowheeler-insurance/connect-to-insurer', 'Motor\Twinsurance@connectToinsurer');
+        
    });
+   Route::post('twowheeler-insurance/connect-to-insurer', 'Motor\Twinsurance@connectToinsurer');
     
     
     //CAR INSURANCE
@@ -176,13 +179,15 @@ use Illuminate\Support\Facades\Route;
             
             Route::get('car-insurance/plan-summary/{enquiryID}', 'Motor\Carinsurance@plan_summary');
            // Route::post('car-insurance/upload-files/{enquiryID}', 'Motor\Carinsurance@uploadFiles');
-            Route::post('car-insurance/connect-to-insurer', 'Motor\Carinsurance@connectToinsurer');
+           
     });
-    
+     Route::post('car-insurance/connect-to-insurer', 'Motor\Carinsurance@connectToinsurer');
     
     /*  HEALTH INSURANCE */
-    Route::get('health-insurance', 'Health\Healthinsurance@index')->name('health-insurance');
+    Route::get('health-insurance/health-plans/table', 'Health\Healthinsurance@healthPlansTest');
+    Route::post('health-insurance/get-health-plans/table', 'Health\Healthinsurance@getHealthPlansTable');
     
+    Route::get('health-insurance', 'Health\Healthinsurance@index')->name('health-insurance');
     Route::get('health-insurance-detail', 'Health\Healthinsurance@health_insurance_detail')->name('health-insurance-detail');
     Route::group(['middleware' => 'auth:customers'], function() { 
         Route::get('health-insurance/health-profile', 'Health\Healthinsurance@healthProfile');

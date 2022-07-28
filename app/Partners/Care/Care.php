@@ -43,42 +43,42 @@ class Care {
     }
     
     function getQuickPlans($range,$params,$devicetoken,$policytyp,$pln){
-         
+           $SRange = SumIncRange($range,'CARE','','customer');
            $authToken=$this->CareAuth();//Authentication
           
            $child = $params['total_child'];
            $adult = $params['total_adult'];
           
-           $rangeARR =[];
+        //   $rangeARR =[];
           
-          if($range['start']==2){  $rangeARR = ['3'];}
-          if(isset(Auth::guard('agents')->user()->posp_ID)){
-              if(Auth::guard('agents')->user()->userType=="POSP"){ //For POSP
-                  if($range['start']==4){ $rangeARR = ['5'];}
-              }else{ //For SP
-                    if($range['start']==4){  $rangeARR = ['5','7'];}
-                    if($range['start']==10){ $rangeARR = ['10','15'];}
-                    if($range['start']==16){ $rangeARR = ['20','25'];}
-                    if($range['start']==26){ $rangeARR = ['30','40','50','60','75','100'];}
-              }
-          }else{ //For customer
-            if($range['start']==4){  $rangeARR = ['5','7'];}
-            if($range['start']==10){ $rangeARR = ['10','15'];}
-            if($range['start']==16){ $rangeARR = ['20','25'];}
-            if($range['start']==26){ $rangeARR = ['30','40','50','60','75','100'];}
-          }
+        //   if($range['start']==2){  $rangeARR = ['3'];}
+        //   if(isset(Auth::guard('agents')->user()->posp_ID)){
+        //       if(Auth::guard('agents')->user()->userType=="POSP"){ //For POSP
+        //           if($range['start']==4){ $rangeARR = ['5'];}
+        //       }else{ //For SP
+        //             if($range['start']==4){  $rangeARR = ['5','7'];}
+        //             if($range['start']==10){ $rangeARR = ['10','15'];}
+        //             if($range['start']==16){ $rangeARR = ['20','25'];}
+        //             if($range['start']==26){ $rangeARR = ['30','40','50','60','75','100'];}
+        //       }
+        //   }else{ //For customer
+        //     if($range['start']==4){  $rangeARR = ['5','7'];}
+        //     if($range['start']==10){ $rangeARR = ['10','15'];}
+        //     if($range['start']==16){ $rangeARR = ['20','25'];}
+        //     if($range['start']==26){ $rangeARR = ['30','40','50','60','75','100'];}
+        //   }
           
           
           $_plans =[];$count=0;
           
-          foreach($rangeARR as $sumInsured){
-              // 
-                if(isset(Auth::guard('customers')->user()->id) &&  in_array($sumInsured, ['5','7','10','15'])  && (($adult+$child)>1) && (($adult+$child)<=5) && ($child<=3) && $policytyp=="FL"){
+          foreach($SRange as $sumInsured=>$SM){
+               
+                if(isset(Auth::guard('customers')->user()->id) &&  in_array($sumInsured, ['5','7','10','15'])  && (($adult+$child)>1) && (($adult+$child)<=5) && ($child<=3) && $policytyp=="FL" && $pln=='Classic'){
                     $careClassic = $this->classic->calculatePremium(json_decode(json_encode($params)),$authToken,$sumInsured,$devicetoken,$policytyp);
                     if($careClassic['status']){$count++; $_plans[] =$careClassic['data'];}
                 }
                 
-                if($sumInsured<76){
+                if($sumInsured<76 && $pln=='Basic'){
                   $careBasic = $this->basic->calculatePremium(json_decode(json_encode($params)),$authToken,$sumInsured,$devicetoken,$policytyp);
                   if($careBasic['status']){$count++; $_plans[] =$careBasic['data'];}
                 }
@@ -87,7 +87,7 @@ class Care {
                 //   if($careSmart['status']){$count++; $_plans[] =$careSmart['data'];}
                 // }
                 
-               if(in_array($sumInsured, ['25','50','100']) && (($policytyp=="FL") || (($adult+$child)==1 && $policytyp=="IN"))){
+               if(in_array($sumInsured, ['25','50','100']) && (($policytyp=="FL") || (($adult+$child)==1 && $policytyp=="IN")) && $pln=='Advantage'){
                 $careAdv = $this->adv->calculatePremium(json_decode(json_encode($params)),$authToken,$sumInsured,$devicetoken,$policytyp);
                 if($careAdv['status']){$count++; $_plans[] =$careAdv['data'];}
                }

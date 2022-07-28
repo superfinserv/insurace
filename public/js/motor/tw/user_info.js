@@ -94,6 +94,10 @@ $(document).ready(function() {
                     minlength: 3,
                     chars: true,
                 },
+                middle_name:{
+                   minlength: 3,
+                   chars: true, 
+                },
                 last_name: {
                    required: {
                             depends: function () { return ($('#last_name').length>0)?true:false; }
@@ -145,6 +149,7 @@ $(document).ready(function() {
             if(twInfo.customer!==undefined){
                 twInfo.customer.salutation =  $('#salutation').val();
                 twInfo.customer.first_name = $('#first_name').val();
+                twInfo.customer.middle_name = $('#middle_name').val();
                 twInfo.customer.last_name = $('#last_name').val();
                 twInfo.customer.email = $('#email').val();
                 twInfo.customer.mobile = $('#mobile').val();
@@ -154,6 +159,7 @@ $(document).ready(function() {
                var customer = {} 
                 customer.salutation =  $('#salutation').val();
                 customer.first_name = $('#first_name').val();
+                customer.middle_name = $('#middle_name').val();
                 customer.last_name = $('#last_name').val();
                 customer.email = $('#email').val();
                 customer.mobile = $('#mobile').val();
